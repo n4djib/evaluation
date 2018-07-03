@@ -1,0 +1,20 @@
+- in tree add link to pre-populated creation forms
+		add a new creation form that Catches get values rather than modifying flask-admin
+- add field configuration to grade Table  that 
+		Json That contains the Active Fields 
+			this will speedup the Page Grade
+		& another field a reference to config Table
+			config 	Table as JSON
+		
+		every time we change the config we reinitialize Grade
+			maybe only modify so you don't lose entered grades
+			add new modules after checking the config
+			change the active Fields
+		
+- Flask Athorization
+- add autosave to grid
+- add option to show all fields in the grid
+- teachers rating
+	only his students can rate him
+- 
+- 

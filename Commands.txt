@@ -1,0 +1,13 @@
+python -m venv venv
+
+cd c:\flask\mysql
+set flask_app=app.py
+set flask_debug=1
+venv\Scripts\activate
+
+flask run
+
+
+flask db init
+flask db migrate -m "first migration tables exist"
+flask db upgrade

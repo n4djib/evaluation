@@ -1,0 +1,118 @@
+						close SOME CELLS
+							return array of modules visible fields
+								https://handsontable.com/blog/articles/4-ways-to-handle-read-only-cells
+
+
+recalculate after reinitializing the fields
+and maybe when the grid is opened
+
+
+add table teacher
+
+add the notion of a year and Semester relations for CALCULATION
+
+						student sessions
+							look to the previous session 
+							+ new students without a previous session
+								make them with a different color
+
+chaning the normal session with the rattrapage ????
+	not all users are in the Rattrapage
+	what would happen in the next Session
+	go back further before the rattrapage
+
+						check constraints 
+							deletion (check from app)
+							change of ids
+
+Authentication
+https://www.google.com/search?q=flask+authorization&ie=utf-8&oe=utf-8&client=firefox-b-ab
+http://flask-user.readthedocs.io/en/latest/authorization.html
+
+costum Settings by user
+
+add bread crumbs
+http://flask-breadcrumbs.readthedocs.io/en/latest/
+
+mysql
+https://www.google.com/search?safe=off&client=firefox-b-ab&ei=qqgWW_KmOoPOgAbdxrrYAw&q=flask+sqlalchemy+mysql&oq=flask+sqlalchemy+mysql&gs_l=psy-ab.3..0i7i30k1l4j0l3j0i30k1l3.4467591.4471092.0.4471561.11.10.0.0.0.0.567.1419.4-2j1.3.0....0...1c.1.64.psy-ab..8.3.1416....0.U2ygWRwvOxM
+
+
+table (grid) group by
+http://jsfiddle.net/byv2pk24/89/
+
+						FIX: the values in the grid are not formated 
+
+						put formula in Grade Table
+						fix reinitialize
+
+
+		
+		
+		
+		
+						when you choose "all" in grade
+							maybe show the formula too
+
+
+						Changes will be autosaved
+						Changes will not be autosaved ----- at start
+
+						when dirty shake the message "Changes will ...."
+
+
+						calculate UNITE	
+
+fix flash messages in session 
+	when calculating and initializing
+
+
+when reinitializing i must remove the records	
+	and when removing the students
+
+
+						move some of the function in calculation to te modules	
+							like get_cumul_
+
+
+
+save config in Session
+	when reinitialize check if anything changed in the config
+
+
+add the rest of the values in the Config save
+
+
+
+****************
+change table names
+	unites --> unit
+	student_session --> grade_semester
+
+initializition
+	put config in session
+	put 
+	
+	
+change "formula" in grade to "fields"
+	you can't because i need it to calculate average and credit in the grid
+	but you can remove Coeff
+
+
+start by changing
+	unite -> unit
+	in the code and leave the Model names
+
+
+maybe remove table Type
+
+
+
+
+
+
+
+
+
+
+

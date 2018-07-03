@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+
+{% block styles %}
+  {{super()}}
+  
+  <style type="text/css">
+    table {
+      border-collapse: collapse;
+      margin-left: 0px;
+      margin-right: 30px;
+      display:inline-block;
+    }
+    th, td {
+      border: 1px solid lightgray;
+      padding: 0px 4px;
+    }
+    .unit {
+      background-color: Bisque;
+    } 
+    .semester {
+      background-color: LightSalmon;
+    } 
+    .header5 {
+      background-color: Gainsboro;
+    } 
+    tbody > tr:nth-child(even) {background-color: #f7f7ff;}
+    tbody > tr:hover {background-color: #f5f5f5;}
+
+    .right { text-align: right; } 
+    .center { text-align: center; } 
+
+
+    /*.table_1 th:nth-of-type(1){ background: skyblue; }*/
+  </style>
+{% endblock %}
+
+
+{% block app_content %}
+<div class="container" style="border-width:0px; border-style:solid; border-color:black;">
+
+  </br>
+
+  <table class="table_1">
+    <thead>
+      {{ header | safe }}
+    </thead>
+    <tbody>
+      {% for data in data_arr %}
+        <tr> {{ data | safe }} </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+
+
+  </br>
+  </br>
+
+  - a </br>
+  - f</br>
+       f</br>
+  </br>
+
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+
+  <script type="text/javascript">
+  </script>
+
+{% endblock %}
+
+
+
+
+ 

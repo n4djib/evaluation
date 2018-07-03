@@ -1,0 +1,11 @@
+<form class="form form-virtical" method="post" role="form">
+  {{ form.hidden_tag() }}
+  {{ wtf.form_errors(form, hiddens="only") }}
+
+  {{ wtf.form_field(form.username) }}
+  {{ wtf.form_field(form.last_name) }}
+  {{ wtf.form_field(form.first_name) }}
+  {{ wtf.form_field(form.email) }}
+  {{ wtf.form_field(form.birth_date) }}
+  {{ wtf.form_field(form.submit) }}
+</form>

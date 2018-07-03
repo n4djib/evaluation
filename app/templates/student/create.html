@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+    <h1>Create New</h1>
+
+    <div class="row">
+        <div class="col-md-12">
+          <!-- {{ wtf.quick_form(form) }} -->
+          {% include 'student/_form.html' %}
+        </div>
+    </div>
+    </br>
+{% endblock %}

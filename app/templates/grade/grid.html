@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+
+{% block styles %}
+  {{super()}}
+  <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='handsontable/handsontable.full.min.css') }}">
+  <script src="{{ url_for('static', filename='handsontable/handsontable.full.min.js') }}"></script>
+  
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/csshake.min.css') }}">
+
+  <style>
+    input[type=text] {
+      width: 300px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 2px;
+      background-color: white;
+      background-image: url('{{ url_for('static', filename='img/searchicon.png') }}');
+      background-position: 5px 5px;
+      background-repeat: no-repeat;
+      -webkit-transition: width 0.4s ease-in-out;
+      transition: width 0.4s ease-in-out;
+      padding: 7px 10px 7px 40px;
+      margin-bottom: 2px;
+    }
+
+    #hot{
+      width:100%;
+    }
+
+    .stripes {
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent 4px,
+        transparent 10px,
+        #EEE 6px,
+        #EEE 16px
+      );
+    }
+
+  </style>
+{% endblock %}
+
+
+{% block app_content %}
+<div>
+{%- for breadcrumb in breadcrumbs -%}
+  {% if not loop.last %}
+    <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
+  {% else %}
+    {{ breadcrumb.text }}
+  {% endif %}
+  {{ ' / ' if not loop.last }}
+{%- endfor -%}
+</div>
+  
+<h3>Grades by {{ grid_title }}</h3>
+<div class="container"  
+     onbeforeunload ="alert('aaaaa');"
+>
+
+  <input id="search" name="search" placeholder="Filter ..." type="text" autocomplete="off">
+  
+  <div id="hot" class="hot handsontable"
+    ><h2> *** the grid is empty *** </h2><h3> ** you have to add students and initialize ** </h3></div> </br>
+  <button id="save" class="btn btn-primary">Save</button>
+     <label><input name="autosave" id="autosave" autocomplete="off" type="checkbox"> Autosave</label>
+  </br>
+  </br>
+  <pre id="message" class="console"><h3>*** if you see this: the JavaScript in (_grid.js) is not working ***<h3> </pre>
+</div>
+- don't save if not valide</br>
+     fix the messages</br>
+- show an error message</br>
+- if autosave is false set DIRTY</br>
+- i need to check that the Modules are up to date with the configuration</br>
+     maybe i shoold add the Messing Modules in gray and Flag the Extras</br>
+- color cells according to value</br>
+- fix the thable header</br>
+- problem: happens when i edit in between closed cells and sort a column (student mode)</br>
+- problem: Filter is not working well with (hot.updateSettings)</br>  
+- Add a Free Grade insertion for teachers like a Draft maybe in the table percentage</br>  
+</br>
+</br>
+{% endblock %}
+
+
+{% block scripts %}
+  {{ super() }}
+  <script type="text/javascript">
+    {% include "grade/_grid.js" %}
+  </script>
+{% endblock %}

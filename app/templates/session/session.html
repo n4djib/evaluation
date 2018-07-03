@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+
+{% block styles %}
+  {{super()}}
+
+  <style type="text/css">
+  </style>
+
+{% endblock %}
+
+
+{% block app_content %}
+<div>
+{%- for breadcrumb in breadcrumbs -%}
+    <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
+    {{ ' / ' if not loop.last }}
+{%- endfor -%}
+</div>
+
+<div class="container">
+  <div class="row">
+
+  	<div class="col-md-6 col-sm-5 col-xs-5">
+      <table id="myTable" class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Module</th>
+              <th scope="col">Coef</th>
+              <th scope="col">Credit</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for module in modules %}
+            <tr>
+              <td>{{loop.index}}</td>
+              <td><a href="{{url_for('grade', session=session_id, module=module.id)}}">{{ module.display_name }}</a></td>
+              <td>{{ module.coefficient }}</td>
+              <td>{{ module.credit }}</td>
+              <td> <img src="{{ url_for('static', filename='img/' + icons_module[loop.index-1] ) }}"
+               alt="{{ icons_module[loop.index-1] }}" height="23" width="23"> </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+      </table>
+    </div>
+
+  	<div class="col-md-2 col-sm-2 col-xs-2">
+    </div>
+
+  	<div class="col-md-4 col-sm-5 col-xs-5">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Username</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">First Name</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for student in students %}
+          <tr>
+            <td>{{loop.index}}</td>
+            <td><a href="{{url_for('grade', session=session_id, student=student.id)}}">{{ student.username }}</a></td>
+            <td>{{ student.last_name }}</td>
+            <td>{{ student.first_name }}</td>
+            <td> <img src="{{ url_for('static', filename='img/' + icons_student[loop.index-1] ) }}"
+               alt="{{ icons_student[loop.index-1] }}" height="25" width="25"> </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      <a href="{{ url_for('student_session', session_id=session_id) }}"
+      	 class="btn btn-primary" role="button">Add Student(s)</a>
+    </div>
+
+  </div>
+
+  <div class="row">
+
+      <a href="{{url_for('conf', semester_id=session.semester_id)}}"
+         class="btn btn-primary" role="button">Semester: {{ session.semester_id }} Configuration </a>
+
+      <a href ="{{url_for('reinitialize_session', session_id=session_id)}}"
+         class="btn btn-primary" role="button">(Re)initialize</a>
+
+      <a href ="{{url_for('grade_calculate_all', session_id=session_id)}}"
+         class="btn btn-primary" role="button">(Re)calculate</a>
+
+      <a href ="{{url_for('grade_averages', session_id=session_id)}}"
+         class="btn btn-primary" role="button">Averages</a>
+
+      <a href ="{{url_for('semester_result', session_id=session_id)}}"
+         class="btn btn-primary" role="button">Result</a>
+
+      <a href ="{{url_for('classement_justification', session_id=session_id)}}"
+         class="btn btn-primary" role="button">Classement / Justification</a>
+
+  </div>
+
+</div>
+
+</br>
+
+- Combine (re)initialize and (re)calculate in onr button</br>
+- After Finishing the Job I should Publish Pre-rendered pages</br>
+- detect bezare values</br>
+- Students Access to data should be according to good behaviour</br>
+- f</br>
+     f</br>
+
+</br>
+</br>
+
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+
+  <script type="text/javascript">
+  </script>
+
+{% endblock %}
+
+
+
+
+ 

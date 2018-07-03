@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <h1>Students List !!!</h1>
+    <div><a  class="btn btn-primary" href="/student/create">Create New</a></div>
+    </br>
+    <div>
+        <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Username</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Birth Date</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for student in students %}
+          <tr>
+            <td>{{loop.index}}</td>
+            <td><a href="{{ url_for('student_view', id=student.id) }}">{{ student.username }}</a></td>
+            <td>{{ student.last_name }}</td>
+            <td>{{ student.first_name }}</td>
+            <td>{{ student.email }}</td>
+            <td>{{ student.birth_date }}</td>
+            <td><a href="{{ url_for('student_edit', id=student.id) }}">Edit</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+
+    </div>
+
+{% endblock %}
