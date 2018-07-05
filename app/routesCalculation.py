@@ -212,7 +212,6 @@ def calculate_grade(grade):
     dictionary = eval(formula)
 
     grade.average = 0
-    # grade.average = 14
     for field in dictionary:
         if field in ['cour', 'td', 'tp', 't_pers', 'stage']:
             val = getattr(grade, field)
