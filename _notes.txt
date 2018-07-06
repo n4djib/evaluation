@@ -107,7 +107,10 @@ start by changing
 maybe remove table Type
 
 
-
+The method append() shown in the example is defined for list objects; 
+	it adds a new element at the end of the list. 
+	In this example it is equivalent to result = result + [a], 
+	but more efficient.
 
 
 
