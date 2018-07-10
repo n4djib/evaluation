@@ -31,22 +31,14 @@ def get_sessions_tree(promo):
         name = ''
         # semester = session.semester.display_name
         semester = str(session.semester.get_nbr())
-        prev_session = ' - ' + str(session.prev_session)
-        prev_session = prev_session.replace(' - None', '')
+        prev_session = str(session.prev_session).replace('None', '')
         if session.is_rattrapage:
             name = 'Rattrapage: ' + semester + '        s: ' + str(session.id) + ' - p: ' + prev_session
-            # name = 'Rattrapage: ' + semester
         else:
             name = 'Semester: ' + semester + '        s: ' + str(session.id) + ' - p: ' + prev_session
-            # name = 'Semester: ' + semester
 
         id = str(session.id)
         pId = 'promo_'+str(promo.id)
-        # pId = ''
-        # if session.prev_session == None:
-        #     pId = 'promo_'+str(promo.id)
-        # else:
-        #     pId = str(session.prev_session)
         url = '/session/'+str(session.id)
 
         # name = '<span style=font-size:20px;>' + name + '</span>'
@@ -57,7 +49,15 @@ def get_sessions_tree(promo):
             p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:true, url: "'+url+'"},'
 
         sessions_tree = sessions_tree + p
+    sessions_tree += get_creation_links( str(promo.id), 'promo_'+str(promo.id) )
     return sessions_tree
+
+def get_creation_links(id, pId):
+    ret =  '{id:"d_'+id+'", pId:"'+pId+'", name:" "},'
+    ret +=  '{id:"a_'+id+'", pId:"'+pId+'", name:"       123", iconSkin:"icon01"},'
+    ret += '{id:"b_'+id+'", pId:"'+pId+'", name:"       456", iconSkin:"icon01"},'
+    ret += '{id:"c_'+id+'", pId:"'+pId+'", name:"       789", iconSkin:"icon01"},'
+    return ret
 
 def get_promos_tree(branch):
     promos = branch.promos
@@ -72,7 +72,7 @@ def get_promos_tree(branch):
         if s=='':
             icon='icon15'
         p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:true, iconSkin:"'+icon+'", font:'+font+'},'
-        promos_tree += p + s
+        promos_tree += p + s 
     return promos_tree
 
 def get_branchs_tree(school):
@@ -585,3 +585,59 @@ def grade_save():
         db.session.commit()
 
     return 'data saved'
+
+
+
+
+#################
+
+def create_session(session_id, is_rattrapage=False):
+    session = Session.query.filter_by(id=session_id).first()
+    # create first
+
+    # create with previous
+    ### check if already exists
+    previous_session = Session.query.filter_by(prev_session=session_id).first()
+    if previous_session is None:
+        new_session = Session(semester_id=session.semester_id, 
+                              promo_id=session.promo_id, 
+                              prev_session=session.id, 
+                              is_rattrapage=is_rattrapage)
+        db.session.add(new_session)
+        db.session.commit()
+        return 'create_next_session'
+    return 'create_next_session already exists ' + str(previous_session.id)
+
+@app.route('/session/<session_id>/create-next/', methods=['GET', 'POST'])
+def create_next_session(session_id=0):
+    # create next session
+
+    ### check if already exists
+    msg = create_session(session_id)
+    flash(msg)
+
+    # find students to pas to next session
+    students_session = StudentSession.query.filter_by(session_id=session_id).all()
+
+    # next_session = Session(semester_id=session.semester_id)
+
+    return redirect(url_for('session', session_id=session_id))
+
+@app.route('/session/<session_id>/create-rattrapage-session/', methods=['GET', 'POST'])
+def create_rattrapage_session(session_id=0):
+    return 'create_rattrapage_session'
+
+
+
+# ----------------------
+
+@app.route('/session/<session_id>/relation/', methods=['GET', 'POST'])
+def show_relation(session_id=0):
+    session = Session.query.filter_by(id=session_id).first()
+
+    sessions = str(session.get_chain())
+    semesters = str(session.semester.get_chain())
+
+    return  'Session ('+str(session.id)+') chain: <br>' + sessions +\
+     '<br><br>Semester ('+str(session.semester.id)+') chain: <br>' + semesters
+

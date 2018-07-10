@@ -1,17 +1,13 @@
 from app import app, db
-from flask import render_template, request, jsonify, redirect, url_for, flash
-from app.models import Session, StudentSession, Grade, GradeUnit, Unit, Semester, Type, Module
-from decimal import *
+from flask import render_template, redirect, url_for, flash
+from app.models import Session, StudentSession, Grade, GradeUnit, Semester, Type, Module
+# from decimal import *
 import copy
 from ast import literal_eval
 
 
 def init_session(session):
-    conf_dict = config_to_dict(session.semester.id)
-    # if session.configuration == str(conf_dict):
-    #     return 'config not changed'
-    #     # no need to init units
-    # else:
+    conf_dict = config_to_dict(session.semester_id)
     session.configuration = str(conf_dict)
     db.session.commit()
     return 'init session'
@@ -68,7 +64,9 @@ def init_grade(session):
                 grade.formula = get_formula(module.id)
                 ## if i am going to use order then there is no need to delete grades
                 # grade.order = module.order
-                calculate_grade(grade)
+
+                # calculate_grade(grade)
+                grade.calculate()
                 db.session.add(grade)
     db.session.commit()
 
@@ -86,7 +84,7 @@ def get_formula(module_id):
     formula = ""
     for percentage in module.percentages:
         type = Type.query.filter_by(id=percentage.type_id).first()
-        formula += "'"+type.grade_table_field + "':" + str(percentage.percentage) + ", "
+        formula += "'"+type.grade_table_field + "': " + str(percentage.percentage) + ", "
 
     coefficient = "'coefficient': " + str(module.coefficient) + ", "
     credit = "'credit': " + str(module.credit)
@@ -106,132 +104,14 @@ def reinitialize_session(session_id=0):
     return redirect(url_for('session', session_id=session_id))
 
 
-def dict_percentage(percentage):
-    type = Type.query.filter_by(id=percentage.type_id).first()
-    return {'type': type.type, 'per': str(percentage.percentage)} 
-
-def dict_module(module):
-    modules = {'m_id': module.id, 'name': module.name, 'display_name': module.display_name, 'coeff': module.coefficient, 'credit': module.credit}
-    for percentage in module.percentages:
-        modules.setdefault('percentages', []).append(dict_percentage(percentage))
-    return modules
-
-def dict_unit(unit):
-    units = {'u_id': unit.id, 'name': unit.name, 'display_name': unit.display_name, 'coeff': unit.unit_coefficient, 'is_fondamental': unit.is_fondamental, 
-        'unit_coeff': unit.get_unit_cumul_coeff(), 'unit_credit': unit.get_unit_cumul_credit() }
-    for module in unit.modules:
-        units.setdefault('modules', []).append(dict_module(module))
-    return units
-
-def dict_semester(semester):
-    semesters = {'s_id': semester.id, 'name': semester.name, 'display_name': semester.display_name}
-    for unit in semester.units:
-        semesters.setdefault('units', []).append(dict_unit(unit))
-    return semesters
-
 def config_to_dict(semester_id):
     semester = Semester.query.filter_by(id=semester_id).first()
     if semester == None:
         return 'Semester with id: ' + semester_id + ' Not Found'
-    
-    dict_sem = dict_semester(semester)
-    # return jsonify(dict_sem)
+    dict_sem = semester.config_dict()
     return dict_sem
-    # import json
-    # with open('/your/path/to/a/dict/dump.txt') as handle:
-    #     dictdump = json.loads(handle.read())
-
-    # You can create the Python dictionary and serialize it
-    # to JSON in one line and it's not even ugly.
-    # my_json_string = json.dumps({'key1': val1, 'key2': val2})
 
 
-def calculate_semester(student_session):
-    grades_unit = student_session.grades_unit
-    cumul_semester_coeff = student_session.session.semester.get_semester_cumul_coeff()
-    cumul_semester_credit = student_session.session.semester.get_semester_cumul_credit()
-
-    fondamental_unit_average = 0
-    unit_fondamental_id = None
-
-    average = 0
-    credit = 0
-    for grade_unit in grades_unit:
-        if grade_unit.is_fondamental == True:
-            fondamental_unit_credit = grade_unit.credit
-            unit_fondamental_id = grade_unit.unit_id
-        if grade_unit.average == None:
-            average = None
-            break
-
-        unit = Unit.query.filter_by(id=grade_unit.unit_id).first()
-        average += grade_unit.average * unit.unit_coefficient / cumul_semester_coeff
-        credit += grade_unit.credit
-
-    student_session.average = average
-    if average == None:
-        student_session.credit = None
-    else:
-        student_session.average = round(average, 2)
-        unit_fondamental = Unit.query.filter_by(id=unit_fondamental_id).first()
-        if average >= 10 and fondamental_unit_credit == unit_fondamental.get_unit_cumul_credit():
-            credit = cumul_semester_credit
-        
-        student_session.credit = credit
-    return 'calculated semester'
-
-def calculate_unit(grade_unit):
-    # grades in a unit
-    grades = Grade.query.filter_by(student_session_id=grade_unit.student_session_id)\
-        .join(Module).filter_by(unit_id=grade_unit.unit_id).all()
-    cumul_unit_coeff = grade_unit.unit.get_unit_cumul_coeff()
-    cumul_unit_credit = grade_unit.unit.get_unit_cumul_credit()
-
-    average = 0
-    credit = 0
-    for grade in grades:
-        if grade.average == None:
-            average = None
-            break
-        average += grade.average * grade.module.coefficient / cumul_unit_coeff
-        credit += grade.credit
-
-    grade_unit.average = average
-    if average == None:
-        grade_unit.credit = None
-    else:
-        grade_unit.average = round(average, 2)
-        if grade_unit.average >= 10 and grade_unit.is_fondamental == False:
-            grade_unit.credit = cumul_unit_credit
-        else:
-            grade_unit.credit = credit
-    return 'unit calculated'
-
-def calculate_grade(grade):
-    formula = grade.formula
-    dictionary = eval(formula)
-
-    grade.average = 0
-    for field in dictionary:
-        if field in ['cour', 'td', 'tp', 't_pers', 'stage']:
-            val = getattr(grade, field)
-            percentage = dictionary[field]
-            if val == None:
-                grade.average = None
-                break
-
-            getcontext().prec = 4
-            percentage = Decimal(percentage)
-            grade.average += round( val * percentage , 2)
-
-    grade.credit = None
-    if grade.average != None:
-        if grade.average >= 10:
-            grade.credit = dictionary['credit']
-        else:
-            grade.credit = 0
-
-    return 'calculated'
 
 @app.route('/session/<session_id>/calculate-all/', methods=['GET', 'POST'])
 def grade_calculate_all(session_id):
@@ -240,20 +120,20 @@ def grade_calculate_all(session_id):
 
     grades = Grade.query.join(StudentSession).filter_by(session_id=session_id).all()
     for grade in grades:
-        calculate_grade(grade)
+        grade.calculate()
     db.session.commit()
 
     grades_unit = GradeUnit.query.join(StudentSession).filter_by(session_id=session_id).all()
     for grade_unit in grades_unit:
-        calculate_unit(grade_unit)
+        grade_unit.calculate()
     db.session.commit()
 
     students_session = StudentSession.query.filter_by(session_id=session_id).all()
     for student_session in students_session:
-        calculate_semester(student_session)
+        student_session.calculate()
     db.session.commit()
 
-    flash('calculated')
+    # flash('calculated')
     return redirect(url_for('session', session_id=session_id))
 
 #

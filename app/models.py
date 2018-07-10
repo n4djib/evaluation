@@ -3,6 +3,7 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import login
+from decimal import *
 
 class School(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -54,16 +55,36 @@ class Session(db.Model):
 
     semester_id = db.Column(db.Integer, db.ForeignKey('semester.id'))
     semester = db.relationship('Semester', back_populates='sessions')
+
     promo_id = db.Column(db.Integer, db.ForeignKey('promo.id'))
     promo = db.relationship('Promo', back_populates='sessions')
 
     prev_session = db.Column(db.Integer, db.ForeignKey('session.id'))
-    # previous = db.relationship('Session', backref='prev_session', lazy='dynamic')
-    # previous = db.relationship('Session', back_populates='session')
+    # previous = db.relationship('Session', back_populates='prev_session')
     
     student_sessions = db.relationship('StudentSession', back_populates='session')
     def student_nbr(self):
         return StudentSession.query.filter_by(session_id=self.id).count()
+
+    def get_previous(self):
+        return Session.query.filter_by(id=self.prev_session).first()
+    def get_next(self):
+        return Session.query.filter_by(prev_session=self.id).first()
+    def get_chain_before(self):
+        _list = []
+        prv = self.get_previous()
+        if prv != None:
+            _list += prv.get_chain_before() + [prv.id]
+        return _list
+    def get_chain_later(self):
+        _list = []
+        nxt = self.get_next()
+        if nxt != None:
+            _list += [nxt.id] + nxt.get_chain_later()
+        return _list
+    def get_chain(self):
+        return self.get_chain_before() + [self.id] + self.get_chain_later()
+
 
 class StudentSession(db.Model):
     __tablename__ = 'student_session'
@@ -73,6 +94,7 @@ class StudentSession(db.Model):
 
     average = db.Column(db.Numeric(10,2))
     credit = db.Column(db.Integer)
+    calculation = db.Column(db.String(100))
 
     student = db.relationship("Student", back_populates="student_sessions")
     session_id = db.Column(db.Integer, db.ForeignKey('session.id'))
@@ -81,6 +103,99 @@ class StudentSession(db.Model):
     grades = db.relationship('Grade', back_populates='student_session')
     grades_unit = db.relationship('GradeUnit', back_populates='student_session')
     # grades_semester = db.relationship('GradeSemester', back_populates='student_session')
+
+    def calculate(self):
+        grades_unit = self.grades_unit
+        cumul_semester_coeff = self.session.semester.get_semester_cumul_coeff()
+        cumul_semester_credit = self.session.semester.get_semester_cumul_credit()
+
+        fondamental_unit_average = 0
+        unit_fondamental_id = None
+
+        average = 0
+        credit = 0
+        calculation = ''
+        for grade_unit in grades_unit:
+            avrg = grade_unit.average
+            credit = grade_unit.credit
+
+            if grade_unit.is_fondamental == True:
+                fondamental_unit_credit = credit
+                unit_fondamental_id = grade_unit.unit_id
+            if avrg == None:
+                average = None
+                break
+
+            unit = Unit.query.filter_by(id=grade_unit.unit_id).first()
+            unit_coefficient = unit.unit_coefficient
+            average += round(avrg * unit_coefficient / cumul_semester_coeff, 2)
+            credit += credit
+            calculation += str(avrg) + ' * ' + str(unit_coefficient) + ' + '
+
+        # self.average = average
+        if average == None:
+            self.credit = None
+        else:
+            self.average = average
+            unit_fondamental = Unit.query.filter_by(id=unit_fondamental_id).first()
+            if average >= 10 and fondamental_unit_credit == unit_fondamental.get_unit_cumul_credit():
+                credit = cumul_semester_credit
+            
+            self.credit = credit
+            calculation = calculation[:-3]
+            calculation = '(' + calculation + ') / ' + str(cumul_semester_coeff)
+            self.calculation = calculation + ' = ' + str(average)
+        return 'semester calculated'
+
+class GradeUnit(db.Model):
+    __tablename__ = 'grade_unit'
+    id = db.Column(db.Integer, primary_key=True)
+    average = db.Column(db.Numeric(10,2))
+    credit = db.Column(db.Integer)
+    calculation = db.Column(db.String(100))
+
+    unit_coefficient = db.Column(db.Integer())
+    is_fondamental = db.Column(db.Boolean, default=False)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    unit_id = db.Column(db.Integer, db.ForeignKey('unit.id'))
+    unit = db.relationship('Unit', back_populates='grade_units')
+    student_session_id = db.Column(db.Integer, db.ForeignKey('student_session.id'))
+    student_session = db.relationship('StudentSession', back_populates='grades_unit')
+
+    def calculate(self):
+        # grades in a one Unit
+        grades = Grade.query.filter_by(student_session_id=self.student_session_id)\
+            .join(Module).filter_by(unit_id=self.unit_id).all()
+
+        cumul_unit_coeff = self.unit.get_unit_cumul_coeff()
+        cumul_unit_credit = self.unit.get_unit_cumul_credit()
+        average = 0
+        credit = 0
+        calculation = ''
+        for grade in grades:
+            if grade.average == None:
+                average = None
+                break
+            coefficient = grade.module.coefficient
+            average += round(grade.average * coefficient / cumul_unit_coeff, 2)
+            credit += grade.credit
+            calculation += str(grade.average) + ' * ' + str(coefficient) + ' + '
+
+        self.average = average
+        if average == None:
+            self.credit = None
+            self.calculation = None
+        else:
+            self.average = average
+            if self.average >= 10 and self.is_fondamental == False:
+                self.credit = cumul_unit_credit
+            else:
+                self.credit = credit
+
+            calculation = calculation[:-3]
+            calculation = '(' + calculation + ') / ' + str(cumul_unit_coeff)
+            self.calculation = calculation + ' = ' + str(average)
+        return 'unit calculated'
 
 class Grade(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -93,7 +208,7 @@ class Grade(db.Model):
     average = db.Column(db.Numeric(10,2))
     credit = db.Column(db.Integer)
     formula = db.Column(db.String(200))
-    # fields = db.Column(db.String(50))
+    calculation = db.Column(db.String(100))
 
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'))
@@ -106,18 +221,41 @@ class Grade(db.Model):
         s = self.student_session.student
         return s.username + ' - ' + s.last_name + ' - ' + s.first_name
 
-class GradeUnit(db.Model):
-    __tablename__ = 'grade_unit'
-    id = db.Column(db.Integer, primary_key=True)
-    average = db.Column(db.Numeric(10,2))
-    credit = db.Column(db.Integer)
-    unit_coefficient = db.Column(db.Integer())
-    is_fondamental = db.Column(db.Boolean, default=False)
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    unit_id = db.Column(db.Integer, db.ForeignKey('unit.id'))
-    unit = db.relationship('Unit', back_populates='grade_units')
-    student_session_id = db.Column(db.Integer, db.ForeignKey('student_session.id'))
-    student_session = db.relationship('StudentSession', back_populates='grades_unit')
+    def calculate(self):
+        formula = self.formula
+        dictionary = eval(formula)
+        average = 0
+        calculation = ''
+        for field in dictionary:
+            if field in ['cour', 'td', 'tp', 't_pers', 'stage']:
+                val = getattr(self, field)
+                percentage = dictionary[field]
+                if val == None:
+                    average = None
+                    break
+                getcontext().prec = 4
+                average += round( val * Decimal(percentage) , 2)
+
+                calculation += str(field) + ': ' + str(val) + ' * ' + str(percentage) + ' + '
+        
+        if average != None:
+            calculation += '= average: ' + str(average)
+            calculation = calculation.replace('+ =', '=')
+        else:
+            calculation = None
+
+        credit = None
+        if average != None:
+            if average >= 10:
+                credit = dictionary['credit']
+            else:
+                credit = 0
+
+        self.average = average
+        self.credit = credit
+        self.calculation = calculation
+        return 'grade calculated'
+
 
 ### Creating Configuration Tables ###
 class Semester(db.Model):
@@ -135,7 +273,7 @@ class Semester(db.Model):
     def __repr__(self):
         return '<{} - {}>'.format(self.id, self.name)
     def get_nbr(self):
-        return self.year * 2 - 2 + self.semester
+        return (self.year * 2) - 2 + self.semester
     def get_semester_cumul_coeff(self):
         units = self.units
         coeff = 0
@@ -148,6 +286,31 @@ class Semester(db.Model):
         for unit in units:
             credit = credit + unit.get_unit_cumul_credit()
         return credit
+
+    def get_previous(self):
+        return Semester.query.filter_by(id=self.prev_semester).first()
+    def get_next(self):
+        return Semester.query.filter_by(prev_semester=self.id).first()
+    def get_chain_before(self):
+        _list = []
+        prv = self.get_previous()
+        if prv != None:
+            _list += prv.get_chain_before() + [prv.id]
+        return _list
+    def get_chain_later(self):
+        _list = []
+        nxt = self.get_next()
+        if nxt != None:
+            _list += [nxt.id] + nxt.get_chain_later()
+        return _list
+    def get_chain(self):
+        return self.get_chain_before() + [self.id] + self.get_chain_later()
+
+    def config_dict(self):
+        semesters = {'s_id': self.id, 'name': self.name, 'display_name': self.display_name}
+        for unit in self.units:
+            semesters.setdefault('units', []).append(unit.config_dict())
+        return semesters
 
 class Unit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -174,6 +337,12 @@ class Unit(db.Model):
         for module in modules:
             credit = credit + module.credit
         return credit
+    def config_dict(self):
+        units = {'u_id': self.id, 'name': self.name, 'display_name': self.display_name, 'coeff': self.unit_coefficient, 'is_fondamental': self.is_fondamental, 
+            'unit_coeff': self.get_unit_cumul_coeff(), 'unit_credit': self.get_unit_cumul_credit() }
+        for module in self.modules:
+            units.setdefault('modules', []).append(module.config_dict())
+        return units
 
 class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -189,6 +358,11 @@ class Module(db.Model):
     order = db.Column(db.Integer())
     def __repr__(self):
         return '<Module {}>'.format(self.name)
+    def config_dict(self):
+        modules = {'m_id': self.id, 'name': self.name, 'display_name': self.display_name, 'coeff': self.coefficient, 'credit': self.credit}
+        for percentage in self.percentages:
+            modules.setdefault('percentages', []).append(percentage.config_dict())
+        return modules
 
 class Percentage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -198,8 +372,9 @@ class Percentage(db.Model):
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'))
     type_id = db.Column(db.Integer, db.ForeignKey('type.id'))
     type_name = db.relationship('Type', back_populates='percentages')
-    # def __repr__(self):
-    #     return '<Unit {}>'.format(self.name)
+    def config_dict(self):
+        type = Type.query.filter_by(id=self.type_id).first()
+        return {'type': type.type, 'per': str(self.percentage)} 
 
 class Type(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -208,7 +383,6 @@ class Type(db.Model):
     percentages = db.relationship('Percentage', back_populates='type_name')
     def __repr__(self):
         return '<Type {}>'.format(self.type)
-
 
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
