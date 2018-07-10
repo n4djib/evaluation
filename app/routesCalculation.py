@@ -6,6 +6,13 @@ import copy
 from ast import literal_eval
 
 
+def config_to_dict(semester_id):
+    semester = Semester.query.filter_by(id=semester_id).first()
+    if semester == None:
+        return 'Semester with id: ' + semester_id + ' Not Found'
+    dict_semester = semester.config_dict()
+    return dict_semester
+
 def init_session(session):
     conf_dict = config_to_dict(session.semester_id)
     session.configuration = str(conf_dict)
@@ -78,6 +85,11 @@ def get_copied_grade(copied_grades, student_session_id, module_id):
             return copied_grade
     return None
 
+
+# this should generate the formula from "Config String"
+# not from the Tables directly
+# but for now it is the same as "Config String"
+# because they are generated at the same time
 def get_formula(module_id):
     module = Module.query.filter_by(id=module_id).first()
 
@@ -102,15 +114,6 @@ def reinitialize_session(session_id=0):
     message = init_all(session_id)
     flash(message)
     return redirect(url_for('session', session_id=session_id))
-
-
-def config_to_dict(semester_id):
-    semester = Semester.query.filter_by(id=semester_id).first()
-    if semester == None:
-        return 'Semester with id: ' + semester_id + ' Not Found'
-    dict_sem = semester.config_dict()
-    return dict_sem
-
 
 
 @app.route('/session/<session_id>/calculate-all/', methods=['GET', 'POST'])
@@ -140,32 +143,63 @@ def grade_calculate_all(session_id):
 #
 #
 
+def get_module_name(module_id, conf_dict):
+    for unit in conf_dict['units']:
+        for module in unit['modules']:
+            if module['m_id'] == module_id:
+                return module['display_name']
+    return '** get_module_name **'
+
+def get_module_justification(grade, conf_dict):
+    name = get_module_name(grade.module_id, conf_dict)
+    # module = name + '  →  ' + grade.calculation
+    return [name] + [grade.calculation] + [grade.average] + [grade.credit]
+
+
+def get_unit_name(unit_id, conf_dict):
+    for unit in conf_dict['units']:
+        if unit['u_id'] == unit_id:
+            return unit['display_name']
+    return '** get_unit_name **'
+
+def get_unit_justification(grade_unit, conf_dict):
+    name = get_unit_name(grade_unit.unit_id, conf_dict)
+    return ['    UNIT : ' + name] + ['    ' + grade_unit.calculation] + [grade_unit.average] + [grade_unit.credit]
+
+
+
+
+
+
+def get_semester_name(student_session, conf_dict):
+    # for unit in conf_dict['units']:
+    #     if unit['u_id'] == unit_id:
+    #         return unit['display_name']
+    return student_session.session.semester.display_name
+    return '** get_semester_name **'
+
+def get_semester_justification(student_session, conf_dict):
+    name = get_semester_name(student_session, conf_dict)
+    return ['        SEMESTER : ' + name] + ['    ' + student_session.calculation] + [student_session.average] + [student_session.credit]
+
+@app.route('/session/<session_id>/justification/<student_id>/', methods=['GET', 'POST'])
+def justification(session_id, student_id):
+    student_session = StudentSession.query.filter_by(session_id=session_id, student_id=student_id).first()    
+    grades_unit = student_session.grades_unit
+    grades = student_session.grades
+    session = student_session.session
+    conf_dict = literal_eval( session.configuration )
+
+    justs = []
+    for grade_unit in grades_unit:
+        for grade in grades:
+            if grade_unit.unit_id == grade.module.unit_id:
+                justs.append( get_module_justification(grade, conf_dict) )
+        justs.append( get_unit_justification(grade_unit, conf_dict) )
+    justs.append( get_semester_justification(student_session, conf_dict) )
+    return render_template('session/justification.html', title='Session', justs=justs)
+
 @app.route('/session/<session_id>/classement-justification/', methods=['GET', 'POST'])
 def classement_justification(session_id):
     students_session = StudentSession.query.filter_by(session_id=session_id).all()
     return render_template('session/classement-justification.html', title='Session', students_session=students_session)
-
-
-def get_module_justification(grade, configuration):
-    conf_dict = literal_eval(configuration)
-    module = 'cour: '+str(grade.cour)
-    return module
-
-@app.route('/session/<session_id>/justification/<student_id>/', methods=['GET', 'POST'])
-def justification(session_id, student_id):
-    student_session = StudentSession.query.filter_by(session_id=session_id, student_id=student_id).first()
-    
-    grades_unit = student_session.grades_unit
-    grades = student_session.grades
-    # session = student_session.session
-    configuration = student_session.session.configuration
-    # display result & calculate at the same time
-
-    # units = []
-    # for 
-
-    modules = []
-    for grade in grades:
-        modules += [get_module_justification(grade, configuration)]
-        
-    return render_template('session/justification.html', title='Session', modules=modules)

@@ -54,9 +54,9 @@ def get_sessions_tree(promo):
 
 def get_creation_links(id, pId):
     ret =  '{id:"d_'+id+'", pId:"'+pId+'", name:" "},'
-    ret +=  '{id:"a_'+id+'", pId:"'+pId+'", name:"       123", iconSkin:"icon01"},'
-    ret += '{id:"b_'+id+'", pId:"'+pId+'", name:"       456", iconSkin:"icon01"},'
-    ret += '{id:"c_'+id+'", pId:"'+pId+'", name:"       789", iconSkin:"icon01"},'
+    ret +=  '{id:"a_'+id+'", pId:"'+pId+'", name:"Next Session", iconSkin:"icon01"},'
+    ret += '{id:"b_'+id+'", pId:"'+pId+'", name:"Rattrapage", iconSkin:"icon01"},'
+    ret += '{id:"c_'+id+'", pId:"'+pId+'", name:"Annual", iconSkin:"icon01"},'
     return ret
 
 def get_promos_tree(branch):
@@ -637,7 +637,9 @@ def show_relation(session_id=0):
 
     sessions = str(session.get_chain())
     semesters = str(session.semester.get_chain())
+    annual = str(session.get_annual_chain())
 
     return  'Session ('+str(session.id)+') chain: <br>' + sessions +\
-     '<br><br>Semester ('+str(session.semester.id)+') chain: <br>' + semesters
+     '<br><br>Semester ('+str(session.semester.id)+') chain: <br>' + semesters +\
+     '<br><br>Annual ('+str(session.semester.get_nbr() )+') chain: <br>' + annual
 

@@ -5,6 +5,7 @@ from flask_login import UserMixin
 from app import login
 from decimal import *
 
+
 class School(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
@@ -84,7 +85,8 @@ class Session(db.Model):
         return _list
     def get_chain(self):
         return self.get_chain_before() + [self.id] + self.get_chain_later()
-
+    def get_annual_chain(self):
+        return [0, 0, 0, 0]
 
 class StudentSession(db.Model):
     __tablename__ = 'student_session'
@@ -144,7 +146,8 @@ class StudentSession(db.Model):
             self.credit = credit
             calculation = calculation[:-3]
             calculation = '(' + calculation + ') / ' + str(cumul_semester_coeff)
-            self.calculation = calculation + ' = ' + str(average)
+        # self.calculation = calculation + ' = ' + str(average)
+        self.calculation = calculation
         return 'semester calculated'
 
 class GradeUnit(db.Model):
@@ -184,7 +187,7 @@ class GradeUnit(db.Model):
         self.average = average
         if average == None:
             self.credit = None
-            self.calculation = None
+            # self.calculation = None
         else:
             self.average = average
             if self.average >= 10 and self.is_fondamental == False:
@@ -194,7 +197,8 @@ class GradeUnit(db.Model):
 
             calculation = calculation[:-3]
             calculation = '(' + calculation + ') / ' + str(cumul_unit_coeff)
-            self.calculation = calculation + ' = ' + str(average)
+            # self.calculation = calculation + ' = ' + str(average)
+        self.calculation = calculation
         return 'unit calculated'
 
 class Grade(db.Model):
@@ -238,11 +242,12 @@ class Grade(db.Model):
 
                 calculation += str(field) + ': ' + str(val) + ' * ' + str(percentage) + ' + '
         
-        if average != None:
-            calculation += '= average: ' + str(average)
-            calculation = calculation.replace('+ =', '=')
-        else:
-            calculation = None
+        # if average != None:
+        #     calculation += '= ' + str(average)
+        #     calculation = calculation.replace('+ =', '=')
+        # else:
+        #     calculation = None
+        calculation = calculation[:-3]
 
         credit = None
         if average != None:
