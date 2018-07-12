@@ -114,8 +114,34 @@ The method append() shown in the example is defined for list objects;
 
 
 
+	
+    # it would be better if:
+    #   i don't save the grades
+    #   butt send them to grade_unit.calculate
+    #   this way i would not have to visit the database multiple times
 
 
+make method for each Model
+	findModel() by id
+		https://stackoverflow.com/questions/735975/static-methods-in-python
+		protected function findModel($id)
+		{
+			if (($model = Post::findOne($id)) !== null) {
+				return $model;
+			} else {
+				throw new NotFoundHttpException('The requested page does not exist.');
+			}
+		}
+	maybe it has to be a STATIC method
 
 
-
+class User(BaseModel):
+    @staticmethod
+        def find(**kw):
+            return session.query(User).filter_by(**kw).one()
+			
+			
+			
+			
+			
+			

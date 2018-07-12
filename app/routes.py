@@ -65,7 +65,9 @@ def students_create_many():
 
 @app.route('/student/edit/<id>/', methods=['GET', 'POST'])
 def student_edit(id):
-    student = Student.query.filter_by(id=id).first()
+    # student = Student.query.filter_by(id=id).first()
+    student = Student.find(id)
+
     form = StudentFormUpdate(student.id)
     if form.validate_on_submit():
         student.username = form.username.data

@@ -44,11 +44,11 @@
 
   <table class="table_1">
     <thead>
-      {{ header | safe }}
+      {{ header | safe | replace('None', '')}}
     </thead>
     <tbody>
       {% for data in data_arr %}
-        <tr> {{ data | safe }} </tr>
+        <tr> {{ data | safe | replace('None', '') }} </tr>
       {% endfor %}
     </tbody>
   </table>

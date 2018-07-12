@@ -51,18 +51,14 @@ class Session(db.Model):
     is_rattrapage = db.Column(db.Boolean, default=False)
     is_closed = db.Column(db.Boolean, default=False)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-
     configuration = db.Column(db.Text)
 
     semester_id = db.Column(db.Integer, db.ForeignKey('semester.id'))
     semester = db.relationship('Semester', back_populates='sessions')
-
     promo_id = db.Column(db.Integer, db.ForeignKey('promo.id'))
     promo = db.relationship('Promo', back_populates='sessions')
-
     prev_session = db.Column(db.Integer, db.ForeignKey('session.id'))
     # previous = db.relationship('Session', back_populates='prev_session')
-    
     student_sessions = db.relationship('StudentSession', back_populates='session')
     def student_nbr(self):
         return StudentSession.query.filter_by(session_id=self.id).count()
@@ -86,7 +82,16 @@ class Session(db.Model):
     def get_chain(self):
         return self.get_chain_before() + [self.id] + self.get_chain_later()
     def get_annual_chain(self):
-        return [0, 0, 0, 0]
+        sessions_chain = self.get_chain()
+        annual_semesters_chain = self.semester.get_annual_chain()
+
+        annual_sessions_chain = []
+        for session_id in sessions_chain:
+            session = Session.query.filter_by(id=session_id).first()
+            if session.semester_id in annual_semesters_chain :
+                annual_sessions_chain.append(session_id)
+        return annual_sessions_chain
+        # {'S': [], 'R': [], 'A': []}
 
 class StudentSession(db.Model):
     __tablename__ = 'student_session'
@@ -106,8 +111,10 @@ class StudentSession(db.Model):
     grades_unit = db.relationship('GradeUnit', back_populates='student_session')
     # grades_semester = db.relationship('GradeSemester', back_populates='student_session')
 
-    def calculate(self):
-        grades_unit = self.grades_unit
+    def calculate(self, grades_unit=None):
+        if grades_unit is None:
+            grades_unit = self.grades_unit
+
         cumul_semester_coeff = self.session.semester.get_semester_cumul_coeff()
         cumul_semester_credit = self.session.semester.get_semester_cumul_credit()
 
@@ -165,10 +172,11 @@ class GradeUnit(db.Model):
     student_session_id = db.Column(db.Integer, db.ForeignKey('student_session.id'))
     student_session = db.relationship('StudentSession', back_populates='grades_unit')
 
-    def calculate(self):
-        # grades in a one Unit
-        grades = Grade.query.filter_by(student_session_id=self.student_session_id)\
-            .join(Module).filter_by(unit_id=self.unit_id).all()
+    def calculate(self, grades=None):
+        # grades in a one grade_unit
+        if grades is None:
+            grades = Grade.query.filter_by(student_session_id=self.student_session_id)\
+                .join(Module).filter_by(unit_id=self.unit_id).all()
 
         cumul_unit_coeff = self.unit.get_unit_cumul_coeff()
         cumul_unit_credit = self.unit.get_unit_cumul_credit()
@@ -267,7 +275,7 @@ class Semester(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250))
     display_name = db.Column(db.String(250))
-    credit_formula = db.Column(db.String(250))
+    # credit_formula = db.Column(db.String(250))
     year = db.Column(db.Integer)
     semester = db.Column(db.Integer)
     units = db.relationship('Unit', back_populates='semester', order_by="Unit.order")
@@ -310,7 +318,12 @@ class Semester(db.Model):
         return _list
     def get_chain(self):
         return self.get_chain_before() + [self.id] + self.get_chain_later()
-
+    def get_annual_chain(self):
+        if self.semester == 1:
+            return [self.id, self.get_next().id]
+        if self.semester == 2:
+            return [self.get_previous().id, self.id]
+        raise ValueError('Semester -> get_annual_chain -> year and semester must be Initialized')
     def config_dict(self):
         semesters = {'s_id': self.id, 'name': self.name, 'display_name': self.display_name}
         for unit in self.units:
@@ -408,6 +421,9 @@ class Student(db.Model):
     student_sessions = db.relationship('StudentSession', back_populates='student')
     def __repr__(self):
         return '<{} - {}>'.format(self.username, self.last_name)
+    # @staticmethod
+    def find(id):
+        return db.session.query(Student).filter_by(id=id).one()
 
 class Phone(db.Model):
     id = db.Column(db.Integer, primary_key=True)

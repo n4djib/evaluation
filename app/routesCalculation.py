@@ -9,7 +9,7 @@ from ast import literal_eval
 def config_to_dict(semester_id):
     semester = Semester.query.filter_by(id=semester_id).first()
     if semester == None:
-        return 'Semester with id: ' + semester_id + ' Not Found'
+        return F'Semester with id: {semester_id} Not Found'
     dict_semester = semester.config_dict()
     return dict_semester
 
@@ -107,7 +107,7 @@ def init_all(session_id):
     message1 = init_session(session)
     message2 = init_grade_unit(session)
     message3 = init_grade(session)
-    return 'init all : ' + message1 + ' - ' + message2 + ' - ' + message3
+    return F'init all : {message1} - {message2} - {message3}'
 
 @app.route('/session/<session_id>/reinitialize-session/', methods=['GET', 'POST'])
 def reinitialize_session(session_id=0):
@@ -121,6 +121,11 @@ def grade_calculate_all(session_id):
     message = init_all(session_id)
     flash(message)
 
+    # it would be better if:
+    #   i don't save the grades
+    #   butt send them to grade_unit.calculate
+    #   this way i would not have to visit the database multiple times
+
     grades = Grade.query.join(StudentSession).filter_by(session_id=session_id).all()
     for grade in grades:
         grade.calculate()
@@ -129,12 +134,17 @@ def grade_calculate_all(session_id):
     grades_unit = GradeUnit.query.join(StudentSession).filter_by(session_id=session_id).all()
     for grade_unit in grades_unit:
         grade_unit.calculate()
+        # grade_unit.calculate(<grades> of this grade_unit)
     db.session.commit()
 
     students_session = StudentSession.query.filter_by(session_id=session_id).all()
     for student_session in students_session:
         student_session.calculate()
+        # student_session.calculate(<grades_unit> of this student_session)
     db.session.commit()
+
+    # db.session.query().filter(StudentSession.session_id == session_id).update({"avrage": (10)})
+    # db.session.commit()
 
     # flash('calculated')
     return redirect(url_for('session', session_id=session_id))
@@ -155,7 +165,6 @@ def get_module_justification(grade, conf_dict):
     # module = name + '  →  ' + grade.calculation
     return [name] + [grade.calculation] + [grade.average] + [grade.credit]
 
-
 def get_unit_name(unit_id, conf_dict):
     for unit in conf_dict['units']:
         if unit['u_id'] == unit_id:
@@ -165,11 +174,6 @@ def get_unit_name(unit_id, conf_dict):
 def get_unit_justification(grade_unit, conf_dict):
     name = get_unit_name(grade_unit.unit_id, conf_dict)
     return ['    UNIT : ' + name] + ['    ' + grade_unit.calculation] + [grade_unit.average] + [grade_unit.credit]
-
-
-
-
-
 
 def get_semester_name(student_session, conf_dict):
     # for unit in conf_dict['units']:
