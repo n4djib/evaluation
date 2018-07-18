@@ -142,6 +142,73 @@ class User(BaseModel):
 			
 			
 			
-			
-			
-			
+C:\xampp\mysql\bin
+CREATE USER 'admin'@'localhost' IDENTIFIED BY 'admin';
+
+
+
+decouple the config part from the main app
+	remove link to unit and module by getting them from Config String in session
+
+
+change from Flask_bootstrap to bootstrap
+	http://jinja.pocoo.org/docs/2.10/templates/
+
+
+
+gamafication
+
+
+
+- flask validation on scenarios
+- back_populates vf backref
+	lazy 
+	i think i used them because of Flask Admin
+
+
+The backref argument defines the name of a field that will be added to the objects of the "many" class that points back at the "one" object. This will add a post.author expression that will return the user given a post. 
+
+
+
+>>> u = User.query.get(1)
+>>> p = Post(body='my first post!', author=u)
+	notice how you can assign user_id through author=u
+
+
+
+
+make a class that contains the Configuration String
+	with methods to query the config
+		like get all modules
+		get_....
+		generate_str_from_config
+		get configuration string
+	validate configuration is correct
+		get_order
+		
+
+
+sqlalchemy-soft-delete
+	https://github.com/miguelgrinberg/sqlalchemy-soft-delete
+
+
+
+Give Students the ability to report mistakes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

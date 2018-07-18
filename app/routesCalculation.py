@@ -88,7 +88,7 @@ def get_copied_grade(copied_grades, student_session_id, module_id):
 
 # this should generate the formula from "Config String"
 # not from the Tables directly
-# but for now it is the same as "Config String"
+# but for now it is the same as "Config String
 # because they are generated at the same time
 def get_formula(module_id):
     module = Module.query.filter_by(id=module_id).first()
@@ -117,7 +117,7 @@ def reinitialize_session(session_id=0):
 
 
 @app.route('/session/<session_id>/calculate-all/', methods=['GET', 'POST'])
-def grade_calculate_all(session_id):
+def calculate_all(session_id):
     message = init_all(session_id)
     flash(message)
 
@@ -130,11 +130,20 @@ def grade_calculate_all(session_id):
     for grade in grades:
         grade.calculate()
     db.session.commit()
+    # commit should be removed
+    # for more speed make a list of tuples (module_id, unit_id)
+    #   select it directly from Config (config string)
+    #   and use it in the next loop rather than (grade.module.unit_id)
 
     grades_unit = GradeUnit.query.join(StudentSession).filter_by(session_id=session_id).all()
     for grade_unit in grades_unit:
         grade_unit.calculate()
-        # grade_unit.calculate(<grades> of this grade_unit)
+        # grades_in_unit = []
+        # for grade in grades:
+        #     if grade.module.unit_id == grade_unit.unit_id:
+        #         grades_in_unit.append(grade)
+        # grade_unit.calculate(grades_in_unit)
+        # # grade_unit.calculate(<grades> of this grade_unit)
     db.session.commit()
 
     students_session = StudentSession.query.filter_by(session_id=session_id).all()

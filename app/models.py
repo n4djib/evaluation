@@ -6,9 +6,11 @@ from app import login
 from decimal import *
 
 
+# FIX:  = db.Column(db.String(64), index=True, unique=True)
+
 class School(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
+    name = db.Column(db.String(100), index=True, unique=True)
     description = db.Column(db.String(150))
     branches = db.relationship('Branch', back_populates='school')
     def __repr__(self):
@@ -16,7 +18,7 @@ class School(db.Model):
 
 class Branch(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
+    name = db.Column(db.String(100), index=True, unique=True)
     description = db.Column(db.String(150))
     school_id = db.Column(db.Integer, db.ForeignKey('school.id'))
     students = db.relationship('Student', backref='branch', lazy='dynamic')
@@ -29,7 +31,7 @@ class Branch(db.Model):
 
 class Promo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(250))
+    name = db.Column(db.String(250), index=True, unique=True)
     display_name = db.Column(db.String(250))
     start_date = db.Column(db.Date)
     finish_date = db.Column(db.Date)
@@ -44,7 +46,6 @@ class Promo(db.Model):
 
 class Session(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    # year = db.Column(db.Integer)
     name = db.Column(db.String(250))
     start_date = db.Column(db.Date)
     finish_date = db.Column(db.Date)
@@ -92,6 +93,26 @@ class Session(db.Model):
                 annual_sessions_chain.append(session_id)
         return annual_sessions_chain
         # {'S': [], 'R': [], 'A': []}
+    def get_annual_dict(self):
+        chain = self.get_annual_chain()
+        _dict = {'S1': -1, 'S2': -1, 'R1': -1, 'R2': -1, 'A': -1}
+        for session_id in chain:
+            # session = Session.query.get(session_id)
+            session = Session.query.filter_by(id=session_id).first()
+            is_rattrapage = session.is_rattrapage
+            semester_half = session.semester.semester
+
+            if is_rattrapage != True and semester_half == 1:
+                _dict['S1'] = session.id
+            if is_rattrapage != True and semester_half == 2:
+                _dict['S2'] = session.id
+            if is_rattrapage == True and semester_half == 1:
+                _dict['R1'] = session.id
+            if is_rattrapage == True and semester_half == 2:
+                _dict['R2'] = session.id
+            # # if is_rattrapage is True and semester_half == 2:
+            # #     _dict['A'] = session.id
+        return _dict
 
 class StudentSession(db.Model):
     __tablename__ = 'student_session'
@@ -141,9 +162,10 @@ class StudentSession(db.Model):
             credit += credit
             calculation += str(avrg) + ' * ' + str(unit_coefficient) + ' + '
 
-        # self.average = average
         if average == None:
+            self.average = None
             self.credit = None
+            self.calculation = ''
         else:
             self.average = average
             unit_fondamental = Unit.query.filter_by(id=unit_fondamental_id).first()
@@ -153,8 +175,7 @@ class StudentSession(db.Model):
             self.credit = credit
             calculation = calculation[:-3]
             calculation = '(' + calculation + ') / ' + str(cumul_semester_coeff)
-        # self.calculation = calculation + ' = ' + str(average)
-        self.calculation = calculation
+            self.calculation = calculation
         return 'semester calculated'
 
 class GradeUnit(db.Model):
@@ -195,7 +216,7 @@ class GradeUnit(db.Model):
         self.average = average
         if average == None:
             self.credit = None
-            # self.calculation = None
+            self.calculation = ''
         else:
             self.average = average
             if self.average >= 10 and self.is_fondamental == False:
@@ -206,7 +227,7 @@ class GradeUnit(db.Model):
             calculation = calculation[:-3]
             calculation = '(' + calculation + ') / ' + str(cumul_unit_coeff)
             # self.calculation = calculation + ' = ' + str(average)
-        self.calculation = calculation
+            self.calculation = calculation
         return 'unit calculated'
 
 class Grade(db.Model):

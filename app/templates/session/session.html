@@ -27,6 +27,48 @@
     <h2>
       {{ session.semester.display_name }}
     </h2>
+    
+  <div class="row">
+
+      <a href="{{url_for('conf', semester_id=session.semester_id)}}" target="_blank"
+         class="btn btn-primary" role="button">Configuration of {{ session.semester.display_name }}</a>
+
+      <a href="{{ url_for('student_session', session_id=session_id) }}"
+         class="btn btn-primary" role="button">Add Student(s)</a>
+
+      <a href ="{{url_for('reinitialize_session', session_id=session_id)}}"
+         class="btn btn-primary" role="button">(Re)initialize</a>
+
+      <hr>
+
+      <a href ="{{url_for('calculate_all', session_id=session_id)}}"
+         class="btn btn-primary" role="button">(Re)calculate</a>
+
+      <a href ="{{url_for('grade_averages', session_id=session_id)}}"
+         target="_blank" class="btn btn-primary" role="button">Averages</a>
+
+      <a href ="{{url_for('semester_result', session_id=session_id)}}"
+         target="_blank" class="btn btn-primary" role="button">Result</a>
+
+      <a href ="{{url_for('classement_justification', session_id=session_id)}}"
+         target="_blank" class="btn btn-primary" role="button">Classement / Justification</a>
+
+      <hr>
+
+      <a href ="{{url_for('create_next_session', session_id=session_id)}}"
+         class="btn btn-primary" role="button"
+         >Create Next Session (S:{{ session.semester.get_nbr()+1 }})</a>
+         
+      <a href =""
+         class="btn btn-primary" role="button"
+         >Create Ratt Session (R:{{ session.semester.get_nbr() }})</a>
+
+      <a href ="{{url_for('show_relation', session_id=session_id)}}"
+         target="_blank" class="btn btn-primary" role="button">Sessions Relation</a>
+
+      <br>
+
+  </div>
 
   	<div class="col-md-6 col-sm-5 col-xs-5">
       <table id="myTable" class="table table-striped">
@@ -79,50 +121,10 @@
         {% endfor %}
         </tbody>
       </table>
-      <a href="{{ url_for('student_session', session_id=session_id) }}"
-      	 class="btn btn-primary" role="button">Add Student(s)</a>
     </div>
 
   </div>
 
-  <div class="row">
-
-      <a href="{{url_for('conf', semester_id=session.semester_id)}}" target="_blank"
-         class="btn btn-primary" role="button">Configuration of {{ session.semester.display_name }}</a>
-
-      <a href ="{{url_for('reinitialize_session', session_id=session_id)}}"
-         class="btn btn-primary" role="button">(Re)initialize</a>
-
-      <a href ="{{url_for('grade_calculate_all', session_id=session_id)}}"
-         class="btn btn-primary" role="button">(Re)calculate</a>
-
-      <!--hr-->
-
-      <a href ="{{url_for('grade_averages', session_id=session_id)}}"
-         target="_blank" class="btn btn-primary" role="button">Averages</a>
-
-      <a href ="{{url_for('semester_result', session_id=session_id)}}"
-         target="_blank" class="btn btn-primary" role="button">Result</a>
-
-      <a href ="{{url_for('classement_justification', session_id=session_id)}}"
-         target="_blank" class="btn btn-primary" role="button">Classement / Justification</a>
-
-      <hr>
-
-      <a href ="{{url_for('create_next_session', session_id=session_id)}}"
-         class="btn btn-primary" role="button"
-         >Create Next Session (S:{{ session.semester.get_nbr()+1 }})</a>
-<!--{ {url_for('create_next_session', session_id=session_id)} }-->
-      <a href =""
-         class="btn btn-primary" role="button"
-         >Create Ratt Session (R:{{ session.semester.get_nbr() }})</a>
-
-      <a href ="{{url_for('show_relation', session_id=session_id)}}"
-         target="_blank" class="btn btn-primary" role="button">Sessions Relation</a>
-
-      <br>
-
-  </div>
 
 </div>
 

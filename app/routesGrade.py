@@ -410,6 +410,7 @@ def get_thead(configuration, cols_per_module=2):
         <tr>     {th_5}     </tr>
     '''
 
+
 def get_row_module(grade, cols_per_module):
     row = F'<td class="right">{grade.average}</td>'
     if cols_per_module >= 2:
@@ -417,7 +418,6 @@ def get_row_module(grade, cols_per_module):
     if cols_per_module == 3:
         row += F'<td class="center">**</td>'
     return row
-
 
 def get_row_unit(grade_unit, cols_per_module):
     grades = grade_unit.student_session.grades
@@ -434,7 +434,6 @@ def get_row_unit(grade_unit, cols_per_module):
         row += F'<td class="unit center">**</td>'
     return row
 
-
 def get_row_semester(student_session, cols_per_module=2):
     grade_units = student_session.grades_unit
     row = ''
@@ -447,7 +446,6 @@ def get_row_semester(student_session, cols_per_module=2):
     if cols_per_module == 3:
         row += F'<td class="semester center">{student_session.session_id}</td>'
     return row
-
 
 @app.route('/session/<session_id>/semester-result-2/', methods=['GET', 'POST'])
 def semester_result(session_id=0):
@@ -464,6 +462,86 @@ def semester_result(session_id=0):
         data_arr.append(row)
     return render_template('session/semester-result-2.html', title='Semester Result 2', 
         header=header, data_arr=data_arr, session_id=session_id)
+
+
+
+
+
+#
+## PDF 
+#  
+
+
+@app.route('/session/<session_id>/semester-result-3/<_id>/', methods=['GET', 'POST'])
+def semester_result3(session_id=0, _id=0):
+    session = Session.query.filter_by(id=session_id).first()
+    cols_per_module = 2
+    header = get_thead(session.configuration, cols_per_module)
+
+    data_arr = []
+    i = 0
+    students_session = StudentSession.query.filter_by(session_id=session_id).all()
+    count = 0
+    while count < 15:
+        for index, student_session in enumerate(students_session, start=1):
+            student = student_session.student
+            i += 1
+            _std = F'<td>{i}</td><td>{student.username}</td><td>{student.first_name} - {student.last_name}</td>'
+            row = _std + get_row_semester(student_session, cols_per_module)
+            data_arr.append(row)
+        count += 1
+
+    return render_template('session/semester-result-3.html', title='Semester Result 2', 
+        header=header, data_arr=data_arr, session_id=session_id, id=_id)
+
+
+import pdfkit
+from flask import send_file, send_from_directory
+from flask import Response
+
+# Flask-WeasyPrint
+# https://pythonhosted.org/Flask-WeasyPrint/
+# http://weasyprint.readthedocs.io/en/latest/install.html
+
+'''
+be carefull returning the file in the right version
+it looks like if i change the file it keeps returning the old one
+it seems to work right when changing the URL
+'''
+@app.route('/pdf/<id>/')
+def your_view(id=0):
+    options = {
+        'orientation': 'landscape'
+    }
+    url = 'http://localhost:5001/session/2/semester-result-3/'+str(id)+'/'
+    wkhtmltopdf_path = "C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"
+    config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
+    pdf = pdfkit.from_url(url, 'app\\pdf\\out.pdf', configuration=config, options=options)
+
+    # filename = '..\\out.pdf'
+    filename = 'out.pdf'
+
+    return send_from_directory('pdf', filename)
+    
+    # return send_file(filename, mimetype='application/pdf', as_attachment=True)
+
+    # @app.route('/return-files', methods=['GET'])
+    # def return_file():
+    #     return send_from_directory(directory='uploads', filename='g.mp4', as_attachment=True)
+
+    # resp = Response(pdf)
+    # resp.headers['Content-Disposition'] = "inline; filename=%s" % filename
+    # resp.mimetype = 'application/pdf'
+    # return resp
+
+    # content = get_file('out.pdf')
+    # return Response(content, mimetype="text/html")
+    # return send_file('..\\out.pdf')
+    # return send_from_directory(directory='', filename='out.pdf')
+    return '123'
+
+
+
 
 #
 #
@@ -613,11 +691,15 @@ def show_relation(session_id=0):
 
     sessions = str(session.get_chain())
     semesters = str(session.semester.get_chain())
-    annual = str(session.get_annual_chain())
+
     annual_semester = str(session.semester.get_annual_chain())
+    annual_session = str(session.get_annual_chain())
+
+    annual_dict = str(session.get_annual_dict())
 
     return  'Semester ('+str(session.semester.id)+') chain: <br>' + semesters +\
      '<br><br>Session ('+str(session.id)+') chain: <br>' + sessions +\
-     '<br><br><br>Annual ('+str(session.semester.year )+') semester chain: <br>' + annual_semester +\
-     '<br><br>Annual ('+str(session.semester.year )+') session chain: <br>' + annual
+     '<br><br><br>Annual ('+str(session.semester.year )+') semester_id chain: <br>' + annual_semester +\
+     '<br><br>Annual ('+str(session.semester.year )+') session_id chain: <br>' + annual_session +\
+     '<br><br>Annual ('+str(session.semester.year )+') session_id dict: <br>' + annual_dict
 
