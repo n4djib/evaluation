@@ -147,10 +147,9 @@ class StudentSession(db.Model):
         calculation = ''
         for grade_unit in grades_unit:
             avrg = grade_unit.average
-            credit = grade_unit.credit
 
             if grade_unit.is_fondamental == True:
-                fondamental_unit_credit = credit
+                fondamental_unit_credit = grade_unit.credit
                 unit_fondamental_id = grade_unit.unit_id
             if avrg == None:
                 average = None
@@ -159,7 +158,7 @@ class StudentSession(db.Model):
             unit = Unit.query.filter_by(id=grade_unit.unit_id).first()
             unit_coefficient = unit.unit_coefficient
             average += round(avrg * unit_coefficient / cumul_semester_coeff, 2)
-            credit += credit
+            credit += grade_unit.credit
             calculation += str(avrg) + ' * ' + str(unit_coefficient) + ' + '
 
         if average == None:

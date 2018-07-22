@@ -6,7 +6,44 @@ from decimal import *
 
 from ast import literal_eval
 from app.routesCalculation import config_to_dict, init_all
+from sqlalchemy import or_
 
+
+def get_sessions_tree(promo):
+    ## later order by Previous
+    # sessions = promo.sessions
+    sessions = Session.query.filter_by(promo_id=promo.id).join(Semester)\
+        .order_by('year', Semester.semester, Session.start_date)\
+        .all()
+
+    sessions_tree = ''
+    for session in sessions:
+        # semester = session.semester.display_name
+        semester = session.semester.get_nbr()
+        prev_session = str(session.prev_session).replace('None', '')
+
+        name = F'Semester: {semester}        Session: {session.id} - prev: {prev_session}'
+        if session.is_rattrapage:
+            name = F'Rattrapage: {semester}        Session: {session.id} - prev: {prev_session}'
+
+        id = str(session.id)
+        pId = 'promo_'+str(promo.id)
+        url = '/session/'+str(session.id)
+        # name = '<span style=font-size:20px;>' + name + '</span>'
+        if session.is_closed == True:
+            p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:true, url: "'+url+'", iconSkin:"icon13"},'
+        else:
+            p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:true, url: "'+url+'"},'
+        sessions_tree = sessions_tree + p
+
+    return sessions_tree + get_creation_links( str(promo.id), 'promo_'+str(promo.id) )
+
+def get_creation_links(id, pId):
+    links  = '{id:"d_'+id+'", pId:"'+pId+'", name:" "},'
+    links += '{id:"a_'+id+'", pId:"'+pId+'", name:"Next Session", iconSkin:"icon01"},'
+    # links += '{id:"b_'+id+'", pId:"'+pId+'", name:"Rattrapage", iconSkin:"icon01"},'
+    # links += '{id:"c_'+id+'", pId:"'+pId+'", name:"Annual", iconSkin:"icon01"},'
+    return links
 
 def get_year(promo):
     # return one (last)
@@ -17,96 +54,70 @@ def get_year(promo):
         return session.semester.year
     return '***'
 
-def get_sessions_tree(promo):
-    ## order_by start_date
-    ## later order by Previous
-    # sessions = promo.sessions
-    sessions = Session.query.filter_by(promo_id=promo.id).join(Semester)\
-        .order_by('year', Semester.semester, Session.start_date)\
-        .all()
-        # it would be better if i order by Previous
-
-    sessions_tree = ''
-    for session in sessions:
-        name = ''
-        # semester = session.semester.display_name
-        semester = session.semester.get_nbr()
-        prev_session = str(session.prev_session).replace('None', '')
-        if session.is_rattrapage:
-            name = F'Rattrapage: {semester}        Session: {session.id} - prev: {prev_session}'
-        else:
-            name = F'Semester: {semester}        Session: {session.id} - prev: {prev_session}'
-
-        id = str(session.id)
-        pId = 'promo_'+str(promo.id)
-        url = '/session/'+str(session.id)
-
-        # name = '<span style=font-size:20px;>' + name + '</span>'
-        
-        if session.is_closed == True:
-            p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:true, url: "'+url+'", iconSkin:"icon13"},'
-        else:
-            p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:true, url: "'+url+'"},'
-
-        sessions_tree = sessions_tree + p
-    sessions_tree += get_creation_links( str(promo.id), 'promo_'+str(promo.id) )
-    return sessions_tree
-
-def get_creation_links(id, pId):
-    links  = '{id:"d_'+id+'", pId:"'+pId+'", name:" "},'
-    links += '{id:"a_'+id+'", pId:"'+pId+'", name:"Next Session", iconSkin:"icon01"},'
-    links += '{id:"b_'+id+'", pId:"'+pId+'", name:"Rattrapage", iconSkin:"icon01"},'
-    links += '{id:"c_'+id+'", pId:"'+pId+'", name:"Annual", iconSkin:"icon01"},'
-    return links
-
-def get_promos_tree(branch):
+def get_promos_tree(branch, open_p_id):
     promos = branch.promos
     promos_tree = ''
     for promo in promos:
         id = 'promo_' + str(promo.id)
         pId = 'branch_' + str(branch.id)
         name = ' ' + promo.display_name + ' (' + str(get_year(promo)) + ' Year)'
-        s = get_sessions_tree(promo)
+        sessions_tree = get_sessions_tree(promo)
         font = '{"font-weight":"bold", "font-style":"italic"}'
         icon = 'pIcon15'
-        if s == '':
+        open = 'true'
+        if open_p_id != 0:
+            open = 'false'
+            if open_p_id == promo.id:
+                open = 'true'
+        if sessions_tree == '':
             icon = 'icon15'
-        p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:true, iconSkin:"'+icon+'", font:'+font+'},'
-        promos_tree += p + s 
+        p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:'+open+', iconSkin:"'+icon+'", font:'+font+'},'
+        promos_tree += p + sessions_tree 
     return promos_tree
 
-def get_branchs_tree(school):
+def get_branchs_tree(school, open_b_id, open_p_id):
     branches = school.branches
     branches_tree = ''
     for branch in branches:
         id = 'branch_'+str(branch.id)
         pId = 'school_'+str(school.id)
-        p = get_promos_tree(branch)
+        p = get_promos_tree(branch, open_p_id)
+        open = 'true'
+        if open_b_id != 0:
+            open = 'false'
+            if open_b_id == branch.id:
+                open = 'true'
         if p == '':
-            b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+branch.name+'", open:true, iconSkin:"icon11"},'
+            b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+branch.name+'", open:'+open+', iconSkin:"icon11"},'
         else:
-            b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+branch.name+'", open:true, isParent:true},'
+            b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+branch.name+'", open:'+open+', isParent:true},'
         
         branches_tree += b + p
     return branches_tree
 
-def get_schools_tree():
+def get_schools_tree(open_s_id=0, open_b_id=0, open_p_id=0):
     schools = School.query.all()
     schools_tree = ''
     for school in schools:
         id = 'school_'+str(school.id)
         icon = 'pIcon12'
-        s = '{ id:"'+id+'", pId:0, name:"'+school.name+'", open:true, iconSkin:"'+icon+'", isParent:true },'
-        b = get_branchs_tree(school)
-        schools_tree += s + b
+        branchs_tree = get_branchs_tree(school, open_b_id, open_p_id)
+        open = 'true'
+        if open_s_id != 0:
+            open = 'false'
+            if open_s_id == school.id:
+                open = 'true'
+        s = '{ id:"'+id+'", pId:0, name:"'+school.name+'", open:'+open+', iconSkin:"'+icon+'", isParent:true },'
+        schools_tree += s + branchs_tree
     return schools_tree
 
-# @app.route('/tree/school/<school_id>/branch/<branch_id>/', methods=['GET', 'POST'])
-# @app.route('/tree/school/<school_id>/', methods=['GET', 'POST'])
+
+@app.route('/tree/school/<school_id>/branch/<branch_id>/promo/<promo_id>/', methods=['GET'])
+@app.route('/tree/school/<school_id>/branch/<branch_id>/', methods=['GET'])
+@app.route('/tree/school/<school_id>/', methods=['GET'])
 @app.route('/tree/', methods=['GET', 'POST'])
-# @register_breadcrumb(app, '.tree', 'Tree')
-def tree(school_id=0, branch_id=0):
-    zNodes = '['+get_schools_tree()+']'
+def tree(school_id=0, branch_id=0, promo_id=0):
+    zNodes = '[' + get_schools_tree(int(school_id), int(branch_id), int(promo_id)) + ']'
     return render_template('tree/tree.html', title='Tree', zNodes=zNodes)
 
 
@@ -173,9 +184,8 @@ def get_icon_progress(grades):
 
 @app.route('/session/<session_id>/', methods=['GET', 'POST'])
 def session(session_id=0):
-    session = Session.query.filter_by(id=session_id).first()
-    students = Student.query.join(StudentSession).filter_by(session_id=session_id).all()
-
+    session = Session.query.filter_by(id=session_id).first_or_404()
+    
     units = session.semester.units
     modules_list = []
     icons_module = []
@@ -184,25 +194,30 @@ def session(session_id=0):
         for module in modules:
             modules_list.append(module)
             icon = get_icon_progress_module(session_id, module.id)
-            # return "dddd"
             icons_module.append(icon)
 
-    
+    students_list = Student.query.join(StudentSession).filter_by(session_id=session_id).all()
     icons_student = []
-    for student in students:
+    for student in students_list:
         icon = get_icon_progress_student(session_id, student.id)
         icons_student.append(icon)
 
-    return render_template('session/session.html', 
-        title='Session', 
-        students=students,
-        modules=modules_list,
-        icons_module=icons_module,
-        icons_student=icons_student,
-        session_id=session_id,
-        session=session
-      )
+    session.name = make_session_name(session)
 
+    return render_template('session/session.html', 
+        title='Session', session=session,
+        students=students_list, modules=modules_list,
+        icons_module=icons_module, icons_student=icons_student)
+
+def make_session_name(session):
+    semester_nbr = session.semester.get_nbr()
+    name = session.promo.name
+    # name = session.promo.branch.name
+    if session.is_rattrapage is None or session.is_rattrapage is False:
+        name += ' / Semester: ' + str(semester_nbr)
+    else:
+         name += ' / Rattrapage: ' + str(semester_nbr)
+    return name
 
 def update_student_session(students_from, students_to, session_id):
     session = Session.query.filter_by(id=session_id).first()
@@ -319,7 +334,7 @@ def grade_averages(session_id=0):
     return render_template('session/averages.html', title='Averages', 
         data=data, modules=modules, session_id=session_id)
 
-#
+
 #
 #
 
@@ -494,7 +509,6 @@ def semester_result3(session_id=0, _id=0):
     return render_template('session/semester-result-3.html', title='Semester Result 2', 
         header=header, data_arr=data_arr, session_id=session_id, id=_id)
 
-
 import pdfkit
 from flask import send_file, send_from_directory
 from flask import Response
@@ -514,6 +528,7 @@ def your_view(id=0):
         'orientation': 'landscape'
     }
     url = 'http://localhost:5001/session/2/semester-result-3/'+str(id)+'/'
+    # url = 'http://localhost:5001/session/2/'
     wkhtmltopdf_path = "C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"
     config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
     pdf = pdfkit.from_url(url, 'app\\pdf\\out.pdf', configuration=config, options=options)
@@ -539,8 +554,6 @@ def your_view(id=0):
     # return send_file('..\\out.pdf')
     # return send_from_directory(directory='', filename='out.pdf')
     return '123'
-
-
 
 
 #
@@ -622,9 +635,7 @@ def grade_save():
         grade = Grade.query.filter_by(id = int(data['id'])).first()
 
         #
-        #
         # saved fields must be according to the Permission
-        #
         #
         
         grade.cour = data['cour']
@@ -642,45 +653,87 @@ def grade_save():
 
 
 
-
 #################
+
+def get_next_semester(semester_id):
+    next_semester = Semester.query.filter_by(prev_semester=semester_id).first()
+    return next_semester.id
+
+def insert_session_in_between(new_session, session1, session2):
+    # between two sessions
+    new_session.prev_session = session1.id
+    if session2 is not None:
+        session2.prev_session = new_session.id
+    return 'inserted'
+
+# WARNING: i have to check before i delete
+@app.route('/session/<session_id>/delete-session/', methods=['GET', 'POST'])
+def delete_session(session_id):
+    session = Session.query.filter_by(id=session_id).first()
+
+    next_session = session.get_next()
+    if next_session is not None:
+        next_session.prev_session = session.id
+
+    db.session.delete(session)
+    db.session.commit()
+
+    flash('Session (' + str(session_id) + ') deleted')
+
+    previous_session = session.get_previous()
+    if previous_session is None:
+        return redirect(url_for('tree'))
+
+    return redirect(url_for('session', session_id=previous_session.id))
 
 def create_session(session_id, is_rattrapage=False):
     session = Session.query.filter_by(id=session_id).first()
-    # create first
+    annual_dict = session.get_annual_dict()
 
-    # create with previous
-    ### check if already exists
-    previous_session = Session.query.filter_by(prev_session=session_id).first()
-    if previous_session is None:
+    create_R1 = (is_rattrapage == True 
+        and annual_dict['S1'] == int(session_id) 
+        and annual_dict['R1'] == -1)
+    create_R2 = (is_rattrapage == True 
+        and annual_dict['S2'] == int(session_id) 
+        and annual_dict['R2'] == -1)
+    
+    if create_R1 == True or create_R2:
         new_session = Session(semester_id=session.semester_id, 
-                              promo_id=session.promo_id, 
-                              prev_session=session.id, 
-                              is_rattrapage=is_rattrapage)
+            promo_id=session.promo_id, is_rattrapage=is_rattrapage)
+
+        msg = insert_session_in_between(new_session, session, session.get_next())
+        
+        # set start_date and finish_date    
+        # would it reference Semester before it is saved ???
+        new_session.configuration = session.configuration
         db.session.add(new_session)
         db.session.commit()
-        return 'create_next_session'
-    return 'create_next_session already exists ' + str(previous_session.id)
 
-@app.route('/session/<session_id>/create-next/', methods=['GET', 'POST'])
-def create_next_session(session_id=0):
-    # create next session
+    # if Rattrapage exist -> it is next
+    return session.get_next()
 
-    ### check if already exists
-    msg = create_session(session_id)
-    flash(msg)
 
-    # find students to pas to next session
-    students_session = StudentSession.query.filter_by(session_id=session_id).all()
+@app.route('/session/<session_id>/students-rattrapage/', methods=['GET', 'POST'])
+def session_rattrapage(session_id=0):
+    students = StudentSession.query\
+        .filter_by(session_id=session_id)\
+        .filter(or_(StudentSession.credit<30, StudentSession.credit == None))\
+        .all()
+    return render_template('session/students-rattrapage.html', title='students-rattrapage', students=students, session_id=session_id)
 
-    # next_session = Session(semester_id=session.semester_id)
-
-    return redirect(url_for('session', session_id=session_id))
-
-@app.route('/session/<session_id>/create-rattrapage-session/', methods=['GET', 'POST'])
+@app.route('/session/<session_id>/create-rattrapage/', methods=['GET', 'POST'])
 def create_rattrapage_session(session_id=0):
-    return 'create_rattrapage_session'
+    session = Session.query.filter_by(id=session_id).first()
+    # get next session before creating Rattrapage
+    next_session = session.get_next()
+    ratt = create_session(session_id, True)
+    if next_session == ratt:
+        flash('Rattrapage (' + str(ratt.id) + ') already exists')
+    else:
+        flash('created Rattrapage (' + str(ratt.id) + ')')
 
+    # redirect to the created session
+    return redirect(url_for('session', session_id=ratt.id))
 
 
 # ----------------------

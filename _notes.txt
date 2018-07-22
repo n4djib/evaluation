@@ -157,6 +157,8 @@ change from Flask_bootstrap to bootstrap
 
 
 gamafication
+	check ZURMO
+		https://www.youtube.com/watch?v=_ItTT2d7Ww4
 
 
 
@@ -196,7 +198,7 @@ sqlalchemy-soft-delete
 Give Students the ability to report mistakes
 
 
-
+make ztree bigger
 
 
 

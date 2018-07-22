@@ -27,9 +27,12 @@ def student_index():
 def students_create():
     form = StudentFormCreate()
     if form.validate_on_submit():
-        student = Student(username=form.username.data,
-            last_name=form.last_name.data, first_name=form.first_name.data,
-            email=form.email.data, birth_date=form.birth_date.data)
+        student = Student(
+            username=form.username.data,
+            last_name=form.last_name.data, 
+            first_name=form.first_name.data,
+            email=form.email.data, 
+            birth_date=form.birth_date.data)
         db.session.add(student)
         db.session.commit()
         flash('Student Created and Saved Successfully.')
@@ -37,9 +40,7 @@ def students_create():
     elif request.method == 'GET':
         ################
         ################
-        ################
         form.username.data = form.get_username('SF', '2017')
-        ################
         ################
         ################
     return render_template('student/create.html', title='Student Create', form=form)

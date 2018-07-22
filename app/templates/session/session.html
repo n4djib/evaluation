@@ -25,7 +25,7 @@
 
   <div class="row">
     <h2>
-      {{ session.semester.display_name }}
+      {{ session.name }}
     </h2>
     
   <div class="row">
@@ -33,38 +33,41 @@
       <a href="{{url_for('conf', semester_id=session.semester_id)}}" target="_blank"
          class="btn btn-primary" role="button">Configuration of {{ session.semester.display_name }}</a>
 
-      <a href="{{ url_for('student_session', session_id=session_id) }}"
+      <a href="{{ url_for('student_session', session_id=session.id) }}"
          class="btn btn-primary" role="button">Add Student(s)</a>
 
-      <a href ="{{url_for('reinitialize_session', session_id=session_id)}}"
+      <a href ="{{url_for('reinitialize_session', session_id=session.id)}}"
          class="btn btn-primary" role="button">(Re)initialize</a>
 
       <hr>
 
-      <a href ="{{url_for('calculate_all', session_id=session_id)}}"
+      <a href ="{{url_for('calculate_all', session_id=session.id)}}"
          class="btn btn-primary" role="button">(Re)calculate</a>
 
-      <a href ="{{url_for('grade_averages', session_id=session_id)}}"
+      <a href ="{{url_for('grade_averages', session_id=session.id)}}"
          target="_blank" class="btn btn-primary" role="button">Averages</a>
 
-      <a href ="{{url_for('semester_result', session_id=session_id)}}"
+      <a href ="{{url_for('semester_result', session_id=session.id)}}"
          target="_blank" class="btn btn-primary" role="button">Result</a>
 
-      <a href ="{{url_for('classement_justification', session_id=session_id)}}"
+      <a href ="{{url_for('classement_justification', session_id=session.id)}}"
          target="_blank" class="btn btn-primary" role="button">Classement / Justification</a>
 
       <hr>
 
-      <a href ="{{url_for('create_next_session', session_id=session_id)}}"
+      <!--a href ="{ {url_for('create_next_session', session_id=session.id)}}"
          class="btn btn-primary" role="button"
-         >Create Next Session (S:{{ session.semester.get_nbr()+1 }})</a>
+         >Create Next Session (S:{{ session.semester.get_nbr()+1 }})</a-->
          
-      <a href =""
+      <a href ="{{url_for('session_rattrapage', session_id=session.id)}}"
          class="btn btn-primary" role="button"
-         >Create Ratt Session (R:{{ session.semester.get_nbr() }})</a>
+         >Show Ratt (R:{{ session.semester.get_nbr() }})</a>
 
-      <a href ="{{url_for('show_relation', session_id=session_id)}}"
-         target="_blank" class="btn btn-primary" role="button">Sessions Relation</a>
+      <a href ="{{url_for('show_relation', session_id=session.id)}}"
+         target="_blank" class="btn btn-primary" role="button">Session Relations</a>
+
+      <a href ="{{url_for('delete_session', session_id=session.id)}}"
+         target="" class="btn btn-primary" role="button">delete Session</a>
 
       <br>
 
@@ -112,15 +115,20 @@
         {% for student in students %}
           <tr>
             <td>{{loop.index}}</td>
-            <td><a href="{{url_for('grade', session=session_id, student=student.id)}}">{{ student.username }}</a></td>
+            <td>
+              <a href="{{url_for('grade', session=session_id, student=student.id)}}">{{ student.username }}</a>
+            </td>
             <td>{{ student.last_name }}</td>
             <td>{{ student.first_name }}</td>
             <td> <img src="{{ url_for('static', filename='img/' + icons_student[loop.index-1] ) }}"
-               alt="{{ icons_student[loop.index-1] }}" height="25" width="25"> </td>
+               alt="{{ icons_student[loop.index-1] }}" height="25" width="25">
+            </td>
           </tr>
         {% endfor %}
         </tbody>
       </table>
+      <a href="{{ url_for('student_session', session_id=session_id) }}"
+         class="btn btn-primary" role="button">Add Student(s)</a>
     </div>
 
   </div>
