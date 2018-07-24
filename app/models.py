@@ -44,6 +44,22 @@ class Promo(db.Model):
     def __repr__(self):
         return '<{} - {}>'.format(self.id, self.name)
 
+
+
+class AnnualSession(db.Model):
+    __tablename__ = 'annual_session'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(250))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+class GradeAnnual(db.Model):
+    __tablename__ = 'grade_annual'
+    id = db.Column(db.Integer, primary_key=True)
+    average = db.Column(db.Numeric(10,2))
+    credit = db.Column(db.Integer)
+    annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
+    annual_session = db.relationship('AnnualSession', backref='annual_grade')
+
 class Session(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250))
@@ -61,6 +77,9 @@ class Session(db.Model):
     prev_session = db.Column(db.Integer, db.ForeignKey('session.id'))
     # previous = db.relationship('Session', back_populates='prev_session')
     student_sessions = db.relationship('StudentSession', back_populates='session')
+
+    annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
+    annual_session = db.relationship('AnnualSession', backref='session')
     def student_nbr(self):
         return StudentSession.query.filter_by(session_id=self.id).count()
 
@@ -92,7 +111,6 @@ class Session(db.Model):
             if session.semester_id in annual_semesters_chain :
                 annual_sessions_chain.append(session_id)
         return annual_sessions_chain
-        # {'S': [], 'R': [], 'A': []}
     def get_annual_dict(self):
         chain = self.get_annual_chain()
         _dict = {'S1': -1, 'S2': -1, 'R1': -1, 'R2': -1, 'A': -1}
@@ -110,8 +128,9 @@ class Session(db.Model):
                 _dict['R1'] = session.id
             if is_rattrapage == True and semester_half == 2:
                 _dict['R2'] = session.id
-            # # if is_rattrapage is True and semester_half == 2:
-            # #     _dict['A'] = session.id
+
+        if self.annual_session_id != None:
+            _dict['A'] = self.annual_session_id
         return _dict
 
 class StudentSession(db.Model):
@@ -321,6 +340,7 @@ class Semester(db.Model):
         return credit
 
     def get_previous(self):
+        # if it returns many you shoold raise an exception
         return Semester.query.filter_by(id=self.prev_semester).first()
     def get_next(self):
         return Semester.query.filter_by(prev_semester=self.id).first()
@@ -330,14 +350,14 @@ class Semester(db.Model):
         if prv != None:
             _list += prv.get_chain_before() + [prv.id]
         return _list
-    def get_chain_later(self):
+    def get_chain_after(self):
         _list = []
         nxt = self.get_next()
         if nxt != None:
-            _list += [nxt.id] + nxt.get_chain_later()
+            _list += [nxt.id] + nxt.get_chain_after()
         return _list
     def get_chain(self):
-        return self.get_chain_before() + [self.id] + self.get_chain_later()
+        return self.get_chain_before() + [self.id] + self.get_chain_after()
     def get_annual_chain(self):
         if self.semester == 1:
             return [self.id, self.get_next().id]

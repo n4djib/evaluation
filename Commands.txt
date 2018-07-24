@@ -4,7 +4,6 @@ cd c:\flask\mysql
 set flask_app=app.py
 set flask_debug=1
 venv\Scripts\activate
-
 flask run
 
 
@@ -19,6 +18,9 @@ pip install flask-admin
 pip install flask-bootstrap
 pip install flask-login
 pip install flask-wtf
-pip install flask-
+pip install flask-migrate
+pip install flask-breadcrumbs
+pip install pdfkit
+
 pip install flask-
 pip install flask-

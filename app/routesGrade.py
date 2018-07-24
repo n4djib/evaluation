@@ -1,49 +1,98 @@
 from app import app, db
 from flask import render_template, request, jsonify, redirect, url_for, flash
-from app.models import Session, StudentSession, Grade, Unit, Semester, School, Module, Student
+from app.models import Session, StudentSession, Grade, Unit, Semester, School, Module, Student, AnnualSession
 # from flask_breadcrumbs import register_breadcrumb
 from decimal import *
-
 from ast import literal_eval
-from app.routesCalculation import config_to_dict, init_all
 from sqlalchemy import or_
+from app.routesCalculation import config_to_dict, init_all
 
+
+def get_annual_session(session, pId):
+    # it shows only after last session in Annual chain
+    annual = ''
+    annual_dict = session.get_annual_dict()
+    if annual_dict['A'] != -1:
+        annual_chain = session.get_annual_chain()
+        if annual_chain[-1] == session.id:
+            annual = '{id:"annual_'+str(session.annual_session_id)+'", pId:"'+pId+'", name:"Year '+str(session.semester.year)+' Results", iconSkin:"icon17"},'
+    return annual
 
 def get_sessions_tree(promo):
     ## later order by Previous
     # sessions = promo.sessions
+    # sessions = Session.query.filter_by(promo_id=promo.id).join(Semester)\
+    #     .order_by('year', Semester.semester, Session.start_date).all()
     sessions = Session.query.filter_by(promo_id=promo.id).join(Semester)\
-        .order_by('year', Semester.semester, Session.start_date)\
-        .all()
+        .order_by(Semester.year, Semester.semester).all()
 
     sessions_tree = ''
+    # last_session = None
     for session in sessions:
         # semester = session.semester.display_name
         semester = session.semester.get_nbr()
         prev_session = str(session.prev_session).replace('None', '')
+        annual = str(session.annual_session_id).replace('None', '')
 
-        name = F'Semester: {semester}        Session: {session.id} - prev: {prev_session}'
+        name = 'Semester: '
         if session.is_rattrapage:
-            name = F'Rattrapage: {semester}        Session: {session.id} - prev: {prev_session}'
+            name = 'Rattrapage: '
+        name += F'{semester}             (session:{session.id} - prev:{prev_session} - a:{annual})'
 
         id = str(session.id)
         pId = 'promo_'+str(promo.id)
-        url = '/session/'+str(session.id)
+        # url = '/session/'+str(session.id)
+        url = url_for('session', session_id=session.id)
         # name = '<span style=font-size:20px;>' + name + '</span>'
         if session.is_closed == True:
             p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:true, url: "'+url+'", iconSkin:"icon13"},'
         else:
             p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:true, url: "'+url+'"},'
-        sessions_tree = sessions_tree + p
+        sessions_tree += p
+        sessions_tree += get_annual_session(session, pId)
 
-    return sessions_tree + get_creation_links( str(promo.id), 'promo_'+str(promo.id) )
+        # last_session = session
 
-def get_creation_links(id, pId):
-    links  = '{id:"d_'+id+'", pId:"'+pId+'", name:" "},'
-    links += '{id:"a_'+id+'", pId:"'+pId+'", name:"Next Session", iconSkin:"icon01"},'
-    # links += '{id:"b_'+id+'", pId:"'+pId+'", name:"Rattrapage", iconSkin:"icon01"},'
-    # links += '{id:"c_'+id+'", pId:"'+pId+'", name:"Annual", iconSkin:"icon01"},'
-    return links
+    seperate = True
+    if sessions_tree == '':
+        seperate = False
+    # return sessions_tree + get_creation_links(promo, last_session, seperate)
+    return sessions_tree + get_creation_links(promo, seperate)
+
+def get_creation_links(promo, seperate=True):
+    sessions = promo.sessions
+    semesters = promo.branch.semesters
+
+    links = ''
+    if len(semesters) > 0:
+        one_semester = semesters[0]
+
+        id = 'new_' + str(promo.id)
+        pId = 'promo_' + str(promo.id)
+        name = 'Next Session (1)'
+
+        if len(sessions) > 0:
+            one_sessions = sessions[0]
+            sessions_chain = one_sessions.get_chain()
+            last_session_id = sessions_chain[-1]
+            last_session = Session.query.get(last_session_id)
+
+            if last_session is not None:
+                next_semester = last_session.semester.get_next()
+                if last_session is not None and next_semester is not None:
+                    name = 'Next Session (' + str(next_semester.get_nbr()) + ')'
+                    if seperate is True:
+                        links += '{id:"seperate_'+id+'", pId:"'+pId+'", name:"", iconSkin:"icon0"},'
+                    
+                    # next semester
+                    # and don't show if there is no next Semester
+
+            #
+            
+        url = url_for('create_next_session', promo_id=promo.id)
+        links += '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", url: "'+url+'", iconSkin:"icon01"},'
+    return links 
+
 
 def get_year(promo):
     # return one (last)
@@ -667,50 +716,52 @@ def insert_session_in_between(new_session, session1, session2):
     return 'inserted'
 
 # WARNING: i have to check before i delete
+# check that the session is not closed
 @app.route('/session/<session_id>/delete-session/', methods=['GET', 'POST'])
 def delete_session(session_id):
-    session = Session.query.filter_by(id=session_id).first()
+    session = Session.query.filter_by(id=session_id).first_or_404()
 
+    previous_session = session.get_previous()
     next_session = session.get_next()
+
     if next_session is not None:
-        next_session.prev_session = session.id
+        next_session.prev_session = None
+        if previous_session is not None:
+            next_session.prev_session = previous_session.id
 
     db.session.delete(session)
     db.session.commit()
 
-    flash('Session (' + str(session_id) + ') deleted')
+    flash('Session ('+str(session_id)+') deleted')
 
-    previous_session = session.get_previous()
-    if previous_session is None:
-        return redirect(url_for('tree'))
+    if previous_session is not None:
+        return redirect(url_for('session', session_id=previous_session.id))
+    if next_session is not None:
+        return redirect(url_for('session', session_id=previous_session.id))
 
-    return redirect(url_for('session', session_id=previous_session.id))
+    return redirect(url_for('tree'))
 
-def create_session(session_id, is_rattrapage=False):
+
+def create_rattrapage(session_id):
     session = Session.query.filter_by(id=session_id).first()
     annual_dict = session.get_annual_dict()
 
-    create_R1 = (is_rattrapage == True 
-        and annual_dict['S1'] == int(session_id) 
-        and annual_dict['R1'] == -1)
-    create_R2 = (is_rattrapage == True 
-        and annual_dict['S2'] == int(session_id) 
-        and annual_dict['R2'] == -1)
+    create_R1 = annual_dict['S1'] == int(session_id) and annual_dict['R1'] == -1
+    create_R2 = annual_dict['S2'] == int(session_id) and annual_dict['R2'] == -1
     
     if create_R1 == True or create_R2:
         new_session = Session(semester_id=session.semester_id, 
-            promo_id=session.promo_id, is_rattrapage=is_rattrapage)
-
+            promo_id=session.promo_id, is_rattrapage=True)
         msg = insert_session_in_between(new_session, session, session.get_next())
-        
         # set start_date and finish_date    
         # would it reference Semester before it is saved ???
         new_session.configuration = session.configuration
         db.session.add(new_session)
         db.session.commit()
+        return new_session
 
     # if Rattrapage exist -> it is next
-    return session.get_next()
+    return session
 
 
 @app.route('/session/<session_id>/students-rattrapage/', methods=['GET', 'POST'])
@@ -725,9 +776,9 @@ def session_rattrapage(session_id=0):
 def create_rattrapage_session(session_id=0):
     session = Session.query.filter_by(id=session_id).first()
     # get next session before creating Rattrapage
-    next_session = session.get_next()
-    ratt = create_session(session_id, True)
-    if next_session == ratt:
+    # next_session = session.get_next()
+    ratt = create_rattrapage(session_id)
+    if session == ratt:
         flash('Rattrapage (' + str(ratt.id) + ') already exists')
     else:
         flash('created Rattrapage (' + str(ratt.id) + ')')
@@ -735,6 +786,10 @@ def create_rattrapage_session(session_id=0):
     # redirect to the created session
     return redirect(url_for('session', session_id=ratt.id))
 
+@app.route('/promo/<promo_id>/create-next-session/', methods=['GET', 'POST'])
+def create_next_session(promo_id=0):
+    # create next session in promo
+    return redirect(url_for('tree'))
 
 # ----------------------
 
