@@ -7,7 +7,7 @@ from flask_login import LoginManager
 
 from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
-from flask_breadcrumbs import Breadcrumbs
+# from flask_breadcrumbs import Breadcrumbs
 
 
 
@@ -17,8 +17,7 @@ app.config.from_object(Config)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 bootstrap = Bootstrap(app)
-Breadcrumbs(app=app)
-
+# Breadcrumbs(app=app)
 login = LoginManager(app)
 login.login_view = 'login'
 

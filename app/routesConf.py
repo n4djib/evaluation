@@ -4,12 +4,16 @@ from app.models import Semester, Type, Unit
 
 def tree_type(id):
     type = Type.query.filter_by(id=id).first()
+    if type == None:
+        return '*'
     return type.type
 
 def tree_percentage(percentage):
-    percent = str(percentage.percentage * 100)
-    normalized = percent.rstrip('0').rstrip('.') + '%'
-    val = tree_type(percentage.type_id) + ': ' + normalized
+    # percent = str(percentage.percentage * 100)
+    percent = ('0.00' if percentage.percentage is None else str(percentage.percentage * 100)) 
+    normalized = percent.rstrip('0').rstrip('.')
+    val = tree_type(percentage.type_id) + ': ' + normalized + '%'
+    # val = tree_type(percentage.type_id) + ': ' + percent
     href = '/admin/percentage/edit/?id=' + str(percentage.id)
     link = '{val: "' + val + '", href: "' + href + '", target: "_blank"}'
     time = ''
@@ -55,7 +59,8 @@ def get_unit_credit(unit_id):
     modules = unit.modules
     unit_credit = 0
     for module in modules:
-        unit_credit = unit_credit + module.credit
+        unit_credit += int(module.credit or 0)
+        # unit_credit += int(0 if module.credit is None else module.credit)
     return unit_credit
 
 def tree_unit(unit):

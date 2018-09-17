@@ -4,6 +4,7 @@ from app.forms import StudentFormCreate, StudentFormUpdate, RegistrationForm, Lo
 from app.models import Student, User, Branch, Session
 from werkzeug.urls import url_parse
 from flask_login import current_user, login_user, logout_user, login_required
+import datetime
 # from flask_breadcrumbs import register_breadcrumb
 
 
@@ -32,18 +33,29 @@ def students_create():
             last_name=form.last_name.data, 
             first_name=form.first_name.data,
             email=form.email.data, 
-            birth_date=form.birth_date.data)
+            birth_date=form.birth_date.data,
+            branch_id=form.branch_id.data)
         db.session.add(student)
         db.session.commit()
         flash('Student Created and Saved Successfully.')
         return redirect(url_for('student_index'))
     elif request.method == 'GET':
-        ################
-        ################
-        form.username.data = form.get_username('SF', '2017')
-        ################
-        ################
+        # form.username.data = form.get_username('SF', str(datetime.datetime.now().year))
+        form.username.data = Student.get_username('**', str(datetime.datetime.now().year))
     return render_template('student/create.html', title='Student Create', form=form)
+
+
+@app.route('/student/get-username/', methods=['POST'])
+def student_get_username():
+    branch_id = request.json
+    branch = Branch.query.filter_by(id=branch_id).first()
+    branch_name = Student.get_username(branch.name, str(datetime.datetime.now().year))
+    return str(branch_name)
+
+
+
+
+
 
 @app.route('/student/create-many/', methods=['GET', 'POST'])
 def students_create_many():
@@ -66,9 +78,8 @@ def students_create_many():
 
 @app.route('/student/edit/<id>/', methods=['GET', 'POST'])
 def student_edit(id):
-    # student = Student.query.filter_by(id=id).first()
-    student = Student.find(id)
-
+    student = Student.query.filter_by(id=id).first()
+    # student = Student.find(id)
     form = StudentFormUpdate(student.id)
     if form.validate_on_submit():
         student.username = form.username.data
@@ -76,6 +87,11 @@ def student_edit(id):
         student.first_name = form.first_name.data
         student.email = form.email.data
         student.birth_date = form.birth_date.data
+
+        # student.birth_date = form.birth_date.data
+        # student.birth_date = form.birth_date.data
+        
+        student.branch_id = form.branch_id.data
         db.session.commit()
         flash('Your changes have been saved.')
         return redirect(url_for('student_index'))
@@ -85,6 +101,8 @@ def student_edit(id):
         form.first_name.data = student.first_name
         form.email.data = student.email
         form.birth_date.data = student.birth_date
+
+        form.branch_id.data = student.branch_id
     return render_template('student/edit.html', title='Student Update', form=form)
 
 @app.route('/student/view/<id>/', methods=['GET', 'POST'])

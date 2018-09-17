@@ -6,8 +6,8 @@
 
     <div class="row">
         <div class="col-md-12">
-          <!-- {{ wtf.quick_form(form) }} -->
-          {% include 'student/_form.html' %}
+          {{ wtf.quick_form(form) }}
+          <!-- {% include 'student/_form.html' %} -->
         </div>
     </div>
     </br>
@@ -15,4 +15,33 @@
     - be carefull of multy user entry of the student Username conflict
     </br>
     </br>
+{% endblock %}
+
+
+
+
+{% block scripts %}
+  {{ super() }}
+
+  <script type="text/javascript">
+    $("#branch_id").change(function(){ 
+        $.ajax({
+            // url: '/student/get-username/',
+            url: '{{url_for("student_get_username")}}', 
+            type: 'POST',
+            data: $("#branch_id").val(),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'text',
+            async: true,
+            success: function(msg) {
+                console.log('---' + msg + '---');
+                $('#username').val(msg);
+            },
+            // error: function(XMLHttpRequest, textStatus, errorThrown) {
+            //   alert("some error");
+            // }
+        });
+    });
+  </script>
+
 {% endblock %}

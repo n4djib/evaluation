@@ -14,6 +14,7 @@
             <th scope="col">First Name</th>
             <th scope="col">Email</th>
             <th scope="col">Birth Date</th>
+            <th scope="col">Branch</th>
           </tr>
         </thead>
         <tbody>
@@ -25,6 +26,7 @@
             <td>{{ student.first_name }}</td>
             <td>{{ student.email }}</td>
             <td>{{ student.birth_date }}</td>
+            <td>{{ student.branch_id }}</td>
             <td><a href="{{ url_for('student_edit', id=student.id) }}">Edit</a></td>
           </tr>
         {% endfor %}

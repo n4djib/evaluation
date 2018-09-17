@@ -16,5 +16,5 @@
 - add option to show all fields in the grid
 - teachers rating
 	only his students can rate him
-- 
+- raise an exception when a Session or a Semester has more than one Next
 - 

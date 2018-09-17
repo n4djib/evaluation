@@ -21,9 +21,9 @@ class Branch(db.Model):
     name = db.Column(db.String(100), index=True, unique=True)
     description = db.Column(db.String(150))
     school_id = db.Column(db.Integer, db.ForeignKey('school.id'))
-    students = db.relationship('Student', backref='branch', lazy='dynamic')
     school = db.relationship("School", back_populates="branches")
 
+    students = db.relationship('Student', backref='branch', lazy='dynamic')
     semesters = db.relationship('Semester', back_populates='branch')
     promos = db.relationship('Promo', back_populates='branch')
     def __repr__(self):
@@ -38,9 +38,9 @@ class Promo(db.Model):
 
     branch_id = db.Column(db.Integer, db.ForeignKey('branch.id'))
     branch = db.relationship('Branch', back_populates='promos')
-
     # sessions = db.relationship('Session', back_populates='promo', order_by="Session.start_date")
     sessions = db.relationship('Session', back_populates='promo')
+    # annual_sessions = db.relationship('AnnualSession', backref='promo', lazy='dynamic')
     def __repr__(self):
         return '<{} - {}>'.format(self.id, self.name)
 
@@ -50,7 +50,13 @@ class AnnualSession(db.Model):
     __tablename__ = 'annual_session'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250))
+    is_rattrapage = db.Column(db.Boolean, default=False)
+    is_closed = db.Column(db.Boolean, default=False)
+    promo_id = db.Column(db.Integer, db.ForeignKey('promo.id'))
+    # promo = db.relationship('Promo', ***************)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    def __repr__(self):
+        return '<{} - {}>'.format(self.id, self.name)
 
 class GradeAnnual(db.Model):
     __tablename__ = 'grade_annual'
@@ -74,8 +80,6 @@ class Session(db.Model):
     semester = db.relationship('Semester', back_populates='sessions')
     promo_id = db.Column(db.Integer, db.ForeignKey('promo.id'))
     promo = db.relationship('Promo', back_populates='sessions')
-    prev_session = db.Column(db.Integer, db.ForeignKey('session.id'))
-    # previous = db.relationship('Session', back_populates='prev_session')
     student_sessions = db.relationship('StudentSession', back_populates='session')
 
     annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
@@ -84,38 +88,42 @@ class Session(db.Model):
         return StudentSession.query.filter_by(session_id=self.id).count()
 
     def get_previous(self):
-        return Session.query.filter_by(id=self.prev_session).first()
-    def get_next(self):
-        return Session.query.filter_by(prev_session=self.id).first()
-    def get_chain_before(self):
-        _list = []
-        prv = self.get_previous()
-        if prv != None:
-            _list += prv.get_chain_before() + [prv.id]
-        return _list
-    def get_chain_later(self):
-        _list = []
-        nxt = self.get_next()
-        if nxt != None:
-            _list += [nxt.id] + nxt.get_chain_later()
-        return _list
-    def get_chain(self):
-        return self.get_chain_before() + [self.id] + self.get_chain_later()
-    def get_annual_chain(self):
-        sessions_chain = self.get_chain()
-        annual_semesters_chain = self.semester.get_annual_chain()
+        sessions = self.get_chain()
+        index = sessions.index(self.id)
+        if index == 0:
+            return None
+        # return sessions[index-1]
+        return Session.query.get(sessions[index-1])
 
-        annual_sessions_chain = []
-        for session_id in sessions_chain:
-            session = Session.query.filter_by(id=session_id).first()
-            if session.semester_id in annual_semesters_chain :
-                annual_sessions_chain.append(session_id)
-        return annual_sessions_chain
+    def get_next(self):
+        sessions = self.get_chain()
+        index = sessions.index(self.id)
+        if index == len(sessions)-1:
+            return None
+        return Session.query.get(sessions[index+1])
+
+    def get_chain(self):
+        sessions = Session.query.filter_by(promo_id=self.promo.id).join(Semester)\
+            .order_by(Semester.annual, Semester.semester).all()
+        sessions_id = []
+        for session in sessions:
+            sessions_id.append(session.id)
+        return sessions_id
+
+    def get_annual_chain(self):
+        sessions = Session.query.filter_by(promo_id=self.promo.id).join(Semester)\
+            .order_by(Semester.annual, Semester.semester).all()
+        current_annual = self.semester.annual
+        sessions_id = []
+        for session in sessions:
+            if session.semester.annual == current_annual:
+                sessions_id.append(session.id)
+        return sessions_id
+        
     def get_annual_dict(self):
         chain = self.get_annual_chain()
         _dict = {'S1': -1, 'S2': -1, 'R1': -1, 'R2': -1, 'A': -1}
         for session_id in chain:
-            # session = Session.query.get(session_id)
             session = Session.query.filter_by(id=session_id).first()
             is_rattrapage = session.is_rattrapage
             semester_half = session.semester.semester
@@ -315,9 +323,11 @@ class Semester(db.Model):
     name = db.Column(db.String(250))
     display_name = db.Column(db.String(250))
     # credit_formula = db.Column(db.String(250))
-    year = db.Column(db.Integer)
+    annual = db.Column(db.Integer)
     semester = db.Column(db.Integer)
+
     units = db.relationship('Unit', back_populates='semester', order_by="Unit.order")
+
     branch_id = db.Column(db.Integer, db.ForeignKey('branch.id'))
     branch = db.relationship('Branch', back_populates='semesters')
     sessions = db.relationship('Session', back_populates='semester')
@@ -325,7 +335,7 @@ class Semester(db.Model):
     def __repr__(self):
         return '<{} - {}>'.format(self.id, self.name)
     def get_nbr(self):
-        return (self.year * 2) - 2 + self.semester
+        return (self.annual * 2) - 2 + self.semester
     def get_semester_cumul_coeff(self):
         units = self.units
         coeff = 0
@@ -338,7 +348,6 @@ class Semester(db.Model):
         for unit in units:
             credit = credit + unit.get_unit_cumul_credit()
         return credit
-
     def get_previous(self):
         # if it returns many you shoold raise an exception
         return Semester.query.filter_by(id=self.prev_semester).first()
@@ -374,13 +383,16 @@ class Unit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250))
     display_name = db.Column(db.String(250))
-    unit_coefficient = db.Column(db.Integer())
+    unit_coefficient = db.Column(db.Integer)
     is_fondamental = db.Column(db.Boolean, default=False)
+
     semester_id = db.Column(db.Integer, db.ForeignKey('semester.id'))
     semester = db.relationship('Semester', back_populates='units')
+
     modules = db.relationship('Module', back_populates='unit', order_by="Module.order")
+
     grade_units = db.relationship('GradeUnit', back_populates='unit')
-    order = db.Column(db.Integer())
+    order = db.Column(db.Integer)
     def __repr__(self):
         return '<Unit {}>'.format(self.name)
     def get_unit_cumul_coeff(self):
@@ -406,14 +418,17 @@ class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250))
     display_name = db.Column(db.String(250))
-    coefficient = db.Column(db.Integer())
-    credit = db.Column(db.Integer())
+    coefficient = db.Column(db.Integer)
+    credit = db.Column(db.Integer)
     time = db.Column(db.Numeric(10,2))
+
     unit_id = db.Column(db.Integer, db.ForeignKey('unit.id'))
     unit = db.relationship('Unit', back_populates='modules')
+
     percentages = db.relationship('Percentage', backref='module', lazy='dynamic')
+
     grades = db.relationship('Grade', back_populates='module')
-    order = db.Column(db.Integer())
+    order = db.Column(db.Integer)
     def __repr__(self):
         return '<Module {}>'.format(self.name)
     def config_dict(self):
@@ -427,7 +442,9 @@ class Percentage(db.Model):
     name = db.Column(db.String(250))
     percentage = db.Column(db.Numeric(10,2))
     time = db.Column(db.Numeric(10,2))
+
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'))
+    
     type_id = db.Column(db.Integer, db.ForeignKey('type.id'))
     type_name = db.relationship('Type', back_populates='percentages')
     def config_dict(self):
@@ -460,10 +477,36 @@ class Student(db.Model):
     branch_id = db.Column(db.Integer, db.ForeignKey('branch.id'))
     student_sessions = db.relationship('StudentSession', back_populates='student')
     def __repr__(self):
-        return '<{} - {}>'.format(self.username, self.last_name)
+        return '<{} - {} - {}>'.format(self.id, self.username, self.last_name)
     # @staticmethod
     def find(id):
         return db.session.query(Student).filter_by(id=id).one()
+
+    # take into considiration many users getting the same Matricule
+    # maybe you have to lock
+    @staticmethod
+    def get_username(bransh, year, seperator='/'):
+        username_start = bransh + seperator + year + seperator
+        # username_start = username_start
+        student = Student.query.order_by(Student.username.desc()).filter(
+            Student.username.like(username_start + '%')).first()
+        # student = Student.query.order_by(Student.username.desc()).filter(Student.username.like('SF/2017%')).first()
+        if student == None:
+            return username_start + '01'
+            
+        # username = student.username.lower()
+        last =''
+        try:
+            last = int( student.username.lower().replace(username_start.lower(), '') )
+        except:
+            last = 0
+        _next = last + 1
+        username_end = ''
+        if _next < 10:
+            username_end = '0' + str(_next)
+        else:
+            username_end = str(_next)
+        return username_start + username_end
 
 class Phone(db.Model):
     id = db.Column(db.Integer, primary_key=True)
