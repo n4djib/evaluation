@@ -1,12 +1,48 @@
 {% extends "base.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
+{% block styles %}
+  {{super()}}
+  <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+  <link rel="stylesheet" type="text/css" 
+  		href="{{ url_for('static', filename='handsontable/handsontable.full.min.css') }}">
+  <script src="{{ url_for('static', filename='handsontable/handsontable.full.min.js') }}"></script>
+  
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/csshake.min.css') }}">
+
+  </style>
+{% endblock %}
+
 {% block app_content %}
     <h1>Create New Many</h1>
 
-    {% for form in forms %}
-        1
-        </br>
-    {% endfor %}
+    <div class="form-group form-inline">
+      <label for="sel1">Select Branch:</label>
+      <select class="form-control" id="select-branch">
+        {% for branch in branches %}
+        <option value="{{ branch.id }}">{{ branch.description }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div id="hot-create-many" class="hot handsontable">
+	  </div>
     </br>
+    <button id="save" class="btn btn-primary">Save</button>
+  </br>
+  </br>
+  - add render to username</br>
+      it would be greate if it checks through ajax</br>
+      regex ****-**-**</br>
+  - choose Branch & Promo</br>
+  - </br>
+  </br>
+  </br>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script type="text/javascript">
+    {% include "student/_grid_create_many_students.js" %}
+  </script>
 {% endblock %}

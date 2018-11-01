@@ -1,0 +1,51 @@
+<html>
+<head>
+  <title>1111</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap4/bootstrap.min.css') }}" crossorigin="anonymous">
+  <style type="text/css">
+    
+/*    table {
+      border-collapse: collapse;
+      margin-left: 0px;
+      margin-right: 30px;
+      display:inline-block;
+    }*/
+    th, td {
+      border: 1px solid lightgray;
+      padding: 5 !important;
+      margin: 2 !important;
+    }
+  </style>
+</head>
+
+
+<body>
+
+  <div class="container" style="border-width:0px; border-style:solid; border-color:black;">
+    <center><h4><b>Module:</b> {{ module.display_name }}</h4></center>
+    <center>
+      <h5><b>Coefficient:</b> {{ module.coefficient }}   -   <b>Credit:</b> {{ module.credit }} </h5>
+    </center>
+    <table class="table table-bordered table-condensed ">
+      <tr>
+        <th>#</th>
+        <th>username</th>
+        <th>last name</th>
+        <th>first name</th>
+        {% for header in headers %}
+          <th>{{ header | safe }}</th>
+        {% endfor %}
+      </tr>
+      {% for data in data_arr %}
+      <tr>
+        <td>{{loop.index}}</td>
+        {% for _da in data %}
+          <td>{{ _da | safe | replace('None', '') }}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+</body>
+</html>

@@ -107,6 +107,8 @@ def init_all(session_id):
     message1 = init_session(session)
     message2 = init_grade_unit(session)
     message3 = init_grade(session)
+    
+    # message3 = 'init_grade(session)'
     return F'init all : {message1} - {message2} - {message3}'
 
 @app.route('/session/<session_id>/reinitialize-session/', methods=['GET', 'POST'])
@@ -118,7 +120,8 @@ def reinitialize_session(session_id=0):
 
 @app.route('/session/<session_id>/calculate-all/', methods=['GET', 'POST'])
 def calculate_all(session_id):
-    message = init_all(session_id)
+    message = 'calculate_all'
+    # message = init_all(session_id)
     flash(message)
 
     # it would be better if:
@@ -182,7 +185,7 @@ def get_unit_name(unit_id, conf_dict):
 
 def get_unit_justification(grade_unit, conf_dict):
     name = get_unit_name(grade_unit.unit_id, conf_dict)
-    return ['    UNIT : ' + name] + ['    ' + grade_unit.calculation] + [grade_unit.average] + [grade_unit.credit]
+    return ['    UNIT: ' + name] + ['    ' + grade_unit.calculation] + [grade_unit.average] + [grade_unit.credit]
 
 def get_semester_name(student_session, conf_dict):
     # for unit in conf_dict['units']:
@@ -193,7 +196,7 @@ def get_semester_name(student_session, conf_dict):
 
 def get_semester_justification(student_session, conf_dict):
     name = get_semester_name(student_session, conf_dict)
-    return ['        SEMESTER : ' + name] + ['    ' + student_session.calculation] + [student_session.average] + [student_session.credit]
+    return ['        SEMESTER: ' + name] + ['    ' + student_session.calculation] + [student_session.average] + [student_session.credit]
 
 @app.route('/session/<session_id>/justification/<student_id>/', methods=['GET', 'POST'])
 def justification(session_id, student_id):

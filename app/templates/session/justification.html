@@ -24,7 +24,7 @@
     <tbody>
       {% for just in justs %}
       <tr>
-        <td>{{ just[0] }}</td>
+        <td>{{ just[0] | replace("UNIT: ", "<b>UNIT: </b>") | replace("SEMESTER: ", "<b>SEMESTER: </b>") | safe }}</td>
         <td>{{ just[1] }}</td>
         <td>{{ just[2] }}</td>
         <td>{{ just[3] }}</td>

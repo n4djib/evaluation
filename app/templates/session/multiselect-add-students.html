@@ -18,12 +18,20 @@
 
 
 {% block app_content %}
+
+  {% set S = "Semester" -%}
+  {% if session.is_rattrapage %}
+    {% set S = "Rattrapage" %}
+  {% endif %}
+  <a href="{{url_for('session', session_id=session.id)}}">go back to {{ S }}: {{ session.semester.semester }}</a>
+  </br>
+
   <h1>This is the Assign Page</h1>
 
   <div id="wrap" class="container">            
     <div class="row">
 
-      <form id="form" action="{{url_for('student_session', session_id=session_id)}}" method="post">
+      <form id="form" action="{{url_for('student_session', session_id=session.id)}}" method="post">
 
         <div class="col-xs-5">
           <select name="from[]" id="select" class="form-control" size="15" multiple="multiple">
@@ -69,8 +77,17 @@
         </div>
 
       </form>
-
     </div>
+    </br>
+    {% if _all == 'all' %}
+      <a href ="{{ url_for('student_session', session_id=session.id) }}"
+         target="" class="btn btn-primary" role="button">Show Candidate Students</a>
+      </br>
+    {% else %}
+      <a href ="{{ url_for('student_session', session_id=session.id, _all='all') }}"
+         target="" class="btn btn-primary" role="button">Show All Students</a>
+      </br>
+    {% endif %}
     </br>
     - Check if the Student has entries before removing him from StudentSession</br>
        you can't delete a Student until you remove his Grades</br>
@@ -109,9 +126,11 @@
             return a.style.color > b.style.color ? 1 : -1;
           },
           right: function(a, b) {
-            return a.value > b.value ? 1 : -1;
+            return -1;
+            // return a.value > b.value ? 1 : -1;
+            // return a.style.color > b.style.color ? 1 : -1;
           }
-        }
+        },
       });
 
     });

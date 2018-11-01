@@ -2,24 +2,25 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, SubmitField, PasswordField, BooleanField
 from wtforms.validators import DataRequired, Email, ValidationError, Optional, EqualTo
 from wtforms.fields.html5 import DateField
-from app.models import Student, User, Branch
+from app.models import Student, User, Branch, Wilaya
 from sqlalchemy import and_
 
 
 class StudentFormBase(FlaskForm):
-    branch_id = SelectField('Branch', coerce=int, 
-        choices = [('-1', '')]+[(b.id, b.name) for b in Branch.query.order_by('name')
+    branch_id = SelectField('Branch', coerce=int,  
+        choices = [('-1', '')]+[(b.id, b.name + ' - ' + b.description ) for b in Branch.query.order_by('name')
     ])
     username = StringField('Username', validators=[DataRequired()])
     last_name = StringField('Last Name', validators=[DataRequired()])
     first_name = StringField('First Name', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
+    email = StringField('Email', validators=[Optional(), Email()])
     birth_date = DateField('Birth Date', validators=[Optional()])
-    birth_wilaya = StringField('Birth Wilaya')
     birth_place = StringField('Birth Place')
+    wilaya_id = SelectField('Wilaya', coerce=int, validators=[Optional()], 
+        choices = [('-1', '')]+[(b.id, b.name) for b in Wilaya.query.order_by('code')
+    ])
     address = StringField('Address')
     # photo = StringField('Photo')
-    # branch_id = SelectField('Branch', coerce=int, choices = [(1, 'SF'), (2, 'ISP'), (3, 'HYGN')])
     # phones =
 
 class StudentFormCreate(StudentFormBase):

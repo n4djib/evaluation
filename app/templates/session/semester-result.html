@@ -4,30 +4,74 @@
 
 {% block styles %}
   {{super()}}
-  <link rel="stylesheet" type="text/css"
-        href="{{ url_for('static', filename='handsontable/handsontable.full.min.css') }}">
-  <script src="{{ url_for('static', filename='handsontable/handsontable.full.min.js') }}"></script>
   
   <style type="text/css">
+    table {
+      border-collapse: collapse;
+      margin-left: 0px;
+      margin-right: 30px;
+      display:inline-block;
+    }
+    th, td {
+      border: 1px solid lightgray;
+      padding: 0px 4px;
+    }
+    .no-wrap {
+      white-space: nowrap;
+      /*word-wrap: false;*/
+    }
+    .unit {
+      background-color: Bisque;
+    } 
+    .semester {
+      background-color: LightSalmon;
+    } 
+    .header5 {
+      background-color: Gainsboro;
+    } 
+    tbody > tr:nth-child(even) {background-color: #f7f7ff;}
+    tbody > tr:hover {background-color: #f5f5f5;}
+
+    .right { text-align: right; } 
+    .center { text-align: center; } 
+
+
+    /*.table_1 th:nth-of-type(1){ background: skyblue; }*/
   </style>
 {% endblock %}
 
 
 {% block app_content %}
+<div class="container" style="border-width:0px; border-style:solid; border-color:black;">
 
-<div id="container" class="container" 
-  style="width:500px; margin: 25px; border-width:0px; border-style:solid; border-color:black;">
-  <div id="hot_semester" style="border-width:0px; border-style:solid; border-color:red;"
-   class="hot handsontable"></div>
+  </br>
+
+  <table class="table_1">
+    <thead>
+      {{ header | safe | replace('None', '')}}
+    </thead>
+    <tbody>
+      {% for data in data_arr %}
+        <tr> {{ data | safe | replace('None', '')  }} </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </br>
+  </br>
+  <a href ="{{ url_for('print_semester_result', session_id=session.id, id=session.id) }}"
+     target="_blank" class="btn btn-primary" role="button">Print</a>
+  
+
 </div>
-</br>
-</br>
-</br>
 
-- a </br>
-- f</br>
-     f</br>
-</br>
+
+  </br>
+  </br>
+
+  - a </br>
+  - f</br>
+       f</br>
+  </br>
 
 {% endblock %}
 
@@ -35,7 +79,6 @@
   {{ super() }}
 
   <script type="text/javascript">
-    {% include "session/_zerbia.js" %}
   </script>
 
 {% endblock %}

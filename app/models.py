@@ -29,6 +29,17 @@ class Branch(db.Model):
     def __repr__(self):
         return '<Branch {}>'.format(self.name)
 
+class Wilaya(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(10), index=True, unique=True)
+    name = db.Column(db.String(100), index=True, unique=True)
+    students = db.relationship('Student', backref='wilaya', lazy='dynamic')
+    def __repr__(self):
+        return '<Wilaya {}>'.format(self.name)
+    def get_label(self):
+        # return self.code + ' - ' + self.name
+        return self.name
+
 class Promo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), index=True, unique=True)
@@ -295,7 +306,7 @@ class Grade(db.Model):
                 getcontext().prec = 4
                 average += round( val * Decimal(percentage) , 2)
 
-                calculation += str(field) + ': ' + str(val) + ' * ' + str(percentage) + ' + '
+                calculation += '('+ str(field) + ': ' + str(val) + ' * ' + str(percentage) + ')' + ' + '
         
         # if average != None:
         #     calculation += '= ' + str(average)
@@ -464,17 +475,20 @@ class Student(db.Model):
     username = db.Column(db.String(20), index=True, unique=True) # matricule
     last_name = db.Column(db.String(45), index=True)
     first_name = db.Column(db.String(45), index=True)
-    email = db.Column(db.String(120), index=True, unique=True)
+    # email = db.Column(db.String(120), index=True, unique=True)
+    email = db.Column(db.String(120), index=True)
     birth_date = db.Column(db.Date)
-    birth_wilaya = db.Column(db.String(45))
+    # wilaya = db.Column(db.String(45))
     birth_place = db.Column(db.String(45))
     address =  db.Column(db.String(120))
     photo = db.Column(db.String(250))
+    
     sex = db.Column(db.String(20))
     phones = db.relationship('Phone', backref='student', lazy='dynamic')
     create_time = db.Column(db.DateTime, default=datetime.utcnow)
     update_time = db.Column(db.DateTime, default=datetime.utcnow)
     branch_id = db.Column(db.Integer, db.ForeignKey('branch.id'))
+    wilaya_id = db.Column(db.Integer, db.ForeignKey('wilaya.id'))
     student_sessions = db.relationship('StudentSession', back_populates='student')
     def __repr__(self):
         return '<{} - {} - {}>'.format(self.id, self.username, self.last_name)

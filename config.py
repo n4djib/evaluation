@@ -9,3 +9,4 @@ class Config(object):
     # password = '123'
     # SQLALCHEMY_DATABASE_URI = 'mysql://' + username + ':' + password + '@127.0.0.1/eval'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    WKHTMLTOPDF_PATH = "C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"

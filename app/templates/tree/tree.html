@@ -8,6 +8,21 @@
   <link rel="stylesheet" href="{{url_for('static', filename='ztree/zTreeStyle.css')}}" type="text/css">
 
   <style type="text/css">
+
+/*  .ztree{
+      direction: rtl;
+      li{
+        text-align: right;
+        ul.line {
+          background-position: right 10px top;
+          padding: 0 18px 0 0;
+        }
+        span.button{
+          transform: scale(-1, 1);
+        }
+      }
+    }*/
+
     .ztree li span.button.pIcon01_ico_open{margin-right:2px; background: url({{url_for('static', filename='ztree/img/diy/1_open.png')}}) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
     .ztree li span.button.pIcon01_ico_close{margin-right:2px; background: url({{url_for('static', filename='ztree/img/diy/1_close.png')}}) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
     .ztree li span.button.pIcon02_ico_open,
@@ -59,7 +74,8 @@
 </br>
 - add a filter </br>
     on change refrech the tree down</br>
-- Annual should reference sessions from a String (dict)
+- Annual should reference sessions from a String (dict)</br>
+- Show Semesters Configs in the tree under the branches</br>
 
 </br>
 </br>
@@ -70,7 +86,10 @@
   {{ super() }}
 
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script type="text/javascript" src="{{url_for('static', filename='ztree/jquery.ztree.core.min.js')}}"></script>
+  <script type="text/javascript" 
+          src="{{url_for('static', filename='ztree/jquery.ztree.core.min.js')}}"></script>
+  <script type="text/javascript" 
+          src="{{url_for('static', filename='ztree/jquery.ztree.exedit.min.js')}}"></script>
 
 
   <script type="text/javascript">

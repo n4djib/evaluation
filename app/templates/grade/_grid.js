@@ -216,11 +216,21 @@ var hot = new Handsontable(hotElement, {
     autoSave(change, source);
     autoCalculate(change, source);
   },
+  // afterInit: function (change, source) {
+  //   // hot.render(); /********************/
+  //   alert('afterLoad 11111');
+  //   this.validateCells();
+  //   alert('afterLoad 22222');
+  // }
 });
 
 hot.validateCells(function() {
   hot.render();
 });
+
+hot.addHook('afterRender', function(){
+  hot.validateCells();
+})
 
 function get_fields_list(formula){
   var fields_list = [];
@@ -277,10 +287,10 @@ $("#save").click(function(){
 function Save(){
   $.ajax({
     // url: '/grade/save/',
-    url: '{{url_for("grade_save")}}', 
+    url: '{{ url_for("grade_save") }}', 
     type: 'POST',
     data: JSON.stringify( nullifyData(data_arr) ),
-    //data: JSON.stringify(data_arr),
+    // data: JSON.stringify(data_arr),
     contentType: 'application/json; charset=utf-8',
     dataType: 'text',
     async: true,
@@ -288,7 +298,9 @@ function Save(){
       is_dirty = false;
       shake_message();
 
-      // alert(msg+ '---');
+      // alert('data_arr: ' + data_arr);
+      // alert('msg: ' + msg);
+
       console.log('---' + msg + '---');
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {

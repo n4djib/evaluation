@@ -5,7 +5,8 @@
 {% block styles %}
   {{super()}}
   <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='handsontable/handsontable.full.min.css') }}">
+  <link rel="stylesheet" type="text/css" 
+        href="{{ url_for('static', filename='handsontable/handsontable.full.min.css') }}">
   <script src="{{ url_for('static', filename='handsontable/handsontable.full.min.js') }}"></script>
   
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/csshake.min.css') }}">
@@ -46,30 +47,43 @@
 
 {% block app_content %}
 <div>
-{%- for breadcrumb in breadcrumbs -%}
+{% for breadcrumb in breadcrumbs %}
   {% if not loop.last %}
     <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
   {% else %}
     {{ breadcrumb.text }}
   {% endif %}
   {{ ' / ' if not loop.last }}
-{%- endfor -%}
+{% endfor %}
 </div>
+
+
+  {% set S = "Semester" -%}
+  {% if session.is_rattrapage %}
+    {% set S = "Rattrapage" %}
+  {% endif %}
+  <a href="{{url_for('session', session_id=session.id)}}">go back to {{ S }}: {{ session.semester.semester }}</a>
+  </br>
   
 <h3>Grades by {{ grid_title }}</h3>
-<div class="container"  
-     onbeforeunload ="alert('aaaaa');"
->
+<div class="container" onbeforeunload ="alert('aaaaa');">
 
   <input id="search" name="search" placeholder="Filter ..." type="text" autocomplete="off">
   
-  <div id="hot" class="hot handsontable"
-    ><h2> *** the grid is empty *** </h2><h3> ** you have to add students and initialize ** </h3></div> </br>
+  <div id="hot" class="hot handsontable">
+    <h2> *** the grid is empty *** </h2>
+    <h3> ** you have to add students and initialize ** </h3>
+  </div>
+  </br>
   <button id="save" class="btn btn-primary">Save</button>
      <label><input name="autosave" id="autosave" autocomplete="off" type="checkbox"> Autosave</label>
   </br>
   </br>
   <pre id="message" class="console"><h3>*** if you see this: the JavaScript in (_grid.js) is not working ***<h3> </pre>
+  </br>
+  <a href ="{{ url_for('print_module_students_empty', session_id=session.id, module_id=module.id) }}"
+     target="_blank" class="btn btn-primary" role="button">Print Empty</a>
+  </br></br>
 </div>
 - don't save if not valide</br>
      fix the messages</br>

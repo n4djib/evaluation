@@ -13,6 +13,10 @@
       border: 1px solid lightgray;
       padding: 0px 4px;
     }
+    .no-wrap {
+      white-space: nowrap;
+      /*word-wrap: false;*/
+    }
     .unit {
       background-color: Bisque;
     } 
@@ -36,9 +40,8 @@
 <body>
 
   <div class="container" style="border-width:0px; border-style:solid; border-color:black;">
-    <h3>ID : {{ id }}</h3> </br>
     <table class="table_1">
-        <tr> {{ header | safe | replace('None', '')}} </tr>
+        <tr> {{ headers | safe | replace('None', '')}} </tr>
         {% for data in data_arr %}
           <tr> {{ data | safe | replace('None', '') }} </tr>
         {% endfor %}
@@ -46,3 +49,4 @@
   </div>
 
 </body>
+</html>

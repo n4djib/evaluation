@@ -2,7 +2,10 @@
 
 {% block app_content %}
     <h1>Students List !!!</h1>
-    <div><a  class="btn btn-primary" href="/student/create">Create New</a></div>
+    <div>
+        <a class="btn btn-primary" href="{{ url_for('students_create') }}">Create New</a>
+        <a  class="btn btn-primary" href="{{ url_for('students_create_many') }}">Insert Many Students from Excel</a>
+    </div>
     </br>
     <div>
         <table class="table table-striped">
@@ -10,11 +13,13 @@
           <tr>
             <th scope="col">#</th>
             <th scope="col">Username</th>
-            <th scope="col">Last Name</th>
-            <th scope="col">First Name</th>
-            <th scope="col">Email</th>
-            <th scope="col">Birth Date</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Birth Date</th>
+            <th scope="col">Birth Place</th>
+            <th scope="col">Wilaya</th>
             <th scope="col">Branch</th>
+            <th scope="col">Email</th>
           </tr>
         </thead>
         <tbody>
@@ -22,11 +27,17 @@
           <tr>
             <td>{{loop.index}}</td>
             <td><a href="{{ url_for('student_view', id=student.id) }}">{{ student.username }}</a></td>
-            <td>{{ student.last_name }}</td>
-            <td>{{ student.first_name }}</td>
-            <td>{{ student.email }}</td>
-            <td>{{ student.birth_date }}</td>
-            <td>{{ student.branch_id }}</td>
+            <td>{{ student.last_name | replace(' ', ' ') }}</td>
+            <td>{{ student.first_name | replace(' ', ' ') }}</td>
+            <td>{{ student.birth_date | replace('None', '') }}</td>
+            <td>{{ student.birth_place | replace('None', '') }}</td>
+            <td>
+              {% if student.wilaya %}
+                {{ student.wilaya.get_label() | replace('None', '') }}
+              {% endif %}
+            </td>
+            <td>{{ student.branch.name }}</td>
+            <td>{{ student.email | replace('None', '') }}</td>
             <td><a href="{{ url_for('student_edit', id=student.id) }}">Edit</a></td>
           </tr>
         {% endfor %}

@@ -20,6 +20,7 @@
           <th scope="col">Username</th>
           <th scope="col">First Name</th>
           <th scope="col">Last Name</th>
+          <th scope="col">Average</th>
           <th scope="col">The Justification</th>
         </tr>
       </thead>
@@ -30,6 +31,7 @@
           <td>{{ student_session.student.username }}</td>
           <td>{{ student_session.student.first_name }}</td>
           <td>{{ student_session.student.last_name }}</td>
+          <td>{{ student_session.average }}</td>
           <td>
             <a href ="{{url_for('justification', session_id=student_session.session_id, student_id=student_session.student_id)}}"
               class="btn btn-primary btn-xs" role="button">Justification</a>
