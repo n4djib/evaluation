@@ -7,12 +7,18 @@ from flask_login import current_user, login_user, logout_user, login_required
 import datetime
 # from flask_breadcrumbs import register_breadcrumb
 
+from app.permissions_and_roles import *
+
+
 
 @app.route('/')
 @app.route('/index/')
-# @register_breadcrumb(app, '.', 'Home')
+# @admin_permission.require()
 def index():
     return render_template('index.html', title='Welcome Page')
+
+
+
 
 # @app.route('/grid/')
 # def grid():

@@ -1,5 +1,8 @@
 var data_arr = {{ data | safe | replace('None', 'null') }};
 // var data_arr = [[""]]
+var type = '{{ type | safe }}';
+  
+
 
 var hotElement = document.querySelector('#hot');
 
@@ -33,8 +36,12 @@ function fill_cols() {
     formula = true;
   }
 
+  var second_column_name = "Module Name";
+  if (type == 'module')
+    second_column_name = "Student Name";
+
   var cols = {
-    'name':    {visible: true, name: "Module Name"},
+    'name':    {visible: true, name: second_column_name},
     'cour':    {visible: cour, name: "Cour"},
     'td':      {visible: td, name: "TD"},
     'tp':      {visible: tp, name: "TP"},

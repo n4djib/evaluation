@@ -68,10 +68,25 @@ def tree_unit(unit):
     link = '{val: "' + unit.name + '", href: "' + href + '", target: "_blank"}'
     coeff = str( unit.unit_coefficient ).replace('None', '')
     credit = str( get_unit_credit(unit.id) )
-    is_fondamental = str( unit.is_fondamental ).replace('None', 'False')
     modules = ''
     for module in unit.modules:
         modules += tree_module(module) + ','
+
+    # is_fondamental = str( unit.is_fondamental ).replace('None', 'False')
+    # return '''
+    # {
+    #     text:{
+    #         link: ''' + link + ''',
+    #         coeff: "Coeff: ''' + coeff + '''",
+    #         credit: "Credit: ''' + credit + '''",
+    #         is_fondamental: "Fondamental: ''' + is_fondamental + '''",
+    #     }, 
+    #     children: [''' + modules + ''']
+    # }'''
+
+    is_fondamental = ' '
+    if unit.is_fondamental == True:
+        is_fondamental = 'Fondamental'
 
     return '''
     {
@@ -79,7 +94,7 @@ def tree_unit(unit):
             link: ''' + link + ''',
             coeff: "Coeff: ''' + coeff + '''",
             credit: "Credit: ''' + credit + '''",
-            is_fondamental: "Fondamental: ''' + is_fondamental + '''",
+            is_fondamental: "''' + is_fondamental + '''",
         }, 
         children: [''' + modules + ''']
     }'''
@@ -88,14 +103,18 @@ def tree_semester(semester):
     href = '/admin/semester/edit/?id=' + str(semester.id)
     link = '{ val: "' + semester.name + '", href: "' + href + '", target: "_blank"}'
     units = ''
+    credit = 0
     for unit in semester.units:
+        credit += get_unit_credit(unit.id)
         units += tree_unit(unit) + ','
+
 
     return '''
     {
         text: { 
             link: ''' + link + ''',
-            //empty: " "
+            //empty: " ",
+            credit: "Credit: ''' + str(credit) + '''",
         }, 
         children: [''' + units + ''']
     }'''

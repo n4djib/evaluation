@@ -72,7 +72,7 @@ def get_creation_links(promo, seperate=True):
         id = 'new_' + str(promo.id)
         pId = 'promo_' + str(promo.id)
         # init
-        name = 'Next Session (1)'
+        name = 'Create First Semester'
         url = url_for('create_session', promo_id=promo.id, semester_id=first_semester_id)
 
         if len(sessions) > 0:
@@ -86,11 +86,13 @@ def get_creation_links(promo, seperate=True):
                 if last_session is not None and next_semester is not None:
                     # next_semester_id = next_semester.get_nbr()
                     next_semester_id = next_semester.id
-                    name = 'Next Session (' + str(next_semester.get_nbr()) + ')'
+                    name = 'Create Next Semester (' + str(next_semester.get_nbr()) + ')'
                     url = url_for('create_session', promo_id=promo.id, semester_id=next_semester_id)
                     if seperate is True:
                         links += '{id:"seperate_'+id+'", pId:"'+pId+'", name:"", iconSkin:"icon0"},'
                     links += '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", target:"_top", url: "'+url+'", iconSkin:"icon01"},'
+                    # if seperate is True:
+                    #     links += '{id:"seperate_'+id+'", pId:"'+pId+'", name:"", iconSkin:"icon0"},'
         else:
             links += '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", target:"_top", url: "'+url+'", iconSkin:"icon01"},'
 
@@ -566,7 +568,7 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
         grid_title = F'Student: {student.username} - {student.first_name} - {student.last_name}'
 
     session = Session.query.get(session_id)
-    return render_template('grade/grid.html', title='Grade Edit', 
+    return render_template('grade/grade.html', title='Grade Edit', 
         data=data, _all=_all.lower(), grid_title=grid_title, type=type, session=session, module=module)
 
 def create_data_grid(grades, type='module'):
@@ -681,6 +683,7 @@ def students_rattrapage(session_id=0):
     students = StudentSession.query\
         .filter_by(session_id=session_id)\
         .filter(or_(StudentSession.credit<30, StudentSession.credit == None))\
+        .join(Student).order_by(Student.username)\
         .all()
     return render_template('session/students-rattrapage.html', title='students-rattrapage', students=students, session_id=session_id)
 

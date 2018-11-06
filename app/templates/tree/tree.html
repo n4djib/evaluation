@@ -5,11 +5,12 @@
 {% block styles %}
   {{super()}}
 
-  <link rel="stylesheet" href="{{url_for('static', filename='ztree/zTreeStyle.css')}}" type="text/css">
+  <link rel="stylesheet" 
+        href="{{url_for('static', filename='ztree/zTreeStyle.css')}}" type="text/css">
 
   <style type="text/css">
 
-/*  .ztree{
+    /*.ztree{
       direction: rtl;
       li{
         text-align: right;
@@ -27,7 +28,6 @@
     .ztree li span.button.pIcon01_ico_close{margin-right:2px; background: url({{url_for('static', filename='ztree/img/diy/1_close.png')}}) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
     .ztree li span.button.pIcon02_ico_open,
     .ztree li span.button.pIcon02_ico_close{margin-right:2px; background: url({{url_for('static', filename='ztree/img/diy/2.png')}}) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
-    
     
     .ztree li span.button.pIcon04_ico_open,
     .ztree li span.button.pIcon04_ico_close{margin-right:2px; background: url({{url_for('static', filename='ztree/img/diy/14.png')}}) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
@@ -56,63 +56,94 @@
 {% endblock %}
 
 
+
+
 {% block app_content %}
-<div>
-{%- for breadcrumb in breadcrumbs -%}
-  {% if not loop.last %}
-    <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
-  {% else %}
-    <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
-  {% endif %}
-  {{ ' / ' if not loop.last }}
-{%- endfor -%}
-</div>
+  <div>
+  {% for breadcrumb in breadcrumbs %}
+    {% if not loop.last %}
+      <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
+    {% else %}
+      <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
+    {% endif %}
+    {{ ' / ' if not loop.last }}
+  {% endfor %}
+  </div>
+   
+  <div class="input-group">
+    <label class="input-group-prepend">Filter：</label>
+    <input type="text" name="key" id="key" value="" class="form-control" /><br/>
+  </div>
 
-<ul id="treeDemo" class="ztree">
-</ul>
 
-</br>
-- add a filter </br>
-    on change refrech the tree down</br>
-- Annual should reference sessions from a String (dict)</br>
-- Show Semesters Configs in the tree under the branches</br>
+  <ul id="treeDemo" class="ztree">
+  </ul>
 
-</br>
-</br>
+  </br>
+  - add a filter </br>
+      on change refrech the tree down</br>
+  - Annual should reference sessions from a String (dict)</br>
+  - Show Semesters Configs in the tree under the branches</br>
+
+  </br>
+  </br>
 
 {% endblock %}
+
 
 {% block scripts %}
   {{ super() }}
 
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script type="text/javascript" 
-          src="{{url_for('static', filename='ztree/jquery.ztree.core.min.js')}}"></script>
-  <script type="text/javascript" 
-          src="{{url_for('static', filename='ztree/jquery.ztree.exedit.min.js')}}"></script>
+  <!--script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script-->
+  <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='ztree/jquery.ztree.core.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='ztree/jquery.ztree.exedit.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='ztree/jquery.ztree.exhide.js') }}"></script>
+  <script src="{{ url_for('static', filename='ztree/fuzzysearch.min.js') }}"></script> 
 
 
   <script type="text/javascript">
     var setting = {
       view: {
+        dblClickExpand: false,
         fontCss: getFont,
-        nameIsHTML: true
+        nameIsHTML: true,
+
+        selectedMulti: false
       },
+
+      check: {
+        enable: true//checkbox
+      },
+      edit: {
+        enable: false,
+        editNameSelectAll: false
+      },
+
       data: {
         simpleData: {
           enable: true
         }
+      },
+      callback: {
+        onClick: onClick
       }
-    };
+    }; 
 
     function getFont(treeId, node) {
       return node.font ? node.font : {};
+    }
+
+    function onClick(e,treeId, treeNode) {
+      var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+      zTree.expandNode(treeNode);
     }
 
     var zNodes = {{ zNodes | safe }};;
 
     $(document).ready(function(){
       $.fn.zTree.init($("#treeDemo"), setting, zNodes);
+      fuzzySearch('treeDemo','#key', null, true); //initialize fuzzysearch function
     });
     //-->
   </script>
