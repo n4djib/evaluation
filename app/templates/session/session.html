@@ -31,7 +31,7 @@
       <h2> {{ session.name }} </h2>
   </div>
 
-	<div class="col-md-6 col-sm-5 col-xs-5">
+	<div class="col-md-7 col-sm-6 col-xs-6">
     <table id="myTable" class="table table-striped">
         <thead>
           <tr>
@@ -56,46 +56,129 @@
     </table>
       <a href="{{url_for('conf', semester_id=session.semester_id)}}" target="_blank"
          class="btn btn-primary" role="button">Configuration of {{ session.semester.display_name }}</a>
-      <!--a href="{ {url_for('student_session', session_id=session.id)}}"
-         class="btn btn-primary" role="button">Add Student(s)</a-->
+      
+      {% if session.is_closed != True %}
       <a href ="{{url_for('reinitialize_session', session_id=session.id)}}"
          class="btn btn-primary" role="button">(Re)initialize</a>
       <a href ="{{url_for('calculate_all', session_id=session.id)}}"
          class="btn btn-primary" role="button">(Re)calculate</a>
+      {% endif %}
       <hr>
       <a href ="{{url_for('grade_averages', session_id=session.id)}}"
          target="_blank" class="btn btn-primary" role="button">Averages</a>
+
       <a href ="{{url_for('semester_result', session_id=session.id)}}"
          target="_blank" class="btn btn-primary" role="button">Result</a>
+      {% if session.is_rattrapage == True %}
+      <a href ="{{url_for('semester_result', session_id=session.id)}}"
+         target="_blank" class="btn btn-primary" role="button">Result 2</a>
+      {% endif %}
+
       <a href ="{{url_for('classement_justification', session_id=session.id)}}"
          target="_blank" class="btn btn-primary" role="button">Classement / Justification</a>
       <hr>
       {% if session.is_rattrapage != True %}
-      <a href ="{{url_for('students_rattrapage', session_id=session.id)}}"
+      <a href ="{{url_for('students_rattrapage_form', session_id=session.id)}}"
          class="btn btn-primary" role="button"
          >Show Ratt (R:{{ session.semester.get_nbr() }})</a>
       {% endif %}
-      <!--a href ="{ {url_for('show_relation', session_id=session.id)}}"
-         target="_blank" class="btn btn-primary" role="button">Session Relations</a-->
-      <!--a href ="{ {url_for('create_rattrapage_session', session_id=session.id)}}"
-         class="btn btn-primary" role="button" 
-         >Create Rattrapage (R:{{session.semester.semester}})</a-->
+      
       <a href ="{{url_for('create_annual_session', session_id=session.id)}}"
          class="btn btn-primary" role="button"
          >Create Annual (S:{{session.semester.annual}})</a>
+
+      <hr>
+      {% if session.is_closed != True %}
       <button class="btn btn-danger"
         data-href="{{url_for('delete_session', session_id=session.id)}}" 
         data-toggle="modal" data-target="#confirm-delete">
         {% if session.is_rattrapage != True %}
-          Delete Session
+          Delete Semester
         {% else %}
           Delete Rattrapage
         {% endif %}
       </button>
+      <div class="modal fade" id="confirm-delete" tabindex="-1"
+         role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <!--div class="modal-header">
+                ...
+            </div-->
+            <div class="modal-body">
+              do you really want to delete this session?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              <a class="btn btn-danger btn-ok">Delete</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if session.is_closed != True %}
+      <button class="btn btn-warning"
+        data-href="{{url_for('lock_session', session_id=session.id)}}" 
+        data-toggle="modal" data-target="#confirm-lock">
+        {% if session.is_rattrapage != True %}
+          Lock Semester
+        {% else %}
+          Lock Rattrapage
+        {% endif %}
+      </button>
+      <div class="modal fade" id="confirm-lock" tabindex="-1"
+         role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <!--div class="modal-header">
+                ...
+            </div-->
+            <div class="modal-body">
+              do you really want to lock this session?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              <a class="btn btn-warning btn-ok">Lock</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if session.is_closed == True %}
+      <button class="btn btn-warning"
+        data-href="{{url_for('unlock_session', session_id=session.id)}}" 
+        data-toggle="modal" data-target="#confirm-unlock">
+        {% if session.is_rattrapage != True %}
+          Unlock Semester
+        {% else %}
+          Unlock Rattrapage
+        {% endif %}
+      </button>
+      <div class="modal fade" id="confirm-unlock" tabindex="-1"
+         role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <!--div class="modal-header">
+                ...
+            </div-->
+            <div class="modal-body">
+              do you really want to unlock this session?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              <a class="btn btn-warning btn-ok">Unlock</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
 
   </div>
 
-	<div class="col-md-2 col-sm-2 col-xs-2">
+	<div class="col-md-1 col-sm-1 col-xs-1">
   </div>
 
 	<div class="col-md-4 col-sm-5 col-xs-5">
@@ -134,23 +217,7 @@
 
   
 
-  <div class="modal fade" id="confirm-delete" tabindex="-1"
-       role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-          <div class="modal-content">
-              <!--div class="modal-header">
-                  ...
-              </div-->
-              <div class="modal-body">
-                do you really want to delete this session?
-              </div>
-              <div class="modal-footer">
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                  <a class="btn btn-danger btn-ok">Delete</a>
-              </div>
-          </div>
-      </div>
-  </div>
+
 
 
 
@@ -179,6 +246,12 @@
 
   <script type="text/javascript">
     $('#confirm-delete').on('show.bs.modal', function(e) {
+      $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+    });
+    $('#confirm-lock').on('show.bs.modal', function(e) {
+      $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+    });
+    $('#confirm-unlock').on('show.bs.modal', function(e) {
       $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
     });
   </script>

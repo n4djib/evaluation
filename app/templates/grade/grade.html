@@ -81,8 +81,11 @@
   </br>
   <pre id="message" class="console"><h3>*** if you see this: the JavaScript in (_grid.js) is not working ***<h3> </pre>
   </br>
+
+  {% if type == 'module' %}
   <a href ="{{ url_for('print_module_students_empty', session_id=session.id, module_id=module.id) }}"
-     target="_blank" class="btn btn-primary" role="button">Print Empty</a>
+     target="_blank" class="btn btn-primary" role="button">Print Module</a>
+  {% endif %}
   </br></br>
 </div>
 - don't save if not valide</br>

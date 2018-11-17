@@ -59,19 +59,10 @@
 
 
 {% block app_content %}
-  <div>
-  {% for breadcrumb in breadcrumbs %}
-    {% if not loop.last %}
-      <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
-    {% else %}
-      <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
-    {% endif %}
-    {{ ' / ' if not loop.last }}
-  {% endfor %}
-  </div>
+
    
   <div class="input-group">
-    <label class="input-group-prepend">Filter：</label>
+    <label for="key">Filter：</label>
     <input type="text" name="key" id="key" value="" class="form-control" /><br/>
   </div>
 
@@ -80,10 +71,13 @@
   </ul>
 
   </br>
-  - add a filter </br>
-      on change refrech the tree down</br>
-  - Annual should reference sessions from a String (dict)</br>
+  </br>
+  </br>
   - Show Semesters Configs in the tree under the branches</br>
+  - change the icons</br>
+  - add form to change the icons</br>
+  - </br>
+  - </br>
 
   </br>
   </br>

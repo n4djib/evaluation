@@ -23,7 +23,7 @@
   {% if session.is_rattrapage %}
     {% set S = "Rattrapage" %}
   {% endif %}
-  <a href="{{url_for('session', session_id=session.id)}}">go back to {{ S }}: {{ session.semester.semester }}</a>
+  <a href="{{ url_for('session', session_id=session.id) }}">go back to {{ S }}: {{ session.semester.semester }}</a>
   </br>
 
   <h1>This is the Assign Page</h1>

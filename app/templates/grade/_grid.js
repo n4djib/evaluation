@@ -1,8 +1,10 @@
 var data_arr = {{ data | safe | replace('None', 'null') }};
 // var data_arr = [[""]]
 var type = '{{ type | safe }}';
-  
 
+var session_is_rattrapage = {{ session.is_rattrapage | safe | replace('T', 't') | replace('F', 'f') }}
+
+// if(is_rattrapage) alert("aaaaa");
 
 var hotElement = document.querySelector('#hot');
 
@@ -257,9 +259,17 @@ hot.updateSettings({ cells: function(row, col, prop){
 
     var current_field = GetColNameByCol(col);
     var fields_list = get_fields_list( data_arr[row]['formula'] );
+    var is_rattrapage = data_arr[row]['is_rattrapage'];
 
     if(fields_list.indexOf(current_field) < 0)
       cell.readOnly = 'true';
+
+    if(session_is_rattrapage && !(is_rattrapage && current_field=='cour'))
+      cell.readOnly = 'true';
+
+    // if(is_rattrapage && current_field=='cour')
+    //   cell.readOnly = 'false';
+
     return cell;
   }
 });

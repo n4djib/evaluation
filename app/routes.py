@@ -8,7 +8,7 @@ import datetime
 # from flask_breadcrumbs import register_breadcrumb
 
 from app.permissions_and_roles import *
-
+from flask_principal import Identity, AnonymousIdentity, identity_changed
 
 
 @app.route('/')
@@ -212,6 +212,9 @@ def login():
             flash('Invalid username or password')
             return redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
+        # Tell Flask-Principal the identity changed
+        identity_changed.send(app, identity=Identity(user.id))
+
         return redirect(url_for('index'))
     return render_template('user/login.html', title='Sign In', form=form)
 

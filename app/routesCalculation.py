@@ -121,7 +121,7 @@ def reinitialize_session(session_id=0):
 @app.route('/session/<session_id>/calculate-all/', methods=['GET', 'POST'])
 def calculate_all(session_id):
     message = 'calculate_all'
-    # message = init_all(session_id)
+    message = init_all(session_id)
     flash(message)
 
     # it would be better if:

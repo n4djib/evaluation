@@ -49,33 +49,49 @@ class Promo(db.Model):
 
     branch_id = db.Column(db.Integer, db.ForeignKey('branch.id'))
     branch = db.relationship('Branch', back_populates='promos')
-    # sessions = db.relationship('Session', back_populates='promo', order_by="Session.start_date")
     sessions = db.relationship('Session', back_populates='promo')
+    annual_session = db.relationship('AnnualSession', back_populates='promo')
+    # sessions = db.relationship('Session', back_populates='promo', order_by="Session.Semester.annual")
+    # units = db.relationship('Unit', back_populates='semester', order_by="Unit.order")
     # annual_sessions = db.relationship('AnnualSession', backref='promo', lazy='dynamic')
     def __repr__(self):
         return '<{} - {}>'.format(self.id, self.name)
+    def get_next_semester(self):
+        sessions = Session.query.filter_by(promo_id=self.id, is_rattrapage=False).join(Semester)\
+            .order_by(Semester.annual, Semester.semester).all()
 
-
+        last_session = sessions[-1]
+        next_semester = last_session.semester.get_next()
+        return next_semester.get_nbr()
 
 class AnnualSession(db.Model):
     __tablename__ = 'annual_session'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250))
-    is_rattrapage = db.Column(db.Boolean, default=False)
     is_closed = db.Column(db.Boolean, default=False)
     promo_id = db.Column(db.Integer, db.ForeignKey('promo.id'))
-    # promo = db.relationship('Promo', ***************)
+    promo = db.relationship('Promo', back_populates='annual_session')
+
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    sessions = db.relationship('Session', back_populates='annual_session')
     def __repr__(self):
         return '<{} - {}>'.format(self.id, self.name)
+    def get_annual_dict(self):
+        first_session = self.sessions[0]
+        return first_session.get_annual_dict()
 
-class GradeAnnual(db.Model):
-    __tablename__ = 'grade_annual'
+class AnnualGrade(db.Model):
+    __tablename__ = 'annual_grade'
     id = db.Column(db.Integer, primary_key=True)
     average = db.Column(db.Numeric(10,2))
     credit = db.Column(db.Integer)
+    average_r = db.Column(db.Numeric(10,2))
+    credit_r = db.Column(db.Integer)
+    saving_average = db.Column(db.Numeric(10,2))
     annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
     annual_session = db.relationship('AnnualSession', backref='annual_grade')
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+    student = db.relationship('Student', backref='student')
 
 class Session(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -89,12 +105,15 @@ class Session(db.Model):
 
     semester_id = db.Column(db.Integer, db.ForeignKey('semester.id'))
     semester = db.relationship('Semester', back_populates='sessions')
+
     promo_id = db.Column(db.Integer, db.ForeignKey('promo.id'))
     promo = db.relationship('Promo', back_populates='sessions')
+    annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
+    annual_session = db.relationship('AnnualSession', back_populates='sessions')
+    # annual_session = db.relationship('AnnualSession', backref='session')
+
     student_sessions = db.relationship('StudentSession', back_populates='session')
 
-    annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
-    annual_session = db.relationship('AnnualSession', backref='session')
     def student_nbr(self):
         return StudentSession.query.filter_by(session_id=self.id).count()
 
@@ -103,7 +122,13 @@ class Session(db.Model):
         index = sessions.index(self.id)
         if index == 0:
             return None
-        # return sessions[index-1]
+        return Session.query.get(sessions[index-1])
+
+    def get_previous_normal(self):
+        sessions = self.get_chain_normal()
+        index = sessions.index(self.id)
+        if index == 0:
+            return None
         return Session.query.get(sessions[index-1])
 
     def get_next(self):
@@ -115,6 +140,14 @@ class Session(db.Model):
 
     def get_chain(self):
         sessions = Session.query.filter_by(promo_id=self.promo.id).join(Semester)\
+            .order_by(Semester.annual, Semester.semester).all()
+        sessions_id = []
+        for session in sessions:
+            sessions_id.append(session.id)
+        return sessions_id
+
+    def get_chain_normal(self):
+        sessions = Session.query.filter_by(promo_id=self.promo.id, is_rattrapage=False).join(Semester)\
             .order_by(Semester.annual, Semester.semester).all()
         sessions_id = []
         for session in sessions:
@@ -167,6 +200,7 @@ class StudentSession(db.Model):
     session = db.relationship('Session', back_populates='student_sessions')
 
     grades = db.relationship('Grade', back_populates='student_session')
+
     grades_unit = db.relationship('GradeUnit', back_populates='student_session')
     # grades_semester = db.relationship('GradeSemester', back_populates='student_session')
 
@@ -279,6 +313,7 @@ class Grade(db.Model):
     credit = db.Column(db.Integer)
     formula = db.Column(db.String(200))
     calculation = db.Column(db.String(100))
+    is_rattrapage = db.Column(db.Boolean, default=False)
 
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'))
@@ -326,7 +361,6 @@ class Grade(db.Model):
         self.credit = credit
         self.calculation = calculation
         return 'grade calculated'
-
 
 ### Creating Configuration Tables ###
 class Semester(db.Model):
@@ -427,6 +461,7 @@ class Unit(db.Model):
 
 class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(20))
     name = db.Column(db.String(250))
     display_name = db.Column(db.String(250))
     coefficient = db.Column(db.Integer)

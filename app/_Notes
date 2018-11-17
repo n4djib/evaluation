@@ -18,3 +18,34 @@
 	only his students can rate him
 - raise an exception when a Session or a Semester has more than one Next
 - 
+
+
+
+1. Prints
+  print students list (in add students)
+  list of students by module (in module edit)
+    empty & filled
+  add button to Result (and change the name of the file according to seconds & )
+  add button to average
+2. Show all Students Button (in add students)
+3. check that the students are being transfaired in Semesters
+4. Fix Navigation through simple Links
+1......... finish the creation and deletion of sessions first
+2......... collect the configuration
+3......... target:"_top",
+4. fix add students
+	...........add branch to student form
+	...........select according to branch
+	add filter in students
+. Rattrapage Students in session ratt
+	& Modules (grades)
+. forms to create: School, Branch, Promo
+. get_chain_non_rattrappage
+. then add the Annual session
+. create and delete AnnualSessions
+. raise an exception when a Session or a Semester are unexpected
+. init annual_session in chain when created (session & annualSession)
+. force creation of sessions in order
+. show branches with thier Semesters Config
+
+

@@ -8,8 +8,13 @@
 
 {% block styles %}
 {{super()}}
-<link rel="shortcut icon" href="{{ url_for('static', filename='img/eval1.ico') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/eval1.ico') }}">
 
+    <style type="text/css">
+        .error {
+            color: red
+        }
+    </style>
 {% endblock %}
 
 
@@ -50,13 +55,18 @@
 
 {% block content %}
     <div class="container">
-        {% with messages = get_flashed_messages() %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-info" role="alert">{{ message }}</div>
+            {% for category, message in messages %}
+                {% if messages %}
+                <div class="alert {{ category }}" role="alert">{{ message }}</div>
+                {% else %}
+                <div class="alert alert-info" role="alert">{{ message }}</div>
+                {% endif %}
             {% endfor %}
         {% endif %}
         {% endwith %}
+
 
         {# application content needs to be provided in the app_content block #}
         {% block app_content %}{% endblock %}
