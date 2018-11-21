@@ -83,11 +83,24 @@ class AnnualSession(db.Model):
 class AnnualGrade(db.Model):
     __tablename__ = 'annual_grade'
     id = db.Column(db.Integer, primary_key=True)
+
+    s1 = db.Column(db.Numeric(10,2))
+    c1 = db.Column(db.Integer)
+    s2 = db.Column(db.Numeric(10,2))
+    c2 = db.Column(db.Integer)
+
+    rs1 = db.Column(db.Numeric(10,2))
+    rc1 = db.Column(db.Integer)
+    rs2 = db.Column(db.Numeric(10,2))
+    rc2 = db.Column(db.Integer)
+
     average = db.Column(db.Numeric(10,2))
     credit = db.Column(db.Integer)
     average_r = db.Column(db.Numeric(10,2))
     credit_r = db.Column(db.Integer)
     saving_average = db.Column(db.Numeric(10,2))
+    saving_credit = db.Column(db.Integer)
+
     annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
     annual_session = db.relationship('AnnualSession', backref='annual_grade')
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
@@ -198,40 +211,36 @@ class StudentSession(db.Model):
     student = db.relationship("Student", back_populates="student_sessions")
     session_id = db.Column(db.Integer, db.ForeignKey('session.id'))
     session = db.relationship('Session', back_populates='student_sessions')
-
     grades = db.relationship('Grade', back_populates='student_session')
-
-    grades_unit = db.relationship('GradeUnit', back_populates='student_session')
+    grade_units = db.relationship('GradeUnit', back_populates='student_session')
     # grades_semester = db.relationship('GradeSemester', back_populates='student_session')
 
-    def calculate(self, grades_unit=None):
-        if grades_unit is None:
-            grades_unit = self.grades_unit
+    def calculate(self, grade_units=None):
+        if grade_units is None:
+            grade_units = self.grade_units
 
         cumul_semester_coeff = self.session.semester.get_semester_cumul_coeff()
         cumul_semester_credit = self.session.semester.get_semester_cumul_credit()
 
-        fondamental_unit_average = 0
-        unit_fondamental_id = None
-
+        grade_unit_fondamental = None
         average = 0
         credit = 0
         calculation = ''
-        for grade_unit in grades_unit:
-            avrg = grade_unit.average
 
+        for grade_unit in grade_units:
             if grade_unit.is_fondamental == True:
-                fondamental_unit_credit = grade_unit.credit
-                unit_fondamental_id = grade_unit.unit_id
-            if avrg == None:
+                grade_unit_fondamental = grade_unit
+
+            if grade_unit.average == None:
                 average = None
                 break
 
-            unit = Unit.query.filter_by(id=grade_unit.unit_id).first()
-            unit_coefficient = unit.unit_coefficient
-            average += round(avrg * unit_coefficient / cumul_semester_coeff, 2)
+            unit_coefficient = grade_unit.unit.unit_coefficient
+            average += round(grade_unit.average * unit_coefficient / cumul_semester_coeff, 2)
             credit += grade_unit.credit
-            calculation += str(avrg) + ' * ' + str(unit_coefficient) + ' + '
+            calculation += str(grade_unit.average) + ' * ' + str(unit_coefficient) + ' + '
+        # end for
+
 
         if average == None:
             self.average = None
@@ -239,15 +248,61 @@ class StudentSession(db.Model):
             self.calculation = ''
         else:
             self.average = average
-            unit_fondamental = Unit.query.filter_by(id=unit_fondamental_id).first()
-            if average >= 10 and fondamental_unit_credit == unit_fondamental.get_unit_cumul_credit():
-                credit = cumul_semester_credit
-            
             self.credit = credit
-            calculation = calculation[:-3]
-            calculation = '(' + calculation + ') / ' + str(cumul_semester_coeff)
-            self.calculation = calculation
+            
+            if grade_unit_fondamental == None and average >= 10:
+                self.credit = cumul_semester_credit
+
+            if grade_unit_fondamental != None and average >= 10:
+                unit_cumul_credit = grade_unit_fondamental.unit.get_unit_cumul_credit()
+                if grade_unit_fondamental.credit == unit_cumul_credit:
+                    self.credit = cumul_semester_credit
+
+            self.calculation = '(' + calculation[:-3] + ') / ' + str(cumul_semester_coeff)
         return 'semester calculated'
+
+    def get_ratt_modules_list_unit(self, grade_unit):
+        mudules_in_unit = [module.id for module in grade_unit.unit.modules]
+
+        grades = Grade.query.filter(Grade.module_id.in_(mudules_in_unit))\
+            .join(StudentSession)\
+            .filter_by(student_id=self.student_id, session_id=self.session_id).all()
+
+        _list = []
+        for grade in grades:
+            if grade.credit == grade.module.credit:
+                continue
+            _list.append( grade.module_id )
+        return _list
+
+    def get_ratt_modules_list_semester(self):
+        student_session = StudentSession.query\
+            .filter_by(session_id=self.session_id, student_id=self.student_id).first()
+
+        modules_list = []
+        for g_unit in student_session.grade_units:
+            if g_unit.credit == g_unit.unit.get_unit_cumul_credit():
+                continue
+            modules_list += self.get_ratt_modules_list_unit(g_unit)
+
+        return modules_list
+
+    def get_ratt_modules_list_semester_html(self):
+        modules_list = self.get_ratt_modules_list_semester()
+        html = '<table>'
+        for module_id in modules_list:
+            module = Module.query.get(module_id)
+            grade = Grade.query.filter_by(student_session_id=self.id, module_id=module_id).first()
+            html += '<tr>'
+            html += '<td>' + module.unit.display_name + '</td>'
+            html += '<td>  ' + module.display_name + '</td>'
+            html += '<td>  ' + str(grade.average) + '</td>'
+            # html += '<td> ' + str(grade.credit) + '</td>'
+            html += '</tr>'
+
+        html += '</table>'
+
+        return html
 
 class GradeUnit(db.Model):
     __tablename__ = 'grade_unit'
@@ -262,13 +317,15 @@ class GradeUnit(db.Model):
     unit_id = db.Column(db.Integer, db.ForeignKey('unit.id'))
     unit = db.relationship('Unit', back_populates='grade_units')
     student_session_id = db.Column(db.Integer, db.ForeignKey('student_session.id'))
-    student_session = db.relationship('StudentSession', back_populates='grades_unit')
+    student_session = db.relationship('StudentSession', back_populates='grade_units')
 
     def calculate(self, grades=None):
         # grades in a one grade_unit
         if grades is None:
             grades = Grade.query.filter_by(student_session_id=self.student_session_id)\
                 .join(Module).filter_by(unit_id=self.unit_id).all()
+            # why didn't i use 
+            # grades = self.student_session.grades
 
         cumul_unit_coeff = self.unit.get_unit_cumul_coeff()
         cumul_unit_credit = self.unit.get_unit_cumul_credit()
@@ -290,10 +347,9 @@ class GradeUnit(db.Model):
             self.calculation = ''
         else:
             self.average = average
+            self.credit = credit
             if self.average >= 10 and self.is_fondamental == False:
                 self.credit = cumul_unit_credit
-            else:
-                self.credit = credit
 
             calculation = calculation[:-3]
             calculation = '(' + calculation + ') / ' + str(cumul_unit_coeff)
@@ -343,11 +399,6 @@ class Grade(db.Model):
 
                 calculation += '('+ str(field) + ': ' + str(val) + ' * ' + str(percentage) + ')' + ' + '
         
-        # if average != None:
-        #     calculation += '= ' + str(average)
-        #     calculation = calculation.replace('+ =', '=')
-        # else:
-        #     calculation = None
         calculation = calculation[:-3]
 
         credit = None

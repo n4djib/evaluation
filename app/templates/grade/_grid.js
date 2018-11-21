@@ -3,6 +3,7 @@ var data_arr = {{ data | safe | replace('None', 'null') }};
 var type = '{{ type | safe }}';
 
 var session_is_rattrapage = {{ session.is_rattrapage | safe | replace('T', 't') | replace('F', 'f') }}
+var session_is_closed = {{ session.is_closed | safe | replace('T', 't') | replace('F', 'f') }}
 
 // if(is_rattrapage) alert("aaaaa");
 
@@ -267,8 +268,8 @@ hot.updateSettings({ cells: function(row, col, prop){
     if(session_is_rattrapage && !(is_rattrapage && current_field=='cour'))
       cell.readOnly = 'true';
 
-    // if(is_rattrapage && current_field=='cour')
-    //   cell.readOnly = 'false';
+    if(session_is_closed)
+      cell.readOnly = 'true';
 
     return cell;
   }

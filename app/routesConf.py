@@ -32,6 +32,7 @@ def tree_module(module):
     val = module.name.replace(' ', ' ')
     href = '/admin/module/edit/?id=' + str(module.id)
     link = '{ val: "' + val + '", href: "' + href + '", target: "_blank"}'
+    code = str(module.code).replace('None', '???????')
     coeff = str(module.coefficient)
     credit = str(module.credit)
     time = ''
@@ -39,16 +40,24 @@ def tree_module(module):
         time =  'Time: ' + str(module.time).rstrip('0').rstrip('.') + ' h'
     
     percentages = ''
+    percent = 0
     for percentage in module.percentages:
         percentages += tree_percentage(percentage) + ','
+        percent += percentage.percentage
+
+    percentage_problem = ''
+    if percent != 1:
+        percentage_problem = ', percent: "make sure the percentages sum is 100%"'
 
     return '''
     {
         text:{
             link: ''' + link + ''', 
+            code: "Code: ''' + code + '''", 
             coeff: "Coeff: ''' + coeff + '''", 
             credit: "Credit: ''' + credit + '''",
             time: "''' + time + '''"
+            ''' + percentage_problem + '''
         }, 
         stackChildren: true, 
         children: [''' + percentages + ''']

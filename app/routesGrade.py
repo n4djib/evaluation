@@ -337,8 +337,8 @@ def update_student_session(students_from, students_to, session_id):
             grades = student_session.grades
             for grade in grades:
                 db.session.delete(grade)
-            grades_unit = student_session.grades_unit
-            for grade_unit in grades_unit:
+            grade_units = student_session.grade_units
+            for grade_unit in grade_units:
                 db.session.delete(grade_unit)
             db.session.delete(student_session)
             dirty_remove = True
@@ -555,7 +555,7 @@ def get_row_unit(grade_unit, cols_per_module):
     return row
 
 def get_row_semester(student_session, cols_per_module=2):
-    grade_units = student_session.grades_unit
+    grade_units = student_session.grade_units
     row = ''
     for grade_unit in grade_units:
         row += get_row_unit(grade_unit, cols_per_module)
@@ -667,7 +667,7 @@ def grade_save():
 def unlock_session(session_id):
     session = Session.query.filter_by(id=session_id).first_or_404()
 
-    flash("Session (" + str(session.id) + ") unlocked.")
+    flash("Session (" + str(session.id) + ") unlocked.", 'alert-success')
     session.is_closed = False
     db.session.commit()
 
@@ -692,9 +692,12 @@ def lock_session(session_id):
             + str(_not_complite) + " student(s).", 'alert-danger')
         return redirect(url_for('session', session_id=session.id))
 
-    flash("Session (" + str(session.id) + ") locked.")
+    flash("Session (" + str(session.id) + ") locked.", 'alert-success')
     session.is_closed = True
     db.session.commit()
+
+    ############################## Test
+    # return redirect(url_for('session', session_id=session.id))
 
     school_id = session.promo.branch.school_id
     branch_id = session.promo.branch_id
@@ -764,14 +767,15 @@ def create_rattrapage(session_id):
     # # if Rattrapage exist -> it is next
     return session
 
-@app.route('/session/<session_id>/students-rattrapage/', methods=['GET', 'POST'])
-def students_rattrapage(session_id=0):
-    students = StudentSession.query\
-        .filter_by(session_id=session_id)\
-        .filter(or_(StudentSession.credit<30, StudentSession.credit == None))\
-        .join(Student).order_by(Student.username)\
-        .all()
-    return render_template('session/students-rattrapage.html', title='students-rattrapage', students=students, session_id=session_id)
+# @app.route('/session/<session_id>/students-rattrapage/', methods=['GET', 'POST'])
+# def students_rattrapage(session_id=0):
+#     students = StudentSession.query\
+#         .filter_by(session_id=session_id)\
+#         .filter(or_(StudentSession.credit<30, StudentSession.credit == None))\
+#         .join(Student).order_by(Student.username)\
+#         .all()
+#     return render_template('session/students-rattrapage.html', 
+#         title='students-rattrapage', students=students, session_id=session_id)
 
 
 @app.route('/session/<session_id>/students-rattrapage-form/', methods=['GET', 'POST'])
@@ -781,7 +785,10 @@ def students_rattrapage_form(session_id=0):
         .filter(or_(StudentSession.credit<30, StudentSession.credit == None))\
         .join(Student).order_by(Student.username)\
         .all()
-    return render_template('session/students-rattrapage-form.html', title='students-rattrapage', students=students, session_id=session_id)
+    return render_template('session/students-rattrapage-form.html', 
+        title='students-rattrapage', 
+        students=students, 
+        session_id=session_id)
 
 
 def init_student_rattrapage(session, rattrapage):
@@ -812,7 +819,7 @@ def init_student_rattrapage(session, rattrapage):
 
     # transfair all of there grades
     init_grades_rattrapage(session, rattrapage)
-    # init_grades_unit_rattrapage(session, rattrapage)
+    # init_grade_units_rattrapage(session, rattrapage)
     
 def init_grades_rattrapage(session, rattrapage):
     # # travers students in Rattrapage and Init from Session
@@ -878,46 +885,59 @@ def init_grades_modules(student_session_id, student_rattrapage_id):
 # def get_ratt_modules_list_annual():
 
 
-def get_ratt_modules_list_unit(g_unit):
-    mudules_in_unit = [module.id for module in g_unit.unit.modules]
-    s_s = g_unit.student_session
+# def get_ratt_modules_list_unit(grade_unit):
+#     mudules_in_unit = [module.id for module in grade_unit.unit.modules]
+#     s_s = grade_unit.student_session
 
-    grades = Grade.query.filter(Grade.module_id.in_(mudules_in_unit))\
-        .join(StudentSession)\
-        .filter_by(student_id=s_s.student_id, session_id=s_s.session_id).all()
+#     grades = Grade.query.filter(Grade.module_id.in_(mudules_in_unit))\
+#         .join(StudentSession)\
+#         .filter_by(student_id=s_s.student_id, session_id=s_s.session_id).all()
 
-    _list = []
-    for grade in grades:
-        if grade.credit == grade.module.credit:
-            continue
-        _list.append( grade.module_id )
-    return _list
+#     _list = []
+#     for grade in grades:
+#         if grade.credit == grade.module.credit:
+#             continue
+#         _list.append( grade.module_id )
+#     return _list
 
 
-# NOTE :: REMOVE THE ROUTE AFTER TESTING
-# @app.route('/session/<session_id>/<student_id>/ratt-modules-list/', methods=['GET', 'POST'])
-def get_ratt_modules_list_semester(session_id, student_id):
-    student_session = StudentSession.query\
-        .filter_by(session_id=session_id, student_id=student_id).first()
+# # NOTE :: REMOVE THE ROUTE AFTER TESTING
+# # @app.route('/session/<session_id>/<student_id>/ratt-modules-list/', methods=['GET', 'POST'])
+# def get_ratt_modules_list_semester(session_id, student_id):
+#     student_session = StudentSession.query\
+#         .filter_by(session_id=session_id, student_id=student_id).first()
 
-    grades_unit = student_session.grades_unit
+#     modules_list = []
+#     for g_unit in student_session.grade_units:
+#         if g_unit.credit == g_unit.unit.get_unit_cumul_credit():
+#             continue
+#         modules_list += get_ratt_modules_list_unit(g_unit)
 
-    modules_list = []
-    for g_unit in grades_unit:
-        unit_credit = g_unit.unit.get_unit_cumul_credit()
-        if g_unit.credit == unit_credit:
-            continue
-        modules_list += get_ratt_modules_list_unit(g_unit)
+#     return modules_list
 
-    return modules_list
+# def get_ratt_modules_list_semester_html(session_id, student_id):
+#     modules_list = get_ratt_modules_list_semester(session_id, student_id)
+#     html = '<table>'
+#     for module_id in modules_list:
+#         module = Module.query.get(module_id)
+#         html += '<tr>'
+#         html += '<td>' + module.display_name + ' - ' + module.unit.display_name
+#         html += ' - ' + '</td>'
 
+#         html += '</tr>'
+
+#     html += '</table>'
+
+#     return html
 
 def transfer_grades(session_id, ratt_id, student_session_ratt_id, student_id):
     grades = Grade.query.join(StudentSession)\
         .filter_by(session_id=session_id, student_id=student_id)\
         .all()
 
-    ratt_modules = get_ratt_modules_list_semester(session_id, student_id)
+    # ratt_modules = get_ratt_modules_list_semester(session_id, student_id)
+    student_session = StudentSession.query.filter_by(session_id=session_id, student_id=student_id).first()
+    ratt_modules = student_session.get_ratt_modules_list_semester()
 
     for grade in grades:
         grade_in_ratt = Grade.query.filter_by(
@@ -1036,6 +1056,7 @@ def create_session(promo_id=0, semester_id=0):
     if previous_normal != None:
         for student in previous_normal.student_sessions:
             transfer_student_session(previous_normal.id, session.id, student.student_id)
+        init_all(session.id)
 
     school_id = session.promo.branch.school_id
     branch_id = session.promo.branch_id
@@ -1113,7 +1134,6 @@ def init_annual_grade(annual_session_id):
             db.session.add(annual_grade)
     db.session.commit()
 
-
     # NOTE:
     # delete users in Table Who are not supposed to be in annual
     students_annual = AnnualGrade.query.filter_by(annual_session_id=annual_session_id).all()
@@ -1126,6 +1146,70 @@ def init_annual_grade(annual_session_id):
             db.session.delete(annual_grade)
     db.session.commit()
 
+    return 'init_annual_grade'
+
+
+def calculate_annual(annual_session_id):
+    annual_session = AnnualSession.query.get(annual_session_id)
+    annual_dict = annual_session.get_annual_dict()
+    annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session_id).all()
+
+    for an in annual_grades:
+        sess_1 = StudentSession.query.filter_by(
+            session_id=annual_dict['S1'], student_id=an.student_id).first()
+        ratt_1 = StudentSession.query.filter_by(
+            session_id=annual_dict['R1'], student_id=an.student_id).first()
+        sess_2 = StudentSession.query.filter_by(
+            session_id=annual_dict['S2'], student_id=an.student_id).first()
+        ratt_2 = StudentSession.query.filter_by(
+            session_id=annual_dict['R2'], student_id=an.student_id).first()
+
+        if sess_1 != None:
+            an.s1 = sess_1.average
+            an.c1 = sess_1.credit
+        else:
+            an.s1 = None
+            an.c1 = None
+
+        if sess_2 != None:
+            an.s2 = sess_2.average
+            an.c2 = sess_2.credit
+        else:
+            an.s2 = None
+            an.c2 = None
+
+        if ratt_1 != None:
+            an.rs1 = ratt_1.average
+            an.rc1 = ratt_1.credit
+        else:
+            an.rs1 = None
+            an.rc1 = None
+
+        if ratt_2 != None:
+            an.rs2 = ratt_2.average
+            an.rc2 = ratt_2.credit
+        else:
+            an.rs2 = None
+            an.rc2 = None
+
+        if sess_1 != None and sess_2 != None:
+            an.average = sess_1.average + sess_2.average
+            an.credit  = sess_1.credit + sess_2.credit
+        else:
+            an.average = None
+            an.credit  = None
+
+        if ratt_1 != None and ratt_2 != None:
+            an.average_r = ratt_1.average + ratt_2.average
+            an.credit_r  = ratt_1.credit + ratt_2.credit
+        else:
+            an.average_r = None
+            an.credit_r  = None
+
+    db.session.commit()
+
+    return 'calculate_annual'
+
 
 def create_data_annual_session(annual_session_id):
     annual_session = AnnualSession.query.get(annual_session_id)
@@ -1135,50 +1219,22 @@ def create_data_annual_session(annual_session_id):
 
     # array_data = ['#', 'name', 'S1', 'R1', 'S2', 'R2', 'average', 'credit', 'b']
     array_data = []
-    for index, annual_grade in enumerate(annual_grades):
-        student = annual_grade.student
+    for index, an in enumerate(annual_grades):
+        student = an.student
         name = student.username+' - '+student.last_name+' '+student.first_name
 
-        sess_1 = StudentSession.query.filter_by(
-            session_id=annual_dict['S1'], student_id=annual_grade.student_id).first()
-        ratt_1 = StudentSession.query.filter_by(
-            session_id=annual_dict['R1'], student_id=annual_grade.student_id).first()
-        sess_2 = StudentSession.query.filter_by(
-            session_id=annual_dict['S2'], student_id=annual_grade.student_id).first()
-        ratt_2 = StudentSession.query.filter_by(
-            session_id=annual_dict['R2'], student_id=annual_grade.student_id).first()
-
-        S1 = R1 = S2 = R2 = None
-        CS1 = CR1 = CS2 = CR2 = None
-        if sess_1 != None:
-            S1 = sess_1.average
-            CS1 = sess_1.credit
-        if ratt_1 != None:
-            R1 = ratt_1.average
-            CR1 = ratt_1.credit
-        if sess_2 != None:
-            S2 = sess_2.average
-            CS2 = sess_2.credit
-        if ratt_2 != None:
-            R2 = ratt_2.average
-            CR2 = ratt_2.credit
-
         array_data.append([index+1, name, 
-            S1, CS1, R1, CR1,      S2, CS2, R2, CR2, 
-            annual_grade.average, annual_grade.credit, 
-            annual_grade.average_r, annual_grade.credit_r, 
-            annual_grade.saving_average, 'before'
+            an.s1, an.c1, an.rs1, an.rc1,
+            an.s2, an.c2, an.rs2, an.rc2, 
+            an.average, an.credit, 
+            an.average_r, an.credit_r, 
+            an.saving_average, an.saving_credit, 
+            ''
         ])
 
-    # **************************** 
-    # ****************************
     return array_data
 
-def calculate_annual(annual_session_id):
-    annual_session = AnnualSession.query.get(annual_session_id)
-    annual_dict = annual_session.get_annual_dict()
 
-    return '11'
 
 
 @app.route('/annual-session/<annual_session_id>/', methods=['GET', 'POST'])
@@ -1186,12 +1242,11 @@ def annual_session(annual_session_id=0):
     annual_session = AnnualSession.query.filter_by(id=annual_session_id).first_or_404()
 
     init_annual_grade(annual_session_id)
-    calculate_annual(annual_session_id)
+    # calculate_annual(annual_session_id)
     array_data = create_data_annual_session(annual_session_id)
 
     return render_template('session/annual-session.html', 
         title='Annual Session', annual_session=annual_session, array_data=array_data)
-
 
 def renegade_annual_session(annual_session_id):
     annual_session = AnnualSession.query.get(annual_session_id)
@@ -1205,6 +1260,8 @@ def renegade_annual_session(annual_session_id):
         db.session.commit()
     
     return count
+
+
 
 @app.route('/annual-session/<annual_session_id>/delete/', methods=['GET', 'POST'])
 def delete_annual_session(annual_session_id):
@@ -1263,51 +1320,171 @@ def create_annual_session(session_id):
 # ----------------------
 # ----------------------
 
+# def get_grade_tr(student_session, grade_unit):
+#     modules_in_unit = [module.id for module in grade_unit.unit.modules]
+#     grades_in_unit = Grade.query\
+#         .filter_by(student_session_id=student_session.id)\
+#         .filter(Grade.module_id.in_(modules_in_unit)).all()
+
+#     trs = ''
+#     for grade in grades_in_unit:
+#         module = grade.module
+#         trs += '<tr>'
+
+#         trs += '<td>'+str(module.code).replace('None', '-')+'</td>'
+#         # trs += '<td>'+module.display_name+'</td>'
+#         trs += '<td>'+module.name+'</td>'
+#         trs += '<td>'+str(module.coefficient)+'</td> <td>'+str(module.credit)+'</td>'
+#         trs += '<td>'+str(grade.average)+'</td> <td>'+str(grade.credit)+'</td>'
+#         trs += '<td>-1</td>'
+
+#         trs += '</tr>'
+
+#     return trs
+
+# def get_tr_bultin_units(student_session):
+#     grade_units = student_session.grade_units
+#     tr_unit = ''
+#     for grade_unit in grade_units:
+#         tr = '<tr>'
+#         unit = grade_unit.unit
+#         tr += '<td>' + unit.name + '</td>'
+#         tr += '<td>' + str( unit.get_unit_cumul_credit() ) + '</td>'
+#         tr += '<td>' + str( unit.unit_coefficient ) + '</td>'
+
+#         grade = get_grade_tr(student_session, grade_unit)
+#         tr += '<td>' + grade + '</td>'
+
+#         tr += '</tr>'
+
+#         tr_unit += tr
+#     return tr_unit
+
+def get_header_bultin_semester():
+    header = '<tr class="head">'
+    header += '<th colspan=3>Unité d''Enseignement</th>'
+    header += '<th colspan=4>Matière d''Enseignement</th>'
+    header += '<th colspan=6>Résultats obtenus</th>'
+    header += '</tr>'
+    header += '<tr class="head">'
+    header += '<th rowspan=2>Nature</th>'
+    header += '<th rowspan=2>Crédit requis</th>'
+    header += '<th rowspan=2>Coeff</th>'
+
+    header += '<th rowspan=2>Code</th>'
+    header += '<th rowspan=2>Intitulé</th>'
+    header += '<th rowspan=2>Crédit requis</th>'
+    header += '<th rowspan=2>Coeff</th>'
+
+    header += '<th colspan=3>Matière</th> <th colspan=3>U.E</th>'
+    header += '</tr>'
+    header += '<tr class="head">'
+    header += '<th>Moyenne</th> <th>Credit</th> <th>Session</th>'
+    header += '<th>Moyenne</th> <th>Credit</th> <th>Session</th>'
+    header += '</tr>'
+
+    return header
 
 
-@app.route('/session/<session_id>/semester-result/', methods=['GET', 'POST'])
-def semester_result(session_id=0):
-    session = Session.query.filter_by(id=session_id).first()
-    cols_per_module = 2
-    header = get_thead(session.configuration, cols_per_module)
+def get_tr_bultin_semester(student_session):
+    grade_units = student_session.grade_units
 
+    table = ''
+    table += get_header_bultin_semester()
+
+
+    for grade_unit in grade_units:
+        modules_in_unit = [module.id for module in grade_unit.unit.modules]
+        grades_in_unit = Grade.query\
+            .filter_by(student_session_id=student_session.id)\
+            .filter(Grade.module_id.in_(modules_in_unit)).all()
+
+        grades_tr = ''
+        rowspan = 0
+        for grade in grades_in_unit:
+            module = grade.module
+            if rowspan > 0:
+                grades_tr += '<tr>'
+            grades_tr += '<td>'+str(module.code).replace('None', '-')+'</td>'
+            grades_tr += '<td class="intitule">'+module.display_name.replace(' ', ' ')+'</td>'
+            grades_tr += '<td>'+str(module.coefficient)+'</td> <td>'+str(module.credit)+'</td>'
+            grades_tr += '<td>'+str(grade.average)+'</td> <td>'+str(grade.credit)+'</td>'
+            grades_tr += '<td>-1-</td>'
+            if rowspan == 0:
+                grades_tr += '<td rowspan=_rowspan_>'+str(grade_unit.average).replace('None', '-')+'</td>'
+                grades_tr += '<td rowspan=_rowspan_>'+str(grade_unit.credit).replace('None', '-')+'</td>'
+                grades_tr += '<td rowspan=_rowspan_>+1+</td>'
+            
+            grades_tr += '</tr>'
+            rowspan += 1
+
+        unit = grade_unit.unit
+        tr =  '<td rowspan='+str(rowspan)+'>'+unit.display_name+'</td>'
+        tr += '<td rowspan='+str(rowspan)+'>'+str(unit.get_unit_cumul_credit())+'</td>'
+        tr += '<td rowspan='+str(rowspan)+'>'+str(unit.unit_coefficient)+'</td>'
+        tr += grades_tr.replace('_rowspan_', str(rowspan) )
+
+        table += '<tr>' + tr + '</tr>'
+
+    return '<table class="table table-bordered">' + table + '</table>'
+
+
+@app.route('/session/<session_id>/student/<student_id>/bultin/', methods=['GET', 'POST'])
+def bultin_semester(session_id, student_id):
+    student_session = StudentSession.query\
+        .filter_by(session_id=session_id, student_id=student_id).first()
+
+    table = get_tr_bultin_semester(student_session)
+
+    return render_template('student/bultin-semester.html', title='****', table=table)
+
+
+
+
+
+
+
+
+# ----------------------
+# ----------------------
+# ----------------------
+
+
+def get_semester_result_data(session_id, cols_per_module=2):
     data_arr = []
     students_session = StudentSession.query.filter_by(session_id=session_id)\
         .join(Student).order_by(Student.username).all()
     for index, student_session in enumerate(students_session, start=1):
         student = student_session.student
-        # _std = F'<td>{index}</td><td>{student.username}</td><td>{student.first_name} - {student.last_name}</td>'
         _std = '<td>' + str(index) + '</td>'
         _std += '<td class=no-wrap>' + student.username + '</td>'
-        _std += '<td class=no-wrap>' + student.first_name + ' - ' + student.last_name + '</td>'
-        # _std = _std.replace(' ', ' ')
+        _std += '<td class=no-wrap>' + student.last_name + ' ' + student.first_name + '</td>'
         row = _std + get_row_semester(student_session, cols_per_module)
         data_arr.append(row)
-    return render_template('session/semester-result.html', title='Semester Result 2', 
+
+    return data_arr
+
+
+@app.route('/session/<session_id>/semester-result/', methods=['GET', 'POST'])
+def semester_result(session_id=0):
+    session = Session.query.filter_by(id=session_id).first_or_404()
+    header = get_thead(session.configuration, 2)
+    data_arr = get_semester_result_data(session_id, 2)
+    return render_template('session/semester-result.html',
+        title='Semester ' + str(session.semester.semester) + ' Result', 
         header=header, data_arr=data_arr, session=session)
 
 @app.route('/session/<session_id>/semester-result-print/<_id>/', methods=['GET', 'POST'])
 @app.route('/session/<session_id>/semester-result-print/', methods=['GET', 'POST'])
 def semester_result_print(session_id=0, _id=0):
-    session = Session.query.filter_by(id=session_id).first()
-    cols_per_module = 2
-    headers = get_thead(session.configuration, cols_per_module)
-
-    data_arr = []
-    students_session = StudentSession.query.filter_by(session_id=session_id)\
-        .join(Student).order_by(Student.username).all()
-    for index, student_session in enumerate(students_session, start=1):
-        student = student_session.student
-        _std = '<td>' + str(index) + '</td>'
-        _std += '<td class=no-wrap>' + student.username + '</td>'
-        _std += '<td class=no-wrap>' + student.first_name + ' - ' + student.last_name + '</td>'
-        # _std = _std.replace(' ', ' ')
-        row = _std + get_row_semester(student_session, cols_per_module)
-        data_arr.append(row)
-
+    session = Session.query.filter_by(id=session_id).first_or_404()
+    headers = get_thead(session.configuration, 2)
+    data_arr = get_semester_result_data(session_id, 2)
     return render_template('session/semester-result-print.html', 
         title='Semester ' + str(session.semester.semester) + ' Result', 
         headers=headers, data_arr=data_arr, session=session, id=_id)
+
+
 
 # 
 ## PDF 
@@ -1389,11 +1566,13 @@ def module_print(session_id=0, module_id=0, _full=''):
 #
 
 # from flask_weasyprint import HTML, render_pdf
+
 # @app.route('/pdf/weasyprint/')
 # def your_view_weasyprint():
 #     return '12'
-#     html = render_template('http://localhost:5000/session/2/semester-result-print/')
-#     return render_pdf(HTML(string=html))
+#     # html = render_template('http://localhost:5000/session/2/semester-result-print/')
+#     # return render_pdf(HTML(string=html))
+
 
 # Flask-WeasyPrint
 # https://pythonhosted.org/Flask-WeasyPrint/
@@ -1429,6 +1608,11 @@ def print_module_students_empty(session_id=0, module_id=0):
 
 
 
+@app.route('/print-test/')
+def print_test():
+    url = 'https://www.w3schools.com/colors/colors_picker.asp'
+    pdf_file_name = 'azerty.pdf'
+    return html_to_pdf(url, pdf_file_name)
 
 def html_to_pdf(url, pdf_file_name, options={}):
     wkhtmltopdf_path = app.config['WKHTMLTOPDF_PATH']

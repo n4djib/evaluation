@@ -25,8 +25,8 @@ def init_grade_unit(session):
     students_session = StudentSession.query.filter_by(session_id=session.id).all()
 
     for student_session in students_session:
-        grades_unit = student_session.grades_unit
-        for grade_unit in grades_unit:
+        grade_units = student_session.grade_units
+        for grade_unit in grade_units:
             db.session.delete(grade_unit)
     db.session.commit()
 
@@ -124,22 +124,22 @@ def calculate_all(session_id):
     message = init_all(session_id)
     flash(message)
 
-    # it would be better if:
-    #   i don't save the grades
-    #   butt send them to grade_unit.calculate
-    #   this way i would not have to visit the database multiple times
+    # # it would be better if:
+    # #   i don't save the grades
+    # #   butt send them to grade_unit.calculate
+    # #   this way i would not have to visit the database multiple times
 
-    grades = Grade.query.join(StudentSession).filter_by(session_id=session_id).all()
-    for grade in grades:
-        grade.calculate()
-    db.session.commit()
-    # commit should be removed
-    # for more speed make a list of tuples (module_id, unit_id)
-    #   select it directly from Config (config string)
-    #   and use it in the next loop rather than (grade.module.unit_id)
+    # grades = Grade.query.join(StudentSession).filter_by(session_id=session_id).all()
+    # for grade in grades:
+    #     grade.calculate()
+    # db.session.commit()
+    # # commit should be removed
+    # # for more speed make a list of tuples (module_id, unit_id)
+    # #   select it directly from Config (config string)
+    # #   and use it in the next loop rather than (grade.module.unit_id)
 
-    grades_unit = GradeUnit.query.join(StudentSession).filter_by(session_id=session_id).all()
-    for grade_unit in grades_unit:
+    grade_units = GradeUnit.query.join(StudentSession).filter_by(session_id=session_id).all()
+    for grade_unit in grade_units:
         grade_unit.calculate()
         # grades_in_unit = []
         # for grade in grades:
@@ -152,7 +152,7 @@ def calculate_all(session_id):
     students_session = StudentSession.query.filter_by(session_id=session_id).all()
     for student_session in students_session:
         student_session.calculate()
-        # student_session.calculate(<grades_unit> of this student_session)
+        # student_session.calculate(<grade_units> of this student_session)
     db.session.commit()
 
     # db.session.query().filter(StudentSession.session_id == session_id).update({"avrage": (10)})
@@ -201,13 +201,13 @@ def get_semester_justification(student_session, conf_dict):
 @app.route('/session/<session_id>/justification/<student_id>/', methods=['GET', 'POST'])
 def justification(session_id, student_id):
     student_session = StudentSession.query.filter_by(session_id=session_id, student_id=student_id).first()    
-    grades_unit = student_session.grades_unit
+    grade_units = student_session.grade_units
     grades = student_session.grades
     session = student_session.session
     conf_dict = literal_eval( session.configuration )
 
     justs = []
-    for grade_unit in grades_unit:
+    for grade_unit in grade_units:
         for grade in grades:
             if grade_unit.unit_id == grade.module.unit_id:
                 justs.append( get_module_justification(grade, conf_dict) )
