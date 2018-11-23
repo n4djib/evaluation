@@ -74,6 +74,7 @@ class AnnualSession(db.Model):
 
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     sessions = db.relationship('Session', back_populates='annual_session')
+    annual_grades = db.relationship('AnnualGrade', back_populates='annual_session')
     def __repr__(self):
         return '<{} - {}>'.format(self.id, self.name)
     def get_annual_dict(self):
@@ -102,7 +103,10 @@ class AnnualGrade(db.Model):
     saving_credit = db.Column(db.Integer)
 
     annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
-    annual_session = db.relationship('AnnualSession', backref='annual_grade')
+    annual_session = db.relationship("AnnualSession", back_populates="annual_grades")
+    # annual_session = db.relationship('AnnualSession', backref='annual_session')
+    # annual_session = db.relationship('AnnualSession', backref='annual_grade')
+
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
     student = db.relationship('Student', backref='student')
 

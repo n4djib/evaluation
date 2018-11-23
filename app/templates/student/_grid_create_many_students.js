@@ -68,7 +68,7 @@ var hot = new Handsontable(hotElement, {
       selectOptions: wilayas_name_list, 
       renderer: wilayaRenderer
     },
-    {data: 6, width: 0.5},
+    //{data: 6, width: 0.5},
   ],
   colHeaders: colHeaders,
   stretchH: 'all',

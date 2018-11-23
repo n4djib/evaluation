@@ -1149,6 +1149,10 @@ def init_annual_grade(annual_session_id):
     return 'init_annual_grade'
 
 
+# def calculate_annual_average(session1, session2):
+#     average = 0
+#     return average
+
 def calculate_annual(annual_session_id):
     annual_session = AnnualSession.query.get(annual_session_id)
     annual_dict = annual_session.get_annual_dict()
@@ -1192,23 +1196,35 @@ def calculate_annual(annual_session_id):
             an.rs2 = None
             an.rc2 = None
 
+
+        # don't forget to include is_fondamental
         if sess_1 != None and sess_2 != None:
-            an.average = sess_1.average + sess_2.average
+            an.average = (sess_1.average + sess_2.average)/2
+            # calculate_annual_average(sess_1, sess_2)
             an.credit  = sess_1.credit + sess_2.credit
         else:
             an.average = None
             an.credit  = None
 
-        if ratt_1 != None and ratt_2 != None:
-            an.average_r = ratt_1.average + ratt_2.average
-            an.credit_r  = ratt_1.credit + ratt_2.credit
+        if ratt_1 != None or ratt_2 != None:
+            an.average_r = None
+            an.credit_r = None
+            r1 = ratt_1
+            r2 = ratt_2
+            if ratt_1 == None and sess_1 != None:
+                r1 = sess_1
+            if ratt_2 == None and sess_2 != None:
+                r2 = sess_2
+            if r1 != None and r2 != None:
+                an.average_r = (r1.average + r2.average)/2
+                an.credit_r  = r1.credit + r2.credit
         else:
             an.average_r = None
             an.credit_r  = None
 
     db.session.commit()
-
     return 'calculate_annual'
+
 
 
 def create_data_annual_session(annual_session_id):
@@ -1236,19 +1252,21 @@ def create_data_annual_session(annual_session_id):
 
 
 
+@app.route('/annual-session/<annual_session_id>/refrech', methods=['GET', 'POST'])
+def annual_session_refrech(annual_session_id=0):
+    init_annual_grade(annual_session_id)
+    calculate_annual(annual_session_id)
+    return redirect(url_for('annual_session', annual_session_id=annual_session_id))
 
 @app.route('/annual-session/<annual_session_id>/', methods=['GET', 'POST'])
 def annual_session(annual_session_id=0):
     annual_session = AnnualSession.query.filter_by(id=annual_session_id).first_or_404()
-
-    init_annual_grade(annual_session_id)
-    # calculate_annual(annual_session_id)
     array_data = create_data_annual_session(annual_session_id)
-
     return render_template('session/annual-session.html', 
         title='Annual Session', annual_session=annual_session, array_data=array_data)
 
 def renegade_annual_session(annual_session_id):
+    # if it doesn't have any sessions
     annual_session = AnnualSession.query.get(annual_session_id)
     sessions = annual_session.sessions
     count = 0
@@ -1256,30 +1274,35 @@ def renegade_annual_session(annual_session_id):
         count += 1
 
     if count == 0:
+        annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session_id).all()
+        for annual_grade in annual_grades:
+            db.session.delete(annual_grade)
         db.session.delete(annual_session)
         db.session.commit()
-    
+
     return count
-
-
 
 @app.route('/annual-session/<annual_session_id>/delete/', methods=['GET', 'POST'])
 def delete_annual_session(annual_session_id):
+    # if it doesn't have any sessions
     count = renegade_annual_session(annual_session_id)
+
     annual_session = AnnualSession.query.get(annual_session_id)
-    # session = annual_session.sessions[0]
     promo = annual_session.promo
     school_id = promo.branch.school_id
     branch_id = promo.branch_id
 
     # in case it is not deleted in renegade_annual_session
     if count != 0 and annual_session != None:
+        annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session_id).all()
+        for annual_grade in annual_grades:
+            db.session.delete(annual_grade)
         db.session.delete(annual_session)
         db.session.commit()
     flash('annual session (' + str(annual_session_id) + ') is deleted')
 
     return redirect(url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo.id))
-    # return 'qsd'
+    
 
 @app.route('/annual-session/<session_id>/create_annual_session/', methods=['GET', 'POST'])
 def create_annual_session(session_id):
@@ -1313,7 +1336,8 @@ def create_annual_session(session_id):
     init_annual_session_id(session.id, annual_session_id)
 
 
-    return redirect(url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id))
+    # return redirect(url_for('annual_session', annual_session_id=annual_session_id))
+    return redirect(url_for('annual_session_refrech', annual_session_id=annual_session_id))
 
 
 # ----------------------
@@ -1462,6 +1486,14 @@ def get_semester_result_data(session_id, cols_per_module=2):
         row = _std + get_row_semester(student_session, cols_per_module)
         data_arr.append(row)
 
+    for index, student_session in enumerate(students_session, start=1):
+        student = student_session.student
+        _std = '<td>' + str(index) + '</td>'
+        _std += '<td class=no-wrap>' + student.username + '</td>'
+        _std += '<td class=no-wrap>' + student.last_name + ' ' + student.first_name + '</td>'
+        row = _std + get_row_semester(student_session, cols_per_module)
+        data_arr.append(row)
+
     return data_arr
 
 
@@ -1591,9 +1623,19 @@ it seems to work right when changing the URL
 ''' 
 @app.route('/pdf/session/<session_id>/nbr/<id>/')
 def print_semester_result(session_id=0, id=0):
-    options = {'orientation': 'landscape'}
+    # options = {'orientation': 'landscape', 'page-size':'A4', 'dpi':400}
+    options = {'orientation': 'landscape', 
+        'page-size':'A4', 
+        'encoding':'utf-8', 'dpi':400
+        # 'margin-top':'0.5cm',
+        # 'margin-bottom':'0.8cm',
+        # 'margin-left':'0.5cm',
+        # 'margin-right':'0.2cm'
+
+    }
+
     # url = 'http://localhost:5001/session/1/semester-result-print/'+str(id)+'/'
-    # url = 'http://localhost:5000/session/1semester-result-print/'
+
     url = url_for('semester_result_print', session_id=session_id, _external=True)
     pdf_file_name = 'semester_zerbia.pdf'
     return html_to_pdf(url, pdf_file_name, options)
