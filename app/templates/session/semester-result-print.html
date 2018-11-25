@@ -9,7 +9,15 @@
       margin-right: 30px;
       display:inline-block;
     }
-    th, td {
+    th {
+      border: 1px solid lightgray;
+      padding: 0px 4px;
+    }
+/*    td {
+      border: 1px solid lightgray;
+      padding: 0px 4px;
+    }*/
+    .td {
       border: 1px solid lightgray;
       padding: 0px 4px;
     }
@@ -17,7 +25,6 @@
       white-space: nowrap;
       /*word-wrap: false;*/
     }
-
     .unit {
       background-color: Bisque;
     } 
@@ -27,37 +34,38 @@
     .header5 {
       background-color: Gainsboro;
     }
-    tbody > tr:nth-child(2n+6) {
+/*    tbody > tr:nth-child(2n+6) {
       background-color: #f7f7ff; 
       page-break-after: always;
-    }
-    tbody > tr:hover {
-      background-color: #f5f5f5;
-    }
+    }*/
+    tbody > tr:nth-child(even) {background-color: #f7f7ff;}
+    tbody > tr:hover {background-color: #f5f5f5;}
 
     .right { text-align: right; } 
     .center { text-align: center; }
+
     
   </style>
 </head>
 
 
 <body>
-  sdfsdfsdf</br>
-  sdfsdfsdf</br>
-  sdfsdfsdf</br>
-  sdfsdfsdf</br>
-  sdfsdfsdf</br>
-  sdfsdfsdf</br>
-  sdfsdfsdf</br>
-  sdf***********************</br>
+  </br>
 
   <div class="container" style="border-width:0px; border-style:solid; border-color:black;">
     <table class="table_1">
-        <tr> {{ headers | safe | replace('None', '')}} </tr>
+<!--       <tr> {{ headers | safe | replace('None', '')}} </tr>
+      {% for data in data_arr %}
+        <tr > {{ data | safe | replace('None', '') }} </tr>
+      {% endfor %} -->
+      <thead>
+        {{ header | safe | replace('None', '') }}
+      </thead>
+      <tbody>
         {% for data in data_arr %}
-          <tr> {{ data | safe | replace('None', '') }} </tr>
+          <tr>{{ data | safe | replace('None', '') }}</tr>
         {% endfor %}
+      </tbody>
     </table>
   </div>
 

@@ -8,52 +8,17 @@ from decimal import *
 
 # FIX:  = db.Column(db.String(64), index=True, unique=True)
 
-class School(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), index=True, unique=True)
-    description = db.Column(db.String(150))
-    branches = db.relationship('Branch', back_populates='school')
-    def __repr__(self):
-        return '<School {}>'.format(self.name)
-
-class Branch(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), index=True, unique=True)
-    description = db.Column(db.String(150))
-    school_id = db.Column(db.Integer, db.ForeignKey('school.id'))
-    school = db.relationship("School", back_populates="branches")
-
-    students = db.relationship('Student', backref='branch', lazy='dynamic')
-    semesters = db.relationship('Semester', back_populates='branch')
-    promos = db.relationship('Promo', back_populates='branch')
-    def __repr__(self):
-        return '<Branch {}>'.format(self.name)
-
-class Wilaya(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    code = db.Column(db.String(10), index=True, unique=True)
-    name = db.Column(db.String(100), index=True, unique=True)
-    students = db.relationship('Student', backref='wilaya', lazy='dynamic')
-    def __repr__(self):
-        return '<Wilaya {}>'.format(self.name)
-    def get_label(self):
-        # return self.code + ' - ' + self.name
-        return self.name
-
 class Promo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), index=True, unique=True)
     display_name = db.Column(db.String(250))
     start_date = db.Column(db.Date)
     finish_date = db.Column(db.Date)
-
     branch_id = db.Column(db.Integer, db.ForeignKey('branch.id'))
-    branch = db.relationship('Branch', back_populates='promos')
-    sessions = db.relationship('Session', back_populates='promo')
+
+    sessions = db.relationship('Session', backref='promo')
+
     annual_session = db.relationship('AnnualSession', back_populates='promo')
-    # sessions = db.relationship('Session', back_populates='promo', order_by="Session.Semester.annual")
-    # units = db.relationship('Unit', back_populates='semester', order_by="Unit.order")
-    # annual_sessions = db.relationship('AnnualSession', backref='promo', lazy='dynamic')
     def __repr__(self):
         return '<{} - {}>'.format(self.id, self.name)
     def get_next_semester(self):
@@ -119,12 +84,9 @@ class Session(db.Model):
     is_closed = db.Column(db.Boolean, default=False)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     configuration = db.Column(db.Text)
-
     semester_id = db.Column(db.Integer, db.ForeignKey('semester.id'))
-    semester = db.relationship('Semester', back_populates='sessions')
-
     promo_id = db.Column(db.Integer, db.ForeignKey('promo.id'))
-    promo = db.relationship('Promo', back_populates='sessions')
+
     annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
     annual_session = db.relationship('AnnualSession', back_populates='sessions')
     # annual_session = db.relationship('AnnualSession', backref='session')
@@ -418,20 +380,39 @@ class Grade(db.Model):
         return 'grade calculated'
 
 ### Creating Configuration Tables ###
+
+class School(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), index=True, unique=True)
+    description = db.Column(db.String(150))
+    branches = db.relationship('Branch', backref='school')
+    def __repr__(self):
+        return '<School {}>'.format(self.name)
+
+class Branch(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), index=True, unique=True)
+    description = db.Column(db.String(150))
+    school_id = db.Column(db.Integer, db.ForeignKey('school.id'))
+    students = db.relationship('Student', backref='branch')
+    semesters = db.relationship('Semester', backref='branch')
+    promos = db.relationship('Promo', backref='branch')
+    def __repr__(self):
+        return '<Branch {}>'.format(self.name)
+
 class Semester(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250))
     display_name = db.Column(db.String(250))
-    # credit_formula = db.Column(db.String(250))
     annual = db.Column(db.Integer)
     semester = db.Column(db.Integer)
 
-    units = db.relationship('Unit', back_populates='semester', order_by="Unit.order")
-
     branch_id = db.Column(db.Integer, db.ForeignKey('branch.id'))
-    branch = db.relationship('Branch', back_populates='semesters')
-    sessions = db.relationship('Session', back_populates='semester')
     prev_semester = db.Column(db.Integer, db.ForeignKey('semester.id'))
+
+    next_semester = db.relationship('Semester')
+    units = db.relationship('Unit', backref='semester', order_by="Unit.order")
+    sessions = db.relationship('Session', backref='semester')
     def __repr__(self):
         return '<{} - {}>'.format(self.id, self.name)
     def get_nbr(self):
@@ -485,14 +466,11 @@ class Unit(db.Model):
     display_name = db.Column(db.String(250))
     unit_coefficient = db.Column(db.Integer)
     is_fondamental = db.Column(db.Boolean, default=False)
-
     semester_id = db.Column(db.Integer, db.ForeignKey('semester.id'))
-    semester = db.relationship('Semester', back_populates='units')
-
-    modules = db.relationship('Module', back_populates='unit', order_by="Module.order")
-
-    grade_units = db.relationship('GradeUnit', back_populates='unit')
     order = db.Column(db.Integer)
+
+    modules = db.relationship('Module', backref='unit', order_by="Module.order")
+    grade_units = db.relationship('GradeUnit', back_populates='unit')
     def __repr__(self):
         return '<Unit {}>'.format(self.name)
     def get_unit_cumul_coeff(self):
@@ -522,14 +500,13 @@ class Module(db.Model):
     coefficient = db.Column(db.Integer)
     credit = db.Column(db.Integer)
     time = db.Column(db.Numeric(10,2))
+    order = db.Column(db.Integer)
 
     unit_id = db.Column(db.Integer, db.ForeignKey('unit.id'))
-    unit = db.relationship('Unit', back_populates='modules')
 
-    percentages = db.relationship('Percentage', backref='module', lazy='dynamic')
+    percentages = db.relationship('Percentage', backref='module')
 
     grades = db.relationship('Grade', back_populates='module')
-    order = db.Column(db.Integer)
     def __repr__(self):
         return '<Module {}>'.format(self.name)
     def config_dict(self):
@@ -543,11 +520,10 @@ class Percentage(db.Model):
     name = db.Column(db.String(250))
     percentage = db.Column(db.Numeric(10,2))
     time = db.Column(db.Numeric(10,2))
-
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'))
     
     type_id = db.Column(db.Integer, db.ForeignKey('type.id'))
-    type_name = db.relationship('Type', back_populates='percentages')
+    # type_name = db.relationship('Type', back_populates='percentages')
     def config_dict(self):
         type = Type.query.filter_by(id=self.type_id).first()
         return {'type': type.type, 'per': str(self.percentage)} 
@@ -556,9 +532,22 @@ class Type(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(45))
     grade_table_field = db.Column(db.String(45))
-    percentages = db.relationship('Percentage', back_populates='type_name')
+    # percentages = db.relationship('Percentage', back_populates='type_name')
+    # percentages = db.relationship('Percentage', backref='type_name')
     def __repr__(self):
         return '<Type {}>'.format(self.type)
+
+
+class Wilaya(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(10), index=True, unique=True)
+    name = db.Column(db.String(100), index=True, unique=True)
+    students = db.relationship('Student', backref='wilaya')
+    def __repr__(self):
+        return '<Wilaya {}>'.format(self.name)
+    def get_label(self):
+        # return self.code + ' - ' + self.name
+        return self.name
 
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -568,13 +557,13 @@ class Student(db.Model):
     # email = db.Column(db.String(120), index=True, unique=True)
     email = db.Column(db.String(120), index=True)
     birth_date = db.Column(db.Date)
-    # wilaya = db.Column(db.String(45))
     birth_place = db.Column(db.String(45))
     address =  db.Column(db.String(120))
     photo = db.Column(db.String(250))
     
     sex = db.Column(db.String(20))
-    phones = db.relationship('Phone', backref='student', lazy='dynamic')
+    phones = db.relationship('Phone', backref='student')
+
     create_time = db.Column(db.DateTime, default=datetime.utcnow)
     update_time = db.Column(db.DateTime, default=datetime.utcnow)
     branch_id = db.Column(db.Integer, db.ForeignKey('branch.id'))
@@ -619,7 +608,6 @@ class Phone(db.Model):
     type = db.Column(db.String(45))
     def __repr__(self):
         return '<Phone: id = {} | student_id = {} | phone = {}>'.format(self.id, self.student_id, self.phone)
-
 
 @login.user_loader
 def load_user(id):

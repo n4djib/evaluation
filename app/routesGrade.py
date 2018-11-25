@@ -108,8 +108,6 @@ def get_creation_links(promo, seperate=True):
         # init
         name = 'Create First Semester'
         url = url_for('create_session', promo_id=promo.id, semester_id=first_semester_id)
-        # url = url_for('create_next_session', promo_id=promo.id)
-        # url = '123'
 
         if len(sessions) > 0:
             first_sessions = sessions[0]
@@ -442,131 +440,6 @@ def grade_averages(session_id=0):
 
 #
 #
-
-def get_th_1(configuration, cols_per_module):
-    conf_dict = literal_eval(configuration)
-    header = '<th>Unit</th>'
-    for unit in conf_dict['units']:
-        display_name = unit["display_name"]
-        coeff = unit["coeff"]
-        unit_name = F'{display_name} ({coeff})'
-        colspan = cols_per_module
-        for module in unit['modules']:
-            colspan += cols_per_module
-        header += F'<th class="unit" colspan={colspan}><center>{unit_name}</center></th>'
-    display_name = conf_dict["display_name"]
-    return header + F'<th class="semester" rowspan=4 colspan={cols_per_module}><center>{display_name}</center></th>'
-
-def get_th_2(configuration, cols_per_module):
-    conf_dict = literal_eval(configuration)
-    header = '<th>Module</th>'
-    for unit in conf_dict['units']:
-        for module in unit['modules']:
-            display_name = module["display_name"]
-            header += F'<th colspan={cols_per_module}><center>{display_name}</center></th>'
-        name = 'Result of ' + unit["display_name"] 
-        header += F'<th class="unit" rowspan=3 colspan={cols_per_module}><center>{name}</center></th>'
-    return header
-
-def get_th_3(configuration, cols_per_module):
-    conf_dict = literal_eval(configuration)
-    header = '<th>Required Credit</th>'
-    for unit in conf_dict['units']:
-        for module in unit['modules']:
-            credit = module['credit']
-            header += F'<th colspan={cols_per_module}><center>{credit}</center></th>'
-    return header
-
-def get_th_4(configuration, cols_per_module):
-    conf_dict = literal_eval(configuration)
-    header = '<th>Coefficient</th>'
-    for unit in conf_dict['units']:
-        for module in unit['modules']:
-            coeff = module['coeff']
-            header += F'<th colspan={cols_per_module}><center>{coeff}</center></th>'
-    return header
-
-def get_th_5(configuration, cols_per_module):
-    conf_dict = literal_eval(configuration)
-    header = '<th class="header5">N°</th><th class="header5">Username</th><th class="header5">Full Name</th>'
-
-    average = 'A'
-    credit = 'C'
-    session = 'S'
-
-    th_module = F'<th class="header5"><center>{average}</center></th>'
-    th_unit = F'<th class="unit"><center>{average}</center></th>'
-    th_semester = F'<th class="semester"><center>{average}</center></th>'
-
-    if cols_per_module >= 2:
-        th_module += F'<th class="header5"><center>{credit}</center></th>'
-        th_unit += F'<th class="unit"><center>{credit}</center></th>'
-        th_semester += F'<th class="semester"><center>{credit}</center></th>'
-    if cols_per_module == 3:
-        th_module += F'<th class="header5"><center>{session}</center></th>'
-        th_unit += F'<th class="unit"><center>{session}</center></th>'
-        th_semester += F'<th class="semester"><center>{session}</center></th>'
-    
-    for unit in conf_dict['units']:
-        for module in unit['modules']:
-            header += th_module
-        header += th_unit
-    # semester
-    header += th_semester
-    return header
-
-def get_thead(configuration, cols_per_module=2):
-    th_1 = get_th_1(configuration, cols_per_module)
-    th_2 = get_th_2(configuration, cols_per_module)
-    th_3 = get_th_3(configuration, cols_per_module)
-    th_4 = get_th_4(configuration, cols_per_module)
-    th_5 = get_th_5(configuration, cols_per_module)
-
-    return F'''
-        <tr>     <th style='border: 0;' colspan=2 rowspan=4></th>     {th_1}     </tr>
-        <tr>     {th_2}     </tr>
-        <tr>     {th_3}     </tr>
-        <tr>     {th_4}     </tr>
-        <tr>     {th_5}     </tr>
-    '''
-
-
-def get_row_module(grade, cols_per_module):
-    row = F'<td class="right">{grade.average}</td>'
-    if cols_per_module >= 2:
-        row += F'<td class="center">{grade.credit}</td>'
-    if cols_per_module == 3:
-        row += F'<td class="center">**</td>'
-    return row
-
-def get_row_unit(grade_unit, cols_per_module):
-    grades = grade_unit.student_session.grades
-    row = ''
-    for grade in grades:
-        # get only the grades in unit
-        if grade.module.unit_id == grade_unit.unit_id:
-            row += get_row_module(grade, cols_per_module)
-
-    row += F'<td class="unit right">{grade_unit.average}</td>'
-    if cols_per_module >= 2:
-        row += F'<td class="unit center">{grade_unit.credit}</td>'
-    if cols_per_module == 3:
-        row += F'<td class="unit center">**</td>'
-    return row
-
-def get_row_semester(student_session, cols_per_module=2):
-    grade_units = student_session.grade_units
-    row = ''
-    for grade_unit in grade_units:
-        row += get_row_unit(grade_unit, cols_per_module)
-
-    row += F'<td class="semester right">{student_session.average}</td>'
-    if cols_per_module >= 2:
-        row += F'<td class="semester center">{student_session.credit}</td>'
-    if cols_per_module == 3:
-        row += F'<td class="semester center">{student_session.session_id}</td>'
-    return row
-
 
 
 @app.route('/session/<session_id>/module/<module_id>/<_all>/', methods=['GET', 'POST']) 
@@ -1245,7 +1118,7 @@ def create_data_annual_session(annual_session_id):
             an.average, an.credit, 
             an.average_r, an.credit_r, 
             an.saving_average, an.saving_credit, 
-            ''
+            '...'
         ])
 
     return array_data
@@ -1473,26 +1346,152 @@ def bultin_semester(session_id, student_id):
 # ----------------------
 # ----------------------
 
+def get_th_1(configuration, cols_per_module):
+    conf_dict = literal_eval(configuration)
+    header = '<th>Unit</th>'
+    for unit in conf_dict['units']:
+        display_name = unit["display_name"]
+        coeff = unit["coeff"]
+        unit_name = F'{display_name} ({coeff})'
+        colspan = cols_per_module
+        for module in unit['modules']:
+            colspan += cols_per_module
+        header += F'<th class="unit" colspan={colspan}><center>{unit_name}</center></th>'
+    display_name = conf_dict["display_name"]
+    return header + F'<th class="semester" rowspan=4 colspan={cols_per_module}><center>{display_name}</center></th>'
+
+def get_th_2(configuration, cols_per_module):
+    conf_dict = literal_eval(configuration)
+    header = '<th>Module</th>'
+    for unit in conf_dict['units']:
+        for module in unit['modules']:
+            display_name = module["display_name"]
+            header += F'<th colspan={cols_per_module}><center>{display_name}</center></th>'
+        name = 'Result of ' + unit["display_name"] 
+        header += F'<th class="unit" rowspan=3 colspan={cols_per_module}><center>{name}</center></th>'
+    return header
+
+def get_th_3(configuration, cols_per_module):
+    conf_dict = literal_eval(configuration)
+    header = '<th>Required Credit</th>'
+    for unit in conf_dict['units']:
+        for module in unit['modules']:
+            credit = module['credit']
+            header += F'<th colspan={cols_per_module}><center>{credit}</center></th>'
+    return header
+
+def get_th_4(configuration, cols_per_module):
+    conf_dict = literal_eval(configuration)
+    header = '<th>Coefficient</th>'
+    for unit in conf_dict['units']:
+        for module in unit['modules']:
+            coeff = module['coeff']
+            header += F'<th colspan={cols_per_module}><center>{coeff}</center></th>'
+    return header
+
+def get_th_5(configuration, cols_per_module):
+    conf_dict = literal_eval(configuration)
+    header = '<th class="header5">N°</th><th class="header5">Username</th><th class="header5">Full Name</th>'
+
+    average = 'A'
+    credit = 'C'
+    session = 'S'
+
+    th_module = F'<th class="header5"><center>{average}</center></th>'
+    th_unit = F'<th class="unit"><center>{average}</center></th>'
+    th_semester = F'<th class="semester"><center>{average}</center></th>'
+
+    if cols_per_module >= 2:
+        th_module += F'<th class="header5"><center>{credit}</center></th>'
+        th_unit += F'<th class="unit"><center>{credit}</center></th>'
+        th_semester += F'<th class="semester"><center>{credit}</center></th>'
+    if cols_per_module == 3:
+        th_module += F'<th class="header5"><center>{session}</center></th>'
+        th_unit += F'<th class="unit"><center>{session}</center></th>'
+        th_semester += F'<th class="semester"><center>{session}</center></th>'
+    
+    for unit in conf_dict['units']:
+        for module in unit['modules']:
+            header += th_module
+        header += th_unit
+    # semester
+    header += th_semester
+    return header
+
+def get_thead(configuration, cols_per_module=2):
+    th_1 = get_th_1(configuration, cols_per_module)
+    th_2 = get_th_2(configuration, cols_per_module)
+    th_3 = get_th_3(configuration, cols_per_module)
+    th_4 = get_th_4(configuration, cols_per_module)
+    th_5 = get_th_5(configuration, cols_per_module)
+
+    return F'''
+        <tr>     <th style='border: 0;' colspan=2 rowspan=4></th>     {th_1}     </tr>
+        <tr>     {th_2}     </tr>
+        <tr>     {th_3}     </tr>
+        <tr>     {th_4}     </tr>
+        <tr>     {th_5}     </tr>
+    '''
+
+
+def get_row_module(grade, cols_per_module):
+    row = F'<td class="right td">{grade.average}</td>'
+    if cols_per_module >= 2:
+        row += F'<td class="center td">{grade.credit}</td>'
+    if cols_per_module == 3:
+        row += F'<td class="center td">**</td>'
+    return row
+
+def get_row_unit(grade_unit, cols_per_module):
+    grades = grade_unit.student_session.grades
+    row = ''
+    for grade in grades:
+        # get only the grades in unit
+        if grade.module.unit_id == grade_unit.unit_id:
+            row += get_row_module(grade, cols_per_module)
+
+    row += F'<td class="unit right td">{grade_unit.average}</td>'
+    if cols_per_module >= 2:
+        row += F'<td class="unit center td">{grade_unit.credit}</td>'
+    if cols_per_module == 3:
+        row += F'<td class="unit center td">**</td>'
+    return row
+
+def get_row_semester(student_session, cols_per_module=2):
+    grade_units = student_session.grade_units
+    row = ''
+    for grade_unit in grade_units:
+        row += get_row_unit(grade_unit, cols_per_module)
+
+    row += F'<td class="semester right td">{student_session.average}</td>'
+    if cols_per_module >= 2:
+        row += F'<td class="semester center td">{student_session.credit}</td>'
+    if cols_per_module == 3:
+        row += F'<td class="semester center td">{student_session.session_id}</td>'
+    return row
+
+
 
 def get_semester_result_data(session_id, cols_per_module=2):
     data_arr = []
     students_session = StudentSession.query.filter_by(session_id=session_id)\
         .join(Student).order_by(Student.username).all()
-    for index, student_session in enumerate(students_session, start=1):
-        student = student_session.student
-        _std = '<td>' + str(index) + '</td>'
-        _std += '<td class=no-wrap>' + student.username + '</td>'
-        _std += '<td class=no-wrap>' + student.last_name + ' ' + student.first_name + '</td>'
-        row = _std + get_row_semester(student_session, cols_per_module)
-        data_arr.append(row)
 
     for index, student_session in enumerate(students_session, start=1):
         student = student_session.student
-        _std = '<td>' + str(index) + '</td>'
-        _std += '<td class=no-wrap>' + student.username + '</td>'
-        _std += '<td class=no-wrap>' + student.last_name + ' ' + student.first_name + '</td>'
+        _std = '<td class="center td">' + str(index) + '</td>'
+        _std += '<td class="no-wrap td">' + student.username + '</td>'
+        _std += '<td class="no-wrap td">' + student.last_name + ' ' + student.first_name + '</td>'
         row = _std + get_row_semester(student_session, cols_per_module)
         data_arr.append(row)
+
+    # for index, student_session in enumerate(students_session, start=1):
+    #     student = student_session.student
+    #     _std = '<td class="center td">' + str(index) + '</td>'
+    #     _std += '<td class="no-wrap td">' + student.username + '</td>'
+    #     _std += '<td class="no-wrap td">' + student.last_name + ' ' + student.first_name + '</td>'
+    #     row = _std + get_row_semester(student_session, cols_per_module)
+    #     data_arr.append(row)
 
     return data_arr
 
@@ -1502,19 +1501,30 @@ def semester_result(session_id=0):
     session = Session.query.filter_by(id=session_id).first_or_404()
     header = get_thead(session.configuration, 2)
     data_arr = get_semester_result_data(session_id, 2)
+
+    data_arr.insert(10, '<td border="0"> </td>')
+    data_arr.insert(11, '<td border="0"> </td>')
+
     return render_template('session/semester-result.html',
         title='Semester ' + str(session.semester.semester) + ' Result', 
         header=header, data_arr=data_arr, session=session)
+
 
 @app.route('/session/<session_id>/semester-result-print/<_id>/', methods=['GET', 'POST'])
 @app.route('/session/<session_id>/semester-result-print/', methods=['GET', 'POST'])
 def semester_result_print(session_id=0, _id=0):
     session = Session.query.filter_by(id=session_id).first_or_404()
-    headers = get_thead(session.configuration, 2)
+    header = get_thead(session.configuration, 2)
     data_arr = get_semester_result_data(session_id, 2)
+
+    data_arr.insert(10, '<td border="0"> </td>')
+    data_arr.insert(11, '<td border="0"> </td>')
+    data_arr.insert(45, '<td border="0"> </td>')
+    data_arr.insert(46, '<td border="0"> </td>')
+
     return render_template('session/semester-result-print.html', 
         title='Semester ' + str(session.semester.semester) + ' Result', 
-        headers=headers, data_arr=data_arr, session=session, id=_id)
+        header=header, data_arr=data_arr, session=session, id=_id)
 
 
 
