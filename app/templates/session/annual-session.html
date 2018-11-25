@@ -82,7 +82,8 @@
             {% else%}
             <td>
             {% endif %}
-            {{ d | safe | replace('None', '') | replace(' ', ' ') }}
+           <!--  {{ d | safe | replace('None', '') | replace(' ', ' ') }} -->
+            {{ d | safe | replace('None', '') }}
             </td>
           {% endfor %}
           </tr>

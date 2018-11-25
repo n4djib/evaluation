@@ -1069,8 +1069,11 @@ def calculate_annual(annual_session_id):
             an.rs2 = None
             an.rc2 = None
 
-
+        # 
+        # 
+        # 
         # don't forget to include is_fondamental
+        # 
         if sess_1 != None and sess_2 != None:
             an.average = (sess_1.average + sess_2.average)/2
             # calculate_annual_average(sess_1, sess_2)
@@ -1079,26 +1082,40 @@ def calculate_annual(annual_session_id):
             an.average = None
             an.credit  = None
 
-        if ratt_1 != None or ratt_2 != None:
-            an.average_r = None
-            an.credit_r = None
-            r1 = ratt_1
-            r2 = ratt_2
-            if ratt_1 == None and sess_1 != None:
-                r1 = sess_1
-            if ratt_2 == None and sess_2 != None:
-                r2 = sess_2
-            if r1 != None and r2 != None:
-                an.average_r = (r1.average + r2.average)/2
-                an.credit_r  = r1.credit + r2.credit
-        else:
+
+
+        ############### average after Rattrapage
+        if an.average != None and (an.rc1 != None or an.rc2 != None):
+            S1 = an.s1
+            C1 = an.c1
+            S2 = an.s2
+            C2 = an.c2
+            if an.rs1 != None:
+                S1 = an.rs1
+                C1 = an.rc1
+            if an.rs2 != None:
+                S2 = an.rs2
+                C2 = an.rc2
+            an.average_r = (S1 + S2)/2
+            an.credit_r  = C1 + C2
+        else:   
             an.average_r = None
             an.credit_r  = None
 
+        # an.average_r = None
+        # an.credit_r  = None
+        # if an.average != None and an.rs1 != None and an.rs2 is None:
+        #     an.average_r = (an.rs1 + sess_2.average)/2
+        #     an.credit_r  = an.rc1 + sess_2.credit
+        # if an.average != None and an.rs1 is None and an.rs2 != None:
+        #     an.average_r = (sess_1.average + an.rs2)/2
+        #     an.credit_r  = sess_1.credit + an.rc2
+        # if an.average != None and an.rs1 != None and an.rs2 != None:
+        #     an.average_r = (an.rs1 + an.rs2)/2
+        #     an.credit_r  = an.rc1 + an.rc2
+
     db.session.commit()
     return 'calculate_annual'
-
-
 
 def create_data_annual_session(annual_session_id):
     annual_session = AnnualSession.query.get(annual_session_id)
@@ -1112,17 +1129,33 @@ def create_data_annual_session(annual_session_id):
         student = an.student
         name = student.username+' - '+student.last_name+' '+student.first_name
 
-        array_data.append([index+1, name, 
+        observation = '<span class="label label-warning">Rattrapage</span>'
+        if an.credit >= 60:
+            observation = '<span class="label label-success">Success</span>'
+        if an.credit_r != None and an.credit_r < 60:
+            observation = '<span class="label label-danger">double l\'annee</span>'
+        if an.credit_r != None and an.credit_r >= 60:
+            observation = '<span class="label label-info">Success</span>'
+
+
+        # <span class="label label-default">Default</span>
+        # <span class="label label-primary">Primary</span>
+        # <span class="label label-success">Success</span>
+        # <span class="label label-info">Info</span>
+        # <span class="label label-warning">Warning</span>
+        # <span class="label label-danger">Danger</span> 
+
+        array_data.append([
+            index+1, name.replace(' ', ' '), 
             an.s1, an.c1, an.rs1, an.rc1,
             an.s2, an.c2, an.rs2, an.rc2, 
             an.average, an.credit, 
             an.average_r, an.credit_r, 
             an.saving_average, an.saving_credit, 
-            '...'
+            observation
         ])
 
     return array_data
-
 
 
 @app.route('/annual-session/<annual_session_id>/refrech', methods=['GET', 'POST'])

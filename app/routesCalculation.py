@@ -68,6 +68,8 @@ def init_grade(session):
                     grade.t_pers = copied_grade.t_pers
                     grade.stage  = copied_grade.stage
 
+                    grade.is_rattrapage  = copied_grade.is_rattrapage
+
                 grade.formula = get_formula(module.id)
                 ## if i am going to use order then there is no need to delete grades
                 # grade.order = module.order
@@ -106,6 +108,7 @@ def init_all(session_id):
     session = Session.query.filter_by(id=session_id).first()
     message1 = init_session(session)
     message2 = init_grade_unit(session)
+    message3 = ''
     message3 = init_grade(session)
     
     # message3 = 'init_grade(session)'

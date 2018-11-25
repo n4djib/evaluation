@@ -64,6 +64,7 @@ class AnnualGrade(db.Model):
     credit = db.Column(db.Integer)
     average_r = db.Column(db.Numeric(10,2))
     credit_r = db.Column(db.Integer)
+    
     saving_average = db.Column(db.Numeric(10,2))
     saving_credit = db.Column(db.Integer)
 
