@@ -6,6 +6,21 @@
   {{super()}}
   
   <style type="text/css">
+/*  table{
+      width:100%;
+  }
+  table td{
+      white-space: nowrap;  width:100%;
+  }
+  table td:last-child{
+      width:100%;
+  }*/
+  .center { text-align: center; }
+  .smallCell {
+      width: 1px;
+      white-space: nowrap;
+  }
+  .pad { padding-left: 1px; padding-right: 1px; }
   </style>
 {% endblock %}
 
@@ -16,27 +31,33 @@
     <table id="classement-justification" class="table table-striped table-bordered">
       <thead>
         <tr>
-          <th scope="col">#</th>
-          <th scope="col">Username</th>
-          <th scope="col">First Name</th>
-          <th scope="col">Last Name</th>
-          <th scope="col">Average</th>
-          <th scope="col">The Justification</th>
+          <th scope="col" class="center">#</th>
+          <th scope="col" class="center">Name</th>
+          <th scope="col" class="center">Average</th>
+          <th scope="col" class="center">Credit</th>
+          <th scope="col" class="center smallCell">The Justification</th>
         </tr>
       </thead>
       <tbody>
       {% for student_session in students_session %}
         <tr>
-          <td>{{ loop.index }}</td>
-          <td>{{ student_session.student.username }}</td>
-          <td>{{ student_session.student.first_name }}</td>
-          <td>{{ student_session.student.last_name }}</td>
-          <td>{{ student_session.average }}</td>
-          <td>
-            <a href ="{{url_for('justification', session_id=student_session.session_id, student_id=student_session.student_id)}}"
-              class="btn btn-primary btn-xs" role="button">Justification</a>
-            <a href ="{{url_for('bultin_semester', session_id=student_session.session_id, student_id=student_session.student_id)}}"
-              class="btn btn-primary btn-xs" role="button">Bultin</a>
+          <td align="middle">{{ loop.index }}</td>
+          <td>{{ student_session.student.username }} - {{ student_session.student.last_name }} {{ student_session.student.first_name }}</td>
+          <td align="middle">{{ student_session.average | replace('None', '') }}</td>
+          <td align="middle">{{ student_session.credit | replace('None', '') }}</td>
+          <td align="middle">
+            <table>
+            <tr>
+              <td class="pad">
+                <a href ="{{ url_for('justification', session_id=student_session.session_id, student_id=student_session.student_id) }}"
+                  class="btn btn-primary btn-xs" role="button">Justification</a>
+              </td>
+              <td class="pad">
+                <a href ="{{ url_for('bultin_semester', session_id=student_session.session_id, student_id=student_session.student_id) }}"
+                  class="btn btn-primary btn-xs" role="button">Bultin</a>
+              </td>
+            </tr>
+            </table>
           </td>
           
         </tr>

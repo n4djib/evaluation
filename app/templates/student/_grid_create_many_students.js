@@ -49,14 +49,6 @@ function wilayaRenderer(instance, td, row, col, prop, value, cellProperties) {
 var hot = new Handsontable(hotElement, {
   data: data_arr,
   columns: [
-    // {data: 'username', type: 'text', renderer: usernameRenderer},
-    // {data: 'first_name', type: 'text'}, {data: 'last_name', type: 'text'},
-    // {data: 'birth_date', type: 'date', dateFormat: 'DD/MM/YYYY'},
-    // {data: 'birth_place', type: 'text'},
-    // {
-    //   data: 'wilaya', type: 'text', editor: 'select',
-    //   selectOptions: wilayas_name_list, renderer: wilayaRenderer
-    // },
     {data: 0, type: 'text', renderer: usernameRenderer},
     {data: 1, type: 'text'},
     {data: 2, type: 'text'},
@@ -68,7 +60,6 @@ var hot = new Handsontable(hotElement, {
       selectOptions: wilayas_name_list, 
       renderer: wilayaRenderer
     },
-    //{data: 6, width: 0.5},
   ],
   colHeaders: colHeaders,
   stretchH: 'all',
@@ -92,7 +83,8 @@ function add_branch(data_arr){
   var branch_id = $("#select-branch").val();
   for(var i=0; i<data_arr.length; i++){
     index = data_arr[i].length;
-    data_arr[i][index-1] = branch_id;
+    // data_arr[i][index-1] = branch_id;
+    data_arr[i].push(branch_id);
   }
   return data_arr;
 }

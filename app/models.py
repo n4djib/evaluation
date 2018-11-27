@@ -15,16 +15,13 @@ class Promo(db.Model):
     start_date = db.Column(db.Date)
     finish_date = db.Column(db.Date)
     branch_id = db.Column(db.Integer, db.ForeignKey('branch.id'))
-
     sessions = db.relationship('Session', backref='promo')
-
     annual_session = db.relationship('AnnualSession', back_populates='promo')
     def __repr__(self):
         return '<{} - {}>'.format(self.id, self.name)
     def get_next_semester(self):
         sessions = Session.query.filter_by(promo_id=self.id, is_rattrapage=False).join(Semester)\
             .order_by(Semester.annual, Semester.semester).all()
-
         last_session = sessions[-1]
         next_semester = last_session.semester.get_next()
         return next_semester.get_nbr()
@@ -36,7 +33,6 @@ class AnnualSession(db.Model):
     is_closed = db.Column(db.Boolean, default=False)
     promo_id = db.Column(db.Integer, db.ForeignKey('promo.id'))
     promo = db.relationship('Promo', back_populates='annual_session')
-
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     sessions = db.relationship('Session', back_populates='annual_session')
     annual_grades = db.relationship('AnnualGrade', back_populates='annual_session')
@@ -64,7 +60,7 @@ class AnnualGrade(db.Model):
     credit = db.Column(db.Integer)
     average_r = db.Column(db.Numeric(10,2))
     credit_r = db.Column(db.Integer)
-    
+
     saving_average = db.Column(db.Numeric(10,2))
     saving_credit = db.Column(db.Integer)
 
@@ -74,7 +70,31 @@ class AnnualGrade(db.Model):
     # annual_session = db.relationship('AnnualSession', backref='annual_grade')
 
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
-    student = db.relationship('Student', backref='student')
+
+    def get_ratt_modules_list_annual_html(self):
+        annual_dict = self.annual_session.get_annual_dict()
+
+        # return str(annual_dict['S1']) + ' - ' + str(annual_dict['S2'])
+
+        student_session_1 = StudentSession.query\
+            .filter_by(session_id=annual_dict['S1'], student_id=self.student_id)\
+            .first()
+        student_session_2 = StudentSession.query\
+            .filter_by(session_id=annual_dict['S2'], student_id=self.student_id)\
+            .first()
+        
+        mudules_list_1 = ''
+        mudules_list_2 = ''
+        # mudules_list_1 = str(annual_dict['S1'])
+        # mudules_list_2 = str(annual_dict['S2'])
+        
+        if student_session_1 != None:
+            mudules_list_1 += student_session_1.get_ratt_modules_list_semester_html()
+        # if student_session_2 != None:
+        #     mudules_list_2 += student_session_2.get_ratt_modules_list_semester_html()
+        
+        return mudules_list_1 + "</br>" + mudules_list_2
+
 
 class Session(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -255,6 +275,8 @@ class StudentSession(db.Model):
         return modules_list
 
     def get_ratt_modules_list_semester_html(self):
+        if self.credit >= 30:
+            return ''
         modules_list = self.get_ratt_modules_list_semester()
         html = '<table>'
         for module_id in modules_list:
@@ -460,6 +482,13 @@ class Semester(db.Model):
         for unit in self.units:
             semesters.setdefault('units', []).append(unit.config_dict())
         return semesters
+    def has_fondamental(self):
+        units = self.units
+        for unit in units:
+            if unit.is_fondamental == True:
+                return True
+        return False
+        
 
 class Unit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -570,6 +599,9 @@ class Student(db.Model):
     branch_id = db.Column(db.Integer, db.ForeignKey('branch.id'))
     wilaya_id = db.Column(db.Integer, db.ForeignKey('wilaya.id'))
     student_sessions = db.relationship('StudentSession', back_populates='student')
+
+    annual_grades = db.relationship('AnnualGrade', backref='student')
+
     def __repr__(self):
         return '<{} - {} - {}>'.format(self.id, self.username, self.last_name)
     # @staticmethod

@@ -74,17 +74,17 @@
         <tbody>
         {% for data in array_data %}
           <tr>
-          {% for d in data %}
-            {% if loop.index in [3, 5, 7, 9, 11, 13, 15] %}
+          {% for td in data %}
+           <!--  {% if loop.index in [3, 5, 7, 9, 11, 13, 15] %}
             <td class="right">
             {% elif loop.index in [1, 4, 6, 8, 10, 12, 14, 16]  %}
             <td class="center">
             {% else%}
             <td>
             {% endif %}
-           <!--  {{ d | safe | replace('None', '') | replace(' ', ' ') }} -->
             {{ d | safe | replace('None', '') }}
-            </td>
+            </td> -->
+            {{ td | safe | replace('None', '') }}
           {% endfor %}
           </tr>
         {% endfor %}
@@ -139,8 +139,9 @@
   </div>
 
 </br>
-- </br>
-- </br>
+</br>
+- navigate to the related sessions</br>
+- button to calculate annual & all sessions</br>
 - 
 - f</br>
      f</br>

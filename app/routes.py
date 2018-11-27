@@ -93,8 +93,9 @@ def get_branches_list():
 def students_create_many():
     data = []
     i = 0
-    while i < 3:
-        data.append(['', '', '', '', '', '', ''])
+    while i < 10:
+        # data.append(['', '', '', '', '', ''])
+        data.append([None, None, None, None, None, None])
         i += 1
 
     return render_template('student/create-many.html', 
@@ -118,47 +119,51 @@ def create_many_student_save():
                 username=data[0].lstrip().rstrip(),
                 last_name=data[1].lstrip().rstrip(), 
                 first_name=data[2].lstrip().rstrip(), 
-                # birth_date=data[3], 
+                # birth_date=, 
                 birth_place=data[4])
 
-            # student.email = student.last_name+'_'+student.first_name+'@gmail.com'
-            # student.birth_date = datetime.datetime.strptime(data[3], "%d/%m/%Y").strftime("%Y-%m-%d")
-            try:
+            # try:
+            #     student.birth_date = datetime.datetime.strptime(data[3], "%d/%m/%Y")
+            # except ValueError:
+            #     student.birth_date = None
+            if data[3] != None and data[3] != '':
                 student.birth_date = datetime.datetime.strptime(data[3], "%d/%m/%Y")
-            except ValueError:
-                student.birth_date = None
 
-            # get branch
-            # FIX: it will get the first branch
-            # index = data[0].index('-')
-            # if index >= 0:
-            #     name = data[0][:index]
-            #     branch = Branch.query.filter_by(name=name).first()
-            #     student.branch_id = branch.id
             student.branch_id = data[6]
+            # raise Exception ("----"+str(data[6]))
+            # if data[6] == '': student.branch_id = 2
 
             # get wilaya
+
             wilaya = Wilaya.query.filter_by(name=data[5]).first()
             if wilaya != None:
                 student.wilaya_id = wilaya.id
+            else:
+                student.wilaya_id = None
+
+            ###############
 
             try:
                 db.session.add(student)
-                db.session.commit()
-
+                # db.session.commit()
                 _return_print += student.username + '-' + student.last_name + '-' + \
-                    student.first_name + '-' + str(data[3]) + '-' + \
+                    student.first_name + '-' + 'str(data[3])' + '-' + \
                     str(student.birth_place) + '-' + str(student.email) + '-' + \
                     str(student.branch_id) + '-' + str(student.wilaya_id) 
                 _return_print += '\n'
             except:
                 _return_print += 'error\n'
 
-    # return false;
+    # end for
+
+    db.session.commit()
 
     flash('Many Students has been Saved...')
     return _return_print
     return 'data saved'
+
+#
+##################################
 
 @app.route('/student/edit/<id>/', methods=['GET', 'POST'])
 def student_edit(id):
