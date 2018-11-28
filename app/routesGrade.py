@@ -685,7 +685,7 @@ def create_next_session(promo_id=0):
     next_semester = promo.get_next_semester()
     # first_semester = promo.sessions[0].semester.semester
     # create_session(promo.id, next_semester)
-    return redirect( url_for('create_session', promo_id=promo.id, semester_id=next_semester) )
+    return redirect( url_for('create_session', promo_id=promo.id, semester_id=next_semester.id) )
     return ' *** create_next_session *** '
 
 
@@ -895,22 +895,32 @@ def create_data_annual_session(annual_session_id):
         if an.credit_r != None and an.credit_r >= 60:
             observation = '<span class="label label-info">Admis Apres Ratt.</span>'
 
+        cross_s1 = ''
+        cross_s2 = ''
+        cross_average = ''
+        if an.rs1 != None:
+            cross_s1 = 'line-through'
+        if an.rs2 != None:
+            cross_s2 = 'line-through'
+        if an.rs1 != None or an.rs2 != None:
+            cross_average = 'line-through'
+
         array_data.append([
             '<td class="center">' + str(index+1) + '</td>', 
             '<td>' + name.replace(' ', ' ') + '</td>', 
 
-            '<td class="right">'  + str(an.s1) + '</td>', 
-            '<td class="center">' + str(an.c1) + '</td>', 
+            '<td class="right '+cross_s1+'">'  + str(an.s1) + '</td>', 
+            '<td class="center '+cross_s1+'">' + str(an.c1) + '</td>', 
             '<td class="right">'  + str(an.rs1) + '</td>', 
             '<td class="center">' + str(an.rc1) + '</td>',
 
-            '<td class="right">'  + str(an.s2) + '</td>', 
-            '<td class="center">' + str(an.c2) + '</td>', 
+            '<td class="right '+cross_s2+'">'  + str(an.s2) + '</td>', 
+            '<td class="center '+cross_s2+'">' + str(an.c2) + '</td>', 
             '<td class="right">'  + str(an.rs2) + '</td>', 
             '<td class="center">' + str(an.rc2) + '</td>', 
 
-            '<td class="right">'  + str(an.average) + '</td>', 
-            '<td class="center">' + str(an.credit) + '</td>', 
+            '<td class="right '+cross_average+'">'  + str(an.average) + '</td>', 
+            '<td class="center '+cross_average+'">' + str(an.credit) + '</td>', 
             '<td class="right">'  + str(an.average_r) + '</td>', 
             '<td class="center">' + str(an.credit_r) + '</td>', 
 
@@ -1283,9 +1293,15 @@ def semester_result_print(session_id=0, _id=0):
 
 
 
-# 
-## PDF 
-# 
+
+#######################################
+#####                             #####
+#####                             #####
+#####             PDF             #####
+#####                             #####
+#####                             #####
+#######################################
+
 
 def get_module_cols(module_id):
     module = Module.query.get(module_id)

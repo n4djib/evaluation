@@ -24,7 +24,8 @@ class Promo(db.Model):
             .order_by(Semester.annual, Semester.semester).all()
         last_session = sessions[-1]
         next_semester = last_session.semester.get_next()
-        return next_semester.get_nbr()
+        # return next_semester.get_nbr()
+        return next_semester
 
 class AnnualSession(db.Model):
     __tablename__ = 'annual_session'
@@ -488,7 +489,7 @@ class Semester(db.Model):
             if unit.is_fondamental == True:
                 return True
         return False
-        
+
 
 class Unit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
