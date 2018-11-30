@@ -81,18 +81,6 @@ def tree_unit(unit):
     for module in unit.modules:
         modules += tree_module(module) + ','
 
-    # is_fondamental = str( unit.is_fondamental ).replace('None', 'False')
-    # return '''
-    # {
-    #     text:{
-    #         link: ''' + link + ''',
-    #         coeff: "Coeff: ''' + coeff + '''",
-    #         credit: "Credit: ''' + credit + '''",
-    #         is_fondamental: "Fondamental: ''' + is_fondamental + '''",
-    #     }, 
-    #     children: [''' + modules + ''']
-    # }'''
-
     is_fondamental = ' '
     if unit.is_fondamental == True:
         is_fondamental = 'Fondamental'
@@ -117,14 +105,22 @@ def tree_semester(semester):
         credit += get_unit_credit(unit.id)
         units += tree_unit(unit) + ','
 
-
     return '''
     {
         text: { 
             link: ''' + link + ''',
             //empty: " ",
             credit: "Credit: ''' + str(credit) + '''",
-        }, 
+            //new: "New<img src=/static/ztree/img/diy/19-big.png>",
+            new: {
+                val: "  new  ", 
+                href: "mailto:we@great.com", 
+            },
+            edit: {
+                val: "  edit  ", 
+                href: "mailto:we@great.com", 
+            }
+        },
         children: [''' + units + ''']
     }'''
 
@@ -156,3 +152,30 @@ def conf(semester_id):
     }'''
 
     return render_template('conf/treant.html', title='Conficuration Tree', data=conf_data)
+
+@app.route('/conf-mod/<semester_id>/', methods=['GET', 'POST'])
+def conf_mod(semester_id):
+    semester = Semester.query.filter_by(id=semester_id).first_or_404()
+    t_semester = tree_semester(semester)
+
+    conf_data = '''
+    {
+        chart: {
+            container: "#tree-config",
+            animateOnInit: true,
+            node: {
+              collapsable: true
+            },
+            animation: {
+              nodeAnimation: "easeOutBounce",
+              nodeSpeed: 700,
+              connectorsAnimation: "bounce",
+              connectorsSpeed: 700
+            }
+        },
+        nodeStructure:''' + t_semester + '''
+    }'''
+
+    return render_template('conf/treant.html', title='Conficuration Tree', data=conf_data)
+
+

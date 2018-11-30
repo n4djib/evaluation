@@ -129,7 +129,7 @@ def get_promos_tree(branch, open_p_id):
         promos_tree += p + sessions_tree 
     return promos_tree
 
-def get_branchs_tree(school, open_b_id, open_p_id):
+def get_branches_tree(school, open_b_id, open_p_id):
     branches = school.branches
     branches_tree = ''
     for branch in branches:
@@ -155,14 +155,14 @@ def get_schools_tree(open_s_id=0, open_b_id=0, open_p_id=0):
     for school in schools:
         id = 'school_'+str(school.id)
         icon = 'pIcon12'
-        branchs_tree = get_branchs_tree(school, open_b_id, open_p_id)
+        branches_tree = get_branches_tree(school, open_b_id, open_p_id)
         open = 'true'
         if open_s_id != 0:
             open = 'false'
             if open_s_id == school.id:
                 open = 'true'
         s = '{ id:"'+id+'", pId:0, name:"'+school.name+'", open:'+open+', iconSkin:"'+icon+'", isParent:true },'
-        schools_tree += s + branchs_tree
+        schools_tree += s + branches_tree
     return schools_tree
 
 @app.route('/tree/school/<school_id>/branch/<branch_id>/promo/<promo_id>/', methods=['GET'])
@@ -173,3 +173,80 @@ def tree(school_id=0, branch_id=0, promo_id=0):
     zNodes = '[' + get_schools_tree(int(school_id), int(branch_id), int(promo_id)) + ']'
     return render_template('tree/tree.html', title='Tree', zNodes=zNodes)
 
+
+
+
+#######################################
+#####                             #####
+#####                             #####
+#####           BRANCHES          #####
+#####                             #####
+#####                             #####
+#######################################
+
+def semesters_t(branch, open_sem_id):
+    semesters = branch.semesters
+    semesters_tree = ''
+    for semester in semesters:
+        id = 'semester_' + str(semester.id)
+        pId = 'branch_' + str(branch.id)
+        name = 'Semester ' + str(semester.get_nbr()) + ' (' + str(semester.name) + ')'
+        font = '{"font-weight":"bold", "font-style":"italic"}'
+        icon = 'pIcon15'
+
+        open = 'true'
+        if open_sem_id != 0:
+            open = 'false'
+            if open_sem_id == semester.id:
+                open = 'true'
+
+        icon = 'icon19'
+        # icon = 'icon20'
+        url = url_for('conf', semester_id=semester.id)
+
+        sem = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:'+open+', url: "'+url+'", iconSkin:"'+icon+'", font:'+font+'},'
+        semesters_tree += sem 
+    return semesters_tree
+
+
+def branches_t(school, open_b_id, open_sem_id):
+    branches = school.branches
+    branches_tree = ''
+    for branch in branches:
+        id = 'branch_'+str(branch.id)
+        pId = 'school_'+str(school.id)
+        # sem = ''
+        sem = semesters_t(branch, open_sem_id)
+        open = 'true'
+        if open_b_id != 0:
+            open = 'false'
+            if open_b_id == branch.id:
+                open = 'true'
+        if sem == '':
+            b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+branch.name+'", open:'+open+', iconSkin:"icon11"},'
+        else:
+            b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+branch.name+'", open:'+open+', isParent:true},'
+        
+        branches_tree += b + sem
+    return branches_tree
+
+def schools_t(open_s_id=0, open_b_id=0, open_sem_id=0):
+    schools = School.query.all()
+    schools_tree = ''
+    for school in schools:
+        id = 'school_'+str(school.id)
+        icon = 'pIcon12'
+        branches_tree = branches_t(school, open_b_id, open_sem_id)
+        open = 'true'
+        if open_s_id != 0:
+            open = 'false'
+            if open_s_id == school.id:
+                open = 'true'
+        s = '{ id:"'+id+'", pId:0, name:"'+school.name+'", open:'+open+', iconSkin:"'+icon+'", isParent:true },'
+        schools_tree += s + branches_tree
+    return schools_tree
+
+@app.route('/branches-tree/', methods=['GET', 'POST'])
+def treeBranches(school_id=0, branch_id=0, semester_id=0):
+    zNodes = '[' + schools_t(int(school_id), int(branch_id), int(semester_id)) + ']'
+    return render_template('tree/tree.html', title='Tree', zNodes=zNodes)

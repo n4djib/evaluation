@@ -55,7 +55,9 @@
         </tbody>
     </table>
       <a href="{{url_for('conf', semester_id=session.semester_id)}}" target="_blank"
-         class="btn btn-primary" role="button">Configuration of {{ session.semester.display_name }}</a>
+         class="btn btn-primary" role="button">
+         <img src='/static/ztree/img/diy/19-big.png'>
+         Configuration of {{ session.semester.display_name }}</a>
       
       {% if session.is_closed != True %}
       <a href ="{{url_for('reinitialize_session', session_id=session.id)}}"

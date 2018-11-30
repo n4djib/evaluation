@@ -643,9 +643,14 @@ class Phone(db.Model):
     def __repr__(self):
         return '<Phone: id = {} | student_id = {} | phone = {}>'.format(self.id, self.student_id, self.phone)
 
+
+############################## 
+
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -660,3 +665,5 @@ class User(UserMixin, db.Model):
         self.password_hash = generate_password_hash(password)
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+

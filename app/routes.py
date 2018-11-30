@@ -20,6 +20,16 @@ def index():
 
 
 
+# test if creating an object and adding it and not commit will add it to the result of the query
+
+@app.route('/test-student/')
+def test_student():
+    student = Student(username='nnnnnnnnnnnn', last_name='nnnnnnnnnnnn', first_name='nnnnnnnnnnnn', email='nnnnnnnnnnnn@gmail.com')
+    db.session.add(student)
+    students = Student.query.filter(Student.id>209).all()
+    return str(students)
+
+
 # @app.route('/grid/')
 # def grid():
 #     return render_template('grid.html', title='Welcome Page')

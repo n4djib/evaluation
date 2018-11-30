@@ -13,8 +13,6 @@ from flask_admin.contrib.sqla import ModelView
 
 from flask_principal import Principal
 
-# load the extension
-
 
 
 app = Flask(__name__)
@@ -25,17 +23,8 @@ bootstrap = Bootstrap(app)
 login = LoginManager(app)
 login.login_view = 'login'
 # Breadcrumbs(app=app)
-
 principals = Principal(app)
 
-
-
-
-# rbac = RBAC(app)
-# app.config['RBAC_USE_WHITE'] = True
-# @rbac.set_user_loader
-# def get_current_user():
-#     return login.current_user._get_current_object()
 
 
 admin = Admin(app, template_mode='bootstrap3')
