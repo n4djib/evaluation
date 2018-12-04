@@ -12,12 +12,7 @@
 
 
 {% block app_content %}
-<div>
-{%- for breadcrumb in breadcrumbs -%}
-    <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
-    {{ ' / ' if not loop.last }}
-{%- endfor -%}
-</div>
+
 
 <div class="container">
   {% set school_id=session.promo.branch.school_id %}
@@ -59,13 +54,25 @@
          <img src='/static/ztree/img/diy/19-big.png'>
          Configuration of {{ session.semester.display_name }}</a>
       
-      {% if session.is_closed != True %}
+
+      <!-- {% if session.is_closed != True %}
       <a href ="{{url_for('reinitialize_session', session_id=session.id)}}"
          class="btn btn-primary" role="button">(Re)initialize</a>
       <a href ="{{url_for('calculate_all', session_id=session.id)}}"
          class="btn btn-primary" role="button">(Re)calculate</a>
+      {% endif %} -->
+      {% if session.is_closed != True %}
+      {% set init_url = url_for('reinitialize_session', session_id=session.id) %}
+      {% set calc_url = url_for('calculate_all', session_id=session.id) %}
+      <a href ="{{ url_for('slow_redirect', url=init_url) }}"
+         class="btn btn-primary" role="button">(Re)initialize</a>
+      <a href ="{{ url_for('slow_redirect', url=calc_url) }}"
+         class="btn btn-primary" role="button">(Re)calculate</a>
       {% endif %}
+
+
       <hr>
+      
       <a href ="{{url_for('grade_averages', session_id=session.id)}}"
          target="_blank" class="btn btn-primary" role="button">Averages</a>
 

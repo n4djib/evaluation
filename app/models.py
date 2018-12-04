@@ -276,7 +276,7 @@ class StudentSession(db.Model):
         return modules_list
 
     def get_ratt_modules_list_semester_html(self):
-        if self.credit >= 30:
+        if self.credit is not None and self.credit >= 30:
             return ''
         modules_list = self.get_ratt_modules_list_semester()
         html = '<table>'
@@ -489,7 +489,18 @@ class Semester(db.Model):
             if unit.is_fondamental == True:
                 return True
         return False
-
+    def has_percentage_problem(self):
+        for unit in self.units:
+            for module in unit.modules:
+                if module.has_percentage_problem():
+                    return True
+        return False
+    def has_code_missing(self):
+        for unit in self.units:
+            for module in unit.modules:
+                if module.code == None or module.code == '':
+                    return True
+        return False
 
 class Unit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -545,6 +556,14 @@ class Module(db.Model):
         for percentage in self.percentages:
             modules.setdefault('percentages', []).append(percentage.config_dict())
         return modules
+    def has_percentage_problem(self):
+        percent = 0
+        for percentage in self.percentages:
+            percent += percentage.percentage
+
+        if percent != 1:
+            return True
+        return False
 
 class Percentage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -554,6 +573,7 @@ class Percentage(db.Model):
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'))
     
     type_id = db.Column(db.Integer, db.ForeignKey('type.id'))
+    # tupe = 
     # type_name = db.relationship('Type', back_populates='percentages')
     def config_dict(self):
         type = Type.query.filter_by(id=self.type_id).first()
@@ -563,11 +583,9 @@ class Type(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(45))
     grade_table_field = db.Column(db.String(45))
-    # percentages = db.relationship('Percentage', back_populates='type_name')
-    # percentages = db.relationship('Percentage', backref='type_name')
+    percentages = db.relationship('Percentage', backref='type')
     def __repr__(self):
         return '<Type {}>'.format(self.type)
-
 
 class Wilaya(db.Model):
     id = db.Column(db.Integer, primary_key=True)

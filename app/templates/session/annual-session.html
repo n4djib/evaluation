@@ -37,7 +37,11 @@
 	<div class="row">
       <h2> {{ annual_session.name }} </h2>
 
-      <a href ="{{ url_for('annual_session_refrech', annual_session_id=annual_session.id) }}"
+      <!-- <a href ="{{ url_for('annual_session_refrech', annual_session_id=annual_session.id) }}"
+         class="btn btn-primary" role="button"
+         >Re(calculate) Annual Session</a> -->
+      {% set refrech_url = url_for('annual_session_refrech', annual_session_id=annual_session.id) %}
+      <a href ="{{ url_for('slow_redirect', url=refrech_url) }}"
          class="btn btn-primary" role="button"
          >Re(calculate) Annual Session</a>
 

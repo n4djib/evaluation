@@ -9,16 +9,27 @@ var session_is_closed = {{ session.is_closed | safe | replace('T', 't') | replac
 
 var hotElement = document.querySelector('#hot');
 
+
+function get_fields_list(formula){
+  var fields_list = [];
+  for(key in formula)
+    if(key !== 'credit' && key !== 'coefficient')
+      fields_list.push(key);
+  return fields_list;
+}
+
+function get_field_percentage(formula, field){
+  var percentage = 0;
+  for(key in formula)
+    if(key == field)
+      return formula[key] * 100 + '%';
+  return '***';
+}
+
 function fill_cols() {
   var fields_list = [];
   for(var i=0; i<data_arr.length; i++)
     fields_list = fields_list.concat( get_fields_list(data_arr[i]['formula']) );
-  // i need to remove duplicates
-  // var a = [1, 2, 3], b = [101, 2, 1, 10];
-  // var c = a.concat(b);
-  // var d = c.filter(function (item, pos) {return c.indexOf(item) == pos});
-  // d is [1, 2, 3, 101, 10]
-
 
   var cour = td = tp = t_pers = stage = false;
   var formula = false;
@@ -54,6 +65,22 @@ function fill_cols() {
     'credit':  {visible: true, name: "(Credit)"},
     'formula': {visible: formula, name: "(Formula)"},
   };
+
+  if (type == 'module'){
+    var _formula = data_arr[0]['formula'];
+    cols = {
+      'name':    {visible: true, name: second_column_name},
+      'cour':    {visible: cour, name: "Cour / " + get_field_percentage(_formula, 'cour') },
+      'td':      {visible: td, name: "TD / " + get_field_percentage(_formula, 'td') },
+      'tp':      {visible: tp, name: "TP / " + get_field_percentage(_formula, 'tp') },
+      't_pers':  {visible: t_pers, name: "T.Pers / " + get_field_percentage(_formula, 't_pers') },
+      'stage':   {visible: stage, name: "Stage / " + get_field_percentage(_formula, 'stage') },
+      'average': {visible: true, name: "(Average)"},
+      'credit':  {visible: true, name: "(Credit)"},
+      'formula': {visible: formula, name: "(Formula)"},
+    };
+  }
+
   return cols;
 }
 
@@ -241,16 +268,6 @@ hot.validateCells(function() {
 hot.addHook('afterRender', function(){
   hot.validateCells();
 })
-
-function get_fields_list(formula){
-  var fields_list = [];
-  for(key in formula)
-    if(key !== 'credit' && key !== 'coefficient')
-      fields_list.push(key);
-
-  // console.log(fields_list);
-  return fields_list;
-}
 
 
 hot.updateSettings({ cells: function(row, col, prop){

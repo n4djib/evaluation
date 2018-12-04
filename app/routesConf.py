@@ -17,7 +17,7 @@ def tree_percentage(percentage):
     href = '/admin/percentage/edit/?id=' + str(percentage.id)
     link = '{val: "' + val + '", href: "' + href + '", target: "_blank"}'
     time = ''
-    if percentage.time != None:
+    if percentage.time != None and percentage.time != '':
         time = 'Time: ' + str(percentage.time).rstrip('0').rstrip('.') + ' h'
     return '''
     {
@@ -36,14 +36,15 @@ def tree_module(module):
     coeff = str(module.coefficient)
     credit = str(module.credit)
     time = ''
-    if module.time != None:
+    if module.time != None and module.time != '':
         time =  'Time: ' + str(module.time).rstrip('0').rstrip('.') + ' h'
     
     percentages = ''
     percent = 0
     for percentage in module.percentages:
         percentages += tree_percentage(percentage) + ','
-        percent += percentage.percentage
+        if percentage.percentage != None and percentage.percentage > 0:
+            percent += percentage.percentage
 
     percentage_problem = ''
     if percent != 1:
@@ -63,20 +64,12 @@ def tree_module(module):
         children: [''' + percentages + ''']
     }'''
 
-def get_unit_credit(unit_id):
-    unit = Unit.query.filter_by(id=unit_id).first()
-    modules = unit.modules
-    unit_credit = 0
-    for module in modules:
-        unit_credit += int(module.credit or 0)
-        # unit_credit += int(0 if module.credit is None else module.credit)
-    return unit_credit
-
 def tree_unit(unit):
     href = '/admin/unit/edit/?id=' + str(unit.id)
     link = '{val: "' + unit.name + '", href: "' + href + '", target: "_blank"}'
     coeff = str( unit.unit_coefficient ).replace('None', '')
-    credit = str( get_unit_credit(unit.id) )
+    # credit = str( get_unit_credit(unit.id) )
+    credit = str( unit.get_unit_cumul_credit() )
     modules = ''
     for module in unit.modules:
         modules += tree_module(module) + ','
@@ -100,9 +93,8 @@ def tree_semester(semester):
     href = '/admin/semester/edit/?id=' + str(semester.id)
     link = '{ val: "' + semester.name + '", href: "' + href + '", target: "_blank"}'
     units = ''
-    credit = 0
+    credit = semester.get_semester_cumul_credit()
     for unit in semester.units:
-        credit += get_unit_credit(unit.id)
         units += tree_unit(unit) + ','
 
     return '''

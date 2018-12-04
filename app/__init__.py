@@ -32,6 +32,9 @@ admin = Admin(app, template_mode='bootstrap3')
 from app.models import User, Student, Phone, School, Branch, Promo, \
 	StudentSession, Session, Grade, Semester, Unit, Module, Percentage, Type
 
+
+
+
 # admin.add_view(ModelView(Student, db.session))
 # admin.add_view(ModelView(Phone, db.session))
 admin.add_view(ModelView(User, db.session))
@@ -41,10 +44,25 @@ admin.add_view(ModelView(Promo, db.session))
 admin.add_view(ModelView(StudentSession, db.session))
 admin.add_view(ModelView(Session, db.session))
 admin.add_view(ModelView(Grade, db.session))
-admin.add_view(ModelView(Semester, db.session))
-admin.add_view(ModelView(Unit, db.session))
-admin.add_view(ModelView(Module, db.session))
-admin.add_view(ModelView(Percentage, db.session))
+
+
+class S(ModelView):
+	form_excluded_columns = ['next_semester', 'units', 'sessions', 'branch']
+class U(ModelView):
+	form_excluded_columns = ['modules', 'grade_units', 'semester']
+class M(ModelView):
+	form_excluded_columns = ['percentages', 'grades', 'unit']
+class P(ModelView):
+	form_excluded_columns = ['module', 'name']
+	# form_excluded_columns = ['', '']
+	# column_editable_list = ['name', 'percentage', 'type']
+
+	
+admin.add_view(S(Semester, db.session))
+admin.add_view(U(Unit, db.session))
+admin.add_view(M(Module, db.session))
+admin.add_view(P(Percentage, db.session))
+
 admin.add_view(ModelView(Type, db.session))
 
 from app import routes, routesConf, routesGrade, routesCalculation, routesTree, models, errors

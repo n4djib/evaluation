@@ -178,9 +178,7 @@ def tree(school_id=0, branch_id=0, promo_id=0):
 
 #######################################
 #####                             #####
-#####                             #####
 #####           BRANCHES          #####
-#####                             #####
 #####                             #####
 #######################################
 
@@ -190,7 +188,17 @@ def semesters_t(branch, open_sem_id):
     for semester in semesters:
         id = 'semester_' + str(semester.id)
         pId = 'branch_' + str(branch.id)
-        name = 'Semester ' + str(semester.get_nbr()) + ' (' + str(semester.name) + ')'
+        name = 'Semester ' + str(semester.get_nbr())
+
+        cumul_credit = semester.get_semester_cumul_credit()
+        if cumul_credit != 30:
+            name += "  - <span style='color:blue;margin-right:0px;'>(credit=" + str(cumul_credit) + ")</span> "
+        if semester.has_percentage_problem():
+            name += "  - <span style='color:red;margin-right:0px;'>(percentage problem)</span> "
+        if semester.has_code_missing():
+            name += "  - <span style='color:purple;margin-right:0px;'>(has code missing)</span> "
+
+
         font = '{"font-weight":"bold", "font-style":"italic"}'
         icon = 'pIcon15'
 
@@ -207,7 +215,6 @@ def semesters_t(branch, open_sem_id):
         sem = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:'+open+', url: "'+url+'", iconSkin:"'+icon+'", font:'+font+'},'
         semesters_tree += sem 
     return semesters_tree
-
 
 def branches_t(school, open_b_id, open_sem_id):
     branches = school.branches

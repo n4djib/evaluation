@@ -11,28 +11,30 @@ from app.permissions_and_roles import *
 from flask_principal import Identity, AnonymousIdentity, identity_changed
 
 
+
+@app.route('/slow-redirect/', methods=['GET', 'POST'])
+def slow_redirect():
+    url = request.args.get('url', default='**', type=str)
+    message = request.args.get('message', default='', type=str)
+    gif = request.args.get('gif', default='', type=str)
+
+    if message != None and message != '':
+        flash(message)
+
+    return render_template('slow-redirect.html',
+        title='Redirect Page', url=url, message=message, gif=gif)
+
+
+
+
+
+
 @app.route('/')
 @app.route('/index/')
 # @admin_permission.require()
 def index():
     return render_template('index.html', title='Welcome Page')
 
-
-
-
-# test if creating an object and adding it and not commit will add it to the result of the query
-
-@app.route('/test-student/')
-def test_student():
-    student = Student(username='nnnnnnnnnnnn', last_name='nnnnnnnnnnnn', first_name='nnnnnnnnnnnn', email='nnnnnnnnnnnn@gmail.com')
-    db.session.add(student)
-    students = Student.query.filter(Student.id>209).all()
-    return str(students)
-
-
-# @app.route('/grid/')
-# def grid():
-#     return render_template('grid.html', title='Welcome Page')
 
 @app.route('/student/')
 @app.route('/student/index/')

@@ -13,17 +13,11 @@
 
 
 {% block app_content %}
-<div>
-{%- for breadcrumb in breadcrumbs -%}
-    <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
-    {{ '/' if not loop.last }}
-{%- endfor -%}
-</div>
-
-
 
 
 {% endblock %}
+
+
 
 {% block scripts %}
   {{ super() }}

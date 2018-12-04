@@ -683,9 +683,12 @@ def create_rattrapage_annual(annual_session_id=0):
 def create_next_session(promo_id=0):
     promo = Promo.query.get(promo_id)
     next_semester = promo.get_next_semester()
-    # first_semester = promo.sessions[0].semester.semester
-    # create_session(promo.id, next_semester)
-    return redirect( url_for('create_session', promo_id=promo.id, semester_id=next_semester.id) )
+
+    # return redirect( url_for('create_session', promo_id=promo.id, semester_id=next_semester.id) )
+
+    url = url_for('create_session', promo_id=promo.id, semester_id=next_semester.id)
+    return redirect( url_for('slow_redirect', url=url) )
+
     return ' *** create_next_session *** '
 
 
@@ -847,7 +850,8 @@ def calculate_annual(annual_session_id):
 
 
         ############### average before Rattrapage
-        if sess_1 != None and sess_2 != None:
+        # if sess_1 != None and sess_2 != None:
+        if sess_1.average != None and sess_2.average != None:
             an.average = (sess_1.average + sess_2.average)/2
             an.credit  = sess_1.credit + sess_2.credit
         else:
@@ -888,12 +892,14 @@ def create_data_annual_session(annual_session_id):
         name = student.username+' - '+student.last_name+' '+student.first_name
 
         observation = '<span class="label label-warning">Rattrapage</span>'
-        if an.credit >= 60:
-            observation = '<span class="label label-success">Admis</span>'
-        if an.credit_r != None and an.credit_r < 60:
-            observation = '<span class="label label-danger">Admis avec dettes</span>'
-        if an.credit_r != None and an.credit_r >= 60:
-            observation = '<span class="label label-info">Admis Apres Ratt.</span>'
+        if an.credit != None:
+            if an.credit is not None and an.credit >= 60:
+                observation = '<span class="label label-success">Admis</span>'
+        if an.credit_r != None:
+            if an.credit_r < 60:
+                observation = '<span class="label label-danger">Admis avec dettes</span>'
+            if an.credit_r >= 60:
+                observation = '<span class="label label-info">Admis Apres Ratt.</span>'
 
         cross_s1 = ''
         cross_s2 = ''
