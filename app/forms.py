@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, SubmitField, PasswordField, BooleanField
 from wtforms.validators import DataRequired, Email, ValidationError, Optional, EqualTo
 from wtforms.fields.html5 import DateField
+# from wtforms_components import Unique
 from app.models import Student, User, School, Branch, Wilaya, Promo
 from sqlalchemy import and_
 
@@ -41,11 +42,11 @@ class StudentFormUpdate(StudentFormBase):
         super(StudentFormUpdate, self).__init__(*args, **kwargs)
         self._id = _id
     def validate_username(self, username):
-        student = Student.query.filter( and_(Student.username == username.data , Student.id != self._id) ).first()
+        student = Student.query.filter(and_(Student.username==username.data, Student.id!=self._id)).first()
         if student is not None:
             raise ValidationError('Please use a different username')
     def validate_email(self, email):
-        student = Student.query.filter( and_(Student.email == email.data , Student.id != self._id) ).first()
+        student = Student.query.filter(and_(Student.email==email.data, Student.id!=self._id)).first()
         if student is not None:
             raise ValidationError('Please use a different email')
 
@@ -113,6 +114,39 @@ class PromoFormUpdate(PromoFormBase):
     def __init__(self, _id=-1, *args, **kwargs):
         super(PromoFormUpdate, self).__init__(*args, **kwargs)
         self._id = _id
+
+
+
+##################
+
+class WilayaFormBase(FlaskForm):
+    code = StringField('code', validators=[DataRequired()])
+    name = StringField('name', validators=[DataRequired()])
+
+class WilayaFormCreate(WilayaFormBase):
+    submit = SubmitField('Create')
+    def validate_code(self, code):
+        wilaya = Wilaya.query.filter(Wilaya.code==code.data).first()
+        if wilaya is not None:
+            raise ValidationError('Please use a different code')
+    def validate_name(self, name):
+        wilaya = Wilaya.query.filter(Wilaya.name==name.data).first()
+        if wilaya is not None:
+            raise ValidationError('Please use a different name')
+
+class WilayaFormUpdate(WilayaFormBase):
+    submit = SubmitField('Update')
+    def __init__(self, _id=-1, *args, **kwargs):
+        super(WilayaFormUpdate, self).__init__(*args, **kwargs)
+        self._id = _id
+    def validate_code(self, code):
+        wilaya = Wilaya.query.filter(and_(Wilaya.code==code.data, Wilaya.id!=self._id)).first()
+        if wilaya is not None:
+            raise ValidationError('Please use a different code')
+    def validate_name(self, name):
+        wilaya = Wilaya.query.filter(and_(Wilaya.name==name.data, Wilaya.id!=self._id)).first()
+        if wilaya is not None:
+            raise ValidationError('Please use a different name')
 
 
 

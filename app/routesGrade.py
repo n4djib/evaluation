@@ -99,8 +99,16 @@ def get_icon_progress(grades):
         return 'in_progress.png'
     return ''
 
+
+
+def session_dlc(*args, **kwargs):
+    session_id = request.view_args['session_id']
+    session = Session.query.get(session_id)
+    return [{'text': 'Session ('+str(session.semester.get_nbr())+')', 
+        'url': url_for('session', session_id=session_id) }]
+
 @app.route('/session/<session_id>/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree.session', 'Session')
+@register_breadcrumb(app, '.tree.session', '', dynamic_list_constructor=session_dlc)
 def session(session_id=0):
     session = Session.query.filter_by(id=session_id).first_or_404()
     
@@ -127,6 +135,7 @@ def session(session_id=0):
         title='Session', session=session,
         students=students_list, modules=modules_list,
         icons_module=icons_module, icons_student=icons_student)
+
 
 
 def make_session_name(session):
@@ -951,13 +960,25 @@ def annual_session_refrech(annual_session_id=0):
     calculate_annual(annual_session_id)
     return redirect(url_for('annual_session', annual_session_id=annual_session_id))
 
+
+
+
+
+def annual_session_dlc(*args, **kwargs):
+    annual_session_id = request.view_args['annual_session_id']
+    annual_session = AnnualSession.query.get(annual_session_id)
+    return [{'text': '' + annual_session.name, 
+        'url': url_for('annual_session', annual_session_id=annual_session_id) }]
+
 @app.route('/annual-session/<annual_session_id>/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree.annual', 'Annual Session')
+# @register_breadcrumb(app, '.tree.annual', 'Annual Session')
+@register_breadcrumb(app, '.tree.annual', '***', dynamic_list_constructor=annual_session_dlc)
 def annual_session(annual_session_id=0):
     annual_session = AnnualSession.query.filter_by(id=annual_session_id).first_or_404()
     array_data = create_data_annual_session(annual_session_id)
     return render_template('session/annual-session.html', 
         title='Annual Session', annual_session=annual_session, array_data=array_data)
+
 
 def renegade_annual_session(annual_session_id):
     # if it doesn't have any sessions

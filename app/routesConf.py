@@ -1,6 +1,9 @@
 from app import app, db
 from flask import render_template, url_for
 from app.models import Semester, Type, Unit, School
+from flask_breadcrumbs import register_breadcrumb
+
+
 
 def tree_type(id):
     type = Type.query.filter_by(id=id).first()
@@ -116,8 +119,8 @@ def tree_semester(semester):
         children: [''' + units + ''']
     }'''
 
-@app.route('/conf/<semester_id>/', methods=['GET', 'POST'])
-def conf(semester_id):
+
+def tree_conf_data(semester_id):
     semester = Semester.query.filter_by(id=semester_id).first_or_404()
     t_semester = tree_semester(semester)
 
@@ -142,8 +145,23 @@ def conf(semester_id):
         },
         nodeStructure:''' + t_semester + '''
     }'''
+    return conf_data
 
+
+
+@app.route('/conf/<semester_id>/', methods=['GET', 'POST'])
+def conf(semester_id=0):
+    conf_data = tree_conf_data(semester_id)
     return render_template('conf/treant.html', title='Conficuration Tree', data=conf_data)
+
+@app.route('/session/<session_id>/conf/<semester_id>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.tree.session.conf', 'Configuration')
+def conf_session(session_id, semester_id):
+    conf_data = tree_conf_data(semester_id)
+    return render_template('conf/treant.html', title='Conficuration Tree', data=conf_data)
+
+
+
 
 @app.route('/conf-mod/<semester_id>/', methods=['GET', 'POST'])
 def conf_mod(semester_id):

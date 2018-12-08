@@ -11,6 +11,10 @@
 {% endblock %}
 
 
+
+
+
+
 {% block app_content %}
    
   {% include '_breadcrumbs.html' %} 
@@ -20,9 +24,6 @@
     {% set school_id=session.promo.branch.school_id %}
     {% set branch_id=session.promo.branch_id %}
     {% set promo_id=session.promo_id %}
-
-   <!--  <a href="{{ url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id) }}">go back to Tree</a>
-    </br> -->
 
     <div class="row">
       <h2> {{ session.name }} </h2>
@@ -52,7 +53,14 @@
           </tbody>
       </table>
 
-        <a href="{{url_for('conf', semester_id=session.semester_id)}}" target="_blank"
+      <!--   <a href="{{url_for('conf', semester_id=session.semester_id)}}" 
+           class="btn btn-primary" role="button" target="_blank">
+           <img src='/static/ztree/img/diy/19-big.png'>
+           Configuration of {{ session.semester.display_name }}</a> -->
+        
+        <a href="{{url_for('conf_session', 
+                            session_id=session.id, 
+                            semester_id=session.semester_id)}}" 
            class="btn btn-primary" role="button">
            <img src='/static/ztree/img/diy/19-big.png'>
            Configuration of {{ session.semester.display_name }}</a>
@@ -77,17 +85,17 @@
         <hr>
         
         <a href ="{{url_for('grade_averages', session_id=session.id)}}"
-           target="_blank" class="btn btn-primary" role="button">Averages</a>
+           class="btn btn-primary" role="button">Averages</a>
 
         <a href ="{{url_for('semester_result', session_id=session.id)}}"
-           target="_blank" class="btn btn-primary" role="button">Result</a>
+           class="btn btn-primary" role="button">Result</a>
         {% if session.is_rattrapage == True %}
         <a href ="{{url_for('semester_result', session_id=session.id)}}"
-           target="_blank" class="btn btn-primary" role="button">Result 2</a>
+           class="btn btn-primary" role="button">Result 2</a>
         {% endif %}
 
         <a href ="{{url_for('classement_justification', session_id=session.id)}}"
-           target="_blank" class="btn btn-primary" role="button">Classement / Justification</a>
+           class="btn btn-primary" role="button">Classement / Justification</a>
         <hr>
         {% if session.is_rattrapage != True and session.semester.has_fondamental() == True %}
         <a href ="{{url_for('students_rattrapage_semester', session_id=session.id)}}"

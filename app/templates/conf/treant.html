@@ -29,9 +29,29 @@
 {% endblock %}
 
 
+
+
 {% block app_content %}
-    <div id="tree-config" style="height: 100%;"> </div>
+
+  <div style="position:absolute; z-index:99999;">  
+    {% for breadcrumb in breadcrumbs %}
+      {% if not loop.last %}
+          <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
+      {% endif %}
+      {% if loop.last %}
+          {{ breadcrumb.text }}
+      {% endif %}
+      {{ '/ ' if not loop.last }}
+    {% endfor %}
+  </div>
+
+
+
+  <div id="tree-config" style="height: 100%;"> </div>
 {% endblock %}
+
+
+
 
 
 {% block scripts %}

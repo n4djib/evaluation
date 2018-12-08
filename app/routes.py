@@ -22,7 +22,6 @@ def index():
     return render_template('index.html', title='Welcome Page')
 
 
-
 @app.route('/slow-redirect/', methods=['GET', 'POST'])
 def slow_redirect():
     url = request.args.get('url', default='**', type=str)
@@ -32,10 +31,6 @@ def slow_redirect():
         flash(message)
 
     return render_template('slow-redirect.html', title='Redirect Page', url=url, message=message, gif=gif)
-
-
-
-
 
 
 #######################################
@@ -228,13 +223,6 @@ def student_view(id):
 def student_delete(id):
     student = Student.query.get_or_404(id)
     return "render_template('student/view.html', title='Student View', student=student)"
-
-
-@app.route('/branch/', methods=['GET', 'POST'])
-def branch_idnex():
-    branches = Branch.query.all()
-    return render_template('branch.html', title='Branches', branches=branches)
-
 
 
 ##############################################
