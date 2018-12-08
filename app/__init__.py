@@ -4,14 +4,12 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager
-
 from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
-
-# from flask_breadcrumbs import Breadcrumbs
+from flask_breadcrumbs import Breadcrumbs
 # from flask_rbac import RBAC
-
 from flask_principal import Principal
+
 
 
 
@@ -22,9 +20,9 @@ migrate = Migrate(app, db)
 bootstrap = Bootstrap(app)
 login = LoginManager(app)
 login.login_view = 'login'
-# Breadcrumbs(app=app)
 principals = Principal(app)
 
+Breadcrumbs(app=app)
 
 
 admin = Admin(app, template_mode='bootstrap3')
@@ -65,5 +63,5 @@ admin.add_view(P(Percentage, db.session))
 
 admin.add_view(ModelView(Type, db.session))
 
-from app import routes, routesConf, routesGrade, routesCalculation, routesTree, models, errors
+from app import routes, routesConf, routesGrade, routesBT, routesCalculation, routesTree, models, errors
 

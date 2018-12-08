@@ -1,0 +1,11 @@
+<div>
+    {%- for breadcrumb in breadcrumbs -%}
+        {% if not loop.last %}
+            <a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
+        {% endif %}
+        {% if loop.last %}
+            {{ breadcrumb.text }}
+        {% endif %}
+        {{ '/ ' if not loop.last }}
+    {%- endfor -%}
+</div>

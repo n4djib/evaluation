@@ -12,235 +12,244 @@
 
 
 {% block app_content %}
+   
+  {% include '_breadcrumbs.html' %} 
 
 
-<div class="container">
-  {% set school_id=session.promo.branch.school_id %}
-  {% set branch_id=session.promo.branch_id %}
-  {% set promo_id=session.promo_id %}
+  <div class="container">
+    {% set school_id=session.promo.branch.school_id %}
+    {% set branch_id=session.promo.branch_id %}
+    {% set promo_id=session.promo_id %}
 
-  <a href="{{ url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id) }}">go back to Tree</a>
-  </br>
+   <!--  <a href="{{ url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id) }}">go back to Tree</a>
+    </br> -->
 
-  <div class="row">
-    <h2> {{ session.name }} </h2>
-  </div>
+    <div class="row">
+      <h2> {{ session.name }} </h2>
+    </div>
 
-	<div class="col-md-7 col-sm-6 col-xs-6">
-    <table id="myTable" class="table table-striped">
+  	<div class="col-md-7 col-sm-6 col-xs-6">
+      <table id="myTable" class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Module</th>
+              <th scope="col">Coeff</th>
+              <th scope="col">Credit</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for module in modules %}
+            <tr>
+              <td>{{loop.index}}</td>
+              <td><a href="{{url_for('grade', session_id=session.id, module_id=module.id)}}">{{ module.display_name }}</a></td>
+              <td>{{ module.coefficient }}</td>
+              <td>{{ module.credit }}</td>
+              <td> <img src="{{ url_for('static', filename='img/' + icons_module[loop.index-1] ) }}"
+               alt="{{ icons_module[loop.index-1] }}" height="23" width="23"> </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+      </table>
+
+        <a href="{{url_for('conf', semester_id=session.semester_id)}}" target="_blank"
+           class="btn btn-primary" role="button">
+           <img src='/static/ztree/img/diy/19-big.png'>
+           Configuration of {{ session.semester.display_name }}</a>
+        
+
+        <!-- {% if session.is_closed != True %}
+        <a href ="{{url_for('reinitialize_session', session_id=session.id)}}"
+           class="btn btn-primary" role="button">(Re)initialize</a>
+        <a href ="{{url_for('calculate_all', session_id=session.id)}}"
+           class="btn btn-primary" role="button">(Re)calculate</a>
+        {% endif %} -->
+        {% if session.is_closed != True %}
+        {% set init_url = url_for('reinitialize_session', session_id=session.id) %}
+        {% set calc_url = url_for('calculate_all', session_id=session.id) %}
+        <a href ="{{ url_for('slow_redirect', url=init_url, message='Initializing') }}"
+           class="btn btn-primary" role="button">(Re)initialize</a>
+        <a href ="{{ url_for('slow_redirect', url=calc_url, message='Calculating', gif='Preloader_3') }}"
+           class="btn btn-primary" role="button">(Re)calculate</a>
+        {% endif %}
+
+
+        <hr>
+        
+        <a href ="{{url_for('grade_averages', session_id=session.id)}}"
+           target="_blank" class="btn btn-primary" role="button">Averages</a>
+
+        <a href ="{{url_for('semester_result', session_id=session.id)}}"
+           target="_blank" class="btn btn-primary" role="button">Result</a>
+        {% if session.is_rattrapage == True %}
+        <a href ="{{url_for('semester_result', session_id=session.id)}}"
+           target="_blank" class="btn btn-primary" role="button">Result 2</a>
+        {% endif %}
+
+        <a href ="{{url_for('classement_justification', session_id=session.id)}}"
+           target="_blank" class="btn btn-primary" role="button">Classement / Justification</a>
+        <hr>
+        {% if session.is_rattrapage != True and session.semester.has_fondamental() == True %}
+        <a href ="{{url_for('students_rattrapage_semester', session_id=session.id)}}"
+           class="btn btn-primary" role="button"
+           >Show Ratt (R:{{ session.semester.get_nbr() }})</a>
+        {% endif %}
+        
+        <a href ="{{url_for('create_annual_session', session_id=session.id)}}"
+           class="btn btn-primary" role="button"
+           >Create Annual (S:{{session.semester.annual}})</a>
+
+        <hr>
+        {% if session.is_closed != True %}
+        <button class="btn btn-danger"
+          data-href="{{url_for('delete_session', session_id=session.id)}}" 
+          data-toggle="modal" data-target="#confirm-delete">
+          {% if session.is_rattrapage != True %}
+            Delete Semester
+          {% else %}
+            Delete Rattrapage
+          {% endif %}
+        </button>
+        <div class="modal fade" id="confirm-delete" tabindex="-1"
+           role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <!--div class="modal-header">
+                  ...
+              </div-->
+              <div class="modal-body">
+                do you really want to delete this session?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <a class="btn btn-danger btn-ok">Delete</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if session.is_closed != True %}
+        <button class="btn btn-warning"
+          data-href="{{url_for('lock_session', session_id=session.id)}}" 
+          data-toggle="modal" data-target="#confirm-lock">
+          {% if session.is_rattrapage != True %}
+            Lock Semester
+          {% else %}
+            Lock Rattrapage
+          {% endif %}
+        </button>
+        <div class="modal fade" id="confirm-lock" tabindex="-1"
+           role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <!--div class="modal-header">
+                  ...
+              </div-->
+              <div class="modal-body">
+                do you really want to lock this session?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <a class="btn btn-warning btn-ok">Lock</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if session.is_closed == True %}
+        <button class="btn btn-warning"
+          data-href="{{url_for('unlock_session', session_id=session.id)}}" 
+          data-toggle="modal" data-target="#confirm-unlock">
+          {% if session.is_rattrapage != True %}
+            Unlock Semester
+          {% else %}
+            Unlock Rattrapage
+          {% endif %}
+        </button>
+        <div class="modal fade" id="confirm-unlock" tabindex="-1"
+           role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <!--div class="modal-header">
+                  ...
+              </div-->
+              <div class="modal-body">
+                do you really want to unlock this session?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <a class="btn btn-warning btn-ok">Unlock</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+    </div>
+
+  	<div class="col-md-1 col-sm-1 col-xs-1">
+    </div>
+
+  	<div class="col-md-4 col-sm-4 col-xs-5">
+      <table class="table table-striped">
         <thead>
           <tr>
             <th scope="col">#</th>
-            <th scope="col">Module</th>
-            <th scope="col">Coeff</th>
-            <th scope="col">Credit</th>
+            <th scope="col">Username</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">First Name</th>
           </tr>
         </thead>
         <tbody>
-        {% for module in modules %}
+        {% for student in students %}
           <tr>
             <td>{{loop.index}}</td>
-            <td><a href="{{url_for('grade', session_id=session.id, module_id=module.id)}}">{{ module.display_name }}</a></td>
-            <td>{{ module.coefficient }}</td>
-            <td>{{ module.credit }}</td>
-            <td> <img src="{{ url_for('static', filename='img/' + icons_module[loop.index-1] ) }}"
-             alt="{{ icons_module[loop.index-1] }}" height="23" width="23"> </td>
+            <td>
+              <a href="{{url_for('grade', session_id=session.id, student_id=student.id)}}">{{ student.username }}</a>
+            </td>
+            <td>{{ student.last_name | replace(' ', ' ') }}</td>
+            <td>{{ student.first_name | replace(' ', ' ') }}</td>
+            <td> <img src="{{ url_for('static', filename='img/' + icons_student[loop.index-1] ) }}"
+               alt="{{ icons_student[loop.index-1] }}" height="25" width="25">
+            </td>
           </tr>
         {% endfor %}
         </tbody>
-    </table>
-      <a href="{{url_for('conf', semester_id=session.semester_id)}}" target="_blank"
-         class="btn btn-primary" role="button">
-         <img src='/static/ztree/img/diy/19-big.png'>
-         Configuration of {{ session.semester.display_name }}</a>
-      
+      </table>
+      <a href="{{ url_for('student_session', session_id=session.id) }}"
+         class="btn btn-primary" role="button">Add Student(s)</a>
+    </div>
 
-      <!-- {% if session.is_closed != True %}
-      <a href ="{{url_for('reinitialize_session', session_id=session.id)}}"
-         class="btn btn-primary" role="button">(Re)initialize</a>
-      <a href ="{{url_for('calculate_all', session_id=session.id)}}"
-         class="btn btn-primary" role="button">(Re)calculate</a>
-      {% endif %} -->
-      {% if session.is_closed != True %}
-      {% set init_url = url_for('reinitialize_session', session_id=session.id) %}
-      {% set calc_url = url_for('calculate_all', session_id=session.id) %}
-      <a href ="{{ url_for('slow_redirect', url=init_url) }}"
-         class="btn btn-primary" role="button">(Re)initialize</a>
-      <a href ="{{ url_for('slow_redirect', url=calc_url) }}"
-         class="btn btn-primary" role="button">(Re)calculate</a>
-      {% endif %}
-
-
-      <hr>
-      
-      <a href ="{{url_for('grade_averages', session_id=session.id)}}"
-         target="_blank" class="btn btn-primary" role="button">Averages</a>
-
-      <a href ="{{url_for('semester_result', session_id=session.id)}}"
-         target="_blank" class="btn btn-primary" role="button">Result</a>
-      {% if session.is_rattrapage == True %}
-      <a href ="{{url_for('semester_result', session_id=session.id)}}"
-         target="_blank" class="btn btn-primary" role="button">Result 2</a>
-      {% endif %}
-
-      <a href ="{{url_for('classement_justification', session_id=session.id)}}"
-         target="_blank" class="btn btn-primary" role="button">Classement / Justification</a>
-      <hr>
-      {% if session.is_rattrapage != True and session.semester.has_fondamental() == True %}
-      <a href ="{{url_for('students_rattrapage_semester', session_id=session.id)}}"
-         class="btn btn-primary" role="button"
-         >Show Ratt (R:{{ session.semester.get_nbr() }})</a>
-      {% endif %}
-      
-      <a href ="{{url_for('create_annual_session', session_id=session.id)}}"
-         class="btn btn-primary" role="button"
-         >Create Annual (S:{{session.semester.annual}})</a>
-
-      <hr>
-      {% if session.is_closed != True %}
-      <button class="btn btn-danger"
-        data-href="{{url_for('delete_session', session_id=session.id)}}" 
-        data-toggle="modal" data-target="#confirm-delete">
-        {% if session.is_rattrapage != True %}
-          Delete Semester
-        {% else %}
-          Delete Rattrapage
-        {% endif %}
-      </button>
-      <div class="modal fade" id="confirm-delete" tabindex="-1"
-         role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <!--div class="modal-header">
-                ...
-            </div-->
-            <div class="modal-body">
-              do you really want to delete this session?
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-              <a class="btn btn-danger btn-ok">Delete</a>
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endif %}
-
-      {% if session.is_closed != True %}
-      <button class="btn btn-warning"
-        data-href="{{url_for('lock_session', session_id=session.id)}}" 
-        data-toggle="modal" data-target="#confirm-lock">
-        {% if session.is_rattrapage != True %}
-          Lock Semester
-        {% else %}
-          Lock Rattrapage
-        {% endif %}
-      </button>
-      <div class="modal fade" id="confirm-lock" tabindex="-1"
-         role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <!--div class="modal-header">
-                ...
-            </div-->
-            <div class="modal-body">
-              do you really want to lock this session?
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-              <a class="btn btn-warning btn-ok">Lock</a>
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endif %}
-
-      {% if session.is_closed == True %}
-      <button class="btn btn-warning"
-        data-href="{{url_for('unlock_session', session_id=session.id)}}" 
-        data-toggle="modal" data-target="#confirm-unlock">
-        {% if session.is_rattrapage != True %}
-          Unlock Semester
-        {% else %}
-          Unlock Rattrapage
-        {% endif %}
-      </button>
-      <div class="modal fade" id="confirm-unlock" tabindex="-1"
-         role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <!--div class="modal-header">
-                ...
-            </div-->
-            <div class="modal-body">
-              do you really want to unlock this session?
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-              <a class="btn btn-warning btn-ok">Unlock</a>
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endif %}
+    <br>
+       
   </div>
 
-	<div class="col-md-1 col-sm-1 col-xs-1">
+
+
+
+  </br><br><br>
+  - Combine (re)initialize and (re)calculate in onr button</br>
+  - After Finishing the Job I should Publish Pre-rendered pages</br>
+  - detect bezare values</br>
+  - Students Access to data should be according to good behaviour</br>
+  - watch how people use the application</br>
+       to find out how you can make the application UX better</br>
+
+  </br>
+  </br>
+
+
   </div>
-
-	<div class="col-md-4 col-sm-4 col-xs-5">
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">Username</th>
-          <th scope="col">Last Name</th>
-          <th scope="col">First Name</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for student in students %}
-        <tr>
-          <td>{{loop.index}}</td>
-          <td>
-            <a href="{{url_for('grade', session_id=session.id, student_id=student.id)}}">{{ student.username }}</a>
-          </td>
-          <td>{{ student.last_name | replace(' ', ' ') }}</td>
-          <td>{{ student.first_name | replace(' ', ' ') }}</td>
-          <td> <img src="{{ url_for('static', filename='img/' + icons_student[loop.index-1] ) }}"
-             alt="{{ icons_student[loop.index-1] }}" height="25" width="25">
-          </td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-    <a href="{{ url_for('student_session', session_id=session.id) }}"
-       class="btn btn-primary" role="button">Add Student(s)</a>
-  </div>
-
-  <br>
-     
-</div>
-
-
-
-
-</br><br><br>
-- Combine (re)initialize and (re)calculate in onr button</br>
-- After Finishing the Job I should Publish Pre-rendered pages</br>
-- detect bezare values</br>
-- Students Access to data should be according to good behaviour</br>
-- watch how people use the application</br>
-     to find out how you can make the application UX better</br>
-
-</br>
-</br>
-
-
-</div>
 
 
 {% endblock %}
+
+
+
+
+
+
 
 {% block scripts %}
   {{ super() }}

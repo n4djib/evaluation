@@ -6,14 +6,15 @@
 
 
 
-    <h1>Student: {{student.username}}</h1>
+    <h1>Promo: {{promo.name}}</h1>
 
     <div>
-        <a class="btn btn-primary" href="{{ url_for('student_update', id=student.id) }}">Update</a>
+        <a class="btn btn-primary" href="{{ url_for('promo_update', id=promo.id) }}">Update</a>
 
         <button class="btn btn-danger"
-            data-href="{{url_for('student_delete', id=student.id)}}" 
-            data-toggle="modal" data-target="#confirm-delete">Delete
+            data-href="{{url_for('promo_delete', id=promo.id)}}" 
+            data-toggle="modal" data-target="#confirm-delete">
+            Delete
         </button>
         <div class="modal fade" id="confirm-delete" tabindex="-1"
             role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -23,7 +24,7 @@
                         ...
                     </div-->
                     <div class="modal-body">
-                        do you really want to delete this Student?
+                        do you really want to delete this Promo?
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -37,19 +38,19 @@
     </br>
     <div>
         <table class="table table-bordered">
-          <tr><td><i>ID</i></td> <td>{{student.id}}</td></tr>
-          <tr><td><i>Branch</i></td> <td>{{student.branch.name+" - "+student.branch.description}}</td></tr>
-          <tr><td><i>Username</i></td> <td>{{student.username}}</td></tr>
-          <tr><td><i>Last Name</i></td> <td>{{student.last_name}}</td></tr>
-          <tr><td><i>First Name</i></td> <td>{{student.first_name}}</td></tr>
-          <tr><td><i>Email</i></td> <td>{{student.email}}</td></tr>
-          <tr><td><i>Birth Date</i></td> <td>{{student.birth_date}}</td></tr>
-          <tr><td><i>Birth Place</i></td> <td>{{student.birth_place}}</td></tr>
-          <tr><td><i>Address</i></td> <td>{{student.address}}</td></tr>
-          <tr><td><i>Wilaya</i></td> <td>{{student.wilaya.name}}</td></tr>
-          <tr><td><i>Sex</i></td> <td>{{student.sex}}</td></tr>
-          <tr><td><i></i></td> <td></td></tr>
-
+          <tr><td><i>ID</i></td> <td>{{promo.id}}</td></tr>
+          <tr><td><i>Name</i></td> <td>{{promo.name}}</td></tr>
+          <tr><td><i>Description</i></td> <td>{{promo.display_name}}</td></tr>
+          <tr>
+            <td><i>Branch</i></td> 
+            {% if promo.branch != None %}
+            <td>{{ promo.branch.name + " - " + promo.branch.description | replace('None', '') }}</td>
+            {% else %}
+            <td>{{ promo.branch.name }}</td>
+            {% endif %}
+          </tr>
+          <tr><td><i>Start Date</i></td> <td>{{promo.start_date | replace('None', '')}}</td></tr>
+          <tr><td><i>Finish Date</i></td> <td>{{promo.finish_date | replace('None', '')}}</td></tr>
         </table>
 
 

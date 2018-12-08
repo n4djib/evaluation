@@ -18,13 +18,17 @@
 
 
 {% block app_content %}
+ 
+  {% include '_breadcrumbs.html' %} 
 
+<!--   <a href="{{ url_for('session', session_id=session.id) }}">go back to {{ S }}: {{ session.semester.semester }}</a>
+  </br>
+ -->
+  
   {% set S = "Semester" -%}
   {% if session.is_rattrapage %}
     {% set S = "Rattrapage" %}
   {% endif %}
-  <a href="{{ url_for('session', session_id=session.id) }}">go back to {{ S }}: {{ session.semester.semester }}</a>
-  </br>
 
   <h1>This is the Assign Page</h1>
 
@@ -37,13 +41,13 @@
           <select name="from[]" id="select" class="form-control" size="15" multiple="multiple">
             {% for student in students_previous %}
             <option value="{{ student.id }}">
-              {{ student.username }} - {{ student.first_name }} - {{ student.last_name }}
+              {{ student.username }} - {{ student.last_name }} - {{ student.first_name }}
             </option>
             {% endfor %}
 
             {% for student in students_candidates %}
             <option value="{{ student.id }}" style="color:red;">
-              {{ student.username }} - {{ student.first_name }} - {{ student.last_name }}
+              {{ student.username }} - {{ student.last_name }} - {{ student.first_name }}
             </option>
             {% endfor %}
           </select>

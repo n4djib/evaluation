@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+
+    {% include '_breadcrumbs.html' %} 
+
+
+
+    <h1>Basic Tables List</h1>
+    </br>
+    <div>
+        <table class="table table-borderless">
+        <tbody>
+            <tr><td><a href="{{ url_for('school_index') }}">
+              <font size="5">Schools</font> </a></td></tr>
+            <tr><td><a href="{{ url_for('branch_index') }}">
+              <font size="5">Branches</font> </a></td></tr>
+            <tr><td><a href="{{ url_for('promo_index') }}">
+              <font size="5">Promos</font> </a></td></tr>
+            <tr><td><a href="">
+              Semesters (Not done) </a></td></tr>
+            <tr><td><a href="">
+              Wilayas (Not done) </a></td></tr>
+            <tr><td><a href="">
+              Teachers (Not done)</a></td></tr>
+            <tr><td><a href="{{ url_for('student_index') }}">
+              <font size="5">Students</font> </a></td></tr>
+            <tr><td>               </td></tr>
+        </tbody>
+      </table>
+
+      </br>
+      </br>
+      - </br>
+      - </br>
+      </br>
+
+
+    </div>
+
+{% endblock %}

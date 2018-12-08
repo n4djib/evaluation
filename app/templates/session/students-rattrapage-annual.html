@@ -9,7 +9,13 @@
 {% endblock %}
 
 
+
+
+
 {% block app_content %}
+
+  {% include '_breadcrumbs.html' %} 
+
 
   <div class="">
   	<h2>Students Rattrapage Annual</h2>
@@ -57,6 +63,12 @@
   </br>
 
 {% endblock %}
+
+
+
+
+
+
 
 {% block scripts %}
   {{ super() }}

@@ -19,15 +19,25 @@
   </style>
 {% endblock %}
 
+
+
+
+
 {% block app_content %}
-    <h1></h1>
 
-    {{ table | safe }}
+  {% include '_breadcrumbs.html' %} 
 
-    </br>
-    </br>
-    </br>
+
+  <h1>Bultin</h1>
+
+  {{ table | safe }}
+
+  </br>
+  </br>
+  - be carfull that (session) will show (session=2) even if the (first) Grade is (better)
+  </br>
 {% endblock %}
+
 
 
 

@@ -14,6 +14,7 @@ class Promo(db.Model):
     display_name = db.Column(db.String(250))
     start_date = db.Column(db.Date)
     finish_date = db.Column(db.Date)
+    color = db.Column(db.String(50))
     branch_id = db.Column(db.Integer, db.ForeignKey('branch.id'))
     sessions = db.relationship('Session', backref='promo')
     annual_session = db.relationship('AnnualSession', back_populates='promo')
@@ -26,6 +27,12 @@ class Promo(db.Model):
         next_semester = last_session.semester.get_next()
         # return next_semester.get_nbr()
         return next_semester
+    def get_label(self):
+        if self.display_name != None and self.display_name != '':
+            return self.display_name
+            # return "<span style='color:#4256f4;'>" + self.display_name + "</span>"
+        return self.name
+
 
 class AnnualSession(db.Model):
     __tablename__ = 'annual_session'
@@ -95,7 +102,6 @@ class AnnualGrade(db.Model):
         #     mudules_list_2 += student_session_2.get_ratt_modules_list_semester_html()
         
         return mudules_list_1 + "</br>" + mudules_list_2
-
 
 class Session(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -200,6 +206,7 @@ class StudentSession(db.Model):
     session_id = db.Column(db.Integer, db.ForeignKey('session.id'))
     session = db.relationship('Session', back_populates='student_sessions')
     grades = db.relationship('Grade', back_populates='student_session')
+    # grades_in_a_unit = db.relationship('Grade', back_populates='student_session').filter()
     grade_units = db.relationship('GradeUnit', back_populates='student_session')
     # grades_semester = db.relationship('GradeSemester', back_populates='student_session')
 
@@ -309,6 +316,13 @@ class GradeUnit(db.Model):
     student_session_id = db.Column(db.Integer, db.ForeignKey('student_session.id'))
     student_session = db.relationship('StudentSession', back_populates='grade_units')
 
+    def get_ratt_bultin(self):
+        grades = self.student_session.grades
+        for grade in grades:
+            if grade.get_ratt_bultin() == '2' and grade.module.unit_id == self.unit_id:
+                return '2'
+        return '1'
+
     def calculate(self, grades=None):
         # grades in a one grade_unit
         if grades is None:
@@ -371,6 +385,11 @@ class Grade(db.Model):
     def get_student_name(self):
         s = self.student_session.student
         return s.username + ' - ' + s.last_name + ' - ' + s.first_name
+
+    def get_ratt_bultin(self):
+        if self.is_rattrapage == None or self.is_rattrapage == 0:
+            return '1'
+        return '2'
 
     def calculate(self):
         formula = self.formula

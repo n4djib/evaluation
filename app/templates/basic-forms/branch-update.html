@@ -2,12 +2,16 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
-    <h1>Update Student</h1>
+
+    {% include '_breadcrumbs.html' %} 
+
+
+
+    <h1>Update Promo</h1>
 
     <div class="row">
         <div class="col-md-6">
           {{ wtf.quick_form(form) }}
-          <!-- { % include 'student/_form.html' % } -->
         </div>
     </div>
     </br>

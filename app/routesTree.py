@@ -2,6 +2,8 @@ from app import app, db
 from flask import render_template, url_for
 from app.models import School, Session, Semester
 
+from flask_breadcrumbs import register_breadcrumb
+
 
 
 def get_annual_session(session, pId):
@@ -24,12 +26,9 @@ def get_sessions_tree(promo):
         .order_by(Semester.annual, Semester.semester).all()
 
     sessions_tree = ''
-    # last_session = None
     for session in sessions:
-        # semester = session.semester.display_name
         semester = session.semester.get_nbr()
 
-        # prev_session = str(session.prev_session).replace('None', '')
         annual = str(session.annual_session_id)
 
         name = 'Semester: '
@@ -41,9 +40,7 @@ def get_sessions_tree(promo):
 
         id = str(session.id)
         pId = 'promo_'+str(promo.id)
-        # url = '/session/'+str(session.id)
         url = url_for('session', session_id=session.id)
-        # name = '<span style=font-size:20px;>' + name + '</span>'
         if session.is_closed == True:
             p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:true, url: "'+url+'", target:"_self", iconSkin:"icon13"},'
         else:
@@ -51,12 +48,10 @@ def get_sessions_tree(promo):
 
         sessions_tree += p
         sessions_tree += get_annual_session(session, pId)
-        # last_session = session
 
     seperate = True
     if sessions_tree == '':
         seperate = False
-    # return sessions_tree + get_creation_links(promo, last_session, seperate)
     return sessions_tree + get_creation_links(promo, seperate)
 
 def get_creation_links(promo, seperate=True):
@@ -112,7 +107,7 @@ def get_promos_tree(branch, open_p_id):
     for promo in promos:
         id = 'promo_' + str(promo.id)
         pId = 'branch_' + str(branch.id)
-        name = ' ' + promo.display_name + ' (' + str(get_year(promo)) + ' Year)'
+        name = ' ' + promo.get_label() + ' (' + str(get_year(promo)) + ' Year)'
         font = '{"font-weight":"bold", "font-style":"italic"}'
         icon = 'pIcon15'
 
@@ -168,92 +163,10 @@ def get_schools_tree(open_s_id=0, open_b_id=0, open_p_id=0):
 @app.route('/tree/school/<school_id>/branch/<branch_id>/promo/<promo_id>/', methods=['GET'])
 @app.route('/tree/school/<school_id>/branch/<branch_id>/', methods=['GET'])
 @app.route('/tree/school/<school_id>/', methods=['GET'])
-@app.route('/tree/', methods=['GET', 'POST'])
+@app.route('/tree/', methods=['GET'])
+@register_breadcrumb(app, '.tree', 'Tree')
 def tree(school_id=0, branch_id=0, promo_id=0):
     zNodes = '[' + get_schools_tree(int(school_id), int(branch_id), int(promo_id)) + ']'
     return render_template('tree/tree.html', title='Tree', zNodes=zNodes)
 
 
-
-
-#######################################
-#####                             #####
-#####           BRANCHES          #####
-#####                             #####
-#######################################
-
-def semesters_t(branch, open_sem_id):
-    semesters = branch.semesters
-    semesters_tree = ''
-    for semester in semesters:
-        id = 'semester_' + str(semester.id)
-        pId = 'branch_' + str(branch.id)
-        name = 'Semester ' + str(semester.get_nbr())
-
-        cumul_credit = semester.get_semester_cumul_credit()
-        if cumul_credit != 30:
-            name += "  - <span style='color:blue;margin-right:0px;'>(credit=" + str(cumul_credit) + ")</span> "
-        if semester.has_percentage_problem():
-            name += "  - <span style='color:red;margin-right:0px;'>(percentage problem)</span> "
-        if semester.has_code_missing():
-            name += "  - <span style='color:purple;margin-right:0px;'>(has code missing)</span> "
-
-
-        font = '{"font-weight":"bold", "font-style":"italic"}'
-        icon = 'pIcon15'
-
-        open = 'true'
-        if open_sem_id != 0:
-            open = 'false'
-            if open_sem_id == semester.id:
-                open = 'true'
-
-        icon = 'icon19'
-        # icon = 'icon20'
-        url = url_for('conf', semester_id=semester.id)
-
-        sem = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:'+open+', url: "'+url+'", iconSkin:"'+icon+'", font:'+font+'},'
-        semesters_tree += sem 
-    return semesters_tree
-
-def branches_t(school, open_b_id, open_sem_id):
-    branches = school.branches
-    branches_tree = ''
-    for branch in branches:
-        id = 'branch_'+str(branch.id)
-        pId = 'school_'+str(school.id)
-        # sem = ''
-        sem = semesters_t(branch, open_sem_id)
-        open = 'true'
-        if open_b_id != 0:
-            open = 'false'
-            if open_b_id == branch.id:
-                open = 'true'
-        if sem == '':
-            b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+branch.name+'", open:'+open+', iconSkin:"icon11"},'
-        else:
-            b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+branch.name+'", open:'+open+', isParent:true},'
-        
-        branches_tree += b + sem
-    return branches_tree
-
-def schools_t(open_s_id=0, open_b_id=0, open_sem_id=0):
-    schools = School.query.all()
-    schools_tree = ''
-    for school in schools:
-        id = 'school_'+str(school.id)
-        icon = 'pIcon12'
-        branches_tree = branches_t(school, open_b_id, open_sem_id)
-        open = 'true'
-        if open_s_id != 0:
-            open = 'false'
-            if open_s_id == school.id:
-                open = 'true'
-        s = '{ id:"'+id+'", pId:0, name:"'+school.name+'", open:'+open+', iconSkin:"'+icon+'", isParent:true },'
-        schools_tree += s + branches_tree
-    return schools_tree
-
-@app.route('/branches-tree/', methods=['GET', 'POST'])
-def treeBranches(school_id=0, branch_id=0, semester_id=0):
-    zNodes = '[' + schools_t(int(school_id), int(branch_id), int(semester_id)) + ']'
-    return render_template('tree/tree.html', title='Tree', zNodes=zNodes)

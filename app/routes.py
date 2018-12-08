@@ -1,29 +1,14 @@
 from app import app, db
 from flask import render_template, redirect, url_for, flash, request
 from app.forms import StudentFormCreate, StudentFormUpdate, RegistrationForm, LoginForm
-from app.models import Student, User, Branch, Session, Wilaya
+from app.models import Student, User, Branch, Session, Wilaya, School
 from werkzeug.urls import url_parse
 from flask_login import current_user, login_user, logout_user, login_required
 import datetime
-# from flask_breadcrumbs import register_breadcrumb
+from flask_breadcrumbs import register_breadcrumb
 
 from app.permissions_and_roles import *
 from flask_principal import Identity, AnonymousIdentity, identity_changed
-
-
-
-@app.route('/slow-redirect/', methods=['GET', 'POST'])
-def slow_redirect():
-    url = request.args.get('url', default='**', type=str)
-    message = request.args.get('message', default='', type=str)
-    gif = request.args.get('gif', default='', type=str)
-
-    if message != None and message != '':
-        flash(message)
-
-    return render_template('slow-redirect.html',
-        title='Redirect Page', url=url, message=message, gif=gif)
-
 
 
 
@@ -32,12 +17,37 @@ def slow_redirect():
 @app.route('/')
 @app.route('/index/')
 # @admin_permission.require()
+@register_breadcrumb(app, '.', 'Home')
 def index():
     return render_template('index.html', title='Welcome Page')
 
 
+
+@app.route('/slow-redirect/', methods=['GET', 'POST'])
+def slow_redirect():
+    url = request.args.get('url', default='**', type=str)
+    message = request.args.get('message', default='', type=str)
+    gif = request.args.get('gif', default='Preloader_8_2', type=str)
+    if message != None and message != '':
+        flash(message)
+
+    return render_template('slow-redirect.html', title='Redirect Page', url=url, message=message, gif=gif)
+
+
+
+
+
+
+#######################################
+#####                             #####
+#####           ********          #####
+#####                             #####
+#######################################
+
+
 @app.route('/student/')
 @app.route('/student/index/')
+@register_breadcrumb(app, '.basic.student', 'Students')
 def student_index():
     students = Student.query.all()
     return render_template('student/index.html', title='Students List', students=students)
@@ -46,6 +56,7 @@ def student_index():
 SEPARATOR = '-'
 
 @app.route('/student/create/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.student.create', 'Create')
 def students_create():
     form = StudentFormCreate()
     if form.validate_on_submit():
@@ -53,10 +64,14 @@ def students_create():
             username=form.username.data,
             last_name=form.last_name.data, 
             first_name=form.first_name.data,
-            email=form.email.data, 
+            email=form.email.data,
             birth_date=form.birth_date.data,
             branch_id=form.branch_id.data,
             wilaya_id=form.wilaya_id.data)
+            
+        if student.email == '':
+            student.email = None 
+
         db.session.add(student)
         db.session.commit()
         flash('Student Created and Saved Successfully.')
@@ -65,7 +80,6 @@ def students_create():
         # form.username.data = form.get_username('SF', str(datetime.datetime.now().year))
         form.username.data = Student.get_username('**', str(datetime.datetime.now().year), SEPARATOR)
     return render_template('student/create.html', title='Student Create', form=form)
-
 
 @app.route('/student/get-username/', methods=['POST'])
 def student_get_username():
@@ -174,13 +188,13 @@ def create_many_student_save():
     return _return_print
     return 'data saved'
 
-#
+
 ##################################
 
-@app.route('/student/edit/<id>/', methods=['GET', 'POST'])
-def student_edit(id):
-    student = Student.query.filter_by(id=id).first()
-    # student = Student.find(id)
+@app.route('/student/update/<id>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.student.update', 'Update')
+def student_update(id):
+    student = Student.query.get_or_404(id)
     form = StudentFormUpdate(student.id)
     if form.validate_on_submit():
         student.username = form.username.data
@@ -201,12 +215,19 @@ def student_edit(id):
         form.birth_date.data = student.birth_date
         form.branch_id.data = student.branch_id
         form.wilaya_id.data = student.wilaya_id
+    return render_template('student/update.html', title='Student Update', form=form)
 
-    return render_template('student/edit.html', title='Student Update', form=form)
 
 @app.route('/student/view/<id>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.student.view', 'View')
 def student_view(id):
-    return '<h2>Student : '+id+'</h2>'
+    student = Student.query.get_or_404(id)
+    return render_template('student/view.html', title='Student View', student=student)
+
+@app.route('/student/delete/<id>/', methods=['GET', 'POST'])
+def student_delete(id):
+    student = Student.query.get_or_404(id)
+    return "render_template('student/view.html', title='Student View', student=student)"
 
 
 @app.route('/branch/', methods=['GET', 'POST'])
@@ -255,5 +276,8 @@ def register():
     return render_template('user/register.html', title='Register', form=form)
 
 
+
+##############################################
+#             
 
 

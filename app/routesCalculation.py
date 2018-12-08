@@ -4,6 +4,8 @@ from app.models import Session, StudentSession, Grade, GradeUnit, Semester, Type
 # from decimal import *
 import copy
 from ast import literal_eval
+from flask_breadcrumbs import register_breadcrumb
+
 
 
 def config_to_dict(semester_id):
@@ -188,7 +190,15 @@ def get_unit_name(unit_id, conf_dict):
 
 def get_unit_justification(grade_unit, conf_dict):
     name = get_unit_name(grade_unit.unit_id, conf_dict)
-    return ['    UNIT: ' + name] + ['    ' + grade_unit.calculation] + [grade_unit.average] + [grade_unit.credit]
+    justification = ['    UNIT: ' + name]
+    if grade_unit.calculation != None and grade_unit.calculation != '':
+        justification += ['    ' + grade_unit.calculation]
+    else:
+        justification += '**********'
+
+    justification += [grade_unit.average]
+    justification += [grade_unit.credit]
+    return justification
 
 def get_semester_name(student_session, conf_dict):
     # for unit in conf_dict['units']:
@@ -202,6 +212,7 @@ def get_semester_justification(student_session, conf_dict):
     return ['        SEMESTER: ' + name] + ['    ' + student_session.calculation] + [student_session.average] + [student_session.credit]
 
 @app.route('/session/<session_id>/justification/<student_id>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.tree.session.classement.justification', 'Justification')
 def justification(session_id, student_id):
     student_session = StudentSession.query.filter_by(session_id=session_id, student_id=student_id).first()    
     grade_units = student_session.grade_units
@@ -219,6 +230,7 @@ def justification(session_id, student_id):
     return render_template('session/justification.html', title='Session', justs=justs)
 
 @app.route('/session/<session_id>/classement-justification/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.tree.session.classement', 'Classement')
 def classement_justification(session_id):
     students_session = StudentSession.query.filter_by(session_id=session_id).all()
     return render_template('session/classement-justification.html', title='Session', students_session=students_session)
