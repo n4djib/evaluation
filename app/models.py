@@ -29,11 +29,12 @@ class Promo(db.Model):
         # return next_semester.get_nbr()
         return next_semester
     def get_label(self):
+        # if self.display_name != None and self.display_name != '':
+        #     return self.display_name
+        #     # return "<span style='color:#4256f4;'>" + self.display_name + "</span>"
         if self.display_name != None and self.display_name != '':
-            return self.display_name
-            # return "<span style='color:#4256f4;'>" + self.display_name + "</span>"
+            return self.name + ' - ' + self.display_name
         return self.name
-
 
 class AnnualSession(db.Model):
     __tablename__ = 'annual_session'
@@ -432,6 +433,10 @@ class School(db.Model):
     branches = db.relationship('Branch', backref='school')
     def __repr__(self):
         return '<School {}>'.format(self.name)
+    def get_label(self):
+        if self.description != None and self.description != '':
+            return self.name + ' - ' + self.description
+        return self.name
 
 class Branch(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -443,6 +448,10 @@ class Branch(db.Model):
     promos = db.relationship('Promo', backref='branch')
     def __repr__(self):
         return '<Branch {}>'.format(self.name)
+    def get_label(self):
+        if self.description != None and self.description != '':
+            return self.name + ' - ' + self.description
+        return self.name
 
 class Semester(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -624,13 +633,14 @@ class Student(db.Model):
     last_name = db.Column(db.String(45), index=True)
     first_name = db.Column(db.String(45), index=True)
     # email = db.Column(db.String(120), index=True, unique=True)
-    email = db.Column(db.String(120), index=True)
+    email = db.Column(db.String(120))
     birth_date = db.Column(db.Date)
     birth_place = db.Column(db.String(45))
     address =  db.Column(db.String(120))
     photo = db.Column(db.String(250))
     
     sex = db.Column(db.String(20))
+    residency = db.Column(db.String(20))
     phones = db.relationship('Phone', backref='student')
 
     create_time = db.Column(db.DateTime, default=datetime.utcnow)
@@ -681,14 +691,11 @@ class Phone(db.Model):
     def __repr__(self):
         return '<Phone: id = {} | student_id = {} | phone = {}>'.format(self.id, self.student_id, self.phone)
 
-
 ############################## 
-
 
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
-
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -703,5 +710,3 @@ class User(UserMixin, db.Model):
         self.password_hash = generate_password_hash(password)
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-
-

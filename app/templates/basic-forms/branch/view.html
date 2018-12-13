@@ -40,8 +40,8 @@
         <table class="table table-bordered">
           <tr><td><i>ID</i></td> <td>{{branch.id}}</td></tr>
           <tr><td><i>Name</i></td> <td>{{branch.name}}</td></tr>
-          <tr><td><i>Description</i></td> <td>{{branch.display_name}}</td></tr>
-          <tr><td><i>School</i></td> <td>{{ branch.school.name + " - " + branch.school.description}}</td></tr>
+          <tr><td><i>Description</i></td> <td>{{branch.description}}</td></tr>
+          <tr><td><i>School</i></td> <td>{{ branch.school.get_label() }}</td></tr>
         </table>
 
 

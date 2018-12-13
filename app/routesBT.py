@@ -28,7 +28,7 @@ def basic_index():
 @register_breadcrumb(app, '.basic.school', 'Schools')
 def school_index():
     schools = School.query.all()
-    return render_template('basic-forms/school-index.html', title='Schools List', schools=schools)
+    return render_template('basic-forms/school/index.html', title='Schools List', schools=schools)
 
 @app.route('/school/create/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.basic.school.create', 'Create')
@@ -43,7 +43,7 @@ def school_create():
         db.session.commit()
         flash('Created and Saved Successfully.', 'alert-success')
         return redirect(url_for('school_view', id=school.id))
-    return render_template('basic-forms/school-create.html', title='School Create', form=form)
+    return render_template('basic-forms/school/create.html', title='School Create', form=form)
 
 @app.route('/school/update/<int:id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.basic.school.update', 'Update')
@@ -59,14 +59,14 @@ def school_update(id):
     elif request.method == 'GET':
         form.name.data = school.name
         form.description.data = school.description
-    return render_template('basic-forms/school-update.html', title='School Update', form=form)
+    return render_template('basic-forms/school/update.html', title='School Update', form=form)
 
 @app.route('/school/<int:id>/', methods=['GET', 'POST'])
 # @app.route('/school/view/<int:id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.basic.school.view', 'View')
 def school_view(id):
     school = School.query.get_or_404(id)
-    return render_template('basic-forms/school-view.html', title='School View', school=school)
+    return render_template('basic-forms/school/view.html', title='School View', school=school)
 
 # WARNING: i have to check before i delete
 @app.route('/school/delete/<int:id>/', methods=['GET', 'POST'])
@@ -92,7 +92,7 @@ def school_delete(id):
 def branch_index():
     # i have to order by school & branch
     branches = Branch.query.order_by(Branch.school_id).all()
-    return render_template('basic-forms/branch-index.html', title='Branches List', branches=branches)
+    return render_template('basic-forms/branch/index.html', title='Branches List', branches=branches)
 
 @app.route('/branch/create/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.basic.branch.create', 'Create')
@@ -108,7 +108,7 @@ def branch_create():
         db.session.commit()
         flash('Created and Saved Successfully.', 'alert-success')
         return redirect(url_for('branch_view', id=branch.id))
-    return render_template('basic-forms/branch-create.html', title='Branch Create', form=form)
+    return render_template('basic-forms/branch/create.html', title='Branch Create', form=form)
 
 @app.route('/branch/update/<int:id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.basic.branch.update', 'Update')
@@ -126,14 +126,14 @@ def branch_update(id):
         form.name.data = branch.name
         form.description.data = branch.description
         form.school_id.data = branch.school_id
-    return render_template('basic-forms/branch-update.html', title='Branch Update', form=form)
+    return render_template('basic-forms/branch/update.html', title='Branch Update', form=form)
 
 @app.route('/branch/<int:id>/', methods=['GET', 'POST'])
 # @app.route('/branch/view/<int:id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.basic.branch.view', 'View')
 def branch_view(id):
     branch = Branch.query.get_or_404(id)
-    return render_template('basic-forms/branch-view.html', title='Branch View', branch=branch)
+    return render_template('basic-forms/branch/view.html', title='Branch View', branch=branch)
 
 # WARNING: i have to check before i delete
 @app.route('/branch/delete/<int:id>/', methods=['GET', 'POST'])
@@ -162,7 +162,7 @@ def branch_delete(id):
 def promo_index():
     # i have to order by school & branch
     promos = Promo.query.order_by(Promo.branch_id).all()
-    return render_template('basic-forms/promo-index.html', title='Promos List', promos=promos)
+    return render_template('basic-forms/promo/index.html', title='Promos List', promos=promos)
 
 @app.route('/promo/create/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.basic.promo.create', 'Create')
@@ -174,13 +174,14 @@ def promo_create():
             display_name=form.display_name.data, 
             branch_id=form.branch_id.data, 
             start_date=form.start_date.data, 
-            finish_date=form.finish_date.data
+            finish_date=form.finish_date.data, 
+            color=form.color.data
         )
         db.session.add(promo)
         db.session.commit()
         flash('Created and Saved Successfully.', 'alert-success')
         return redirect(url_for('promo_view', id=promo.id))
-    return render_template('basic-forms/promo-create.html', title='Promo Create', form=form)
+    return render_template('basic-forms/promo/create.html', title='Promo Create', form=form)
 
 @app.route('/promo/update/<int:id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.basic.promo.update', 'Update')
@@ -193,6 +194,7 @@ def promo_update(id):
         # promo.branch_id = form.branch_id.data
         promo.start_date = form.start_date.data
         promo.finish_date = form.finish_date.data
+        promo.color = form.color.data
         db.session.commit()
         flash('Your changes have been saved.', 'alert-success')
         return redirect(url_for('promo_view', id=promo.id))
@@ -204,14 +206,15 @@ def promo_update(id):
         #     form.start_date.data = promo.start_date.strftime("%d/%m/%Y")
         form.finish_date.data = promo.finish_date
         form.branch_id.data = promo.branch_id
-    return render_template('basic-forms/promo-update.html', title='Promo Update', form=form)
+        form.color.data = promo.color
+    return render_template('basic-forms/promo/update.html', title='Promo Update', form=form)
 
 # @app.route('/promo/view/<int:id>/', methods=['GET', 'POST'])
 @app.route('/promo/<int:id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.basic.promo.view', 'View')
 def promo_view(id):
     promo = Promo.query.get_or_404(id)
-    return render_template('basic-forms/promo-view.html', title='Promo View', promo=promo)
+    return render_template('basic-forms/promo/view.html', title='Promo View', promo=promo)
 
 # WARNING: i have to check before i delete
 @app.route('/promo/delete/<int:id>/', methods=['GET', 'POST'])
@@ -241,7 +244,7 @@ def promo_delete(id):
 @register_breadcrumb(app, '.basic.wilaya', 'Wilayas')
 def wilaya_index():
     wilayas = Wilaya.query.all()
-    return render_template('basic-forms/wilaya-index.html', title='Wilayas List', wilayas=wilayas)
+    return render_template('basic-forms/wilaya/index.html', title='Wilayas List', wilayas=wilayas)
 
 @app.route('/wilaya/create/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.basic.wilaya.create', 'Create')
@@ -256,7 +259,7 @@ def wilaya_create():
         db.session.commit()
         flash('Created and Saved Successfully.', 'alert-success')
         return redirect(url_for('wilaya_view', id=wilaya.id))
-    return render_template('basic-forms/wilaya-create.html', title='Wilaya Create', form=form)
+    return render_template('basic-forms/wilaya/create.html', title='Wilaya Create', form=form)
 
 @app.route('/wilaya/update/<int:id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.basic.wilaya.update', 'Update')
@@ -272,13 +275,13 @@ def wilaya_update(id):
     elif request.method == 'GET':
         form.code.data = wilaya.code
         form.name.data = wilaya.name
-    return render_template('basic-forms/wilaya-update.html', title='Wilaya Update', form=form)
+    return render_template('basic-forms/wilaya/update.html', title='Wilaya Update', form=form)
 
 @app.route('/wilaya/<int:id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.basic.wilaya.view', 'View')
 def wilaya_view(id):
     wilaya = Wilaya.query.get_or_404(id)
-    return render_template('basic-forms/wilaya-view.html', title='Wilaya View', wilaya=wilaya)
+    return render_template('basic-forms/wilaya/view.html', title='Wilaya View', wilaya=wilaya)
 
 # WARNING: i have to check before i delete
 @app.route('/wilaya/delete/<int:id>/', methods=['GET', 'POST'])

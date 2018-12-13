@@ -32,6 +32,9 @@
 
   {{ table | safe }}
 
+    <a href ="{{ url_for('print_semester_bultin', session_id=session_id, student_id=student_id) }}"
+       target="_blank" class="btn btn-primary" role="button">Print</a>
+       
   </br>
   </br>
   - be carfull that (session) will show (session=2) even if the (first) Grade is (better)

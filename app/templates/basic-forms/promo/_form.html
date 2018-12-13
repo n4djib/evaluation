@@ -1,0 +1,15 @@
+<form class="form form-virtical" method="post" role="form">
+  {{ form.hidden_tag() }}
+  {{ wtf.form_errors(form, hiddens="only") }}
+
+  {{ wtf.form_field(form.name) }}
+  {{ wtf.form_field(form.display_name) }}
+  {{ wtf.form_field(form.branch_id) }}
+  <!-- {{ wtf.form_field(form.color) }} -->
+  <div class="form-group ">
+	  <label class="control-label" for="color">Color</label>
+	  <input type="color" id="color" name="color" value="{{form.color.data}}"></input>
+  </div>
+  
+  {{ wtf.form_field(form.submit) }}
+</form>

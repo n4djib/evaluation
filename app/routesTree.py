@@ -1,6 +1,6 @@
 from app import app, db
 from flask import render_template, url_for
-from app.models import School, Session, Semester
+from app.models import School, Session, Semester, Promo
 
 from flask_breadcrumbs import register_breadcrumb
 
@@ -21,7 +21,7 @@ def get_annual_session(session, pId):
             annual = '{id:"annual_'+str(an_s_id)+'", pId:"'+pId+'", url: "'+url+'", name:"'+name+'", target:"_self", iconSkin:"icon17"},'
     return annual
 
-def get_sessions_tree(promo):
+def get_sessions_tree(promo, promo_label=''):
     sessions = Session.query.filter_by(promo_id=promo.id).join(Semester)\
         .order_by(Semester.annual, Semester.semester).all()
 
@@ -34,11 +34,11 @@ def get_sessions_tree(promo):
         name = 'Semester: '
         if session.is_rattrapage:
             name = 'Rattrapage: '
-        # name += F'{semester}             (s:{session.id} - a:{annual})'
-        # name += F'{semester}             (session:{session.id} - prev:{prev_session} - a:{annual})'
-        name += str(semester)
+        # name += str(semester)
+        name += str(semester) + " <span style='font-size: 0.1px;'>" + promo_label + "</span>"
+        # font-size: 0px;
 
-        id = str(session.id)
+        id = 'semester_'+str(session.id)
         pId = 'promo_'+str(promo.id)
         url = url_for('session', session_id=session.id)
         if session.is_closed == True:
@@ -57,15 +57,12 @@ def get_sessions_tree(promo):
 def get_creation_links(promo, seperate=True):
     sessions = promo.sessions
     semesters = promo.branch.semesters
-
     links = ''
     if len(semesters) > 0:
         first_semester_id = semesters[0].id
 
         id = 'new_' + str(promo.id)
         pId = 'promo_' + str(promo.id)
-        # init
-        name = 'Create First Semester'
         url = url_for('create_session', promo_id=promo.id, semester_id=first_semester_id)
 
         if len(sessions) > 0:
@@ -73,6 +70,8 @@ def get_creation_links(promo, seperate=True):
             sessions_chain = first_sessions.get_chain()
             last_session_id = sessions_chain[-1]
             last_session = Session.query.get(last_session_id)
+
+            name = ''
 
             if last_session is not None:
                 next_semester = last_session.semester.get_next()
@@ -88,9 +87,9 @@ def get_creation_links(promo, seperate=True):
                     # if seperate is True:
                     #     links += '{id:"seperate_'+id+'", pId:"'+pId+'", name:"", iconSkin:"icon0"},'
         else:
+            name = 'Create First Semester'
             links += '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", target:"_top", url: "'+url+'", iconSkin:"icon01"},'
-
-    return links 
+    return links
 
 def get_year(promo):
     # return one (last)
@@ -107,17 +106,22 @@ def get_promos_tree(branch, open_p_id):
     for promo in promos:
         id = 'promo_' + str(promo.id)
         pId = 'branch_' + str(branch.id)
-        name = ' ' + promo.get_label() + ' (' + str(get_year(promo)) + ' Year)'
+
+        promo_label = promo.get_label()
+        name = "<span style='color: "+str(promo.color)+";'>" + promo_label + "</span>"
+        name = name + ' (' + str(get_year(promo)) + ' Year)'
+
         font = '{"font-weight":"bold", "font-style":"italic"}'
         icon = 'pIcon15'
 
-        open = 'true'
+        # open = 'true'
+        open = 'false'
         if open_p_id != 0:
             open = 'false'
             if open_p_id == promo.id:
                 open = 'true'
 
-        sessions_tree = get_sessions_tree(promo)
+        sessions_tree = get_sessions_tree(promo, promo_label)
         if sessions_tree == '':
             icon = 'icon15'
         p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:'+open+', iconSkin:"'+icon+'", font:'+font+'},'
@@ -166,7 +170,29 @@ def get_schools_tree(open_s_id=0, open_b_id=0, open_p_id=0):
 @app.route('/tree/', methods=['GET'])
 @register_breadcrumb(app, '.tree', 'Tree')
 def tree(school_id=0, branch_id=0, promo_id=0):
+    options_arr = get_options()
+    # return str(options_arr)
     zNodes = '[' + get_schools_tree(int(school_id), int(branch_id), int(promo_id)) + ']'
-    return render_template('tree/tree.html', title='Tree', zNodes=zNodes)
+    return render_template('tree/tree.html', title='Tree', zNodes=zNodes, options_arr=options_arr)
+
+
+
+def get_options_by_promo(promo):
+    options = ''
+    semesters = promo.branch.semesters
+    for semester in semesters:
+        val = str(semester.id)
+        opt = str(semester.get_nbr())
+        options += '<option value='+val+'>'+opt+'</option>'
+    return options
+
+def get_options():
+    array = []
+    promos = Promo.query.all()
+    for promo in promos:
+        # only "promos" that does not have "sessions"
+        if len(promo.sessions) == 0:
+            array.append( [ promo.id, get_options_by_promo(promo) ] )
+    return array
 
 

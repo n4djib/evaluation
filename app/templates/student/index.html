@@ -1,10 +1,27 @@
 {% extends "base.html" %}
 
+
+{% block styles %}
+  {{super()}}
+
+  
+  <style>
+    .filter_w {
+      max-width: 300px;
+      float: left;
+      margin: 3px;
+       /*style="float: right;"*/
+    }
+
+  </style>
+{% endblock %}
+
+
+
+
 {% block app_content %}
 
     {% include '_breadcrumbs.html' %} 
-
-
 
     <h1>Students List !!!</h1>
     <div>
@@ -12,10 +29,53 @@
         <a class="btn btn-primary" href="{{ url_for('students_create_many') }}"
         >Insert Many Students from Excel</a>
     </div>
-    
+
+
     </br>
+
+
+    <!-- ************** -->
+    <div class="input-group filter_w"> 
+      <span class="input-group-addon">Filter</span>
+      <input id="filter" type="text" class="form-control" placeholder="Type here...">
+    </div>
+
+    <!-- <div class="input-group filter_w" style="max-width: 200px;"> 
+      <span class="input-group-addon">Branch</span>
+      <input id="filter_2" type="text" class="form-control" placeholder="Type here...">
+    </div> -->
+    <!-- ************** -->
+
+    <div class="dropdown filter_w">
+      <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+        Filter By <b>Branch</b>
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+        <li><a href="#">Action</a></li>
+        <li><a href="#">Another action</a></li>
+        <li><a href="#">Something else here</a></li>
+      </ul>
+    </div>
+
+    <div class="dropdown filter_w">
+      <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+        Filter By <b>Promo</b>
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+        <li><a href="#">Action</a></li>
+        <li><a href="#">Another action</a></li>
+        <li><a href="#">Something else here</a></li>
+      </ul>
+    </div>
+
+
+    </br></br></br>
+
+
     <div>
-        <table class="table table-striped">
+      <table class="table table-striped">
         <thead>
           <tr>
             <th scope="col">#</th>
@@ -29,11 +89,12 @@
             <th scope="col">Email</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody class="searchable">
         {% for student in students %}
           <tr>
             <td>{{loop.index}}</td>
-            <td><a href="{{ url_for('student_view', id=student.id) }}">{{ student.username }}</a></td>
+            <td><a href="{{ url_for('student_view', id=student.id) }}"
+              >{{ student.username }}</a></td>
             <td>{{ student.last_name | replace(' ', ' ') }}</td>
             <td>{{ student.first_name | replace(' ', ' ') }}</td>
             <td>{{ student.birth_date | replace('None', '') }}</td>
@@ -52,6 +113,7 @@
 
       </br>
       </br>
+
       - show students in ztree by Promo</br>
       - filter by searsh box & advanced filtering</br>
       - load dynamically</br>
@@ -63,3 +125,51 @@
     </div>
 
 {% endblock %}
+
+
+
+
+
+
+{% block scripts %}
+  {{ super() }}
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script> -->
+  <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+  <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.2/bootstrap-table.min.js"></script> -->
+ 
+
+  <script type="text/javascript">
+    // { % include "student/_filter.js" %}
+
+    $(document).ready(function () {
+      (function ($) {
+        $('#filter').keyup(function () {
+            var rex = new RegExp($(this).val(), 'i');
+            $('.searchable tr').hide();
+            $('.searchable tr').filter(function () {
+              return rex.test($(this).text());
+            }).show();
+        })
+      }(jQuery));
+    });
+ 
+
+    // $(document).ready(function () {
+    //   (function ($) {
+    //     $('#filter_2').keyup(function () {
+    //         var rex = new RegExp($(this).val(), 'i');
+    //         $('.searchable tr').hide();
+    //         $('.searchable tr').filter(function () {
+    //           return rex.test($(this).text());
+    //         }).show();
+    //     })
+    //   }(jQuery));
+    // });
+ 
+
+
+  </script>
+{% endblock %}
+
+
+

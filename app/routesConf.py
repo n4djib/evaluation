@@ -204,6 +204,7 @@ def semesters_t(branch, open_sem_id):
         id = 'semester_' + str(semester.id)
         pId = 'branch_' + str(branch.id)
         name = 'Semester ' + str(semester.get_nbr())
+        name += " <span style='font-size: 0.1px;'>" + str(branch.name) + "</span>"
 
         cumul_credit = semester.get_semester_cumul_credit()
         if cumul_credit != 30:
@@ -226,7 +227,7 @@ def semesters_t(branch, open_sem_id):
         icon = 'icon19'
         # icon = 'icon20'
         url = url_for('conf', semester_id=semester.id)
-
+         # <span id="hh">Text Demo...</span>
         sem = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:'+open+', url: "'+url+'", iconSkin:"'+icon+'", font:'+font+'},'
         semesters_tree += sem 
     return semesters_tree
@@ -268,8 +269,8 @@ def schools_t(open_s_id=0, open_b_id=0, open_sem_id=0):
         schools_tree += s + branches_tree
     return schools_tree
 
-@app.route('/branches-tree/', methods=['GET', 'POST'])
-def treeBranches(school_id=0, branch_id=0, semester_id=0):
+@app.route('/semesters-tree/', methods=['GET', 'POST'])
+def tree_semesters(school_id=0, branch_id=0, semester_id=0):
     zNodes = '[' + schools_t(int(school_id), int(branch_id), int(semester_id)) + ']'
     return render_template('tree/tree.html', title='Tree', zNodes=zNodes)
 

@@ -12,8 +12,6 @@ from flask_principal import Identity, AnonymousIdentity, identity_changed
 
 
 
-
-
 @app.route('/')
 @app.route('/index/')
 # @admin_permission.require()
@@ -41,7 +39,7 @@ def slow_redirect():
 
 
 @app.route('/student/')
-@app.route('/student/index/')
+# @app.route('/student/index/')
 @register_breadcrumb(app, '.basic.student', 'Students')
 def student_index():
     students = Student.query.all()
@@ -62,15 +60,17 @@ def students_create():
             email=form.email.data,
             birth_date=form.birth_date.data,
             branch_id=form.branch_id.data,
-            wilaya_id=form.wilaya_id.data)
-            
+            wilaya_id=form.wilaya_id.data,
+            sex=form.sex.data,
+            residency=form.residency.data)
         if student.email == '':
             student.email = None 
 
         db.session.add(student)
         db.session.commit()
         flash('Student Created and Saved Successfully.')
-        return redirect(url_for('student_index'))
+        # return redirect(url_for('student_index'))
+        return redirect(url_for('student_view', id=student.id))
     elif request.method == 'GET':
         # form.username.data = form.get_username('SF', str(datetime.datetime.now().year))
         form.username.data = Student.get_username('**', str(datetime.datetime.now().year), SEPARATOR)
@@ -84,11 +84,67 @@ def student_get_username():
     return str(branch_name)
 
 
-##################################
+@app.route('/student/update/<id>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.student.update', 'Update')
+def student_update(id):
+    student = Student.query.get_or_404(id)
+    form = StudentFormUpdate(student.id)
+    if form.validate_on_submit():
+        student.username = form.username.data
+        student.last_name = form.last_name.data
+        student.first_name = form.first_name.data
+        if len(form.email.data) > 0:
+            student.email = form.email.data
+        student.birth_date = form.birth_date.data
+        student.branch_id = form.branch_id.data
+        student.wilaya_id = form.wilaya_id.data
+
+        student.sex = form.sex.data
+        student.residency = form.residency.data
+        db.session.commit()
+        flash('Your changes have been saved.')
+        # return redirect(url_for('student_index'))
+        return redirect(url_for('student_view', id=student.id))
+    elif request.method == 'GET':
+        form.username.data = student.username
+        form.last_name.data = student.last_name
+        form.first_name.data = student.first_name
+        form.email.data = student.email
+        form.birth_date.data = student.birth_date
+        form.branch_id.data = student.branch_id
+        form.wilaya_id.data = student.wilaya_id
+
+        form.sex.data = student.sex
+        form.residency.data = student.residency
+    return render_template('student/update.html', title='Student Update', form=form)
+
+
+@app.route('/student/view/<id>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.student.view', 'View')
+def student_view(id):
+    student = Student.query.get_or_404(id)
+    return render_template('student/view.html', title='Student View', student=student)
+
+@app.route('/student/delete/<id>/', methods=['GET', 'POST'])
+def student_delete(id):
+    student = Student.query.get_or_404(id)
+    if len(student.student_sessions) > 0:
+        flash("you can't delete this Student because it is in Relation with other Records", 'alert-danger')
+        flash("you have to break the relation with the Sessions first")
+        return redirect(url_for('student_view', id=student.id))
+    db.session.delete(student)
+    db.session.commit()
+    flash('Student: ' + student.username + ' - ' \
+        + student.last_name + ' ' + student.last_name + ' is deleted', 'alert-success')
+    return redirect(url_for('student_index'))
+
+
+#######################################
 #
 #  move these methods to Models
 #
-##################################
+#######################################
+
 def get_wilayas_list():
     wilayas = Wilaya.query.all()
     wilayas_name_list = ['']
@@ -184,48 +240,7 @@ def create_many_student_save():
     return 'data saved'
 
 
-##################################
-
-@app.route('/student/update/<id>/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.basic.student.update', 'Update')
-def student_update(id):
-    student = Student.query.get_or_404(id)
-    form = StudentFormUpdate(student.id)
-    if form.validate_on_submit():
-        student.username = form.username.data
-        student.last_name = form.last_name.data
-        student.first_name = form.first_name.data
-        student.email = form.email.data
-        student.birth_date = form.birth_date.data
-        student.branch_id = form.branch_id.data
-        student.wilaya_id = form.wilaya_id.data
-        db.session.commit()
-        flash('Your changes have been saved.')
-        return redirect(url_for('student_index'))
-    elif request.method == 'GET':
-        form.username.data = student.username
-        form.last_name.data = student.last_name
-        form.first_name.data = student.first_name
-        form.email.data = student.email
-        form.birth_date.data = student.birth_date
-        form.branch_id.data = student.branch_id
-        form.wilaya_id.data = student.wilaya_id
-    return render_template('student/update.html', title='Student Update', form=form)
-
-
-@app.route('/student/view/<id>/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.basic.student.view', 'View')
-def student_view(id):
-    student = Student.query.get_or_404(id)
-    return render_template('student/view.html', title='Student View', student=student)
-
-@app.route('/student/delete/<id>/', methods=['GET', 'POST'])
-def student_delete(id):
-    student = Student.query.get_or_404(id)
-    return "render_template('student/view.html', title='Student View', student=student)"
-
-
-##############################################
+#######################################
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
@@ -265,7 +280,7 @@ def register():
 
 
 
-##############################################
+#######################################
 #             
 
 

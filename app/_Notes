@@ -1,51 +1,50 @@
-- in tree add link to pre-populated creation forms
-		add a new creation form that Catches get values rather than modifying flask-admin
-- add field configuration to grade Table  that 
-		Json That contains the Active Fields 
-			this will speedup the Page Grade
-		& another field a reference to config Table
-			config 	Table as JSON
-		
-		every time we change the config we reinitialize Grade
-			maybe only modify so you don't lose entered grades
-			add new modules after checking the config
-			change the active Fields
-		
-- Flask Athorization
-- add autosave to grid
-- add option to show all fields in the grid
+=ERRORS:
+--------
+
+
+
+=PRIORITY 1:
+------------
+- in justification
+	show how the credit is calculated
+- add the headers and fouters for the printables
+- print Zerbia (Ratt + normal)
+- print bulk Bultin
+- ADD PAGINATION TO STUDENT TABLE
+
+
+
+
+=PRIORITY 2:
+------------
+- add a link in the Tree to create a New Promo
+- the order of the promo
+- Duplicate Config
+- when creating a new session do not transfaire students
+- show list of associated record in view of Basic tables
+- when creating a new session do not transfaire students
+	then when i enter the session prisent a button
+	or just do it in a cron job
+- add Button: create a new semester
+	duplicate config
+	and when creating a new session take the latest version
+	be carefull of the chaning
+- write the teacher and attandence section
+- set Dirty Flags and show them in Flash() 
+	to indecate the need for Re(calculate) in other Pages
+
+
+
+
+=PRIORITY 3:
+------------
+- show a progress bar like a WiFI in Tree
 - teachers rating
 	only his students can rate him
+- Authorization
+- Mysql
 - raise an exception when a Session or a Semester has more than one Next
 - 
 
-
-
-1. Prints
-  print students list (in add students)
-  list of students by module (in module edit)
-    empty & filled
-  add button to Result (and change the name of the file according to seconds & )
-  add button to average
-2. Show all Students Button (in add students)
-3. check that the students are being transfaired in Semesters
-4. Fix Navigation through simple Links
-1......... finish the creation and deletion of sessions first
-2......... collect the configuration
-3......... target:"_top",
-4. fix add students
-	...........add branch to student form
-	...........select according to branch
-	add filter in students
-. Rattrapage Students in session ratt
-	& Modules (grades)
-. forms to create: School, Branch, Promo
-. get_chain_non_rattrappage
-. then add the Annual session
-. create and delete AnnualSessions
-. raise an exception when a Session or a Semester are unexpected
-. init annual_session in chain when created (session & annualSession)
-. force creation of sessions in order
-. show branches with thier Semesters Config
 
 

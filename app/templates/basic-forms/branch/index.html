@@ -18,7 +18,7 @@
         <tr>
           <th scope="col">#</th>
           <th scope="col">Name</th>
-          <th scope="col">Display Name</th>
+          <th scope="col">Description</th>
           <th scope="col">School</th>
         </tr>
       </thead>
@@ -27,7 +27,7 @@
         <tr>
           <td>{{loop.index}}</td>
           <td><a href="{{ url_for('branch_view', id=branch.id) }}">{{ branch.name }}</a></td>
-          <td>{{ branch.display_name | replace("None", "") }}</td>
+          <td>{{ branch.description | replace("None", "") }}</td>
           <td>{{ branch.school.name | replace("None", "") }}</td>
         </tr>
       {% endfor %}

@@ -41,8 +41,8 @@
             <ul class="nav navbar-nav">
                 <li><a href="{{ url_for('index') }}">Home</a></li>
                 <li><a href="{{ url_for('tree') }}">Tree</a></li>
-                <!-- <li><a href="{{ url_for('student_index') }}">Students</a></li> -->
-                <li><a href="/branches-tree">Branches Tree</a></li>
+                <li><a href="{{ url_for('tree_semesters') }}">Semesters Tree</a></li>
+                <li><a href="{{ url_for('student_index') }}">Students</a></li>
                 <!-- <li><a href="/admin">Admin</a></li> -->
                 <li><a href="{{ url_for('basic_index') }}">Basic Tables</a></li>
                 <!-- <li><a href="/school">School</a></li> -->
@@ -86,21 +86,8 @@
 
 {% block scripts %}
     {{ super() }}
-   <!--  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.2/modernizr.js"></script>
- -->
-    <script>
-        // $('a').click(function() {
-        //     // alert("aaaaaaaaa");
-        //     $('.se-pre-con').show(); 
-        //     $('.container').hide();
-            
-        //     // setTimeout(function(){
-        //     //     $('.se-pre-con').hide(); 
-        //     //     $('.container').show();
-        //     // }, 3000);
 
-        //     return true;
-        // });
+    <script>
+      
     </script>
 {% endblock %}

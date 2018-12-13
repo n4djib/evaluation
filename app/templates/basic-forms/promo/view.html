@@ -51,6 +51,12 @@
           </tr>
           <tr><td><i>Start Date</i></td> <td>{{promo.start_date | replace('None', '')}}</td></tr>
           <tr><td><i>Finish Date</i></td> <td>{{promo.finish_date | replace('None', '')}}</td></tr>
+          <tr>
+            <td><i>Color</i></td> 
+            <td>
+              <span style="background-color: {{ promo.color if promo.color else '#000000' }};"
+              >               </span>  {{ promo.color if promo.color else '#000000' }}
+            </td></tr>
         </table>
 
 

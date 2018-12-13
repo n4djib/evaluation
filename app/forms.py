@@ -24,6 +24,8 @@ class StudentFormBase(FlaskForm):
         choices = [('-1', '')]+[(b.id, b.name) for b in Wilaya.query.order_by('code')
     ])
     address = StringField('Address')
+    sex = SelectField('Sex', choices = [('', ''), ('F', 'F'), ('M', 'M')])
+    residency = SelectField('Residency', choices = [('', ''), ('intern', 'Intern'), ('extern', 'Extern')])
 
 class StudentFormCreate(StudentFormBase):
     submit = SubmitField('Create')
@@ -31,10 +33,10 @@ class StudentFormCreate(StudentFormBase):
         student = Student.query.filter_by(username=username.data).first()
         if student is not None:
             raise ValidationError('Please use a different username.')
-    def validate_email(self, email):
-        student = Student.query.filter_by(email=email.data).first()
-        if student is not None:
-            raise ValidationError('Please use a different email.')
+    # def validate_email(self, email):
+    #     student = Student.query.filter_by(email=email.data).first()
+    #     if student is not None:
+    #         raise ValidationError('Please use a different email.')
 
 class StudentFormUpdate(StudentFormBase):
     submit = SubmitField('Update')
@@ -45,10 +47,10 @@ class StudentFormUpdate(StudentFormBase):
         student = Student.query.filter(and_(Student.username==username.data, Student.id!=self._id)).first()
         if student is not None:
             raise ValidationError('Please use a different username')
-    def validate_email(self, email):
-        student = Student.query.filter(and_(Student.email==email.data, Student.id!=self._id)).first()
-        if student is not None:
-            raise ValidationError('Please use a different email')
+    # def validate_email(self, email):
+    #     student = Student.query.filter(and_(Student.email==email.data, Student.id!=self._id)).first()
+    #     if student is not None:
+    #         raise ValidationError('Please use a different email')
 
 
 
@@ -71,11 +73,13 @@ class SchoolFormUpdate(SchoolFormBase):
 
 ##################
 
+
+
 class BranchFormBase(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
     description = StringField('description')
     school_id = SelectField('School', coerce=int,  
-        choices = [('-1', '')]+[(s.id, s.name+' - '+s.description ) for s in School.query.order_by('name')
+        choices = [('-1', '')]+[(s.id, s.get_label()) for s in School.query.order_by('name')
     ])
 
 class BranchFormCreate(BranchFormBase):
@@ -94,21 +98,26 @@ class BranchFormUpdate(BranchFormBase):
 class PromoFormBase(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
     display_name = StringField('display_name')
-    # color = ColorField('Color')
     # , format='%d/%m/%Y'
     start_date = DateField('Start Date', validators=[Optional()])
     finish_date = DateField('Finish Date', validators=[Optional()])
+    #
+    #
+    #WARNING
+    #i have to select branches in this school
+    # in the form i need to choose the school and then the branch
     branch_id = SelectField('Branch', coerce=int,  
-        choices = [('-1', '')]+[(b.id, b.name+' - '+b.description ) for b in Branch.query.order_by('name')
+        choices = [('-1', '')]+[(b.id, b.get_label()) for b in Branch.query.order_by('name')
     ])
-
+    color = StringField('Color')
+    
 class PromoFormCreate(PromoFormBase):
     submit = SubmitField('Create')
 
 class PromoFormUpdate(PromoFormBase):
     branch_id = SelectField('Branch', 
         coerce=int, validators=[Optional()], render_kw={'disabled':''}, 
-        choices = [('-1', '')]+[(b.id, b.name+' - '+b.description) for b in Branch.query.order_by('name')
+        choices = [('-1', '')]+[(b.id, b.get_label()) for b in Branch.query.order_by('name')
     ])
     submit = SubmitField('Update')
     def __init__(self, _id=-1, *args, **kwargs):

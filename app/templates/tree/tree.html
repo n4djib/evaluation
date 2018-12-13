@@ -113,60 +113,17 @@
 {% block scripts %}
   {{ super() }}
 
-  <!--script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script-->
   <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='ztree/jquery.ztree.core.min.js') }}"></script>
   <script src="{{ url_for('static', filename='ztree/jquery.ztree.exedit.min.js') }}"></script>
   <script src="{{ url_for('static', filename='ztree/jquery.ztree.exhide.js') }}"></script>
   <script src="{{ url_for('static', filename='ztree/fuzzysearch.min.js') }}"></script> 
 
-
   <script type="text/javascript">
-    var setting = {
-      view: {
-        dblClickExpand: false,
-        fontCss: getFont,
-        nameIsHTML: true,
 
-        selectedMulti: false
-      },
+    {% include "tree/_tree.js" %}
 
-      check: {
-        enable: true//checkbox
-      },
-      edit: {
-        enable: false,
-        editNameSelectAll: false
-      },
-
-      data: {
-        simpleData: {
-          enable: true
-        }
-      },
-      callback: {
-        onClick: onClick
-      }
-    }; 
-
-    function getFont(treeId, node) {
-      return node.font ? node.font : {};
-    }
-
-    function onClick(e,treeId, treeNode) {
-      var zTree = $.fn.zTree.getZTreeObj("treeDemo");
-      zTree.expandNode(treeNode);
-    }
-
-    var zNodes = {{ zNodes | safe }};;
-
-    $(document).ready(function(){
-      $.fn.zTree.init($("#treeDemo"), setting, zNodes);
-      fuzzySearch('treeDemo','#key', null, true); //initialize fuzzysearch function
-    });
-    //-->
   </script>
-
 {% endblock %}
 
 
