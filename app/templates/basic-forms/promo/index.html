@@ -27,6 +27,7 @@
           <td>{{loop.index}}</td>
           <td><a href="{{ url_for('promo_view', id=promo.id) }}">{{ promo.name }}</a></td>
           <td>{{ promo.display_name | replace("None", "") }}</td>
+          <td>{{ promo.start_date | replace("None", "") }}</td>
           <td>{{ promo.branch.name | replace("None", "") }}</td>
           <td><span style="background-color: {{ promo.color if promo.color else '#000000' }};"
               >               </span>  {{ promo.color if promo.color else '#000000' }}

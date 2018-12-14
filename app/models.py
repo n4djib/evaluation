@@ -116,37 +116,35 @@ class Session(db.Model):
     configuration = db.Column(db.Text)
     semester_id = db.Column(db.Integer, db.ForeignKey('semester.id'))
     promo_id = db.Column(db.Integer, db.ForeignKey('promo.id'))
-
     annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
     annual_session = db.relationship('AnnualSession', back_populates='sessions')
-    # annual_session = db.relationship('AnnualSession', backref='session')
-
     student_sessions = db.relationship('StudentSession', back_populates='session')
-
+    def get_label(self):
+        # if self.name != None and self.name != '':
+        #     return self.name
+        label = 'Rattrapage ' if self.is_rattrapage else 'Semester '
+        label += '(' + str(self.semester.get_nbr()) + ') - ' + self.promo.get_label() 
+        return label
     def student_nbr(self):
         return StudentSession.query.filter_by(session_id=self.id).count()
-
     def get_previous(self):
         sessions = self.get_chain()
         index = sessions.index(self.id)
         if index == 0:
             return None
         return Session.query.get(sessions[index-1])
-
     def get_previous_normal(self):
         sessions = self.get_chain_normal()
         index = sessions.index(self.id)
         if index == 0:
             return None
         return Session.query.get(sessions[index-1])
-
     def get_next(self):
         sessions = self.get_chain()
         index = sessions.index(self.id)
         if index == len(sessions)-1:
             return None
         return Session.query.get(sessions[index+1])
-
     def get_chain(self):
         sessions = Session.query.filter_by(promo_id=self.promo.id).join(Semester)\
             .order_by(Semester.annual, Semester.semester).all()
@@ -154,7 +152,6 @@ class Session(db.Model):
         for session in sessions:
             sessions_id.append(session.id)
         return sessions_id
-
     def get_chain_normal(self):
         sessions = Session.query.filter_by(promo_id=self.promo.id, is_rattrapage=False).join(Semester)\
             .order_by(Semester.annual, Semester.semester).all()
@@ -162,7 +159,6 @@ class Session(db.Model):
         for session in sessions:
             sessions_id.append(session.id)
         return sessions_id
-
     def get_annual_chain(self):
         sessions = Session.query.filter_by(promo_id=self.promo.id).join(Semester)\
             .order_by(Semester.annual, Semester.semester).all()
@@ -172,7 +168,6 @@ class Session(db.Model):
             if session.semester.annual == current_annual:
                 sessions_id.append(session.id)
         return sessions_id
-        
     def get_annual_dict(self):
         chain = self.get_annual_chain()
         _dict = {'S1': -1, 'S2': -1, 'R1': -1, 'R2': -1, 'A': -1}
@@ -189,7 +184,6 @@ class Session(db.Model):
                 _dict['R1'] = session.id
             if is_rattrapage == True and semester_half == 2:
                 _dict['R2'] = session.id
-
         if self.annual_session_id != None:
             _dict['A'] = self.annual_session_id
         return _dict
@@ -445,7 +439,7 @@ class Branch(db.Model):
     school_id = db.Column(db.Integer, db.ForeignKey('school.id'))
     students = db.relationship('Student', backref='branch')
     semesters = db.relationship('Semester', backref='branch')
-    promos = db.relationship('Promo', backref='branch')
+    promos = db.relationship('Promo', backref='branch', order_by='Promo.start_date')
     def __repr__(self):
         return '<Branch {}>'.format(self.name)
     def get_label(self):

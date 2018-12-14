@@ -38,6 +38,13 @@ def slow_redirect():
 #######################################
 
 
+@app.route('/std/')
+def std_index():
+    return render_template('student/index-std.html', title='Students List')
+
+
+
+
 @app.route('/student/')
 # @app.route('/student/index/')
 @register_breadcrumb(app, '.basic.student', 'Students')

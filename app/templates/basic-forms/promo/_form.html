@@ -4,10 +4,12 @@
 
   {{ wtf.form_field(form.name) }}
   {{ wtf.form_field(form.display_name) }}
+  {{ wtf.form_field(form.start_date) }}
+  {{ wtf.form_field(form.finish_date) }}
   {{ wtf.form_field(form.branch_id) }}
-  <!-- {{ wtf.form_field(form.color) }} -->
+  
   <div class="form-group ">
-	  <label class="control-label" for="color">Color</label>
+	  <label class="control-label" for="color">{{ form.color.label }}</label>
 	  <input type="color" id="color" name="color" value="{{form.color.data}}"></input>
   </div>
   

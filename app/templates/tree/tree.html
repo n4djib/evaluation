@@ -5,24 +5,10 @@
 {% block styles %}
   {{super()}}
 
-  <link rel="stylesheet" 
-        href="{{url_for('static', filename='ztree/zTreeStyle.css')}}" type="text/css">
+  <link rel="stylesheet" type="text/css"
+        href="{{url_for('static', filename='ztree/zTreeStyle.css')}}">
 
   <style type="text/css">
-
-    /*.ztree{
-      direction: rtl;
-      li{
-        text-align: right;
-        ul.line {
-          background-position: right 10px top;
-          padding: 0 18px 0 0;
-        }
-        span.button{
-          transform: scale(-1, 1);
-        }
-      }
-    }*/
 
     .ztree li span.button.pIcon01_ico_open{margin-right:2px; background: url({{url_for('static', filename='ztree/img/diy/1_open.png')}}) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
     .ztree li span.button.pIcon01_ico_close{margin-right:2px; background: url({{url_for('static', filename='ztree/img/diy/1_close.png')}}) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
@@ -54,24 +40,6 @@
     .ztree li span.button.icon18_ico_docu{margin-right:2px; background: url({{url_for('static', filename='ztree/img/diy/18.png')}}) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
     .ztree li span.button.icon19_ico_docu{margin-right:2px; background: url({{url_for('static', filename='ztree/img/diy/19.png')}}) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
     .ztree li span.button.icon20_ico_docu{margin-right:2px; background: url({{url_for('static', filename='ztree/img/diy/20.png')}}) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
-
-
-
-
-/*@import url(http://weloveiconfonts.com/api/?family=entypo);
-.node-new {
-  display: inline-block; position: relative;
-  padding: 4px 16px; right: 9999px;
-  &:after {
-    content: "\1f680";
-    position: absolute;
-    top: 2px; right: -9999px; width: 100%;
-    text-align: center;
-    height: 100%; color: #fff; font-size: 50px;
-    line-height: 30.8px; font-family: 'entypo', sans-serif;
-  }
-}
-*/
 
   </style>
 

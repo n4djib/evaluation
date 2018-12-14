@@ -103,13 +103,13 @@ class PromoFormBase(FlaskForm):
     finish_date = DateField('Finish Date', validators=[Optional()])
     #
     #
-    #WARNING
-    #i have to select branches in this school
+    # WARNING
+    # i have to select branches in this school
     # in the form i need to choose the school and then the branch
     branch_id = SelectField('Branch', coerce=int,  
         choices = [('-1', '')]+[(b.id, b.get_label()) for b in Branch.query.order_by('name')
     ])
-    color = StringField('Color')
+    color = StringField('Color', default="#333333")
     
 class PromoFormCreate(PromoFormBase):
     submit = SubmitField('Create')

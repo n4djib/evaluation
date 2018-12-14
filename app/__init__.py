@@ -34,14 +34,14 @@ from app.models import User, Student, Phone, School, Branch, Promo, \
 
 
 # admin.add_view(ModelView(Student, db.session))
-# admin.add_view(ModelView(Phone, db.session))
+admin.add_view(ModelView(Phone, db.session))
 admin.add_view(ModelView(User, db.session))
-admin.add_view(ModelView(School, db.session))
-admin.add_view(ModelView(Branch, db.session))
-admin.add_view(ModelView(Promo, db.session))
-admin.add_view(ModelView(StudentSession, db.session))
+# admin.add_view(ModelView(School, db.session))
+# admin.add_view(ModelView(Branch, db.session))
+# admin.add_view(ModelView(Promo, db.session))
+# admin.add_view(ModelView(StudentSession, db.session))
 admin.add_view(ModelView(Session, db.session))
-admin.add_view(ModelView(Grade, db.session))
+# admin.add_view(ModelView(Grade, db.session))
 
 
 class S(ModelView):
@@ -52,10 +52,8 @@ class M(ModelView):
 	form_excluded_columns = ['percentages', 'grades', 'unit']
 class P(ModelView):
 	form_excluded_columns = ['module', 'name']
-	# form_excluded_columns = ['', '']
 	# column_editable_list = ['name', 'percentage', 'type']
 
-	
 admin.add_view(S(Semester, db.session))
 admin.add_view(U(Unit, db.session))
 admin.add_view(M(Module, db.session))

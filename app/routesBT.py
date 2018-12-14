@@ -13,7 +13,6 @@ from flask_breadcrumbs import register_breadcrumb
 #####            INDEX            #####
 
 @app.route('/basic-tables/')
-# @app.route('/basic/index/')
 @register_breadcrumb(app, '.basic', 'Basic Tables')
 def basic_index():
     return render_template('basic-forms/index.html', title='Basic Tables List')
@@ -24,7 +23,6 @@ def basic_index():
 #####           School            #####
 
 @app.route('/school/')
-# @app.route('/school/index/')
 @register_breadcrumb(app, '.basic.school', 'Schools')
 def school_index():
     schools = School.query.all()
@@ -62,7 +60,6 @@ def school_update(id):
     return render_template('basic-forms/school/update.html', title='School Update', form=form)
 
 @app.route('/school/<int:id>/', methods=['GET', 'POST'])
-# @app.route('/school/view/<int:id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.basic.school.view', 'View')
 def school_view(id):
     school = School.query.get_or_404(id)
@@ -87,7 +84,6 @@ def school_delete(id):
 #####           Branch            #####
 
 @app.route('/branch/')
-# @app.route('/branch/index/')
 @register_breadcrumb(app, '.basic.branch', 'Branches')
 def branch_index():
     # i have to order by school & branch
@@ -129,7 +125,6 @@ def branch_update(id):
     return render_template('basic-forms/branch/update.html', title='Branch Update', form=form)
 
 @app.route('/branch/<int:id>/', methods=['GET', 'POST'])
-# @app.route('/branch/view/<int:id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.basic.branch.view', 'View')
 def branch_view(id):
     branch = Branch.query.get_or_404(id)
@@ -157,11 +152,10 @@ def branch_delete(id):
 #####            Promo            #####
 
 @app.route('/promo/')
-# @app.route('/promo/index/')
 @register_breadcrumb(app, '.basic.promo', 'Promos')
 def promo_index():
     # i have to order by school & branch
-    promos = Promo.query.order_by(Promo.branch_id).all()
+    promos = Promo.query.order_by(Promo.branch_id, Promo.start_date).all()
     return render_template('basic-forms/promo/index.html', title='Promos List', promos=promos)
 
 @app.route('/promo/create/', methods=['GET', 'POST'])
@@ -209,7 +203,6 @@ def promo_update(id):
         form.color.data = promo.color
     return render_template('basic-forms/promo/update.html', title='Promo Update', form=form)
 
-# @app.route('/promo/view/<int:id>/', methods=['GET', 'POST'])
 @app.route('/promo/<int:id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.basic.promo.view', 'View')
 def promo_view(id):

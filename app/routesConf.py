@@ -119,7 +119,6 @@ def tree_semester(semester):
         children: [''' + units + ''']
     }'''
 
-
 def tree_conf_data(semester_id):
     semester = Semester.query.filter_by(id=semester_id).first_or_404()
     t_semester = tree_semester(semester)
@@ -147,21 +146,17 @@ def tree_conf_data(semester_id):
     }'''
     return conf_data
 
-
-
-@app.route('/conf/<semester_id>/', methods=['GET', 'POST'])
+@app.route('/conf-semester/<semester_id>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.semester_tree.conf', 'Configuration')
 def conf(semester_id=0):
     conf_data = tree_conf_data(semester_id)
     return render_template('conf/treant.html', title='Conficuration Tree', data=conf_data)
 
-@app.route('/session/<session_id>/conf/<semester_id>/', methods=['GET', 'POST'])
+@app.route('/session/<session_id>/conf-semester/<semester_id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree.session.conf', 'Configuration')
 def conf_session(session_id, semester_id):
     conf_data = tree_conf_data(semester_id)
     return render_template('conf/treant.html', title='Conficuration Tree', data=conf_data)
-
-
-
 
 @app.route('/conf-mod/<semester_id>/', methods=['GET', 'POST'])
 def conf_mod(semester_id):
@@ -214,7 +209,6 @@ def semesters_t(branch, open_sem_id):
         if semester.has_code_missing():
             name += "  - <span style='color:purple;margin-right:0px;'>(has code missing)</span> "
 
-
         font = '{"font-weight":"bold", "font-style":"italic"}'
         icon = 'pIcon15'
 
@@ -227,8 +221,8 @@ def semesters_t(branch, open_sem_id):
         icon = 'icon19'
         # icon = 'icon20'
         url = url_for('conf', semester_id=semester.id)
-         # <span id="hh">Text Demo...</span>
-        sem = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:'+open+', url: "'+url+'", iconSkin:"'+icon+'", font:'+font+'},'
+        # <span id="hh">Text Demo...</span>
+        sem = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:'+open+', url: "'+url+'", target:"_self", iconSkin:"'+icon+'", font:'+font+'},'
         semesters_tree += sem 
     return semesters_tree
 
@@ -270,6 +264,7 @@ def schools_t(open_s_id=0, open_b_id=0, open_sem_id=0):
     return schools_tree
 
 @app.route('/semesters-tree/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.semester_tree', 'Semesters Tree')
 def tree_semesters(school_id=0, branch_id=0, semester_id=0):
     zNodes = '[' + schools_t(int(school_id), int(branch_id), int(semester_id)) + ']'
     return render_template('tree/tree.html', title='Tree', zNodes=zNodes)

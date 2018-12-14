@@ -5,55 +5,6 @@ from app.models import School, Session, Semester, Promo
 from flask_breadcrumbs import register_breadcrumb
 
 
-
-def get_annual_session(session, pId):
-    # it shows only after last session in Annual chain
-    annual = ''
-    annual_dict = session.get_annual_dict()
-    if annual_dict['A'] != -1:
-        # append after last session in Annual
-        annual_chain = session.get_annual_chain()
-        if annual_chain[-1] == session.id:
-            an_s_id = session.annual_session_id
-            url = url_for('annual_session', annual_session_id=an_s_id)
-            # name = 'Annual '+str(session.semester.annual)+' Results       (an:'+str(an_s_id)+')'
-            name = 'Annual '+str(session.semester.annual)+' Results'
-            annual = '{id:"annual_'+str(an_s_id)+'", pId:"'+pId+'", url: "'+url+'", name:"'+name+'", target:"_self", iconSkin:"icon17"},'
-    return annual
-
-def get_sessions_tree(promo, promo_label=''):
-    sessions = Session.query.filter_by(promo_id=promo.id).join(Semester)\
-        .order_by(Semester.annual, Semester.semester).all()
-
-    sessions_tree = ''
-    for session in sessions:
-        semester = session.semester.get_nbr()
-
-        annual = str(session.annual_session_id)
-
-        name = 'Semester: '
-        if session.is_rattrapage:
-            name = 'Rattrapage: '
-        # name += str(semester)
-        name += str(semester) + " <span style='font-size: 0.1px;'>" + promo_label + "</span>"
-        # font-size: 0px;
-
-        id = 'semester_'+str(session.id)
-        pId = 'promo_'+str(promo.id)
-        url = url_for('session', session_id=session.id)
-        if session.is_closed == True:
-            p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:true, url: "'+url+'", target:"_self", iconSkin:"icon13"},'
-        else:
-            p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:true, url: "'+url+'", target:"_self"},'
-
-        sessions_tree += p
-        sessions_tree += get_annual_session(session, pId)
-
-    seperate = True
-    if sessions_tree == '':
-        seperate = False
-    return sessions_tree + get_creation_links(promo, seperate)
-
 def get_creation_links(promo, seperate=True):
     sessions = promo.sessions
     semesters = promo.branch.semesters
@@ -100,6 +51,52 @@ def get_year(promo):
         return session.semester.annual
     return '***'
 
+def get_annual_session(session, pId):
+    # it shows only after last session in Annual chain
+    annual = ''
+    annual_dict = session.get_annual_dict()
+    if annual_dict['A'] != -1:
+        # append after last session in Annual
+        annual_chain = session.get_annual_chain()
+        if annual_chain[-1] == session.id:
+            an_s_id = session.annual_session_id
+            url = url_for('annual_session', annual_session_id=an_s_id)
+            # name = 'Annual '+str(session.semester.annual)+' Results       (an:'+str(an_s_id)+')'
+            name = 'Annual '+str(session.semester.annual)+' Results'
+            annual = '{id:"annual_'+str(an_s_id)+'", pId:"'+pId+'", url: "'+url+'", name:"'+name+'", target:"_self", iconSkin:"icon17"},'
+    return annual
+
+def get_sessions_tree(promo, promo_label=''):
+    sessions = Session.query.filter_by(promo_id=promo.id).join(Semester)\
+        .order_by(Semester.annual, Semester.semester).all()
+
+    sessions_tree = ''
+    for session in sessions:
+        semester = session.semester.get_nbr()
+
+        annual = str(session.annual_session_id)
+
+        name = 'Semester: '
+        if session.is_rattrapage:
+            name = 'Rattrapage: '
+        name += str(semester) + " <span style='font-size: 0.1px;'>" + promo_label + "</span>"
+        
+        id = 'semester_'+str(session.id)
+        pId = 'promo_'+str(promo.id)
+        url = url_for('session', session_id=session.id)
+        if session.is_closed == True:
+            p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:true, url: "'+url+'", target:"_self", iconSkin:"icon13"},'
+        else:
+            p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:true, url: "'+url+'", target:"_self"},'
+
+        sessions_tree += p
+        sessions_tree += get_annual_session(session, pId)
+
+    seperate = True
+    if sessions_tree == '':
+        seperate = False
+    return sessions_tree + get_creation_links(promo, seperate)
+
 def get_promos_tree(branch, open_p_id):
     promos = branch.promos
     promos_tree = ''
@@ -107,9 +104,22 @@ def get_promos_tree(branch, open_p_id):
         id = 'promo_' + str(promo.id)
         pId = 'branch_' + str(branch.id)
 
-        promo_label = promo.get_label()
-        name = "<span style='color: "+str(promo.color)+";'>" + promo_label + "</span>"
+
+
+        # promo_label = promo.get_label()
+        # name = "<span style='color: "+str(promo.color)+";'>" + promo_label + "</span>"
+
+        name = promo.name
+
+        promo_display_name = str(promo.display_name).replace('None', '')
+        if promo_display_name != '':
+            name += " - <span style='color: "+str(promo.color)+";'>" + promo_display_name + "</span>"
+
         name = name + ' (' + str(get_year(promo)) + ' Year)'
+
+
+
+
 
         font = '{"font-weight":"bold", "font-style":"italic"}'
         icon = 'pIcon15'
@@ -121,7 +131,8 @@ def get_promos_tree(branch, open_p_id):
             if open_p_id == promo.id:
                 open = 'true'
 
-        sessions_tree = get_sessions_tree(promo, promo_label)
+        # sessions_tree = get_sessions_tree(promo, promo_label)
+        sessions_tree = get_sessions_tree(promo, promo.name + ' ' + promo_display_name)
         if sessions_tree == '':
             icon = 'icon15'
         p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:'+open+', iconSkin:"'+icon+'", font:'+font+'},'
@@ -174,7 +185,6 @@ def tree(school_id=0, branch_id=0, promo_id=0):
     # return str(options_arr)
     zNodes = '[' + get_schools_tree(int(school_id), int(branch_id), int(promo_id)) + ']'
     return render_template('tree/tree.html', title='Tree', zNodes=zNodes, options_arr=options_arr)
-
 
 
 def get_options_by_promo(promo):

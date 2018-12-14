@@ -103,7 +103,7 @@ def session_dlc(*args, **kwargs):
         return [{'text': 'Rattrapage ('+str(session.semester.get_nbr())+')', 
             'url': url_for('session', session_id=session_id) }]
     else:
-        return [{'text': 'Session ('+str(session.semester.get_nbr())+')', 
+        return [{'text': 'Semester ('+str(session.semester.get_nbr())+')', 
             'url': url_for('session', session_id=session_id) }]
 
 @app.route('/session/<session_id>/', methods=['GET', 'POST'])

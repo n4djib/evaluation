@@ -5,12 +5,18 @@
 
 =PRIORITY 1:
 ------------
+- finish the Students Filter
 - in justification
 	show how the credit is calculated
-- add the headers and fouters for the printables
 - print Zerbia (Ratt + normal)
+- add the headers and fouters for the printables
 - print bulk Bultin
-- ADD PAGINATION TO STUDENT TABLE
+- add pagination to student table
+- when session is rattrapage change "cour" to "rattrapage"
+- rename the session when creating it
+	and fill the start and finish dates from promo
+- init date in Promo
+- show errors in Promo form
 
 
 
@@ -44,7 +50,7 @@
 - Authorization
 - Mysql
 - raise an exception when a Session or a Semester has more than one Next
-- 
+- upload Photos
 
 
 
