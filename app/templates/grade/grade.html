@@ -81,8 +81,8 @@
     </br>
 
     {% if type == 'module' %}
-    <a href ="{{ url_for('print_module_students_empty', session_id=session.id, module_id=module.id) }}"
-       target="_blank" class="btn btn-primary" role="button">Print Module</a>
+    <a href ="{{url_for('print_module_students_empty', session_id=session.id, module_id=module.id) }}" target="_blank" class="btn btn-primary" role="button">Print Module</a>
+    <a href ="{{url_for('print_module_students_empty', session_id=session.id, module_id=module.id, empty='yes') }}" target="_blank" class="btn btn-primary" role="button">Print Module Empty</a>
     {% endif %}
     </br></br>
   </div>

@@ -1,10 +1,12 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, SubmitField, PasswordField, BooleanField
 from wtforms.validators import DataRequired, Email, ValidationError, Optional, EqualTo
+# from wtforms import DateField
 from wtforms.fields.html5 import DateField
 # from wtforms_components import Unique
 from app.models import Student, User, School, Branch, Wilaya, Promo
 from sqlalchemy import and_
+from datetime import datetime
 
 # from sqlalchemy_utils import ColorType
 
@@ -52,8 +54,6 @@ class StudentFormUpdate(StudentFormBase):
     #     if student is not None:
     #         raise ValidationError('Please use a different email')
 
-
-
 ##################
 
 class SchoolFormBase(FlaskForm):
@@ -69,11 +69,7 @@ class SchoolFormUpdate(SchoolFormBase):
         super(SchoolFormUpdate, self).__init__(*args, **kwargs)
         self._id = _id
 
-
-
 ##################
-
-
 
 class BranchFormBase(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
@@ -91,17 +87,16 @@ class BranchFormUpdate(BranchFormBase):
         super(BranchFormUpdate, self).__init__(*args, **kwargs)
         self._id = _id
 
-
-
 ##################
 
 class PromoFormBase(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
     display_name = StringField('display_name')
-    # , format='%d/%m/%Y'
+    # , format='%Y-%m-%d' , format='%Y-%d-%m'   , format='%Y-%m-%d', default=datetime.today
+
     start_date = DateField('Start Date', validators=[Optional()])
+    # start_date = DateField('Start Date', validators=[Optional()])
     finish_date = DateField('Finish Date', validators=[Optional()])
-    #
     #
     # WARNING
     # i have to select branches in this school
@@ -123,8 +118,6 @@ class PromoFormUpdate(PromoFormBase):
     def __init__(self, _id=-1, *args, **kwargs):
         super(PromoFormUpdate, self).__init__(*args, **kwargs)
         self._id = _id
-
-
 
 ##################
 
@@ -157,8 +150,6 @@ class WilayaFormUpdate(WilayaFormBase):
         if wilaya is not None:
             raise ValidationError('Please use a different name')
 
-
-
 ##################
 
 class RegistrationForm(FlaskForm):
@@ -183,5 +174,4 @@ class LoginForm(FlaskForm):
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Sign In')
 
-
-#
+##################

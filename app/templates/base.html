@@ -45,7 +45,6 @@
                 <li><a href="{{ url_for('student_index') }}">Students</a></li>
                 <!-- <li><a href="/admin">Admin</a></li> -->
                 <li><a href="{{ url_for('basic_index') }}">Basic Tables</a></li>
-                <!-- <li><a href="/school">School</a></li> -->
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 {% if current_user.is_anonymous %}
@@ -88,6 +87,9 @@
     {{ super() }}
 
     <script>
-      
+        // // this is supposed to stop resubmition
+        // if ( window.history.replaceState ) {
+        //     window.history.replaceState( null, null, window.location.href );
+        // }
     </script>
 {% endblock %}

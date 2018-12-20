@@ -68,7 +68,13 @@ var hot = new Handsontable(hotElement, {
   manualColumnResize: true,
   rowHeaders: true,
   manualRowMove: true,
-  manualColumnMove: true
+  manualColumnMove: true,
+  contextMenu: [
+    'copy', 
+    'cut', 
+    '---------', 
+    '<strike> paste </strike> (this is not working)</br>use <b>CRTL+V</b> to <i>paste</i>'
+  ],
 });
 
 /*****************/

@@ -182,7 +182,9 @@ def promo_create():
 def promo_update(id):
     promo = Promo.query.get_or_404(id)
     form = PromoFormUpdate(promo.id)
-    if form.validate_on_submit():
+    # return str(form.start_date.data)
+    if form.validate_on_submit():    
+        # return str(form.start_date.data)
         promo.name = form.name.data
         promo.display_name = form.display_name.data
         # promo.branch_id = form.branch_id.data

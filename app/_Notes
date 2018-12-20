@@ -2,9 +2,17 @@
 --------
 
 
+=QUESTIONS:
+-----------
+- what about the students who need to pass some modules (dete)
+- find an example of people who repeated the year
+
 
 =PRIORITY 1:
 ------------
+- arabic name
+- Student card Matricule (2018/05)
+- printables shoold come out alphabaticaly (optional)
 - finish the Students Filter
 - in justification
 	show how the credit is calculated
@@ -17,8 +25,17 @@
 	and fill the start and finish dates from promo
 - init date in Promo
 - show errors in Promo form
-
-
+- Add a Settings Page
+- put breadcrumbs above Flash
+	check it is not Empty
+	and margin-left in some pages
+- change Matricule Massivaly
+	maybe a Function that rename everyone based on there Order
+- do not allow Resubmit
+- inforce Promo naming
+- massive students delete Or Branch change
+	apply a thing a mass of students
+- in Index(list/table) of Promo and Branch, group by School/Branch
 
 
 =PRIORITY 2:
@@ -38,8 +55,8 @@
 - write the teacher and attandence section
 - set Dirty Flags and show them in Flash() 
 	to indecate the need for Re(calculate) in other Pages
-
-
+- Calendar
+- 
 
 
 =PRIORITY 3:

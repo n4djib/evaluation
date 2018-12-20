@@ -12,6 +12,20 @@ from flask_principal import Identity, AnonymousIdentity, identity_changed
 
 
 
+
+
+# @app.route('/calendar', methods=['GET', 'POST'])
+# def calendar():
+#     return render_template('calendar.html', title='Calendar Page')
+
+
+
+
+@app.route('/calendar/')
+def calendar():
+    return render_template('calendar.html', title='Welcome Page')
+
+
 @app.route('/')
 @app.route('/index/')
 # @admin_permission.require()

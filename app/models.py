@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import login
 from decimal import *
+# from sqlalchemy.ext.hybrid import hybrid_property
 # from sqlalchemy import UniqueConstraint
 
 
@@ -26,15 +27,22 @@ class Promo(db.Model):
             .order_by(Semester.annual, Semester.semester).all()
         last_session = sessions[-1]
         next_semester = last_session.semester.get_next()
-        # return next_semester.get_nbr()
         return next_semester
     def get_label(self):
-        # if self.display_name != None and self.display_name != '':
-        #     return self.display_name
-        #     # return "<span style='color:#4256f4;'>" + self.display_name + "</span>"
         if self.display_name != None and self.display_name != '':
             return self.name + ' - ' + self.display_name
         return self.name
+    def get_color(self):
+        return '#333333' if self.color == None or self.color == '' else self.color
+
+    # @hybrid_property
+    # def color(self):
+    #     return self.color
+    #     # if self.color == None:
+    #     #     return '#555599'
+    #     # if self.color == '':
+    #     #     return '#555599'
+    #     # return self.color
 
 class AnnualSession(db.Model):
     __tablename__ = 'annual_session'

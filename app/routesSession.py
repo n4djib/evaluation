@@ -1075,7 +1075,7 @@ def get_module_headers(module_id):
         # headers.append(type.type + ' ('+  +'%)')
     return headers
 
-def create_data_for_module(grades, cols):
+def create_data_for_module(grades, cols, empty='no'):
     data = []
     for grade in grades:
         record = []
@@ -1084,31 +1084,45 @@ def create_data_for_module(grades, cols):
         record.append(student.username)
         record.append(student.last_name)
         record.append(student.first_name)
-        record.append(grade.cour)
-        if 'td' in cols:
-            record.append(grade.td)
-        if 'tp' in cols:
-            record.append(grade.tp)
-        if 't_pers' in cols:
-            record.append(grade.t_pers)
+        if empty == 'yes':
+            record.append('')
+            if 'td' in cols:
+                record.append('')
+            if 'tp' in cols:
+                record.append('')
+            if 't_pers' in cols:
+                record.append('')
+            if 'stage' in cols:
+                record.append('')
+        else:
+            record.append(grade.cour)
+            # WARNING: this one shoold be Dynamic
+            if 'td' in cols:
+                record.append(grade.td)
+            if 'tp' in cols:
+                record.append(grade.tp)
+            if 't_pers' in cols:
+                record.append(grade.t_pers)
+            if 'stage' in cols:
+                record.append(grade.t_pers)
 
         data.append(record)
     return data
 
 # print empty
 # with percentages
-# with notes
+# with grades
 # with averages
-@app.route('/session/<session_id>/module/<module_id>/print/<_full>/', methods=['GET', 'POST'])
+@app.route('/session/<session_id>/module/<module_id>/print/empty/<empty>/', methods=['GET', 'POST'])
 @app.route('/session/<session_id>/module/<module_id>/print/', methods=['GET', 'POST'])
-def module_print(session_id=0, module_id=0, _full=''):
+def module_print(session_id=0, module_id=0, empty='no'):
     grades = Grade.query.filter_by(module_id=module_id)\
         .join(StudentSession).filter_by(session_id=session_id)\
         .join(Student).order_by(Student.username)\
         .all()
     cols = get_module_cols(module_id)
     headers = get_module_headers(module_id)
-    data_arr = create_data_for_module(grades, cols)
+    data_arr = create_data_for_module(grades, cols, empty)
     module = Module.query.get(module_id)
 
     return render_template('session/semester-module-print.html', title='module ***', 
@@ -1185,9 +1199,15 @@ def print_semester_bultin(session_id, student_id):
 
 
 
-@app.route('/session/<session_id>/module/<module_id>/students-empty/')
-def print_module_students_empty(session_id=0, module_id=0):
-    url = url_for('module_print', session_id=session_id, module_id=module_id, _external=True)
+@app.route('/session/<session_id>/module/<module_id>/students-print/empty/<empty>')
+@app.route('/session/<session_id>/module/<module_id>/students-print/')
+def print_module_students_empty(session_id=0, module_id=0, empty='no'):
+    url = url_for('module_print', session_id=session_id, 
+        module_id=module_id, _external=True)
+    if empty == 'yes':
+        url = url_for('module_print', session_id=session_id, 
+            module_id=module_id, _external=True, empty='yes')
+
     pdf_file_name = 'module_students_print.pdf'
     return html_to_pdf(url, pdf_file_name)
 

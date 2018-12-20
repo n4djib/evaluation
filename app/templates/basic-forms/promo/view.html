@@ -5,7 +5,6 @@
     {% include '_breadcrumbs.html' %} 
 
 
-
     <h1>Promo: {{promo.name}}</h1>
 
     <div>
@@ -35,7 +34,9 @@
         </div>
 
     </div>
+
     </br>
+    
     <div>
         <table class="table table-bordered">
           <tr><td><i>ID</i></td> <td>{{promo.id}}</td></tr>
@@ -52,10 +53,13 @@
           <tr><td><i>Start Date</i></td> <td>{{promo.start_date | replace('None', '')}}</td></tr>
           <tr><td><i>Finish Date</i></td> <td>{{promo.finish_date | replace('None', '')}}</td></tr>
           <tr>
-            <td><i>Color</i></td> 
+            <td><i>Color</i></td>
             <td>
-              <span style="background-color: {{ promo.color if promo.color else '#000000' }};"
-              >               </span>  {{ promo.color if promo.color else '#000000' }}
+              <!-- <span style="background-color: {{ promo.color if promo.color else '#333333' }};"
+              >               </span>  {{ promo.color if promo.color else '#333333' }} -->
+              <span style="background-color: {{ promo.get_color() }};"
+              >               </span>  {{ promo.get_color() }}
+
             </td></tr>
         </table>
 
@@ -72,13 +76,21 @@
 
 
 
+
+
+
+
+
 {% block scripts %}
   {{ super() }}
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
 
   <script type="text/javascript">
+
     $('#confirm-delete').on('show.bs.modal', function(e) {
       $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
     });
-  </script>
 
+  </script>
 {% endblock %}

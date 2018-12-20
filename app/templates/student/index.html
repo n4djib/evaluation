@@ -4,7 +4,6 @@
 {% block styles %}
   {{super()}}
 
-  
   <style>
     .filter_w {
       max-width: 300px;
@@ -12,7 +11,6 @@
       margin: 3px;
        /*style="float: right;"*/
     }
-
   </style>
 {% endblock %}
 
@@ -30,9 +28,7 @@
         >Insert Many Students from Excel</a>
     </div>
 
-
     </br>
-
 
     <!-- ************** -->
     <div class="input-group filter_w"> 
@@ -52,9 +48,12 @@
         <span class="caret"></span>
       </button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-        <li><a href="#">Action</a></li>
-        <li><a href="#">Another action</a></li>
-        <li><a href="#">Something else here</a></li>
+        <li><a href="#">SF</a></li>
+        <li><a href="#">ISP</a></li>
+        <li><a href="#">LSP</a></li>
+        <li><a href="#">HYGN</a></li>
+        <li class="divider"></li>
+        <li><a href="#">Display All</a></li>
       </ul>
     </div>
 
@@ -80,9 +79,10 @@
           <tr>
             <th scope="col">#</th>
             <th scope="col">Username</th>
-            <th scope="col">Last Name</th>
-            <th scope="col">First Name</th>
-            <th scope="col">Birth Date</th>
+            <th scope="col">Name</th>
+            <!-- <th scope="col">Last Name</th>
+            <th scope="col">First Name</th> -->
+            <!-- <th scope="col">Birth Date</th> -->
             <th scope="col">Birth Place</th>
             <th scope="col">Wilaya</th>
             <th scope="col">Branch</th>
@@ -95,24 +95,24 @@
             <td>{{loop.index}}</td>
             <td><a href="{{ url_for('student_view', id=student.id) }}"
               >{{ student.username }}</a></td>
-            <td>{{ student.last_name | replace(' ', ' ') }}</td>
-            <td>{{ student.first_name | replace(' ', ' ') }}</td>
-            <td>{{ student.birth_date | replace('None', '') }}</td>
+            <td>{{ student.last_name | replace(' ', ' ') }} {{ student.first_name | replace(' ', ' ') }}</td>
+            <!-- <td>{{ student.last_name | replace(' ', ' ') }}</td>
+            <td>{{ student.first_name | replace(' ', ' ') }}</td> -->
+            <!-- <td>{{ student.birth_date | replace('None', '') }}</td> -->
             <td>{{ student.birth_place | replace('None', '') }}</td>
             <td>
               {% if student.wilaya %}
                 {{ student.wilaya.get_label() | replace('None', '') }}
               {% endif %}
             </td>
-            <td>{{ student.branch.name }}</td>
+            <td class="branch" value="{{student.branch.name}}">{{ student.branch.name }}</td>
             <td>{{ student.email | replace('None', '') }}</td>
           </tr>
         {% endfor %}
         </tbody>
       </table>
 
-      </br>
-      </br>
+      </br></br>
 
       - show students in ztree by Promo</br>
       - filter by searsh box & advanced filtering</br>
@@ -145,28 +145,35 @@
       (function ($) {
         $('#filter').keyup(function () {
             var rex = new RegExp($(this).val(), 'i');
+            var choice = "";
+            // var rex_branch = new RegExp("SF");
             $('.searchable tr').hide();
             $('.searchable tr').filter(function () {
-              return rex.test($(this).text());
+                var branch = true;
+                // branch = rex_branch.test( $(this).find(".branch").text() );
+                return rex.test( $(this).text() ) && branch;
             }).show();
         })
       }(jQuery));
     });
- 
 
     // $(document).ready(function () {
     //   (function ($) {
-    //     $('#filter_2').keyup(function () {
+    //     $('#filter').keyup(function () {
     //         var rex = new RegExp($(this).val(), 'i');
+    //         var rex_branch = new RegExp( "SF");
     //         $('.searchable tr').hide();
     //         $('.searchable tr').filter(function () {
-    //           return rex.test($(this).text());
+    //             var branch = rex_branch.test( $(this).find(".branch").text() );
+    //             return rex.test( $(this).text() ) && branch;
     //         }).show();
     //     })
     //   }(jQuery));
     // });
- 
 
+    // when changing the Branch run a filter
+    // and Init the VAR branch 
+ 
 
   </script>
 {% endblock %}
