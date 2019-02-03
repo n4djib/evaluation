@@ -3,16 +3,12 @@
 
 {% block app_content %}
 
-    {% include '_breadcrumbs.html' %} 
-
-
-    
     <h1>Create New</h1>
 
     <div class="row">
         <div class="col-md-6">
-          {{ wtf.quick_form(form) }}
-          <!-- {% include 'student/_form.html' %} -->
+          <!-- {{ wtf.quick_form(form) }} -->
+          {% include 'student/_form.html' %}
         </div>
     </div>
     </br>
@@ -27,8 +23,14 @@
 
 {% block scripts %}
   {{ super() }}
+  <script src="{{ url_for('static', filename='dtpicker/moment-with-locales.js') }}"></script>
+  <script src="{{ url_for('static', filename='dtpicker/bootstrap-datetimepicker.js') }}"></script>
 
   <script type="text/javascript">
+    $(function () {
+      $('#birth_date').datetimepicker({format: 'YYYY-MM-DD'});
+    });
+
     $("#branch_id").change(function(){ 
         $.ajax({
             // url: '/student/get-username/',

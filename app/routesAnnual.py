@@ -1,6 +1,7 @@
 from app import app, db
 from flask import render_template, request, redirect, url_for, flash
-from app.models import AnnualSession, StudentSession, AnnualGrade, Student
+from app.models import AnnualSession, StudentSession, AnnualGrade, Student, Session
+from sqlalchemy import or_
 
 from flask_breadcrumbs import register_breadcrumb
 
@@ -226,8 +227,6 @@ def annual_session_refrech(annual_session_id=0):
     return redirect(url_for('annual_session', annual_session_id=annual_session_id))
 
 
-
-
 def annual_session_dlc(*args, **kwargs):
     annual_session_id = request.view_args['annual_session_id']
     annual_session = AnnualSession.query.get(annual_session_id)
@@ -236,7 +235,7 @@ def annual_session_dlc(*args, **kwargs):
 
 @app.route('/annual-session/<annual_session_id>/', methods=['GET', 'POST'])
 # @register_breadcrumb(app, '.tree.annual', 'Annual Session')
-@register_breadcrumb(app, '.tree.annual', '***', dynamic_list_constructor=annual_session_dlc)
+@register_breadcrumb(app, '.annual_tree.annual', '***', dynamic_list_constructor=annual_session_dlc)
 def annual_session(annual_session_id=0):
     annual_session = AnnualSession.query.filter_by(id=annual_session_id).first_or_404()
     array_data = create_data_annual_session(annual_session_id)
@@ -282,7 +281,6 @@ def delete_annual_session(annual_session_id):
 
     return redirect(url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo.id))
     
-
 @app.route('/annual-session/<session_id>/create_annual_session/', methods=['GET', 'POST'])
 def create_annual_session(session_id):
     annual_session_id = None
@@ -319,10 +317,28 @@ def create_annual_session(session_id):
     return redirect(url_for('annual_session_refrech', annual_session_id=annual_session_id))
 
 
+# if annual_session_id=None -> take from other session in the same Annual
+# else -> init with the new one
+def init_annual_session_id(session_id, annual_session_id=None):
+    # session = Session.query.get(session_id)
+    # chain = session.get_annual_chain()
+    chain = Session.query.get(session_id).get_annual_chain()
+    if annual_session_id == None:
+        for ch in chain:
+            session = Session.query.get(ch)
+            if session.annual_session_id != None:
+                annual_session_id = session.annual_session_id
+                break
+    # init all in annual chain
+    if annual_session_id != None:
+        for ch in chain:
+            session = Session.query.get(ch)
+            session.annual_session_id = annual_session_id
+        db.session.commit()
 
 
 @app.route('/annual-session/<annual_session_id>/rattrapage/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree.annual.rattrapage', 'Annual Rattrapage')
+@register_breadcrumb(app, '.annual_tree.annual.rattrapage', 'Annual Rattrapage')
 def students_rattrapage_annual(annual_session_id=0):
     students = AnnualGrade.query\
         .filter_by(annual_session_id=annual_session_id)\

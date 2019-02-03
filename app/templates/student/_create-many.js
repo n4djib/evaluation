@@ -9,7 +9,6 @@ var separator = '-';
 
 var hotElement = document.querySelector('#hot-create-many');
 
-
 function usernameRenderer(instance, td, row, col, prop, value, cellProperties) {
 	Handsontable.renderers.TextRenderer.apply(this, arguments);
 
@@ -46,6 +45,9 @@ function wilayaRenderer(instance, td, row, col, prop, value, cellProperties) {
   return td;
 }
 
+var clipboardCache = '';
+var sheetclip = new SheetClip();
+
 var hot = new Handsontable(hotElement, {
   data: data_arr,
   columns: [
@@ -55,9 +57,15 @@ var hot = new Handsontable(hotElement, {
     {data: 3, type: 'date', dateFormat: 'DD/MM/YYYY'},
     {data: 4, type: 'text'},
     {
-      data: 5, type: 'text',
-      editor: 'select',
-      selectOptions: wilayas_name_list, 
+      data: 5, 
+      type: 'dropdown',
+      source: wilayas_name_list,
+      // type: "autocomplete",
+
+      // type: 'text',
+      // editor: 'select',
+      // selectOptions: wilayas_name_list, 
+      
       renderer: wilayaRenderer
     },
   ],
@@ -69,11 +77,35 @@ var hot = new Handsontable(hotElement, {
   rowHeaders: true,
   manualRowMove: true,
   manualColumnMove: true,
+  afterCopy: function(changes) {
+    clipboardCache = sheetclip.stringify(changes);
+  },
+  afterCut: function(changes) {
+    clipboardCache = sheetclip.stringify(changes);
+  },
+  afterPaste: function(changes) {
+    // we want to be sure that our cache is up to date, even if someone pastes data from another source than our tables.
+    clipboardCache = sheetclip.stringify(changes);
+  },
   contextMenu: [
     'copy', 
     'cut', 
     '---------', 
-    '<strike> paste </strike> (this is not working)</br>use <b>CRTL+V</b> to <i>paste</i>'
+    {
+      key: 'paste',
+      name: 'Paste',
+      disabled: function() {
+        return clipboardCache.length === 0;
+      },
+      callback: function() {
+        var plugin = this.getPlugin('copyPaste');
+
+        this.listen();
+        plugin.paste(clipboardCache);
+      }
+    },
+    'if <i>Paste</i> is not working use <b>CRTL+V</b> to <i>Paste</i>',
+    // '<strike> paste </strike> (this is not working)</br>use <b>CRTL+V</b> to <i>paste</i>'
   ],
 });
 

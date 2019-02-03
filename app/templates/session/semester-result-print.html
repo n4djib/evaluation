@@ -7,7 +7,7 @@
       border-collapse: collapse;
       margin-left: 0px;
       margin-right: 30px;
-      display:inline-block;
+      /*display:inline-block;*/
     }
     th {
       border: 1px solid lightgray;
@@ -31,11 +31,21 @@
       background-color: Gainsboro;
     }
 
+/*    @media print {
+      table {
+        border-collapse: collapse;
+        margin-left: 0px;
+        margin-right: 30px;
+        background-color: Bisque;
+      }
+    }*/
+
+
     tr:nth-child(2n+7) {background-color: #f7f7ff;}
     tr:hover {background-color: #f5f5f5;}
 
 
-    tr:nth-child({{insert1+7}}) {background-color: green;}
+/*    tr:nth-child({{insert1+7}}) {background-color: green;}
     tr:nth-child({{insert1+7+1}}) {background-color: red;}
     tr:nth-child({{insert1+7+2}}) {background-color: yellow;}
 
@@ -45,17 +55,9 @@
 
     tr:nth-child({{insert3+7}}) {background-color: green;}
     tr:nth-child({{insert3+7+1}}) {background-color: red;}
-    tr:nth-child({{insert3+7+2}}) {background-color: yellow;}
+    tr:nth-child({{insert3+7+2}}) {background-color: yellow;}*/
 
-    /*tr:nth-child({{insert1+7}}) {background-color: white;}
-    tr:nth-child({{insert1+7+1}}) {background-color: white;}
-
-    tr:nth-child({{insert2+7}}) {background-color: white;}
-    tr:nth-child({{insert2+7+1}}) {background-color: white;}
-
-    tr:nth-child({{insert3+7}}) {background-color: white;}
-    tr:nth-child({{insert3+7+1}}) {background-color: white;}
-    tr:nth-child({{insert3+7+2}}) {background-color: white;}*/
+    /*tr:nth-child({{insert1+7}}) {background-color: white;}*/
 
     .right { text-align: right; } 
     .center { text-align: center; }

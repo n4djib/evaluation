@@ -16,7 +16,9 @@ var setting = {
     fontCss: getFont,
     nameIsHTML: true,
     selectedMulti: false,
-    addDiyDom: addDiyDom
+    addDiyDom: addDiyDom,
+    
+    //isHighLight: false  // i thought it will allow me to not show the highlight
   },
   check: {
     enable: true//checkbox

@@ -4,20 +4,10 @@
 
 {% block styles %}
   {{super()}}
-
-  <link rel="stylesheet" type="text/css" media="screen" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-  <link rel="stylesheet" href="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/build/css/bootstrap-datetimepicker.css">
-
-<!--   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css">
-
-  <link rel="stylesheet" href="https://formden.com/static/cdn/bootstrap-iso.css">
-  <link rel="stylesheet" href="https://formden.com/static/cdn/font-awesome/4.4.0/css/font-awesome.min.css"> -->
-
+  <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}"> -->
 
 
   <style type="text/css">
-  /*.bootstrap-iso .formden_header h2, .bootstrap-iso .formden_header p, .bootstrap-iso form{font-family: Arial, Helvetica, sans-serif; color: black}.bootstrap-iso form button, .bootstrap-iso form button:hover{color: white !important;} .asteriskField{color: red;}*/
  
   </style>
 
@@ -27,9 +17,6 @@
 
 
 {% block app_content %}
-
-  {% include '_breadcrumbs.html' %} 
-
 
   <h1>Update Promo</h1>
 
@@ -49,44 +36,15 @@
 
 {% block scripts %}
   {{ super() }}
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>
-  <script src="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/src/js/bootstrap-datetimepicker.js"></script> -->
-
-
-  <!-- <script src="https://formden.com/static/cdn/formden.js"></script>
-  <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script> -->
-  
-  
-  
-
+  <script src="{{ url_for('static', filename='dtpicker/moment-with-locales.js') }}"></script>
+  <script src="{{ url_for('static', filename='dtpicker/bootstrap-datetimepicker.js') }}"></script>
 
 
   <script type="text/javascript">
-    /*$(function () {
-      // $('#date_start').datetimepicker({format: 'MM/YYYY'});
-      $('#start_date').datetimepicker({format: 'DD/MM/YYYY'});
+    $(function () {
+      $('#start_date').datetimepicker({format: 'YYYY-MM'});
+      $('#finish_date').datetimepicker({format: 'YYYY-MM'});
     });
-
-    $('#confirm-delete').on('show.bs.modal', function(e) {
-      $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
-    });*/
-
-
-  // $(document).ready(function(){
-  //   var date_input=$('input[name="start_date"]'); //our date input has the name "date"
-  //   var container=
-  //     $('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
-  //   date_input.datepicker({
-  //     format: 'yyyy/mm/dd',
-  //     container: container,
-  //     todayHighlight: true,
-  //     autoclose: true,
-  //   })
-  // })
-
-
   </script>
+  
 {% endblock %}

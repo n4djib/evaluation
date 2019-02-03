@@ -1,6 +1,6 @@
 from app import app, db
-from flask import render_template, url_for
-from app.models import School, Session, Semester, Promo
+from flask import render_template, url_for, request
+from app.models import School, Session, Semester, Promo, AnnualSession
 
 from flask_breadcrumbs import register_breadcrumb
 
@@ -145,6 +145,7 @@ def get_branches_tree(school, open_b_id, open_p_id):
     for branch in branches:
         id = 'branch_'+str(branch.id)
         pId = 'school_'+str(school.id)
+        name = branch.name+' - '+str(branch.description)
         p = get_promos_tree(branch, open_p_id)
         open = 'true'
         if open_b_id != 0:
@@ -152,9 +153,9 @@ def get_branches_tree(school, open_b_id, open_p_id):
             if open_b_id == branch.id:
                 open = 'true'
         if p == '':
-            b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+branch.name+'", open:'+open+', iconSkin:"icon11"},'
+            b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:'+open+', iconSkin:"icon11"},'
         else:
-            b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+branch.name+'", open:'+open+', isParent:true},'
+            b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:'+open+', isParent:true},'
         
         branches_tree += b + p
     return branches_tree
@@ -175,14 +176,61 @@ def get_schools_tree(open_s_id=0, open_b_id=0, open_p_id=0):
         schools_tree += s + branches_tree
     return schools_tree
 
+
+
+
+def tree_dlc(*args, **kwargs):
+    session_id = request.view_args['session_id']
+    session = Session.query.get_or_404(session_id)
+
+    school_id = 0
+    branch_id = 0
+    promo_id = 0
+    if session != None:
+        promo_id = session.promo_id
+        # branch_id = session.promo.branch_id
+        school_id = session.promo.branch.school_id
+
+    return [{'text': 'Tree ('+ session.promo.name +')', 
+        'url': url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id) }]
+
+@app.route('/tree/session/<session_id>/', methods=['GET'])
+@register_breadcrumb(app, '.tree', '', dynamic_list_constructor=tree_dlc)
+def tree_(session_id=0):
+    return '*** just used to generate the url ***'
+
+
+def annual_tree_dlc(*args, **kwargs):
+    annual_session_id = request.view_args['annual_session_id']
+    annual_session = AnnualSession.query.get_or_404(annual_session_id)
+    session = annual_session.sessions[0]
+
+    school_id = 0
+    branch_id = 0
+    promo_id = 0
+    if session != None:
+        promo_id = session.promo_id
+        # branch_id = session.promo.branch_id
+        school_id = session.promo.branch.school_id
+
+    return [{'text': 'Tree ('+ session.promo.name +')', 
+        'url': url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id) }]
+
+
+@app.route('/annual-tree/annual-session/<annual_session_id>/', methods=['GET'])
+@register_breadcrumb(app, '.annual_tree', '', dynamic_list_constructor=annual_tree_dlc)
+def annual_tree_(annual_session_id=0):
+    return '*** just used to generate the url-annual-session ***'
+
+
+
 @app.route('/tree/school/<school_id>/branch/<branch_id>/promo/<promo_id>/', methods=['GET'])
 @app.route('/tree/school/<school_id>/branch/<branch_id>/', methods=['GET'])
 @app.route('/tree/school/<school_id>/', methods=['GET'])
 @app.route('/tree/', methods=['GET'])
-@register_breadcrumb(app, '.tree', 'Tree')
+@register_breadcrumb(app, '.tree_', 'Tree')
 def tree(school_id=0, branch_id=0, promo_id=0):
     options_arr = get_options()
-    # return str(options_arr)
     zNodes = '[' + get_schools_tree(int(school_id), int(branch_id), int(promo_id)) + ']'
     return render_template('tree/tree.html', title='Tree', zNodes=zNodes, options_arr=options_arr)
 

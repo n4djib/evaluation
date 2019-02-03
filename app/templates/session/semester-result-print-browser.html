@@ -1,0 +1,58 @@
+<html>
+<head>
+  <title>Resultat</title>
+
+  <style type="text/css">
+    table {
+      border-collapse: collapse;
+      margin-left: 0px;
+      margin-right: 30px;
+      display:inline-block;
+    }
+    th {
+      border: 1px solid lightgray;
+      padding: 0px 4px;
+    }
+    .td {
+      border: 1px solid lightgray;
+      padding: 0px 4px;
+    }
+    .no-wrap {
+      white-space: nowrap;
+      /*word-wrap: false;*/
+    }
+    .unit {
+      background-color: Bisque;
+    }
+    .semester {
+      background-color: LightSalmon;
+    }
+    .header5 {
+      background-color: Gainsboro;
+    }
+    tbody > tr:nth-child(even) {background-color: #f7f7ff;}
+    tbody > tr:hover {background-color: #f5f5f5;}
+
+    /*.table_1 th:nth-of-type(1){ background: skyblue; }*/
+    .right { text-align: right; }
+    .center { text-align: center; }
+
+  </style>
+</head>
+
+
+<body>
+  </br>
+  </br>
+
+
+  <div class="container" style="border-color:black; text-align:center;">
+    <div class="container" style="display:inline-block; text-align:left; 
+        border-width:1px; border-width:1px; border-color:red;" >
+      {{ sem_result | safe | replace('None', '') }}
+    </div>
+  </div>
+
+
+</body>
+</html>

@@ -4,19 +4,21 @@
 {% block styles %}
   {{super()}}
   <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
-  <link rel="stylesheet" type="text/css" 
-  		href="{{ url_for('static', filename='handsontable/handsontable.full.min.css') }}">
-  <script src="{{ url_for('static', filename='handsontable/handsontable.full.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/sheetclip.0.3.js') }}"></script>
   
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/csshake.min.css') }}">
+  <link rel="stylesheet" type="text/css" 
+      href="{{ url_for('static', filename='handsontable/handsontable.full.2.0.0.min.css') }}">
+  <script src="{{ url_for('static', filename='handsontable/handsontable.full.2.0.0.min.js') }}"></script>
 
+  <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='handsontable/handsontable.full.5.0.1.min.css') }}">
+  <script src="{{ url_for('static', filename='handsontable/handsontable.full.5.0.1.min.js') }}"></script> -->  
+
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/csshake.min.css') }}">
   </style>
+
 {% endblock %}
 
 {% block app_content %}
-
-    {% include '_breadcrumbs.html' %} 
-
 
     <h1>Create New Many</h1>
 
@@ -24,7 +26,7 @@
       <label for="sel1">Select Branch:</label>
       <select class="form-control" id="select-branch">
         {% for branch in branches %}
-        <option value="{{ branch.id }}">{{ branch.description }}</option>
+        <option value="{{ branch.id }}">{{ branch.name }} - {{ branch.description }}</option>
         {% endfor %}
       </select>
     </div>
@@ -47,6 +49,6 @@
 {% block scripts %}
   {{ super() }}
   <script type="text/javascript">
-    {% include "student/create-many.js" %}
+    {% include "student/_create-many.js" %}
   </script>
 {% endblock %}

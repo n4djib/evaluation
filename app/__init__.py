@@ -62,5 +62,5 @@ admin.add_view(P(Percentage, db.session))
 admin.add_view(ModelView(Type, db.session))
 
 from app import routes, routesSession, routesGrade, routesTree, routesAnnual,\
-	routesBasicTables, routesConf, routesCalculation, models, errors
+	routesBasicTables, routesConfig, routesCalculation, models, errors
 

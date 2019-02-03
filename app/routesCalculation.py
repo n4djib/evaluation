@@ -177,10 +177,17 @@ def get_module_name(module_id, conf_dict):
                 return module['display_name']
     return '** get_module_name **'
 
+def rename_type(calculation):
+    types = Type.query.all()
+    for type in types:
+        calculation = calculation.replace(type.grade_table_field, type.type)
+    return calculation
+
+
 def get_module_justification(grade, conf_dict):
     name = get_module_name(grade.module_id, conf_dict)
     # module = name + '  →  ' + grade.calculation
-    return [name] + [grade.calculation] + [grade.average] + [grade.credit]
+    return [name] + [rename_type(grade.calculation)] + [grade.average] + [grade.credit]
 
 def get_unit_name(unit_id, conf_dict):
     for unit in conf_dict['units']:
@@ -190,7 +197,7 @@ def get_unit_name(unit_id, conf_dict):
 
 def get_unit_justification(grade_unit, conf_dict):
     name = get_unit_name(grade_unit.unit_id, conf_dict)
-    justification = ['    UNIT: ' + name]
+    justification = ['    <b>UNIT</b> : ' + name]
     if grade_unit.calculation != None and grade_unit.calculation != '':
         justification += ['    ' + grade_unit.calculation]
     else:
@@ -200,16 +207,20 @@ def get_unit_justification(grade_unit, conf_dict):
     justification += [grade_unit.credit]
     return justification
 
-def get_semester_name(student_session, conf_dict):
-    # for unit in conf_dict['units']:
-    #     if unit['u_id'] == unit_id:
-    #         return unit['display_name']
-    return student_session.session.semester.display_name
-    return '** get_semester_name **'
+# def get_semester_name(student_session, conf_dict):
+#     # for unit in conf_dict['units']:
+#     #     if unit['u_id'] == unit_id:
+#     #         return unit['display_name']
+#     return student_session.session.semester.display_name
+#     return '** get_semester_name **'
 
 def get_semester_justification(student_session, conf_dict):
-    name = get_semester_name(student_session, conf_dict)
-    return ['        SEMESTER: ' + name] + ['    ' + student_session.calculation] + [student_session.average] + [student_session.credit]
+    name = student_session.session.semester.display_name
+    semester = ['        <b>SEMESTER</b> : ' + name]
+    semester += ['    ' + str(student_session.calculation)]
+    semester += [str(student_session.average)]
+    semester += [str(student_session.credit)]
+    return  semester
 
 @app.route('/session/<session_id>/justification/<student_id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree.session.classement.justification', 'Justification')
@@ -229,8 +240,10 @@ def justification(session_id, student_id):
     justs.append( get_semester_justification(student_session, conf_dict) )
     return render_template('session/justification.html', title='Session', justs=justs)
 
-@app.route('/session/<session_id>/classement-justification/', methods=['GET', 'POST'])
+@app.route('/session/<session_id>/classement/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree.session.classement', 'Classement')
-def classement_justification(session_id):
-    students_session = StudentSession.query.filter_by(session_id=session_id).all()
-    return render_template('session/classement-justification.html', title='Session', students_session=students_session)
+def classement(session_id):
+    students_session = StudentSession.query\
+        .filter_by(session_id=session_id)\
+        .order_by(StudentSession.average.desc()).all()
+    return render_template('session/classement.html', title='Session', session_id=session_id, students_session=students_session)

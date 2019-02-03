@@ -13,9 +13,6 @@
 
 {% block app_content %}
 
-  {% include '_breadcrumbs.html' %} 
-
-
   <div class="">
   	<h2>Students Rattrapage Semester</h2>
     <form action="{{ url_for('create_rattrapage_semester', session_id=session_id) }}"

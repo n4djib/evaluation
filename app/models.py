@@ -386,9 +386,12 @@ class Grade(db.Model):
     student_session = db.relationship('StudentSession', back_populates='grades')
     def __repr__(self):
         return '<{} - {} - {}>'.format(self.id, self.student_session_id, self.cour)
+    def get_username(self):
+        s = self.student_session.student
+        return s.username
     def get_student_name(self):
         s = self.student_session.student
-        return s.username + ' - ' + s.last_name + ' - ' + s.first_name
+        return s.last_name + ' - ' + s.first_name
 
     def get_ratt_bultin(self):
         if self.is_rattrapage == None or self.is_rattrapage == 0:
@@ -447,7 +450,7 @@ class Branch(db.Model):
     school_id = db.Column(db.Integer, db.ForeignKey('school.id'))
     students = db.relationship('Student', backref='branch')
     semesters = db.relationship('Semester', backref='branch')
-    promos = db.relationship('Promo', backref='branch', order_by='Promo.start_date')
+    promos = db.relationship('Promo', backref='branch', order_by='Promo.start_date, Promo.name')
     def __repr__(self):
         return '<Branch {}>'.format(self.name)
     def get_label(self):
@@ -484,6 +487,13 @@ class Semester(db.Model):
         for unit in units:
             credit = credit + unit.get_unit_cumul_credit()
         return credit
+    def get_semester_units_coeff_comul(self):
+        units = self.units
+        unit_coefficient = 0
+        for unit in units:
+            if unit.unit_coefficient != None and unit.unit_coefficient != '':
+                unit_coefficient = unit_coefficient + unit.unit_coefficient
+        return unit_coefficient
     def get_previous(self):
         # if it returns many you shoold raise an exception
         return Semester.query.filter_by(id=self.prev_semester).first()
@@ -532,6 +542,13 @@ class Semester(db.Model):
                 if module.code == None or module.code == '':
                     return True
         return False
+    def nbr_of_modules(self):
+        nbr = 0
+        for unit in self.units:
+            for module in unit.modules:
+                nbr += 1
+        return nbr
+
 
 class Unit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -640,7 +657,8 @@ class Student(db.Model):
     birth_place = db.Column(db.String(45))
     address =  db.Column(db.String(120))
     photo = db.Column(db.String(250))
-    
+    last_name_arab = db.Column(db.String(100))
+    first_name_arab = db.Column(db.String(100))
     sex = db.Column(db.String(20))
     residency = db.Column(db.String(20))
     phones = db.relationship('Phone', backref='student')
@@ -695,10 +713,6 @@ class Phone(db.Model):
 
 ############################## 
 
-@login.user_loader
-def load_user(id):
-    return User.query.get(int(id))
-
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
@@ -712,3 +726,8 @@ class User(UserMixin, db.Model):
         self.password_hash = generate_password_hash(password)
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+@login.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+    

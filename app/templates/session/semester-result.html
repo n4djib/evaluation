@@ -49,102 +49,33 @@
 
 {% block app_content %}
 
-  {% include '_breadcrumbs.html' %} 
   </br>
   </br>
 
-  <div class="container" style="border-width:0px; border-style:solid; border-color:black;">
-
-
-    <table class="table_1">
-      <thead>
-        {{ header | safe | replace('None', '') }}
-      </thead>
-      <tbody>
-        {% for data in data_arr %}
-          <tr>{{ data | safe | replace('None', '') }}</tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="container" style="border-color:black; text-align:center;">
+    <div class="container" style="display:inline-block; text-align:left; 
+        border-width:1px; border-width:1px; border-color:red;" >
+      {{ sem_result | safe | replace('None', '') }}
     
-    </br>
-    </br>
+      </br>
+      </br>
 
-    <a href ="{{ url_for('print_semester_result', session_id=session.id, id=session.id) }}"
-       target="_blank" class="btn btn-primary" role="button">Print</a>
-    
-
-
-
-
-<button type="button" class="btn btn-primary" data-toggle="modal"
-   data-target="#exampleModal" data-whatever="@mdo">Open modal</button>
-
-
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
-   aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">New message</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-
-      <div class="modal-body">
-        <form>
-          <div class="form-group">
-            <label for="insert-1" class="col-form-label">insert 1:</label>
-            <input type="text" class="form-control" id="insert-1">
-          </div>
-        </form>
-      </div>
-      <div class="modal-body">
-        <form>
-          <div class="form-group">
-            <label for="insert-2" class="col-form-label">insert 2:</label>
-            <input type="text" class="form-control" id="insert-2">
-          </div>
-        </form>
-      </div>
-      <div class="modal-body">
-        <form>
-          <div class="form-group">
-            <label for="insert-3" class="col-form-label">insert 3:</label>
-            <input type="text" class="form-control" id="insert-3">
-          </div>
-        </form>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Send message</button>
-      </div>
+      <a href ="{{ url_for('print_semester_result', session_id=session.id, id=session.id) }}"
+         target="_blank" class="btn btn-primary" role="button">Print PDF</a>
+      <a href ="{{ url_for('semester_result_print_browser', session_id=session.id) }}"
+         target="_blank" class="btn btn-primary" role="button">Print Browser</a>
+        
     </div>
-  </div>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
 
   </div>
 
-    </br></br>
-    - a </br>
-    - f</br>
-         f</br>
-    </br>
+
+
+  </br></br>
+  <!-- - a </br>
+  - f</br>
+       f</br> -->
+  </br>
 
 {% endblock %}
 

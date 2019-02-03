@@ -68,25 +68,26 @@ function fill_cols() {
 
   if (type == 'module'){
     var _formula = data_arr[0]['formula'];
+    var cour_label = 'Cour';
+    if(session_is_rattrapage == true)
+      cour_label = 'Ratt.'
+
     cols = {
-      'name':    {visible: true, name: second_column_name},
-      'cour':    {visible: cour, name: "Cour / " + get_field_percentage(_formula, 'cour') },
-      'td':      {visible: td, name: "TD / " + get_field_percentage(_formula, 'td') },
-      'tp':      {visible: tp, name: "TP / " + get_field_percentage(_formula, 'tp') },
-      't_pers':  {visible: t_pers, name: "T.Pers / " + get_field_percentage(_formula, 't_pers') },
-      'stage':   {visible: stage, name: "Stage / " + get_field_percentage(_formula, 'stage') },
-      'average': {visible: true, name: "(Average)"},
-      'credit':  {visible: true, name: "(Credit)"},
-      'formula': {visible: formula, name: "(Formula)"},
+      'username': {visible: true, name: "Username"},
+      'name':     {visible: true, name: second_column_name},
+      'cour':     {visible: cour, name: cour_label + " / " + get_field_percentage(_formula, 'cour') },
+      'td':       {visible: td, name: "TD / " + get_field_percentage(_formula, 'td') },
+      'tp':       {visible: tp, name: "TP / " + get_field_percentage(_formula, 'tp') },
+      't_pers':   {visible: t_pers, name: "T.Pers / " + get_field_percentage(_formula, 't_pers') },
+      'stage':    {visible: stage, name: "Stage / " + get_field_percentage(_formula, 'stage') },
+      'average':  {visible: true, name: "(Average)"},
+      'credit':   {visible: true, name: "(Credit)"},
+      'formula':  {visible: formula, name: "(Formula)"},
     };
   }
 
   return cols;
 }
-
-var cols = fill_cols();
-
-var colHeaders = [cols['name']['name']];
 
 var save = document.getElementById("save");
 var autosave = document.getElementById("autosave");
@@ -95,10 +96,23 @@ var autosaveNotification;
 
 hotElement.innerHTML = '';
 
-//columns
-var columns = [
-  { data: 'name', type: 'text', readOnly: true, renderer: nameRenderer },
-];
+var cols = fill_cols();
+
+
+var colHeaders = [];
+var columns = [];
+
+if(type == 'module') {
+  colHeaders.push(cols['username']['name']);
+  columns.push({ data: 'username', type: 'text', readOnly: true, renderer: nameRenderer });
+}
+
+
+colHeaders.push(cols['name']['name']),
+columns.push({
+  data: 'name', type: 'text', readOnly: true, renderer: nameRenderer
+});
+
 
 colHeaders.push(''),
 columns.push({
@@ -222,7 +236,7 @@ var hot = new Handsontable(hotElement, {
   data: data_arr,
   rowHeaders: true,
   colHeaders: true,
-  columnSorting: true,
+  // columnSorting: true,
   sortIndicator: true,
   manualColumnResize: true,
 

@@ -3,12 +3,14 @@ from wtforms import StringField, SelectField, SubmitField, PasswordField, Boolea
 from wtforms.validators import DataRequired, Email, ValidationError, Optional, EqualTo
 # from wtforms import DateField
 from wtforms.fields.html5 import DateField
-# from wtforms_components import Unique
+
+# from flask_admin import BaseView
+from flask_admin.form import widgets
+# from flask_admin.form import DatePickerWidget
+
 from app.models import Student, User, School, Branch, Wilaya, Promo
 from sqlalchemy import and_
-from datetime import datetime
-
-# from sqlalchemy_utils import ColorType
+# from datetime import datetime
 
 
 
@@ -19,11 +21,13 @@ class StudentFormBase(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     last_name = StringField('Last Name', validators=[DataRequired()])
     first_name = StringField('First Name', validators=[DataRequired()])
+    last_name_arab = StringField('اللقب بالعربية', validators=[Optional()])
+    first_name_arab = StringField('الاسم بالعربية', validators=[Optional()])
     email = StringField('Email', validators=[Optional(), Email()])
     birth_date = DateField('Birth Date', validators=[Optional()])
     birth_place = StringField('Birth Place')
-    wilaya_id = SelectField('Wilaya', coerce=int, validators=[Optional()], 
-        choices = [('-1', '')]+[(b.id, b.name) for b in Wilaya.query.order_by('code')
+    wilaya_id = SelectField('Wilaya', coerce=int, 
+        choices = [(-1, '')]+[(b.id, b.name) for b in Wilaya.query.order_by('code')
     ])
     address = StringField('Address')
     sex = SelectField('Sex', choices = [('', ''), ('F', 'F'), ('M', 'M')])
@@ -53,6 +57,7 @@ class StudentFormUpdate(StudentFormBase):
     #     student = Student.query.filter(and_(Student.email==email.data, Student.id!=self._id)).first()
     #     if student is not None:
     #         raise ValidationError('Please use a different email')
+
 
 ##################
 
@@ -92,10 +97,8 @@ class BranchFormUpdate(BranchFormBase):
 class PromoFormBase(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
     display_name = StringField('display_name')
-    # , format='%Y-%m-%d' , format='%Y-%d-%m'   , format='%Y-%m-%d', default=datetime.today
-
+    # format='%Y-%m-%d'  format='%Y-%m-%d'  default=datetime.today, format='%d/%m/%Y'
     start_date = DateField('Start Date', validators=[Optional()])
-    # start_date = DateField('Start Date', validators=[Optional()])
     finish_date = DateField('Finish Date', validators=[Optional()])
     #
     # WARNING
@@ -151,6 +154,8 @@ class WilayaFormUpdate(WilayaFormBase):
             raise ValidationError('Please use a different name')
 
 ##################
+##################
+##################
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -174,4 +179,6 @@ class LoginForm(FlaskForm):
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Sign In')
 
+##################
+##################
 ##################

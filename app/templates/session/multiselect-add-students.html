@@ -19,11 +19,6 @@
 
 {% block app_content %}
  
-  {% include '_breadcrumbs.html' %} 
-
-<!--   <a href="{{ url_for('session', session_id=session.id) }}">go back to {{ S }}: {{ session.semester.semester }}</a>
-  </br>
- -->
   
   {% set S = "Semester" -%}
   {% if session.is_rattrapage %}

@@ -2,10 +2,6 @@
 
 {% block app_content %}
 
-    {% include '_breadcrumbs.html' %} 
-
-
-
     <h1>Student: {{student.username}}</h1>
 
     <div>
@@ -42,6 +38,10 @@
           <tr><td><i>Username</i></td> <td>{{student.username}}</td></tr>
           <tr><td><i>Last Name</i></td> <td>{{student.last_name}}</td></tr>
           <tr><td><i>First Name</i></td> <td>{{student.first_name}}</td></tr>
+          
+          <tr><td><i>اللقب بالعربية</i></td> <td>{{student.last_name_arab | replace("None", "")}}</td></tr>
+          <tr><td><i>الاسم بالعربية</i></td> <td>{{student.first_name_arab | replace("None", "")}}</td></tr>
+
           <tr><td><i>Email</i></td> <td>{{student.email | replace("None", "")}}</td></tr>
           <tr><td><i>Birth Date</i></td> <td>{{student.birth_date | replace("None", "")}}</td></tr>
           <tr><td><i>Birth Place</i></td> <td>{{student.birth_place | replace("None", "")}}</td></tr>

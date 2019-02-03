@@ -1,11 +1,109 @@
 from app import app, db
 from flask import render_template, redirect, url_for, flash, request
-from app.forms import SchoolFormCreate, SchoolFormUpdate, PromoFormCreate, PromoFormUpdate\
-    , BranchFormCreate, BranchFormUpdate, WilayaFormCreate, WilayaFormUpdate
+from app.forms import SchoolFormCreate, SchoolFormUpdate, PromoFormCreate, PromoFormUpdate, \
+    BranchFormCreate, BranchFormUpdate, WilayaFormCreate, WilayaFormUpdate
 from app.models import School, Branch, Wilaya, Promo
-
 from flask_breadcrumbs import register_breadcrumb
+# import babel
+from datetime import datetime
 
+
+#######################################
+#####            Promo            #####
+
+@app.route('/promo/')
+@register_breadcrumb(app, '.basic.promo', 'Promos')
+def promo_index():
+    # i have to order by school & branch
+    promos = Promo.query.order_by(Promo.branch_id, Promo.start_date).all()
+    return render_template('basic-forms/promo/index.html', title='Promos List', promos=promos)
+
+@app.route('/promo/create/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.promo.create', 'Create')
+def promo_create():
+    form = PromoFormCreate()
+    
+    if request.method == 'POST':
+        start_date_request = request.form.get('start_date_str')
+        if start_date_request != None and start_date_request != '':
+            start_date_string = str(start_date_request)+'-01'
+            form.start_date.data = datetime.strptime(start_date_string, '%Y-%m-%d')
+        finish_date_request = request.form.get('finish_date_str')
+        if finish_date_request != None and finish_date_request != '':
+            finish_date_string = str(finish_date_request)+'-28'
+            form.finish_date.data = datetime.strptime(finish_date_string, '%Y-%m-%d')
+    
+    if form.validate_on_submit():
+        promo = Promo(
+            name=form.name.data, 
+            display_name=form.display_name.data, 
+            branch_id=form.branch_id.data, 
+            start_date=form.start_date.data, 
+            finish_date=form.finish_date.data, 
+            color=form.color.data
+        )
+        db.session.add(promo)
+        db.session.commit()
+        flash('Created and Saved Successfully.', 'alert-success')
+        return redirect(url_for('promo_view', id=promo.id))
+    return render_template('basic-forms/promo/create.html', title='Promo Create', form=form)
+
+@app.route('/promo/update/<int:id>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.promo.update', 'Update')
+def promo_update(id):
+    promo = Promo.query.get_or_404(id)
+    form = PromoFormUpdate(promo.id)
+
+    if request.method == 'POST':
+        # start_date_request = request.form.get('start_date')
+        start_date_request = request.form.get('start_date_str')
+        if start_date_request != None and start_date_request != '':
+            start_date_string = str(start_date_request)+'-01'
+            form.start_date.data = datetime.strptime(start_date_string, '%Y-%m-%d')
+        finish_date_request = request.form.get('finish_date_str')
+        if finish_date_request != None and finish_date_request != '':
+            finish_date_string = str(finish_date_request)+'-28'
+            form.finish_date.data = datetime.strptime(finish_date_string, '%Y-%m-%d')
+    
+    if form.validate_on_submit():    
+        promo.name = form.name.data
+        promo.display_name = form.display_name.data
+        # promo.branch_id = form.branch_id.data
+        promo.start_date = form.start_date.data
+        promo.finish_date = form.finish_date.data
+        promo.color = form.color.data
+        db.session.commit()
+        flash('Your changes have been saved.', 'alert-success')
+        return redirect(url_for('promo_view', id=promo.id))
+    elif request.method == 'GET':
+        form.name.data = promo.name
+        form.display_name.data = promo.display_name
+        form.start_date.data = promo.start_date
+        # if promo.start_date != None and promo.start_date != '':
+        #     form.start_date.data = promo.start_date.strftime("%d/%m/%Y")
+        form.finish_date.data = promo.finish_date
+        form.branch_id.data = promo.branch_id
+        form.color.data = promo.color
+    return render_template('basic-forms/promo/update.html', title='Promo Update', form=form)
+
+@app.route('/promo/<int:id>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.promo.view', 'View')
+def promo_view(id):
+    promo = Promo.query.get_or_404(id)
+    return render_template('basic-forms/promo/view.html', title='Promo View', promo=promo)
+
+# WARNING: i have to check before i delete
+@app.route('/promo/delete/<int:id>/', methods=['GET', 'POST'])
+def promo_delete(id):
+    promo = Promo.query.get_or_404(id)
+    if len(promo.sessions) > 0:
+        flash("you can't delete this Promo because it is in Relation with other Records", 'alert-danger')
+        flash("you have to break the relation with the Sessions first")
+        return redirect(url_for('promo_view', id=promo.id))
+    db.session.delete(promo)
+    db.session.commit()
+    flash('Promo: ' + str(promo.name) + ' is deleted', 'alert-success')
+    return redirect(url_for('promo_index'))
 
 
 
@@ -16,7 +114,6 @@ from flask_breadcrumbs import register_breadcrumb
 @register_breadcrumb(app, '.basic', 'Basic Tables')
 def basic_index():
     return render_template('basic-forms/index.html', title='Basic Tables List')
-
 
 
 #######################################
@@ -146,83 +243,6 @@ def branch_delete(id):
     flash('Branch: ' + str(branch.name) + ' is deleted', 'alert-success')
     return redirect(url_for('branch_index'))
 
-
-
-#######################################
-#####            Promo            #####
-
-@app.route('/promo/')
-@register_breadcrumb(app, '.basic.promo', 'Promos')
-def promo_index():
-    # i have to order by school & branch
-    promos = Promo.query.order_by(Promo.branch_id, Promo.start_date).all()
-    return render_template('basic-forms/promo/index.html', title='Promos List', promos=promos)
-
-@app.route('/promo/create/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.basic.promo.create', 'Create')
-def promo_create():
-    form = PromoFormCreate()
-    if form.validate_on_submit():
-        promo = Promo(
-            name=form.name.data, 
-            display_name=form.display_name.data, 
-            branch_id=form.branch_id.data, 
-            start_date=form.start_date.data, 
-            finish_date=form.finish_date.data, 
-            color=form.color.data
-        )
-        db.session.add(promo)
-        db.session.commit()
-        flash('Created and Saved Successfully.', 'alert-success')
-        return redirect(url_for('promo_view', id=promo.id))
-    return render_template('basic-forms/promo/create.html', title='Promo Create', form=form)
-
-@app.route('/promo/update/<int:id>/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.basic.promo.update', 'Update')
-def promo_update(id):
-    promo = Promo.query.get_or_404(id)
-    form = PromoFormUpdate(promo.id)
-    # return str(form.start_date.data)
-    if form.validate_on_submit():    
-        # return str(form.start_date.data)
-        promo.name = form.name.data
-        promo.display_name = form.display_name.data
-        # promo.branch_id = form.branch_id.data
-        promo.start_date = form.start_date.data
-        promo.finish_date = form.finish_date.data
-        promo.color = form.color.data
-        db.session.commit()
-        flash('Your changes have been saved.', 'alert-success')
-        return redirect(url_for('promo_view', id=promo.id))
-    elif request.method == 'GET':
-        form.name.data = promo.name
-        form.display_name.data = promo.display_name
-        form.start_date.data = promo.start_date
-        # if promo.start_date != None and promo.start_date != '':
-        #     form.start_date.data = promo.start_date.strftime("%d/%m/%Y")
-        form.finish_date.data = promo.finish_date
-        form.branch_id.data = promo.branch_id
-        form.color.data = promo.color
-    return render_template('basic-forms/promo/update.html', title='Promo Update', form=form)
-
-@app.route('/promo/<int:id>/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.basic.promo.view', 'View')
-def promo_view(id):
-    promo = Promo.query.get_or_404(id)
-    return render_template('basic-forms/promo/view.html', title='Promo View', promo=promo)
-
-# WARNING: i have to check before i delete
-@app.route('/promo/delete/<int:id>/', methods=['GET', 'POST'])
-def promo_delete(id):
-    promo = Promo.query.get_or_404(id)
-    if len(promo.sessions) > 0:
-        flash("you can't delete this Promo because it is in Relation with other Records", 'alert-danger')
-        flash("you have to break the relation with the Sessions first")
-        return redirect(url_for('promo_view', id=promo.id))
-    db.session.delete(promo)
-    db.session.commit()
-    flash('Promo: ' + str(promo.name) + ' is deleted', 'alert-success')
-    return redirect(url_for('promo_index'))
 
 
 

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block styles %}
+  {{super()}}
+  <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/sheetclip.0.3.js') }}"></script>
+  
+  <link rel="stylesheet" type="text/css" 
+      href="{{ url_for('static', filename='handsontable/handsontable.full.2.0.0.min.css') }}">
+  <script src="{{ url_for('static', filename='handsontable/handsontable.full.2.0.0.min.js') }}"></script>
+
+  <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='handsontable/handsontable.full.5.0.1.min.css') }}">
+  <script src="{{ url_for('static', filename='handsontable/handsontable.full.5.0.1.min.js') }}"></script> -->  
+
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/csshake.min.css') }}">
+  </style>
+
+
+  <style>
+    input[type=text] {
+      width: 300px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 2px;
+      background-color: white;
+      background-image: url('{{ url_for('static', filename='img/searchicon.png') }}');
+      background-position: 5px 5px;
+      background-repeat: no-repeat;
+      -webkit-transition: width 0.4s ease-in-out;
+      transition: width 0.4s ease-in-out;
+      padding: 7px 10px 7px 40px;
+      margin-bottom: 2px;
+    }
+
+    /*.htAutocomplete {
+      background-color: red;
+    }*/
+  </style>
+
+
+{% endblock %}
+
+{% block app_content %}
+
+    <h1>Update Many</h1>
+    - be carfull when you change the Username</br>
+        you have to avoid conflict by using Excel 
+        & adding some character first</br>
+
+    <input id="search" name="search" placeholder="Filter ..." type="text" autocomplete="off">
+
+    <div id="hot-update-many" class="hot handsontable">
+	  </div>
+    </br>
+    <button id="save" class="btn btn-primary">Update</button>
+  </br>
+  </br>
+  - add render to username</br>
+      it would be great if it checks through ajax</br>
+      regex ****-**-**</br>
+  - close edeting username when session is closed</br>
+      make it grey and change the assignment in the function</br>
+  </br>
+  </br>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script type="text/javascript">
+    {% include "student/_update-many.js" %}
+  </script>
+{% endblock %}

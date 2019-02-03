@@ -25,6 +25,8 @@
       .node-percent {font-size: 15px; color: #FF0000;}
       .node-link {position:relative; z-index:99999; line-height: 20px; height: 15px; 
           font-weight: bold; padding: 3px; margin: 0; color: #9CB5ED; text-decoration:none; }
+
+      .breadcrumb {position:absolute; z-index:99999; margin-left: 20px;}
     </style>
 {% endblock %}
 
@@ -32,24 +34,10 @@
 
 
 {% block app_content %} 
-    <ol class="breadcrumb" style="position:absolute; z-index:99999; margin-left: 20px;" >
-      {%- for breadcrumb in breadcrumbs -%}
-        {% if not loop.last %}
-              <li><a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a></li>
-          {% endif %}
-          {% if loop.last %}
-              <li class="active">{{ breadcrumb.text }}</li>
-          {% endif %}
-      {%- endfor -%}
-    </ol> 
-
-
-
 
   <div id="tree-config" style="height: 100%;"> </div>
+
 {% endblock %}
-
-
 
 
 

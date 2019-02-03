@@ -29,24 +29,13 @@
 
 
 
-
-
 {% block app_content %}
 
-  {% include '_breadcrumbs.html' %} 
-
-
-
   <div class="container">
-
-
 
   	<div class="row">
         <h2> {{ annual_session.name }} </h2>
 
-        <!-- <a href ="{{ url_for('annual_session_refrech', annual_session_id=annual_session.id) }}"
-           class="btn btn-primary" role="button"
-           >Re(calculate) Annual Session</a> -->
         {% set refrech_url = url_for('annual_session_refrech', annual_session_id=annual_session.id) %}
         <a href ="{{ url_for('slow_redirect', url=refrech_url) }}"
            class="btn btn-primary" role="button"
@@ -75,23 +64,13 @@
               <th colspan="1" rowspan="2">Obs.</th>
             </tr>
             <tr>
-              <th>A</th>
-              <th>C</th>
-              <th>A</th>
-              <th>C</th>
+              <th>A</th><th>C</th><th>A</th><th>C</th>
 
-              <th>A</th>
-              <th>C</th>
-              <th>A</th>
-              <th>C</th>
+              <th>A</th><th>C</th><th>A</th><th>C</th>
 
-              <th>A</th>
-              <th>C</th>
-              <th>A</th>
-              <th>C</th>
+              <th>A</th><th>C</th><th>A</th><th>C</th>
 
-              <th>A</th>
-              <th>C</th>
+              <th>A</th><th>C</th>
               <!-- <th>Obs.</th> -->
             </tr>
           </thead>
@@ -106,31 +85,6 @@
           </tbody>
       </table>
     </div>
-
-
-    <!--button class="btn btn-danger"
-      data-href="{ { url_for('', session_id=session.id)}}" 
-      data-toggle="modal" data-target="#confirm-delete">
-        Delete Annual Session
-    </button>
-
-    <div class="modal fade" id="confirm-delete" tabindex="-1"
-         role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <! - -div class="modal-header">
-                    ...
-                </div- ->
-                <div class="modal-body">
-                  do you really want to delete this session?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-danger btn-ok">Delete</a>
-                </div>
-            </div>
-        </div>
-    </div-->
 
     <button class="btn btn-danger"
       data-href="{{url_for('delete_annual_session', annual_session_id=annual_session.id)}}" 
@@ -169,8 +123,6 @@
 
 
 {% endblock %}
-
-
 
 
 

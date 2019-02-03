@@ -19,8 +19,6 @@
 
 {% block app_content %}
 
-    {% include '_breadcrumbs.html' %} 
-
     <h1>Students List !!!</h1>
     <div>
         <a class="btn btn-primary" href="{{ url_for('students_create') }}">Create New</a>
@@ -82,9 +80,10 @@
             <th scope="col">Name</th>
             <!-- <th scope="col">Last Name</th>
             <th scope="col">First Name</th> -->
-            <!-- <th scope="col">Birth Date</th> -->
-            <th scope="col">Birth Place</th>
+            <th scope="col">Birth Date</th>
+            <!-- <th scope="col">Birth Place</th> -->
             <th scope="col">Wilaya</th>
+            <th scope="col">Sex</th>
             <th scope="col">Branch</th>
             <th scope="col">Email</th>
           </tr>
@@ -98,13 +97,14 @@
             <td>{{ student.last_name | replace(' ', ' ') }} {{ student.first_name | replace(' ', ' ') }}</td>
             <!-- <td>{{ student.last_name | replace(' ', ' ') }}</td>
             <td>{{ student.first_name | replace(' ', ' ') }}</td> -->
-            <!-- <td>{{ student.birth_date | replace('None', '') }}</td> -->
-            <td>{{ student.birth_place | replace('None', '') }}</td>
+            <td>{{ student.birth_date | replace('None', '') }}</td>
+            <!-- <td>{{ student.birth_place | replace('None', '') }}</td> -->
             <td>
               {% if student.wilaya %}
                 {{ student.wilaya.get_label() | replace('None', '') }}
               {% endif %}
             </td>
+            <td>{{ student.sex | replace('None', '') }}</td>
             <td class="branch" value="{{student.branch.name}}">{{ student.branch.name }}</td>
             <td>{{ student.email | replace('None', '') }}</td>
           </tr>

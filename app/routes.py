@@ -1,7 +1,7 @@
 from app import app, db
 from flask import render_template, redirect, url_for, flash, request
 from app.forms import StudentFormCreate, StudentFormUpdate, RegistrationForm, LoginForm
-from app.models import Student, User, Branch, Session, Wilaya, School
+from app.models import Student, StudentSession, User, Branch, Session, Wilaya, School
 from werkzeug.urls import url_parse
 from flask_login import current_user, login_user, logout_user, login_required
 import datetime
@@ -10,14 +10,7 @@ from flask_breadcrumbs import register_breadcrumb
 from app.permissions_and_roles import *
 from flask_principal import Identity, AnonymousIdentity, identity_changed
 
-
-
-
-
-# @app.route('/calendar', methods=['GET', 'POST'])
-# def calendar():
-#     return render_template('calendar.html', title='Calendar Page')
-
+from datetime import datetime
 
 
 
@@ -56,9 +49,6 @@ def slow_redirect():
 def std_index():
     return render_template('student/index-std.html', title='Students List')
 
-
-
-
 @app.route('/student/')
 # @app.route('/student/index/')
 @register_breadcrumb(app, '.basic.student', 'Students')
@@ -73,13 +63,24 @@ SEPARATOR = '-'
 @register_breadcrumb(app, '.basic.student.create', 'Create')
 def students_create():
     form = StudentFormCreate()
+
+    if request.method == 'POST':
+        birth_date_request = request.form.get('birth_date_str')
+        if birth_date_request != None and birth_date_request != '':
+            birth_date_string = str(birth_date_request)
+            form.birth_date.data = datetime.strptime(birth_date_string, '%Y-%m-%d')
+    
     if form.validate_on_submit():
         student = Student(
             username=form.username.data,
             last_name=form.last_name.data, 
             first_name=form.first_name.data,
+            last_name_arab=form.last_name_arab.data,
+            first_name_arab=form.first_name_arab.data,
             email=form.email.data,
             birth_date=form.birth_date.data,
+            birth_place=form.birth_place.data,
+            address=form.address.data,
             branch_id=form.branch_id.data,
             wilaya_id=form.wilaya_id.data,
             sex=form.sex.data,
@@ -94,7 +95,7 @@ def students_create():
         return redirect(url_for('student_view', id=student.id))
     elif request.method == 'GET':
         # form.username.data = form.get_username('SF', str(datetime.datetime.now().year))
-        form.username.data = Student.get_username('**', str(datetime.datetime.now().year), SEPARATOR)
+        form.username.data = Student.get_username('**', str(datetime.now().year), SEPARATOR)
     return render_template('student/create.html', title='Student Create', form=form)
 
 @app.route('/student/get-username/', methods=['POST'])
@@ -104,19 +105,29 @@ def student_get_username():
     branch_name = Student.get_username(branch.name, str(datetime.datetime.now().year), SEPARATOR)
     return str(branch_name)
 
-
 @app.route('/student/update/<id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.basic.student.update', 'Update')
 def student_update(id):
     student = Student.query.get_or_404(id)
     form = StudentFormUpdate(student.id)
+
+    if request.method == 'POST':
+        birth_date_request = request.form.get('birth_date_str')
+        if birth_date_request != None and birth_date_request != '':
+            birth_date_string = str(birth_date_request)
+            form.birth_date.data = datetime.strptime(birth_date_string, '%Y-%m-%d')
+
     if form.validate_on_submit():
         student.username = form.username.data
         student.last_name = form.last_name.data
         student.first_name = form.first_name.data
+        student.last_name_arab = form.last_name_arab.data
+        student.first_name_arab = form.first_name_arab.data
         if len(form.email.data) > 0:
             student.email = form.email.data
         student.birth_date = form.birth_date.data
+        student.birth_place = form.birth_place.data
+        student.address = form.address.data
         student.branch_id = form.branch_id.data
         student.wilaya_id = form.wilaya_id.data
 
@@ -130,15 +141,18 @@ def student_update(id):
         form.username.data = student.username
         form.last_name.data = student.last_name
         form.first_name.data = student.first_name
+        form.last_name_arab.data = student.last_name_arab
+        form.first_name_arab.data = student.first_name_arab
         form.email.data = student.email
         form.birth_date.data = student.birth_date
+        form.birth_place.data = student.birth_place
+        form.address.data = student.address
         form.branch_id.data = student.branch_id
         form.wilaya_id.data = student.wilaya_id
 
         form.sex.data = student.sex
         form.residency.data = student.residency
     return render_template('student/update.html', title='Student Update', form=form)
-
 
 @app.route('/student/view/<id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.basic.student.view', 'View')
@@ -204,7 +218,7 @@ def students_create_many():
         branch_list=get_branches_list(),
         branches=Branch.query.all())
 
-@app.route('/create-many-student/save/', methods = ['POST'])
+@app.route('/student/create-many/save/', methods = ['POST'])
 def create_many_student_save():
     data_arr = request.json
 
@@ -220,18 +234,11 @@ def create_many_student_save():
                 # birth_date=, 
                 birth_place=data[4])
 
-            # try:
-            #     student.birth_date = datetime.datetime.strptime(data[3], "%d/%m/%Y")
-            # except ValueError:
-            #     student.birth_date = None
             if data[3] != None and data[3] != '':
                 student.birth_date = datetime.datetime.strptime(data[3], "%d/%m/%Y")
 
             student.branch_id = data[6]
-            # raise Exception ("----"+str(data[6]))
-            # if data[6] == '': student.branch_id = 2
 
-            # get wilaya
 
             wilaya = Wilaya.query.filter_by(name=data[5]).first()
             if wilaya != None:
@@ -259,6 +266,80 @@ def create_many_student_save():
     flash('Many Students has been Saved...')
     return _return_print
     return 'data saved'
+
+
+
+@app.route('/session/<session_id>/student/update-many/', methods=['GET', 'POST'])
+def students_update_many(session_id):
+    student_sessions = StudentSession.query.filter_by(session_id=session_id).all()
+
+    data = []
+
+
+    for student_session in student_sessions:
+        student = student_session.student
+
+        birth_date = None
+        wilaya = None
+
+        if student.birth_date != None:
+            birth_date = student.birth_date.strftime("%d/%m/%Y")
+        if student.wilaya != None:
+            wilaya = str(student.wilaya.name)
+
+        data.append([
+            student.id,
+            student.username, 
+            student.last_name, 
+            student.first_name, 
+            birth_date, 
+            student.birth_place, 
+            wilaya
+        ])
+
+    return render_template('student/update-many.html', 
+        title='Student Update Many', 
+        data=data, 
+        wilayas_name_list=get_wilayas_list(), 
+        username_list=get_username_list(),
+        branch_list=get_branches_list(),
+        branches=Branch.query.all(),
+        session_id=session_id
+        )
+
+
+@app.route('/student/update-many/save/', methods = ['POST'])
+def update_many_student_save():
+    data_arr = request.json
+
+    for i, data in enumerate(data_arr, start=0):
+        #
+        #
+        # 
+        username_list = get_username_list()
+        # if data[0] != '' and data[1] not in username_list:
+        if data[0] != '':
+            student = Student.query.get_or_404(data[0])
+
+            student.username = data[1].lstrip().rstrip()
+            # last_name = data[2].lstrip().rstrip()
+            # first_name = data[6].lstrip().rstrip()
+            student.birth_place = data[5]
+
+            if data[4] != None and data[4] != '':
+                student.birth_date = datetime.datetime.strptime(data[4], "%d/%m/%Y")
+
+            wilaya = Wilaya.query.filter_by(name = data[6]).first()
+            if wilaya != None:
+                student.wilaya_id = wilaya.id
+            else:
+                student.wilaya_id = None
+
+            db.session.commit()
+    
+    flash('Data has been Updated ...')
+    return 'data updated'
+
 
 
 #######################################

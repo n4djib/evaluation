@@ -6,8 +6,8 @@
   {{super()}}
   <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
   <link rel="stylesheet" type="text/css" 
-        href="{{ url_for('static', filename='handsontable/handsontable.full.min.css') }}">
-  <script src="{{ url_for('static', filename='handsontable/handsontable.full.min.js') }}"></script>
+        href="{{ url_for('static', filename='handsontable/handsontable.full.2.0.0.min.css') }}">
+  <script src="{{ url_for('static', filename='handsontable/handsontable.full.2.0.0.min.js') }}"></script>
   
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/csshake.min.css') }}">
 
@@ -51,12 +51,6 @@
 
 
 {% block app_content %}
-
- 
-  {% include '_breadcrumbs.html' %} 
-
-<!--   <a href="{{url_for('session', session_id=session.id)}}">go back to {{ S }}: {{ session.semester.semester }}</a>
-  </br> -->
 
   {% set S = "Semester" -%}
   {% if session.is_rattrapage %}

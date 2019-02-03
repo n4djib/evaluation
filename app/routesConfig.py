@@ -107,14 +107,14 @@ def tree_semester(semester):
             //empty: " ",
             credit: "Credit: ''' + str(credit) + '''",
             //new: "New<img src=/static/ztree/img/diy/19-big.png>",
-            new: {
-                val: "  new  ", 
-                href: "mailto:we@great.com", 
-            },
-            edit: {
-                val: "  edit  ", 
-                href: "mailto:we@great.com", 
-            }
+            //new: {
+            //    val: "  new  ", 
+            //    href: "mailto:we@great.com", 
+            //},
+            //edit: {
+            //    val: "  edit  ", 
+            //    href: "mailto:we@great.com", 
+            //}
         },
         children: [''' + units + ''']
     }'''
@@ -158,30 +158,30 @@ def conf_session(session_id, semester_id):
     conf_data = tree_conf_data(semester_id)
     return render_template('conf/treant.html', title='Conficuration Tree', data=conf_data)
 
-@app.route('/conf-mod/<semester_id>/', methods=['GET', 'POST'])
-def conf_mod(semester_id):
-    semester = Semester.query.filter_by(id=semester_id).first_or_404()
-    t_semester = tree_semester(semester)
+# @app.route('/conf-mod/<semester_id>/', methods=['GET', 'POST'])
+# def conf_mod(semester_id):
+#     semester = Semester.query.filter_by(id=semester_id).first_or_404()
+#     t_semester = tree_semester(semester)
 
-    conf_data = '''
-    {
-        chart: {
-            container: "#tree-config",
-            animateOnInit: true,
-            node: {
-              collapsable: true
-            },
-            animation: {
-              nodeAnimation: "easeOutBounce",
-              nodeSpeed: 700,
-              connectorsAnimation: "bounce",
-              connectorsSpeed: 700
-            }
-        },
-        nodeStructure:''' + t_semester + '''
-    }'''
+#     conf_data = '''
+#     {
+#         chart: {
+#             container: "#tree-config",
+#             animateOnInit: true,
+#             node: {
+#               collapsable: true
+#             },
+#             animation: {
+#               nodeAnimation: "easeOutBounce",
+#               nodeSpeed: 700,
+#               connectorsAnimation: "bounce",
+#               connectorsSpeed: 700
+#             }
+#         },
+#         nodeStructure:''' + t_semester + '''
+#     }'''
 
-    return render_template('conf/treant.html', title='Conficuration Tree', data=conf_data)
+#     return render_template('conf/treant.html', title='Conficuration Tree', data=conf_data)
 
 
 
@@ -202,8 +202,11 @@ def semesters_t(branch, open_sem_id):
         name += " <span style='font-size: 0.1px;'>" + str(branch.name) + "</span>"
 
         cumul_credit = semester.get_semester_cumul_credit()
+        units_coeff_comul = semester.get_semester_units_coeff_comul()
         if cumul_credit != 30:
             name += "  - <span style='color:blue;margin-right:0px;'>(credit=" + str(cumul_credit) + ")</span> "
+        if units_coeff_comul != 10:
+            name += "  - <span style='color:orange;margin-right:0px;'>(unit coeff=" + str(units_coeff_comul) + ")</span> "
         if semester.has_percentage_problem():
             name += "  - <span style='color:red;margin-right:0px;'>(percentage problem)</span> "
         if semester.has_code_missing():
@@ -234,15 +237,16 @@ def branches_t(school, open_b_id, open_sem_id):
         pId = 'school_'+str(school.id)
         # sem = ''
         sem = semesters_t(branch, open_sem_id)
+        name = branch.name+' - '+str(branch.description)
         open = 'true'
         if open_b_id != 0:
             open = 'false'
             if open_b_id == branch.id:
                 open = 'true'
         if sem == '':
-            b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+branch.name+'", open:'+open+', iconSkin:"icon11"},'
+            b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:'+open+', iconSkin:"icon11"},'
         else:
-            b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+branch.name+'", open:'+open+', isParent:true},'
+            b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:'+open+', isParent:true},'
         
         branches_tree += b + sem
     return branches_tree

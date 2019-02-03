@@ -1,52 +1,123 @@
 =ERRORS:
 --------
-
+						- an error happens when i try to create a Annual Session
+						- studetn is not saving birth place 
+						- and i have to not enforce la Wilaya
+- in create many students
+	wilaya dropdown is not working when i use the keyboard
+						- in Update Massive
+							the Wilaya "El Taref" is not bieng saved
+								because "El Taref " has a space
+- 
+- 
+- 
 
 =QUESTIONS:
 -----------
-- what about the students who need to pass some modules (dete)
+- what about the students who need to pass some modules (avec dette)
 - find an example of people who repeated the year
+- do i have to print Zerbia for the Annual
+	ask Sabah and Sahel about the required Printables
+- 
+- 
+
+=PRINTABLES:
+------------
+- a location to print all Printables
+- 
+- 
 
 
 =PRIORITY 1:
 ------------
-- arabic name
-- Student card Matricule (2018/05)
+- in rattrapage generation from annual
+	are you taking into considiration if the student 
+	allready passed rattrapage in Semester 1
+- give a warning to Save before leaving the grid
+- trim names in Wilaya when saving
+- add filter to Massive editing
+- add observation field to annual_grade
+- massive Students Edit (grid) for a promo
+	/*
+	  get all usernames
+	  get usernames in this Promo
+	  do not color the usernames of this Promos
+	    unless there is A duplication
+	*/
+- New Inserted students shoold be given username="*****"
+	then you change them with massive Edit
+- don't allow Matricule change if he has a closed Session 
+	or he has All Grades entered
+- change bootstrap CDN
+	search for : cdnjs.cloudflare.com
+	maybe don't change it but try to override it in Base
+- in calculating Annual Average
+	i have to put a finalAverage column
+	and be carfull when printing Bulting
+		give the option of printing before Rattrapage
+- form error messages in quickform is different than you use the fields
+	like in Promo
+- when creating a new session 
+	set starting date based on Promo
+	when changing the start_date in Promo
+		change the date of the session
+- change Date in
+	Student: create & update
+	like in promo
+- change "name" to "display_name" in printables 
+						- print bulk Bultin Annual
+- finish Printing semester Result
+- print Zerbia (Ratt + normal)
+	and show session 1 or 2
 - printables shoold come out alphabaticaly (optional)
+- add the headers and fouters for the printables
+						- promo datepicker format
+- Student card Matricule (2018/05)
 - finish the Students Filter
+	by Branch and Promo
 - in justification
 	show how the credit is calculated
-- print Zerbia (Ratt + normal)
-- add the headers and fouters for the printables
-- print bulk Bultin
 - add pagination to student table
-- when session is rattrapage change "cour" to "rattrapage"
 - rename the session when creating it
 	and fill the start and finish dates from promo
 - init date in Promo
+						- builtin is not printing well
+						- UNIT coeff must equalt 10
+						- Sort classed students according to average
+						- seperate Matricule and NAME
+							in grid to allow sorting by name
+						- in Promo view
+							show only year and month of the dates
+						- print bulk Bultin
+						- arabic name
+						- when session is rattrapage change "cour" to "rattrapage"
+						- Breadcrumb in annual and annual Ratt
+						- put breadcrumbs above Flash
+							check it is not Empty
+							and margin-left in some pages
+						- the order of the promo
 - show errors in Promo form
+- enforce Promo naming
 - Add a Settings Page
-- put breadcrumbs above Flash
-	check it is not Empty
-	and margin-left in some pages
 - change Matricule Massivaly
 	maybe a Function that rename everyone based on there Order
-- do not allow Resubmit
-- inforce Promo naming
+	https://handsontable.com/docs/6.2.1/demo-moving.html
 - massive students delete Or Branch change
 	apply a thing a mass of students
 - in Index(list/table) of Promo and Branch, group by School/Branch
+- Duplicate Config
+- Order Promos in Tree by name only
 
 
 =PRIORITY 2:
 ------------
+- make arrows work in Grades grid
+- wornning of leaving the grid without save
+- autosave Grid by user
 - add a link in the Tree to create a New Promo
-- the order of the promo
-- Duplicate Config
-- when creating a new session do not transfaire students
 - show list of associated record in view of Basic tables
 - when creating a new session do not transfaire students
-	then when i enter the session prisent a button
+	then when i enter the session present a button
 	or just do it in a cron job
 - add Button: create a new semester
 	duplicate config
@@ -56,18 +127,23 @@
 - set Dirty Flags and show them in Flash() 
 	to indecate the need for Re(calculate) in other Pages
 - Calendar
+- make names into CamelCase
+- add Scrolling for grids
+	per user
+	https://handsontable.com/docs/6.2.2/demo-scrolling.html
 - 
 
 
 =PRIORITY 3:
 ------------
-- show a progress bar like a WiFI in Tree
+- show a progress bar like a WiFi in Tree
 - teachers rating
 	only his students can rate him
 - Authorization
 - Mysql
 - raise an exception when a Session or a Semester has more than one Next
 - upload Photos
-
-
+- convert Table(configuration in guide) to Treant
+	and from Treant to Table(print)
+- as a security mesure you shoold check the username of the windows who is trying to edit
 
