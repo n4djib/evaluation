@@ -60,7 +60,7 @@ var hot = new Handsontable(hotElement, {
       data: 5, 
       type: 'dropdown',
       source: wilayas_name_list,
-      // type: "autocomplete",
+      type: "autocomplete",
 
       // type: 'text',
       // editor: 'select',

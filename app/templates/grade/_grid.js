@@ -344,12 +344,12 @@ function Save(){
     dataType: 'text',
     async: true,
     success: function(msg) {
-      is_dirty = false;
       shake_message();
 
       // alert('data_arr: ' + data_arr);
       // alert('msg: ' + msg);
 
+      is_dirty = false;
       console.log('---' + msg + '---');
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {

@@ -1,41 +1,104 @@
-=ERRORS:
---------
+== ERRORS ==
+------------
 						- an error happens when i try to create a Annual Session
 						- studetn is not saving birth place 
 						- and i have to not enforce la Wilaya
-- in create many students
-	wilaya dropdown is not working when i use the keyboard
 						- in Update Massive
 							the Wilaya "El Taref" is not bieng saved
 								because "El Taref " has a space
+- in create many students
+	wilaya dropdown is not working when i use the keyboard
+-  Button create-rattrapage annual is not working
+	http://localhost:5000/annual-session/1/rattrapage/
+- if an SF student has Average of 10 and credit < 60
+	does she pass the rattrapage in non Fonamental Modules
+	there is not point in repassing them
 - 
 - 
 - 
 
-=QUESTIONS:
------------
+== QUESTIONS ==
+---------------
 - what about the students who need to pass some modules (avec dette)
 - find an example of people who repeated the year
 - do i have to print Zerbia for the Annual
 	ask Sabah and Sahel about the required Printables
+- Rattrapage printables
+- 
 - 
 - 
 
-=PRINTABLES:
-------------
+== PRINTABLES ==
+----------------
 - a location to print all Printables
-- 
+- you have to show session(normal or ratt) in printables
+	result & bultin
+- in result header
+	on the left is centering
+- in Result and Bultin 
+	be carefull of the source of the data (semester vs ratt)
+- semester Result in fire firefox is skiping the first page
+- Don't forget to Comment 
+	get_semester_result_data in routesSession.py
+- when printing XPS & PDF
+	name the file with a date
+- print Module list
+	if there is any grades, show new other buttons
+- Annual Result
 - 
 
+Note: when you program
+	make the function with a good name then start to implement it
+	like: check if configuration_changed(session_id):
 
-=PRIORITY 1:
-------------
+	write good tests like the ones in the configuration which show errors
+
+
+== PRIORITY 1 ==
+----------------
+- remove link between semesters
+		and find previous and next from 
+			school+branbch+semester(annual+semester+update_date)
+		and while at it change annula+semsester to semester
+		NOTE: locate the places to change before you modify
+
+- change "name" to "display_name" in printables 
+- finish Printing semester Result
+- print Zerbia (Ratt + normal)
+	and show session 1 or 2
+- printables shoold come out alphabaticaly (optional)
+- add the headers and fouters for the printables
+
+- don't allow rattrapage creation from a closed session
+	to avoid configuraton mismatch
+	shoold be closed together with the sesson
+	close and open together
+- in ratt list modules list expand the table to the max
+- after creating ratt, don't NULLIFY the grade
+	maybe show a tool tip or something that is up all the time
+- 
+
+- in Configuration Tree in Semester Tree
+	add Semester Number to breadcrumb
+- Duplicate Config
+	how to solve the problem of chaning of semesters
+	show config from Config String
+	but change it only in Semesters Tree
+	calculate from Config String not tree
 - in rattrapage generation from annual
 	are you taking into considiration if the student 
 	allready passed rattrapage in Semester 1
-- give a warning to Save before leaving the grid
 - trim names in Wilaya when saving
-- add filter to Massive editing
+
+- Ratt Config
+	if the Semester is closed then Close the ratt
+	update ratt config with the semester
+		related semester
+	take rattrapage config from the session 
+
+- in massive student update
+	i must close grid from adding new cells
+- in massive edit add a link to student profile
 - add observation field to annual_grade
 - massive Students Edit (grid) for a promo
 	/*
@@ -44,73 +107,54 @@
 	  do not color the usernames of this Promos
 	    unless there is A duplication
 	*/
+- add a place to put notes shared between Evaluation team
+
 - New Inserted students shoold be given username="*****"
 	then you change them with massive Edit
 - don't allow Matricule change if he has a closed Session 
 	or he has All Grades entered
-- change bootstrap CDN
-	search for : cdnjs.cloudflare.com
-	maybe don't change it but try to override it in Base
+- massive students delete Or Branch change
+	apply a thing a mass of students
+
 - in calculating Annual Average
 	i have to put a finalAverage column
 	and be carfull when printing Bulting
 		give the option of printing before Rattrapage
 - form error messages in quickform is different than you use the fields
 	like in Promo
-- when creating a new session 
+- when creating a new session
 	set starting date based on Promo
 	when changing the start_date in Promo
 		change the date of the session
-- change Date in
-	Student: create & update
-	like in promo
-- change "name" to "display_name" in printables 
-						- print bulk Bultin Annual
-- finish Printing semester Result
-- print Zerbia (Ratt + normal)
-	and show session 1 or 2
-- printables shoold come out alphabaticaly (optional)
-- add the headers and fouters for the printables
-						- promo datepicker format
 - Student card Matricule (2018/05)
 - finish the Students Filter
 	by Branch and Promo
 - in justification
 	show how the credit is calculated
 - add pagination to student table
+- make the Interface Uniform
+	like the filters input box
 - rename the session when creating it
 	and fill the start and finish dates from promo
 - init date in Promo
-						- builtin is not printing well
-						- UNIT coeff must equalt 10
-						- Sort classed students according to average
-						- seperate Matricule and NAME
-							in grid to allow sorting by name
-						- in Promo view
-							show only year and month of the dates
-						- print bulk Bultin
-						- arabic name
-						- when session is rattrapage change "cour" to "rattrapage"
-						- Breadcrumb in annual and annual Ratt
-						- put breadcrumbs above Flash
-							check it is not Empty
-							and margin-left in some pages
-						- the order of the promo
 - show errors in Promo form
-- enforce Promo naming
-- Add a Settings Page
 - change Matricule Massivaly
 	maybe a Function that rename everyone based on there Order
 	https://handsontable.com/docs/6.2.1/demo-moving.html
-- massive students delete Or Branch change
-	apply a thing a mass of students
 - in Index(list/table) of Promo and Branch, group by School/Branch
-- Duplicate Config
 - Order Promos in Tree by name only
 
 
-=PRIORITY 2:
-------------
+----------------
+== PRIORITY 2 ==
+----------------
+- Add a Settings Page
+- enforce Promo naming
+- change bootstrap CDN
+	search for : cdnjs.cloudflare.com
+	maybe don't change it but try to override it in Base
+- in SemesterTree
+	show promos that use this semester
 - make arrows work in Grades grid
 - wornning of leaving the grid without save
 - autosave Grid by user
@@ -134,8 +178,9 @@
 - 
 
 
-=PRIORITY 3:
-------------
+----------------
+== PRIORITY 3 ==
+----------------
 - show a progress bar like a WiFi in Tree
 - teachers rating
 	only his students can rate him
@@ -147,3 +192,36 @@
 	and from Treant to Table(print)
 - as a security mesure you shoold check the username of the windows who is trying to edit
 
+
+
+
+
+
+== DONE ==
+----------
+			- change Date in
+				Student: create & update
+				like in promo
+			- give a warning to Save before leaving the grid
+			- display in tree that a session needs to be initialized*
+				def get_config_changed_flash(session):
+			- notify the user that the Config for a Semester Has changed
+				compare with config string
+			- add filter to Massive editing
+			- print bulk Bultin Annual
+			- promo datepicker format
+			- builtin is not printing well
+			- UNIT coeff must equalt 10
+			- Sort classed students according to average
+			- seperate Matricule and NAME
+				in grid to allow sorting by name
+			- in Promo view
+				show only year and month of the dates
+			- print bulk Bultin
+			- arabic name
+			- when session is rattrapage change "cour" to "rattrapage"
+			- Breadcrumb in annual and annual Ratt
+			- put breadcrumbs above Flash
+				check it is not Empty
+				and margin-left in some pages
+			- the order of the promo

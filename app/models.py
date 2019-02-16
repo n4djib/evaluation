@@ -84,15 +84,11 @@ class AnnualGrade(db.Model):
 
     annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
     annual_session = db.relationship("AnnualSession", back_populates="annual_grades")
-    # annual_session = db.relationship('AnnualSession', backref='annual_session')
-    # annual_session = db.relationship('AnnualSession', backref='annual_grade')
 
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
 
     def get_ratt_modules_list_annual_html(self):
         annual_dict = self.annual_session.get_annual_dict()
-
-        # return str(annual_dict['S1']) + ' - ' + str(annual_dict['S2'])
 
         student_session_1 = StudentSession.query\
             .filter_by(session_id=annual_dict['S1'], student_id=self.student_id)\
@@ -103,15 +99,17 @@ class AnnualGrade(db.Model):
         
         mudules_list_1 = ''
         mudules_list_2 = ''
-        # mudules_list_1 = str(annual_dict['S1'])
-        # mudules_list_2 = str(annual_dict['S2'])
         
         if student_session_1 != None:
-            mudules_list_1 += student_session_1.get_ratt_modules_list_semester_html()
-        # if student_session_2 != None:
-        #     mudules_list_2 += student_session_2.get_ratt_modules_list_semester_html()
+            mudules_list_1 = student_session_1.get_ratt_modules_list_semester_html()
+        if student_session_2 != None:
+            mudules_list_2 = student_session_2.get_ratt_modules_list_semester_html()
         
-        return mudules_list_1 + "</br>" + mudules_list_2
+        _br = ''
+        if mudules_list_1 != '' and mudules_list_2 != '':
+            _br = '</br>'
+            
+        return mudules_list_1 + _br + mudules_list_2
 
 class Session(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -195,6 +193,20 @@ class Session(db.Model):
         if self.annual_session_id != None:
             _dict['A'] = self.annual_session_id
         return _dict
+    def get_parallel_session(self):
+        sessions = Session.query.filter_by(promo_id=self.promo.id).join(Semester)\
+            .order_by(Semester.annual, Semester.semester).all()
+        
+        this_annual = self.semester.annual
+        this_semester = self.semester.semester
+
+        parallel = None
+        for session in sessions:
+            if session != self and session.semester.annual == this_annual and session.semester.semester == this_semester:
+                return session
+
+        return parallel
+
 
 class StudentSession(db.Model):
     __tablename__ = 'student_session'
@@ -213,7 +225,6 @@ class StudentSession(db.Model):
     # grades_in_a_unit = db.relationship('Grade', back_populates='student_session').filter()
     grade_units = db.relationship('GradeUnit', back_populates='student_session')
     # grades_semester = db.relationship('GradeSemester', back_populates='student_session')
-
     def calculate(self, grade_units=None):
         if grade_units is None:
             grade_units = self.grade_units
@@ -259,7 +270,6 @@ class StudentSession(db.Model):
 
             self.calculation = '(' + calculation[:-3] + ') / ' + str(cumul_semester_coeff)
         return 'semester calculated'
-
     def get_ratt_modules_list_unit(self, grade_unit):
         mudules_in_unit = [module.id for module in grade_unit.unit.modules]
 
@@ -273,7 +283,6 @@ class StudentSession(db.Model):
                 continue
             _list.append( grade.module_id )
         return _list
-
     def get_ratt_modules_list_semester(self):
         student_session = StudentSession.query\
             .filter_by(session_id=self.session_id, student_id=self.student_id).first()
@@ -285,7 +294,6 @@ class StudentSession(db.Model):
             modules_list += self.get_ratt_modules_list_unit(g_unit)
 
         return modules_list
-
     def get_ratt_modules_list_semester_html(self):
         if self.credit is not None and self.credit >= 30:
             return ''
@@ -549,7 +557,6 @@ class Semester(db.Model):
                 nbr += 1
         return nbr
 
-
 class Unit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250))
@@ -558,7 +565,6 @@ class Unit(db.Model):
     is_fondamental = db.Column(db.Boolean, default=False)
     semester_id = db.Column(db.Integer, db.ForeignKey('semester.id'))
     order = db.Column(db.Integer)
-
     modules = db.relationship('Module', backref='unit', order_by="Module.order")
     grade_units = db.relationship('GradeUnit', back_populates='unit')
     def __repr__(self):
@@ -591,11 +597,8 @@ class Module(db.Model):
     credit = db.Column(db.Integer)
     time = db.Column(db.Numeric(10,2))
     order = db.Column(db.Integer)
-
     unit_id = db.Column(db.Integer, db.ForeignKey('unit.id'))
-
     percentages = db.relationship('Percentage', backref='module')
-
     grades = db.relationship('Grade', back_populates='module')
     def __repr__(self):
         return '<Module {}>'.format(self.name)
@@ -619,7 +622,6 @@ class Percentage(db.Model):
     percentage = db.Column(db.Numeric(10,2))
     time = db.Column(db.Numeric(10,2))
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'))
-    
     type_id = db.Column(db.Integer, db.ForeignKey('type.id'))
     # tupe = 
     # type_name = db.relationship('Type', back_populates='percentages')
@@ -681,14 +683,19 @@ class Student(db.Model):
     # maybe you have to lock
     @staticmethod
     def get_username(bransh, year, seperator='/'):
+        # return 'username_start'
         username_start = bransh + seperator + year + seperator
-        # username_start = username_start
-        student = Student.query.order_by(Student.username.desc()).filter(
-            Student.username.like(username_start + '%')).first()
+        # username_start = 'SF-2019-'
+
+        student = Student.query\
+            .order_by(Student.username.desc())\
+            .filter(Student.username.like(username_start + '%'))\
+            .first()
         # student = Student.query.order_by(Student.username.desc()).filter(Student.username.like('SF/2017%')).first()
         if student == None:
             return username_start + '01'
             
+        
         # username = student.username.lower()
         last =''
         try:

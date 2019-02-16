@@ -18,7 +18,8 @@ def tree_percentage(percentage):
     val = tree_type(percentage.type_id) + ': ' + normalized + '%'
     # val = tree_type(percentage.type_id) + ': ' + percent
     href = '/admin/percentage/edit/?id=' + str(percentage.id)
-    link = '{val: "' + val + '", href: "' + href + '", target: "_blank"}'
+    # link = '{ val: "' + val + '", href: "' + href + '", target: "_blank" }'
+    link = '{ val: "' + val + '", href: "' + href + '" }'
     time = ''
     if percentage.time != None and percentage.time != '':
         time = 'Time: ' + str(percentage.time).rstrip('0').rstrip('.') + ' h'
@@ -34,7 +35,8 @@ def tree_module(module):
     # replacing Spaces by Empty Character
     val = module.name.replace(' ', ' ')
     href = '/admin/module/edit/?id=' + str(module.id)
-    link = '{ val: "' + val + '", href: "' + href + '", target: "_blank"}'
+    # link = '{ val: "' + val + '", href: "' + href + '", target: "_blank" }'
+    link = '{ val: "' + val + '", href: "' + href + '" }'
     code = str(module.code).replace('None', '???????')
     coeff = str(module.coefficient)
     credit = str(module.credit)
@@ -69,7 +71,8 @@ def tree_module(module):
 
 def tree_unit(unit):
     href = '/admin/unit/edit/?id=' + str(unit.id)
-    link = '{val: "' + unit.name + '", href: "' + href + '", target: "_blank"}'
+    # link = '{ val: "' + unit.name + '", href: "' + href + '", target: "_blank" }'
+    link = '{ val: "' + unit.name + '", href: "' + href + '" }'
     coeff = str( unit.unit_coefficient ).replace('None', '')
     # credit = str( get_unit_credit(unit.id) )
     credit = str( unit.get_unit_cumul_credit() )
@@ -94,7 +97,8 @@ def tree_unit(unit):
 
 def tree_semester(semester):
     href = '/admin/semester/edit/?id=' + str(semester.id)
-    link = '{ val: "' + semester.name + '", href: "' + href + '", target: "_blank"}'
+    # link = '{ val: "' + semester.name + '", href: "' + href + '", target: "_blank" }'
+    link = '{ val: "' + semester.name + '", href: "' + href + '" }'
     units = ''
     credit = semester.get_semester_cumul_credit()
     for unit in semester.units:

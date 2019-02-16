@@ -4,7 +4,7 @@ from app.forms import StudentFormCreate, StudentFormUpdate, RegistrationForm, Lo
 from app.models import Student, StudentSession, User, Branch, Session, Wilaya, School
 from werkzeug.urls import url_parse
 from flask_login import current_user, login_user, logout_user, login_required
-import datetime
+# import datetime
 from flask_breadcrumbs import register_breadcrumb
 
 from app.permissions_and_roles import *
@@ -102,7 +102,7 @@ def students_create():
 def student_get_username():
     branch_id = request.json
     branch = Branch.query.filter_by(id=branch_id).first()
-    branch_name = Student.get_username(branch.name, str(datetime.datetime.now().year), SEPARATOR)
+    branch_name = Student.get_username(branch.name, str(datetime.now().year), SEPARATOR)
     return str(branch_name)
 
 @app.route('/student/update/<id>/', methods=['GET', 'POST'])
@@ -268,7 +268,6 @@ def create_many_student_save():
     return 'data saved'
 
 
-
 @app.route('/session/<session_id>/student/update-many/', methods=['GET', 'POST'])
 def students_update_many(session_id):
     student_sessions = StudentSession.query.filter_by(session_id=session_id).all()
@@ -287,10 +286,15 @@ def students_update_many(session_id):
         if student.wilaya != None:
             wilaya = str(student.wilaya.name)
 
+        link = '<a href="'+url_for('student_view', id=student.id)+'" target="_blank">'
+        link += student.last_name + ' - ' + student.first_name + '</a>'
+
+
         data.append([
             student.id,
             student.username, 
-            student.last_name, 
+            # student.last_name, 
+            link, 
             student.first_name, 
             birth_date, 
             student.birth_place, 
@@ -343,6 +347,7 @@ def update_many_student_save():
 
 
 #######################################
+
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():

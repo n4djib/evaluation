@@ -126,42 +126,25 @@ def reinitialize_session(session_id=0):
 @app.route('/session/<session_id>/calculate-all/', methods=['GET', 'POST'])
 def calculate_all(session_id):
     message = 'calculate_all'
-    message = init_all(session_id)
+    # message = init_all(session_id)
     flash(message)
 
-    # # it would be better if:
-    # #   i don't save the grades
-    # #   butt send them to grade_unit.calculate
-    # #   this way i would not have to visit the database multiple times
-
-    # grades = Grade.query.join(StudentSession).filter_by(session_id=session_id).all()
-    # for grade in grades:
-    #     grade.calculate()
-    # db.session.commit()
-    # # commit should be removed
-    # # for more speed make a list of tuples (module_id, unit_id)
-    # #   select it directly from Config (config string)
-    # #   and use it in the next loop rather than (grade.module.unit_id)
+    
+    grades = Grade.query.join(StudentSession).filter_by(session_id=session_id).all()
+    for grade in grades:
+        grade.calculate()
+    db.session.commit()
 
     grade_units = GradeUnit.query.join(StudentSession).filter_by(session_id=session_id).all()
     for grade_unit in grade_units:
         grade_unit.calculate()
-        # grades_in_unit = []
-        # for grade in grades:
-        #     if grade.module.unit_id == grade_unit.unit_id:
-        #         grades_in_unit.append(grade)
-        # grade_unit.calculate(grades_in_unit)
-        # # grade_unit.calculate(<grades> of this grade_unit)
     db.session.commit()
 
     students_session = StudentSession.query.filter_by(session_id=session_id).all()
     for student_session in students_session:
         student_session.calculate()
-        # student_session.calculate(<grade_units> of this student_session)
     db.session.commit()
 
-    # db.session.query().filter(StudentSession.session_id == session_id).update({"avrage": (10)})
-    # db.session.commit()
 
     # flash('calculated')
     return redirect(url_for('session', session_id=session_id))

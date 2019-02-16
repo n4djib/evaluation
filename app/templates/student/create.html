@@ -32,6 +32,7 @@
     });
 
     $("#branch_id").change(function(){ 
+
         $.ajax({
             // url: '/student/get-username/',
             url: '{{url_for("student_get_username")}}', 
@@ -43,10 +44,11 @@
             success: function(msg) {
                 console.log('---' + msg + '---');
                 $('#username').val(msg);
+                // alert('ddd');
             },
-            // error: function(XMLHttpRequest, textStatus, errorThrown) {
-            //   alert("some error");
-            // }
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+              alert("some error");
+            }
         });
     });
   </script>

@@ -25,6 +25,8 @@
     {% set branch_id=session.promo.branch_id %}
     {% set promo_id=session.promo_id %}
 
+    <!-- {{ session.get_parallel_session() }} -->
+
     <div class="row">
       <h2> {{ session.get_label() }} </h2>
     </div>
@@ -80,7 +82,7 @@
          class="btn btn-primary" role="button">Result</a>
       {% if session.is_rattrapage == True %}
       <a href ="{{url_for('semester_result', session_id=session.id)}}"
-         class="btn btn-primary" role="button">Result 2</a>
+         class="btn btn-primary" role="button">Result 2*******</a>
       {% endif %}
       <a href ="{{url_for('classement', session_id=session.id)}}"
          class="btn btn-primary" role="button">Classement / Justification</a>

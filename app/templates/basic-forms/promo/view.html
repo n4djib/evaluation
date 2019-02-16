@@ -47,8 +47,16 @@
             <td>{{ promo.branch.name }}</td>
             {% endif %}
           </tr>
-          <tr><td><i>Start Date</i></td> <td>{{promo.start_date.strftime('%Y-%B') | replace('None', '')}}</td></tr>
-          <tr><td><i>Finish Date</i></td> <td>{{promo.finish_date.strftime('%Y-%B') | replace('None', '')}}</td></tr>
+          <tr><td><i>Start Date</i></td> <td>
+            {% if promo.start_date != None %}
+              {{promo.start_date.strftime('%Y-%B') | replace('None', '')}}
+            {% endif %}
+          </td></tr>
+          <tr><td><i>Finish Date</i></td> <td>
+            {% if promo.finish_date != None %}
+              {{promo.finish_date.strftime('%Y-%B') | replace('None', '')}}
+            {% endif %}
+          </td></tr>
           <tr>
             <td><i>Color</i></td>
             <td>

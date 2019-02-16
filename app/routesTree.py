@@ -4,6 +4,8 @@ from app.models import School, Session, Semester, Promo, AnnualSession
 
 from flask_breadcrumbs import register_breadcrumb
 
+from app.routesSession import is_config_changed
+
 
 def get_creation_links(promo, seperate=True):
     sessions = promo.sessions
@@ -80,7 +82,10 @@ def get_sessions_tree(promo, promo_label=''):
         if session.is_rattrapage:
             name = 'Rattrapage: '
         name += str(semester) + " <span style='font-size: 0.1px;'>" + promo_label + "</span>"
-        
+
+        if is_config_changed(session) and session.is_closed==False:
+            name += "<span style='color: orange;''>        Configuration has changed, you need to Reinitialized</span>"
+
         id = 'semester_'+str(session.id)
         pId = 'promo_'+str(promo.id)
         url = url_for('session', session_id=session.id)

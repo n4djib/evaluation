@@ -75,8 +75,14 @@
     </br>
 
     {% if type == 'module' %}
-    <a href ="{{url_for('print_module_students_empty', session_id=session.id, module_id=module.id) }}" target="_blank" class="btn btn-primary" role="button">Print Module</a>
-    <a href ="{{url_for('print_module_students_empty', session_id=session.id, module_id=module.id, empty='yes') }}" target="_blank" class="btn btn-primary" role="button">Print Module Empty</a>
+    <a href ="{{url_for('print_module_students_empty', session_id=session.id, module_id=module.id) }}" target="_blank" class="btn btn-primary" role="button">Print PDF</a>
+    <a href ="{{url_for('print_module_students_empty', session_id=session.id, module_id=module.id, empty='yes') }}" target="_blank" class="btn btn-primary" role="button">Print PDF Empty</a>
+
+    <a href ="{{url_for('module_print', session_id=session.id, module_id=module.id) }}" target="_blank" class="btn btn-primary" role="button">Print</a>
+    <a href ="{{url_for('module_print', session_id=session.id, module_id=module.id, empty='yes') }}" target="_blank" class="btn btn-primary" role="button">Print Empty</a>
+
+    <a href ="{{url_for('module_print', session_id=session.id, module_id=module.id, order='name') }}" target="_blank" class="btn btn-primary" role="button">Print ordered</a>
+    <a href ="{{url_for('module_print', session_id=session.id, module_id=module.id, empty='yes', order='name') }}" target="_blank" class="btn btn-primary" role="button">Print Empty ordered</a>
     {% endif %}
     </br></br>
   </div>
@@ -99,6 +105,16 @@
 {% block scripts %}
   {{ super() }}
   <script type="text/javascript">
+  
     {% include "grade/_grid.js" %}
+
+    // messages are not working
+    window.onbeforeunload = function(e) {
+      // e = e || window.event;
+      if (is_dirty) {
+        return 'You have unsaved changes! ********';
+      }
+    }
+
   </script>
 {% endblock %}

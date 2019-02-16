@@ -76,11 +76,11 @@
           </td>
           <td align="middle">
             <a href ="{{ url_for('bultin_semester', session_id=student_session.session_id, student_id=student_session.student_id) }}"
-                  class="btn btn-primary btn-xs" role="button">Bultin</a>
+                  class="btn btn-primary btn-xs" role="button">Bultin PDF</a>
           </td>
           <td align="middle">
-            <a href ="{{ url_for('bultin_semester_print', session_id=student_session.session_id, student_id=student_session.student_id) }}"
-                  class="btn btn-primary btn-xs" role="button">Bultin</a>
+            <a href ="{{ url_for('bultin_semester_print', session_id=student_session.session_id, student_id=student_session.student_id) }}" target="_blank"
+                  class="btn btn-primary btn-xs" role="button">Bultin Brw</a>
           </td>
           
         </tr>

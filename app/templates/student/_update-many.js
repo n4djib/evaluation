@@ -1,5 +1,5 @@
 var data_arr = {{ data | safe | replace('None', 'null') }};
-var colHeaders = ['id', 'Matricule', 'Nom', 'Prénom', 'Date de naissance', 'Lieu de Naissance', '        Wilaya        '];
+var colHeaders = ['id', 'Matricule', 'Nom et Prénom', 'Prénom', 'Date de naissance', 'Lieu de Naissance', '        Wilaya        '];
 var wilayas_name_list = {{ wilayas_name_list | safe }};
 var username_list = {{ username_list | safe }};
 var branch_list = {{ branch_list | safe }};
@@ -30,6 +30,7 @@ var hotElement = document.querySelector('#hot-update-many');
 //   return td;
 // }
 
+
 function wilayaRenderer(instance, td, row, col, prop, value, cellProperties) {
 	Handsontable.renderers.TextRenderer.apply(this, arguments);
 
@@ -43,7 +44,6 @@ function wilayaRenderer(instance, td, row, col, prop, value, cellProperties) {
   if( !list.includes(str.toLowerCase()) )
     td.style.backgroundColor = '#ff4c42';
 
-
   // if(!wilayas_name_list.includes(str))
   //     td.style.backgroundColor = '#ff4c42';
   // if(str!='')
@@ -52,12 +52,31 @@ function wilayaRenderer(instance, td, row, col, prop, value, cellProperties) {
   return td;
 }
 
-
-
 function closedRenderer(instance, td) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);
   td.style.backgroundColor = '#EEE';
   // td.innerHTML = '<b>' + td.innerHTML + '</b>';
+  return td;
+}
+
+//safeHtmlRenderer
+function lastNameRenderer(instance, td, row, col, prop, value, cellProperties) {
+  // var escaped = Handsontable.helper.stringify(value);
+  // escaped = strip_tags(escaped, '<em><b><strong><a><big>'); //be sure you only allow certain HTML tags to avoid XSS threats (you should also remove unwanted HTML attributes)
+  // td.innerHTML = escaped;
+  td.style.backgroundColor = '#EEE';
+
+  // Handsontable.renderers.TextRenderer.apply(this, arguments);
+  Handsontable.renderers.HtmlRenderer.apply(this, arguments);
+  // Handsontable.renderers.TextRenderer.apply(this, arguments);
+  // td.style.backgroundColor = '#EEE';
+  return td;
+}
+
+function firstNameRenderer(instance, td) {
+  Handsontable.renderers.TextRenderer.apply(this, arguments);
+  td.style.backgroundColor = '#E0E';
+  td.innerHTML = '';
   return td;
 }
 
@@ -70,8 +89,8 @@ var hot = new Handsontable(hotElement, {
   columns: [
     {data: 0, type: 'text', readOnly: true, renderer: closedRenderer, width: 0.1},
     {data: 1, type: 'text', /*renderer: usernameRenderer*/},
-    {data: 2, type: 'text', readOnly: true, renderer: closedRenderer},
-    {data: 3, type: 'text', readOnly: true, renderer: closedRenderer},
+    {data: 2, type: 'text', readOnly: true, renderer: lastNameRenderer},
+    {data: 3, type: 'text', readOnly: true, renderer: firstNameRenderer, width: 0.1},
     {data: 4, type: 'date', dateFormat: 'DD/MM/YYYY'},
     {data: 5, type: 'text'},
     {
@@ -96,7 +115,7 @@ var hot = new Handsontable(hotElement, {
   stretchH: 'all',
   fillHandle: {
     autoInsertRow: false,
-    //direction: 'vertical',
+    //direction: 'vertical',s
     direction: false,
   },
   autoWrapRow: true,
@@ -115,27 +134,10 @@ var hot = new Handsontable(hotElement, {
     // we want to be sure that our cache is up to date, even if someone pastes data from another source than our tables.
     clipboardCache = sheetclip.stringify(changes);
   },
-  // contextMenu: [
-  //   'copy', 
-  //   'cut', 
-  //   '---------', 
-  //   {
-  //     key: 'paste',
-  //     name: 'Paste',
-  //     disabled: function() {
-  //       return clipboardCache.length === 0;
-  //     },
-  //     callback: function() {
-  //       var plugin = this.getPlugin('copyPaste');
 
-  //       this.listen();
-  //       plugin.paste(clipboardCache);
-  //     }
-  //   },
-  //   'if <i>Paste</i> is not working use <b>CRTL+V</b> to <i>Paste</i>',
-  //   // '<strike> paste </strike> (this is not working)</br>use <b>CRTL+V</b> to <i>paste</i>'
-  // ],
 });
+
+
 
 /*****************/
 
@@ -145,15 +147,6 @@ $("#save").click(function(){
   Save();
 });
 
-// function add_branch(data_arr){
-//   var branch_id = $("#select-branch").val();
-//   for(var i=0; i<data_arr.length; i++) {
-//     index = data_arr[i].length;
-//     // data_arr[i][index-1] = branch_id;
-//     data_arr[i].push(branch_id);
-//   }
-//   return data_arr;
-// }
 
 function Save(){
   $.ajax({
@@ -175,7 +168,6 @@ function Save(){
     }
   });
 }
-
 
 
 $("#search").keyup(function(){
