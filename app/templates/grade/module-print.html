@@ -23,7 +23,7 @@
 <body>
 
   <div class="container" style="border-width:0px; border-style:solid; border-color:black;">
-    {{ table | safe | replace('None', '') }}
+    {{ table | safe | replace('None', '') | replace(' ', ' ') }}
 
   </div>
 

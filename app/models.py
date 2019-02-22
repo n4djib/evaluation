@@ -4,8 +4,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import login
 from decimal import *
-# from sqlalchemy.ext.hybrid import hybrid_property
-# from sqlalchemy import UniqueConstraint
 
 
 # FIX:  = db.Column(db.String(64), index=True, unique=True)
@@ -206,7 +204,6 @@ class Session(db.Model):
                 return session
 
         return parallel
-
 
 class StudentSession(db.Model):
     __tablename__ = 'student_session'
@@ -528,7 +525,8 @@ class Semester(db.Model):
             return [self.get_previous().id, self.id]
         raise ValueError('Semester -> get_annual_chain -> year and semester must be Initialized')
     def config_dict(self):
-        semesters = {'s_id': self.id, 'name': self.name, 'display_name': self.display_name}
+        semesters = { 's_id': self.id, 'name': self.name, 'display_name': self.display_name, 
+            'branch':self.branch_id, 'annual': self.annual, 'semester': self.semester }
         for unit in self.units:
             semesters.setdefault('units', []).append(unit.config_dict())
         return semesters
@@ -582,7 +580,8 @@ class Unit(db.Model):
             credit = credit + module.credit
         return credit
     def config_dict(self):
-        units = {'u_id': self.id, 'name': self.name, 'display_name': self.display_name, 'coeff': self.unit_coefficient, 'is_fondamental': self.is_fondamental, 
+        units = { 'u_id': self.id, 'name': self.name, 'display_name': self.display_name, 
+            'unit_coefficient': self.unit_coefficient, 'is_fondamental': self.is_fondamental, 
             'unit_coeff': self.get_unit_cumul_coeff(), 'unit_credit': self.get_unit_cumul_credit() }
         for module in self.modules:
             units.setdefault('modules', []).append(module.config_dict())
@@ -603,7 +602,8 @@ class Module(db.Model):
     def __repr__(self):
         return '<Module {}>'.format(self.name)
     def config_dict(self):
-        modules = {'m_id': self.id, 'name': self.name, 'display_name': self.display_name, 'coeff': self.coefficient, 'credit': self.credit}
+        modules = { 'm_id': self.id, 'name': self.name, 'display_name': self.display_name, 
+            'coeff': self.coefficient, 'credit': self.credit, 'time': str(self.time) }
         for percentage in self.percentages:
             modules.setdefault('percentages', []).append(percentage.config_dict())
         return modules
@@ -623,11 +623,9 @@ class Percentage(db.Model):
     time = db.Column(db.Numeric(10,2))
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'))
     type_id = db.Column(db.Integer, db.ForeignKey('type.id'))
-    # tupe = 
-    # type_name = db.relationship('Type', back_populates='percentages')
     def config_dict(self):
         type = Type.query.filter_by(id=self.type_id).first()
-        return {'type': type.type, 'per': str(self.percentage)} 
+        return { 'type': type.type, 'per': str(self.percentage), 'time': str(self.time) } 
 
 class Type(db.Model):
     id = db.Column(db.Integer, primary_key=True)

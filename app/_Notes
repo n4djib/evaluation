@@ -1,11 +1,5 @@
 == ERRORS ==
 ------------
-						- an error happens when i try to create a Annual Session
-						- studetn is not saving birth place 
-						- and i have to not enforce la Wilaya
-						- in Update Massive
-							the Wilaya "El Taref" is not bieng saved
-								because "El Taref " has a space
 - in create many students
 	wilaya dropdown is not working when i use the keyboard
 -  Button create-rattrapage annual is not working
@@ -17,6 +11,13 @@
 - 
 - 
 
+== TASKS FOR EVAL TEAM ==
+- 2019-02-21 - to enter the Hours required in every modules
+- 
+- 
+- 
+
+
 == QUESTIONS ==
 ---------------
 - what about the students who need to pass some modules (avec dette)
@@ -24,8 +25,8 @@
 - do i have to print Zerbia for the Annual
 	ask Sabah and Sahel about the required Printables
 - Rattrapage printables
-- 
-- 
+- doublage ????
+- if there is no Cour, how deos the student pass the ratt
 - 
 
 == PRINTABLES ==
@@ -56,11 +57,20 @@ Note: when you program
 
 == PRIORITY 1 ==
 ----------------
+- make a system for passage
+	table
+	and configurable
+- give the ability to create the pair of semesters
+- in rattreapage annual
+	show which semester
+- in grade grid add a fladh and a button to show all fields if it is filled
+- show in module grid: hours + teacher + code + semester + promo + branch + school
 - remove link between semesters
-		and find previous and next from 
-			school+branbch+semester(annual+semester+update_date)
-		and while at it change annula+semsester to semester
-		NOTE: locate the places to change before you modify
+	and find previous and next from 
+		school+branbch+semester(annual+semester+update_date)
+	and while at it change annula+semsester to semester
+	NOTE: locate the places to change before you modify
+- recalculate after reinitializing the fields
 
 - change "name" to "display_name" in printables 
 - finish Printing semester Result
@@ -85,6 +95,7 @@ Note: when you program
 	show config from Config String
 	but change it only in Semesters Tree
 	calculate from Config String not tree
+	+ give the option to create from a skiliton (a default tree)
 - in rattrapage generation from annual
 	are you taking into considiration if the student 
 	allready passed rattrapage in Semester 1
@@ -143,11 +154,14 @@ Note: when you program
 	https://handsontable.com/docs/6.2.1/demo-moving.html
 - in Index(list/table) of Promo and Branch, group by School/Branch
 - Order Promos in Tree by name only
+- fix forign key behaviore
 
 
 ----------------
 == PRIORITY 2 ==
 ----------------
+- to create a new Semester in the Config
+	use Ztree -> Multi-functional -> Right-click Maenu
 - Add a Settings Page
 - enforce Promo naming
 - change bootstrap CDN
@@ -175,7 +189,23 @@ Note: when you program
 - add Scrolling for grids
 	per user
 	https://handsontable.com/docs/6.2.2/demo-scrolling.html
+- table (grid) group by
+	http://jsfiddle.net/byv2pk24/89/
+- change table names
+	student_session --> grade_semester
+- maybe remove table Type
+- costum Settings by user
+- decouple the config part from the main app
+	remove link to unit and module by getting them from Config String in session
+- change from Flask_bootstrap to bootstrap
+	http://jinja.pocoo.org/docs/2.10/templates/
+- gamafication
+	check ZURMO
+		https://www.youtube.com/watch?v=_ItTT2d7Ww4
+- Give Students the ability to report mistakes
 - 
+- 
+ 
 
 
 ----------------
@@ -191,7 +221,32 @@ Note: when you program
 - convert Table(configuration in guide) to Treant
 	and from Treant to Table(print)
 - as a security mesure you shoold check the username of the windows who is trying to edit
+- make ztree bigger
+- 
+- 
+- gestion des stages
+- 
+- put the data in a warehouse & empty the History & Calculation tables
+- remove database links if you can insure it by the application !!!!
+- always check the correctness of the Data  before calculating
+- Audits
+- Authentication
+	https://www.google.com/search?q=flask+authorization&ie=utf-8&oe=utf-8&client=firefox-b-ab
+	http://flask-user.readthedocs.io/en/latest/authorization.html
 
+- mysql
+
+
+- 
+- 
+
+== Potoncial Bugs ==
+- in ratt session in add remove students
+	show all students in the branch - shows them all
+- 
+- 
+- 
+- 
 
 
 

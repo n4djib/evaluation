@@ -37,8 +37,6 @@ def get_creation_links(promo, seperate=True):
                     if seperate is True:
                         links += '{id:"seperate_'+id+'", pId:"'+pId+'", name:"", iconSkin:"icon0"},'
                     links += '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", target:"_top", url: "'+url+'", iconSkin:"icon01"},'
-                    # if seperate is True:
-                    #     links += '{id:"seperate_'+id+'", pId:"'+pId+'", name:"", iconSkin:"icon0"},'
         else:
             name = 'Create First Semester'
             links += '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", target:"_top", url: "'+url+'", iconSkin:"icon01"},'
@@ -75,24 +73,29 @@ def get_sessions_tree(promo, promo_label=''):
     sessions_tree = ''
     for session in sessions:
         semester = session.semester.get_nbr()
-
         annual = str(session.annual_session_id)
+
+        id = 'semester_'+str(session.id)
+        pId = 'promo_'+str(promo.id)
+        url = url_for('session', session_id=session.id)
+
+        icon = 'icon21'
+        if session.is_rattrapage == True:
+            icon = 'icon22'
 
         name = 'Semester: '
         if session.is_rattrapage:
             name = 'Rattrapage: '
         name += str(semester) + " <span style='font-size: 0.1px;'>" + promo_label + "</span>"
 
-        if is_config_changed(session) and session.is_closed==False:
-            name += "<span style='color: orange;''>        Configuration has changed, you need to Reinitialized</span>"
-
-        id = 'semester_'+str(session.id)
-        pId = 'promo_'+str(promo.id)
-        url = url_for('session', session_id=session.id)
         if session.is_closed == True:
-            p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:true, url: "'+url+'", target:"_self", iconSkin:"icon13"},'
-        else:
-            p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:true, url: "'+url+'", target:"_self"},'
+            name += "<span class='button icon13_ico_docu'></span></span>"
+
+        if is_config_changed(session) and session.is_closed==False:
+            name += "<span style='color: orange;''>        Configuration has changed, you need to Re(initialized)</span>"
+
+        p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:true, url: "'+url+'", '
+        p += 'target:"_self", iconSkin:"'+icon+'" },'
 
         sessions_tree += p
         sessions_tree += get_annual_session(session, pId)

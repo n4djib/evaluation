@@ -201,6 +201,9 @@ def create_data_annual_session(annual_session_id):
 
 @app.route('/annual-session/<annual_session_id>/create-rattrapage/', methods=['GET', 'POST'])
 def create_rattrapage_annual(annual_session_id=0):
+
+    return "disabled for maintanance in create_rattrapage_annual"
+
     students = request.form.getlist('students[]')
 
     for student_id in students:

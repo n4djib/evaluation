@@ -1124,8 +1124,7 @@ def get_module_print_table(session_id=0, module_id=0, empty='', order='username'
 @app.route('/session/<session_id>/module/<module_id>/print/', methods=['GET', 'POST'])
 def module_print(session_id=0, module_id=0, empty='', order='username'):
     table = get_module_print_table(session_id, module_id, empty, order)
-
-    return render_template('session/semester-module-print.html', 
+    return render_template('grade/module-print.html', 
         title='module ***', table=table)
 
 
