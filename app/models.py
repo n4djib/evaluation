@@ -123,6 +123,8 @@ class Session(db.Model):
     annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
     annual_session = db.relationship('AnnualSession', back_populates='sessions')
     student_sessions = db.relationship('StudentSession', back_populates='session')
+    
+    module_sessions = db.relationship('ModuleSession', backref='session')
     def get_label(self):
         # if self.name != None and self.name != '':
         #     return self.name
@@ -598,12 +600,16 @@ class Module(db.Model):
     order = db.Column(db.Integer)
     unit_id = db.Column(db.Integer, db.ForeignKey('unit.id'))
     percentages = db.relationship('Percentage', backref='module')
+    # comment this line
     grades = db.relationship('Grade', back_populates='module')
+    module_sessions = db.relationship('ModuleSession', backref='module')
     def __repr__(self):
         return '<Module {}>'.format(self.name)
     def config_dict(self):
+        # modules = { 'm_id': self.id, 'name': self.name, 'display_name': self.display_name, 
+        #     'coeff': self.coefficient, 'credit': self.credit, 'time': str(self.time) }
         modules = { 'm_id': self.id, 'name': self.name, 'display_name': self.display_name, 
-            'coeff': self.coefficient, 'credit': self.credit, 'time': str(self.time) }
+            'coeff': self.coefficient, 'credit': self.credit }
         for percentage in self.percentages:
             modules.setdefault('percentages', []).append(percentage.config_dict())
         return modules
@@ -625,7 +631,8 @@ class Percentage(db.Model):
     type_id = db.Column(db.Integer, db.ForeignKey('type.id'))
     def config_dict(self):
         type = Type.query.filter_by(id=self.type_id).first()
-        return { 'type': type.type, 'per': str(self.percentage), 'time': str(self.time) } 
+        # return { 'type': type.type, 'per': str(self.percentage), 'time': str(self.time) } 
+        return { 'type': type.type, 'per': str(self.percentage) } 
 
 class Type(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -715,6 +722,48 @@ class Phone(db.Model):
     type = db.Column(db.String(45))
     def __repr__(self):
         return '<Phone: id = {} | student_id = {} | phone = {}>'.format(self.id, self.student_id, self.phone)
+
+############################## 
+
+class Teacher(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), index=True, unique=True) # matricule
+    last_name = db.Column(db.String(45), index=True)
+    first_name = db.Column(db.String(45), index=True)
+    email = db.Column(db.String(120))
+    birth_date = db.Column(db.Date)
+    birth_place = db.Column(db.String(45))
+    address =  db.Column(db.String(120))
+    # wilaya_id = db.Column(db.Integer, db.ForeignKey('wilaya.id'))
+    photo = db.Column(db.String(250))
+    # last_name_arab = db.Column(db.String(100))
+    # first_name_arab = db.Column(db.String(100))
+    sex = db.Column(db.String(20))
+
+    module_sessions = db.relationship('ModuleSession', backref='teacher')
+
+    create_time = db.Column(db.DateTime, default=datetime.utcnow)
+    update_time = db.Column(db.DateTime, default=datetime.utcnow)
+
+class ModuleSession(db.Model):
+    __tablename__ = 'module_session'
+    id = db.Column(db.Integer, primary_key=True)
+
+    module_id = db.Column(db.Integer, db.ForeignKey('module.id'))
+    session_id = db.Column(db.Integer, db.ForeignKey('session.id'))
+    teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
+
+    start_date = db.Column(db.Date)
+    finish_date = db.Column(db.Date)
+    exam_date = db.Column(db.Date)
+    results_delivered_date = db.Column(db.Date)
+
+
+    # annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
+    # annual_session = db.relationship("AnnualSession", back_populates="annual_grades")
+    # student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+
+
 
 ############################## 
 

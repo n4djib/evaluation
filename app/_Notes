@@ -46,46 +46,69 @@
 - print Module list
 	if there is any grades, show new other buttons
 - Annual Result
-- 
+- print Annual (sem1 + sem2 + ratt)
+- print Zerbia (Ratt + normal)
+	and show session 1 or 2
+- Print Module with average
+- print Module diolog box	 to choose
+- add the headers and footers for the printables
 
-Note: when you program
+
+
+== Note ==
+----------------
+	when you program
 	make the function with a good name then start to implement it
 	like: check if configuration_changed(session_id):
 
 	write good tests like the ones in the configuration which show errors
 
+	watch how people use the application
+       to find out how you can make the application UX better
+
 
 == PRIORITY 1 ==
 ----------------
-- make a system for passage
-	table
-	and configurable
-- give the ability to create the pair of semesters
-- in rattreapage annual
-	show which semester
-- in grade grid add a fladh and a button to show all fields if it is filled
-- show in module grid: hours + teacher + code + semester + promo + branch + school
+					- in grade grid add a flash and a button to show all fields if it is filled
+					- show in module grid: hours + code + 
+						semester + promo + branch + school + teacher
+					- remove time from Config Str
+
+
 - remove link between semesters
 	and find previous and next from 
 		school+branbch+semester(annual+semester+update_date)
-	and while at it change annula+semsester to semester
+	and while at it change annual + semsester to semester
 	NOTE: locate the places to change before you modify
+
+
+
+	
+
+
+					- change Re(calculate) to (Re)calculate in annual
+					- finish Printing Semester Result
+- make a system (configurable) for passage
+	table
+	and configurable
+- give the ability to create the pair of semesters
+- in rattrapage annual list
+	show which semester
+- in grid of grades
+	when saving by CRTL+S i have to set dirty to false
 - recalculate after reinitializing the fields
 
 - change "name" to "display_name" in printables 
-- finish Printing semester Result
-- print Zerbia (Ratt + normal)
-	and show session 1 or 2
-- printables shoold come out alphabaticaly (optional)
-- add the headers and fouters for the printables
 
 - don't allow rattrapage creation from a closed session
 	to avoid configuraton mismatch
 	shoold be closed together with the sesson
 	close and open together
 - in ratt list modules list expand the table to the max
+- add a button to navigate between a semester and its ratt
 - after creating ratt, don't NULLIFY the grade
 	maybe show a tool tip or something that is up all the time
+	and what about the Modules wich do not have a Cours
 - 
 
 - in Configuration Tree in Semester Tree
@@ -107,9 +130,9 @@ Note: when you program
 		related semester
 	take rattrapage config from the session 
 
-- in massive student update
+- in massive Student update
 	i must close grid from adding new cells
-- in massive edit add a link to student profile
+					- in massive edit add a link to student profile
 - add observation field to annual_grade
 - massive Students Edit (grid) for a promo
 	/*
@@ -138,6 +161,7 @@ Note: when you program
 	when changing the start_date in Promo
 		change the date of the session
 - Student card Matricule (2018/05)
+	add a new Field or make it uniform with it
 - finish the Students Filter
 	by Branch and Promo
 - in justification
@@ -152,9 +176,20 @@ Note: when you program
 - change Matricule Massivaly
 	maybe a Function that rename everyone based on there Order
 	https://handsontable.com/docs/6.2.1/demo-moving.html
-- in Index(list/table) of Promo and Branch, group by School/Branch
+- in Basic Table Promos group by School/Branch
+- in Basic Table Branches group by Branch
 - Order Promos in Tree by name only
-- fix forign key behaviore
+	why ?????????
+- fix forign key behavior
+
+- After Finishing the Job I should Publish Pre-rendered pages
+- detect bezare values after calculating
+- Students Access to data should be according to good behaviour
+
+
+==BREADCRUMBS to finish==
+-------------------------
+- in Massive Student Update
 
 
 ----------------
@@ -163,10 +198,11 @@ Note: when you program
 - to create a new Semester in the Config
 	use Ztree -> Multi-functional -> Right-click Maenu
 - Add a Settings Page
+- costum Settings by user
 - enforce Promo naming
-- change bootstrap CDN
-	search for : cdnjs.cloudflare.com
-	maybe don't change it but try to override it in Base
+					- change bootstrap CDN
+						search for : cdnjs.cloudflare.com
+						maybe don't change it but try to override it in Base
 - in SemesterTree
 	show promos that use this semester
 - make arrows work in Grades grid
@@ -194,7 +230,6 @@ Note: when you program
 - change table names
 	student_session --> grade_semester
 - maybe remove table Type
-- costum Settings by user
 - decouple the config part from the main app
 	remove link to unit and module by getting them from Config String in session
 - change from Flask_bootstrap to bootstrap
@@ -241,6 +276,7 @@ Note: when you program
 - 
 
 == Potoncial Bugs ==
+--------------------
 - in ratt session in add remove students
 	show all students in the branch - shows them all
 - 

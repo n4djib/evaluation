@@ -1,0 +1,25 @@
+
+= remove rattrapage from table Type
+
+= remove Semester 1 & Semester 2
+	from Sages femmes Promo 2017 (rihab)
+
+= table "attandance"
+	remove "attandance" to "student_session"
+	change student_session_id to student_id
+	replace it "attandance" to "student"
+	
+= table in "module_session"
+	forign links to
+		module, session, teacher
+	
+	
+= 
+	
+	
+
+= don't forget to remove repetition in Semester Result
+= remove *** line 208 -> tree( 
+
+
+. START /B lt-win -p 5000 --subdomain eval 

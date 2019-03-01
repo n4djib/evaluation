@@ -345,10 +345,7 @@ function Save(){
     async: true,
     success: function(msg) {
       shake_message();
-
-      // alert('data_arr: ' + data_arr);
-      // alert('msg: ' + msg);
-
+      
       is_dirty = false;
       console.log('---' + msg + '---');
     },
@@ -359,12 +356,13 @@ function Save(){
 }
 
 $(document).on('keydown', function(e){
-    if(e.ctrlKey && e.which === 83){ // Check for the Ctrl key being pressed, and if the key = [S] (83)
-        console.log('Ctrl+S!');
-        // $("#save").click();
-        save.click();
-        e.preventDefault();
-        return false;
+    if(e.ctrlKey && e.which === 83){ 
+      // Check for the Ctrl key being pressed, and if the key = [S] (83)
+      console.log('Ctrl+S!');
+      // $("#save").click();
+      save.click();
+      e.preventDefault();
+      return false;
     }
 });
 

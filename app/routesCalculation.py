@@ -37,7 +37,6 @@ def init_grade_unit(session):
             grade_unit = GradeUnit(student_session_id=student_session.id, unit_id=unit.id)
             grade_unit.unit_coefficient = unit.unit_coefficient
             grade_unit.is_fondamental = unit.is_fondamental
-            # grade_unit.order = unit.order
             db.session.add(grade_unit)
     db.session.commit()
 
@@ -110,10 +109,7 @@ def init_all(session_id):
     session = Session.query.filter_by(id=session_id).first()
     message1 = init_session(session)
     message2 = init_grade_unit(session)
-    message3 = ''
     message3 = init_grade(session)
-    
-    # message3 = 'init_grade(session)'
     return F'init all : {message1} - {message2} - {message3}'
 
 @app.route('/session/<session_id>/reinitialize-session/', methods=['GET', 'POST'])

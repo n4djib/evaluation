@@ -1,7 +1,8 @@
 from app import app, db
 from flask import render_template, request, redirect, url_for, flash
-from app.models import StudentSession, Grade, Module, Session, Student
+from app.models import StudentSession, Grade, Module, Session, Student, Type, ModuleSession
 from flask_breadcrumbs import register_breadcrumb
+
 
 
 
@@ -33,6 +34,12 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
 
     grid_title = ''
     module = Module.query.filter_by(id=module_id).first()
+
+
+    if type=='module':
+        get_hidden_values_flash(grades, session_id, module.id)
+
+
     # grid_title = F'Module: {module.display_name}'
     grid_title = F'Module: ***********'
     if module_id!=0:
@@ -44,6 +51,40 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
     session = Session.query.get(session_id)
     return render_template('grade/grade.html', title='Grade Edit', 
         data=data, _all=_all.lower(), grid_title=grid_title, type=type, session=session, module=module)
+
+
+def get_hidden_values_flash(grades, session_id, module_id):
+    cols = get_module_cols(module_id)
+    fields = ['cour', 'td', 'tp', 't_pers', 'stage']
+    hidden_cols = []
+    for field in fields:
+        if field not in cols: 
+            hidden_cols.append(field)
+
+    hidden_value = False
+
+    for grade in grades:
+        if 'cour' in hidden_cols:
+            if grade.cour!=None and grade.cour!='':
+                hidden_value = True
+        if 'td' in hidden_cols:
+            if grade.td!=None and grade.td!='':
+                hidden_value = True
+        if 'tp' in hidden_cols:
+            if grade.tp!=None and grade.tp!='':
+                hidden_value = True
+        if 't_pers' in hidden_cols:
+            if grade.t_pers!=None and grade.t_pers!='':
+                hidden_value = True
+        if 'stage' in hidden_cols:
+            if grade.stage!=None and grade.stage!='':
+                hidden_value = True
+
+    if hidden_value==True:
+        url = url_for('grade', session_id=session_id, module_id=module_id, _all='all')
+        btn = '<a href="'+url+'" class="btn btn-warning" role="button">Show All Fields</a>'
+        flash('there is hidden value, because the Configuration changed  '+btn, 'alert-warning')
+
 
 def create_data_grid(grades, type='module'):
     data = ""
@@ -95,4 +136,151 @@ def grade_save():
         db.session.commit()
 
     return 'data saved'
+
+
+##########################
+
+
+def get_module_cols(module_id):
+    module = Module.query.get_or_404(module_id)
+    percentages = module.percentages
+    cols = []
+    for percentage in percentages:
+        type_id = percentage.type_id
+        type = Type.query.get(type_id)
+        cols.append(type.grade_table_field)
+    return cols
+
+def get_module_headers(module_id):
+    module = Module.query.get(module_id)
+    percentages = module.percentages
+    headers = ['#', 'Matricule', 'Nom', 'Prenom']
+
+    for percentage in percentages:
+        type_id = percentage.type_id
+        type = Type.query.get(type_id)
+        headers.append(type.type + ' ('+str(int(percentage.percentage*100))+'%)')
+        # headers.append(type.type + ' ('+  +'%)')
+    return headers
+
+def create_data_for_module(grades, cols, empty=''):
+    data = []
+    for index, grade in enumerate(grades, start=1):
+        record = []
+        student = grade.student_session.student
+
+        record.append(index)
+        record.append(student.username)
+        record.append(student.last_name)
+        record.append(student.first_name)
+        if empty == 'yes':
+            record.append('')
+            if 'td' in cols:
+                record.append('')
+            if 'tp' in cols:
+                record.append('')
+            if 't_pers' in cols:
+                record.append('')
+            if 'stage' in cols:
+                record.append('')
+        else:
+            record.append(grade.cour)
+            # WARNING: this one shoold be Dynamic
+            if 'td' in cols:
+                record.append(grade.td)
+            if 'tp' in cols:
+                record.append(grade.tp)
+            if 't_pers' in cols:
+                record.append(grade.t_pers)
+            if 'stage' in cols:
+                record.append(grade.stage)
+
+        data.append(record)
+    return data
+
+# print empty
+# with grades
+# with averages
+# by order
+def get_module_print_table(session_id=0, module_id=0, empty='', order='username'):
+    grades = None
+    if order == 'username':
+        grades = Grade.query.filter_by(module_id=module_id)\
+            .join(StudentSession).filter_by(session_id=session_id)\
+            .join(Student).order_by(Student.username)\
+            .all()
+    else:
+        grades = Grade.query.filter_by(module_id=module_id)\
+            .join(StudentSession).filter_by(session_id=session_id)\
+            .join(Student).order_by(Student.last_name, Student.first_name)\
+            .all()
+
+    cols = get_module_cols(module_id)
+    headers = get_module_headers(module_id)
+    data_arr = create_data_for_module(grades, cols, empty)
+    module = Module.query.get(module_id)
+
+    session = Session.query.get_or_404(session_id)
+
+    module_session = ModuleSession.query\
+        .filter_by(module_id=module_id)\
+        .join(Session).filter_by(id=session_id)\
+        .first()
+
+    teacher = None
+    if module_session != None:
+        teacher = module_session.teacher
+
+    teacher_name = '?????'
+    if teacher != None:
+        teacher_name = teacher.last_name + ' ' + teacher.first_name
+
+    time = '?????'
+    if module.time != None: time = module.time
+    
+    table = ''
+    table += '<center><h5>'
+    table += '<b>Ecole: </b>' + session.promo.branch.school.name + ' <b>-</b> '
+    table += '<b>Branch: </b>' + session.promo.branch.description + ' <b>-</b> '
+    table += '<b>Promo: </b>' + session.promo.name + ' <b>-</b> '
+    table += '<b>Semestre: </b>' + str(session.semester.get_nbr())
+    table += '</h5></center>'
+    table += '<center><h4><b>Module: </b>' + module.code + ' <b>-</b> ' + module.display_name + '</h4></center>'
+    table += '<center><h5>'
+    table += '<b>Coefficient: </b>' + str(module.coefficient) + ' <b>-</b> '
+    table += '<b>Credit: </b>' + str(module.credit) + ' <b>-</b> '
+    table += '<b>VHS: </b>' + str(time) + ' <b>-</b> '
+    table += '<b>Enseignant: </b>' + str(teacher_name)
+    table += '</h5></center>'
+
+
+    table += '<table class="table table-condensed ">'
+    table += '<tr>'
+    for header in headers:
+        table += '<th>' + header + '</th>'
+    table += '</tr>'
+
+    for data in data_arr:
+        table += '<tr>'
+        # table += '<td>'+str(data)+'</td>'
+        for _da in data:
+            table += '<td>' + str(_da) + '</td>'
+        table += '</tr>'
+
+    table += '</table>'
+
+    return table
+
+
+
+@app.route('/session/<session_id>/module/<module_id>/print/order/<order>/empty/<empty>/', methods=['GET', 'POST'])
+@app.route('/session/<session_id>/module/<module_id>/print/empty/<empty>/order/<order>/', methods=['GET', 'POST'])
+@app.route('/session/<session_id>/module/<module_id>/print/order/<order>/', methods=['GET', 'POST'])
+@app.route('/session/<session_id>/module/<module_id>/print/empty/<empty>/', methods=['GET', 'POST'])
+@app.route('/session/<session_id>/module/<module_id>/print/', methods=['GET', 'POST'])
+def module_print(session_id=0, module_id=0, empty='', order='username'):
+    table = get_module_print_table(session_id, module_id, empty, order)
+    return render_template('grade/module-print.html', 
+        title='module ***', table=table)
+
 

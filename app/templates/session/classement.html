@@ -35,7 +35,7 @@
   <div class="">
     
     <a href ="{{ url_for('bultin_semester_print_all', session_id=session_id) }}"
-       class="btn btn-primary" role="button">Print all Bultin</a>
+       class="btn btn-primary" target="_blank" role="button">Print all Bultin</a>
     </br>
     </br>
 
@@ -48,7 +48,6 @@
           <th scope="col" class="center">Credit</th>
           <th scope="col" class="center smallCell">Justification</th>
           <th scope="col" class="center smallCell">Bultin</th>
-          <th scope="col" class="center smallCell">Bultin 2</th>
         </tr>
       </thead>
       <tbody>
@@ -73,10 +72,6 @@
             </table> -->
             <a href ="{{ url_for('justification', session_id=student_session.session_id, student_id=student_session.student_id) }}"
                   class="btn btn-primary btn-xs" role="button">Justification</a>
-          </td>
-          <td align="middle">
-            <a href ="{{ url_for('bultin_semester', session_id=student_session.session_id, student_id=student_session.student_id) }}"
-                  class="btn btn-primary btn-xs" role="button">Bultin PDF</a>
           </td>
           <td align="middle">
             <a href ="{{ url_for('bultin_semester_print', session_id=student_session.session_id, student_id=student_session.student_id) }}" target="_blank"

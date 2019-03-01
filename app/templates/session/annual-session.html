@@ -41,7 +41,7 @@
       <h2> {{ annual_session.name }} </h2>
 
       {% set refrech_url = url_for('annual_session_refrech', annual_session_id=annual_session.id) %}
-      <a href="{{url_for('slow_redirect', url=refrech_url) }}" class="btn btn-primary" role="button" >Re(calculate) Annual Session</a>
+      <a href="{{url_for('slow_redirect', url=refrech_url) }}" class="btn btn-primary" role="button" >(Re)Calculate Annual Session</a>
 
       <a href="{{url_for('students_rattrapage_annual', annual_session_id=annual_session.id)}}" class="btn btn-primary" role="button" >Show Ratt. List</a>
 
@@ -58,7 +58,6 @@
               <th rowspan="2"><center>name</center></th>
               <th colspan="2">Semester 1</th>
               <th colspan="2">Ratt. 1</th>
-             <!--  <th rowspan="2" width="3"></th> -->
               <th colspan="2">Semester 2</th>
               <th colspan="2">Ratt. 2</th>
               <th colspan="2">Annual</th>
@@ -66,7 +65,6 @@
               <th colspan="2">Saving</th>
               <th colspan="1" rowspan="2">Obs.</th>
               <th colspan="1" rowspan="2">Bultin</th>
-              <th colspan="1" rowspan="2">Bultin Brw</th>
             </tr>
             <tr>
               <th>A</th><th>C</th><th>A</th><th>C</th>

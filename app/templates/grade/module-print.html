@@ -1,11 +1,11 @@
 <html>
 <head>
   <title>{{ title }}</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap4/bootstrap.min.css') }}" crossorigin="anonymous">
+<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap4/bootstrap.min.css') }}" >
   <style type="text/css">
     
     table {
-/*      border-collapse: collapse;
+ /*     border-collapse: collapse;
       margin-left: 0px;
       margin-right: 30px;
       display:inline-block;*/
@@ -20,11 +20,11 @@
 </head>
 
 
-<body>
+<body onload="window.print();">
+<!-- <body > -->
 
   <div class="container" style="border-width:0px; border-style:solid; border-color:black;">
-    {{ table | safe | replace('None', '') | replace(' ', ' ') }}
-
+    {{ table | safe | replace('None', '') }}
   </div>
 
 </body>

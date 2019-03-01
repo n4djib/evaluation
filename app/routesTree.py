@@ -112,29 +112,20 @@ def get_promos_tree(branch, open_p_id):
         id = 'promo_' + str(promo.id)
         pId = 'branch_' + str(branch.id)
 
-
-
-        # promo_label = promo.get_label()
-        # name = "<span style='color: "+str(promo.color)+";'>" + promo_label + "</span>"
-
         name = promo.name
-
         promo_display_name = str(promo.display_name).replace('None', '')
         if promo_display_name != '':
             name += " - <span style='color: "+str(promo.color)+";'>" + promo_display_name + "</span>"
 
         name = name + ' (' + str(get_year(promo)) + ' Year)'
 
-
-
-
-
         font = '{"font-weight":"bold", "font-style":"italic"}'
         icon = 'pIcon15'
 
-        # open = 'true'
         open = 'false'
-        if open_p_id != 0:
+        if open_p_id == 0:
+            open = 'true'
+        if open_p_id > 0:
             open = 'false'
             if open_p_id == promo.id:
                 open = 'true'
@@ -144,7 +135,8 @@ def get_promos_tree(branch, open_p_id):
         if sessions_tree == '':
             icon = 'icon15'
         p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:'+open+', iconSkin:"'+icon+'", font:'+font+'},'
-        promos_tree += p + sessions_tree 
+        promos_tree += p + sessions_tree
+
     return promos_tree
 
 def get_branches_tree(school, open_b_id, open_p_id):
@@ -155,6 +147,7 @@ def get_branches_tree(school, open_b_id, open_p_id):
         pId = 'school_'+str(school.id)
         name = branch.name+' - '+str(branch.description)
         p = get_promos_tree(branch, open_p_id)
+
         open = 'true'
         if open_b_id != 0:
             open = 'false'
@@ -168,7 +161,7 @@ def get_branches_tree(school, open_b_id, open_p_id):
         branches_tree += b + p
     return branches_tree
 
-def get_schools_tree(open_s_id=0, open_b_id=0, open_p_id=0):
+def get_schools_tree(open_s_id, open_b_id, open_p_id):
     schools = School.query.all()
     schools_tree = ''
     for school in schools:
@@ -237,7 +230,7 @@ def annual_tree_(annual_session_id=0):
 @app.route('/tree/school/<school_id>/', methods=['GET'])
 @app.route('/tree/', methods=['GET'])
 @register_breadcrumb(app, '.tree_', 'Tree')
-def tree(school_id=0, branch_id=0, promo_id=0):
+def tree(school_id=0, branch_id=0, promo_id=-1):
     options_arr = get_options()
     zNodes = '[' + get_schools_tree(int(school_id), int(branch_id), int(promo_id)) + ']'
     return render_template('tree/tree.html', title='Tree', zNodes=zNodes, options_arr=options_arr)
