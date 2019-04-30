@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+
+  <h1>Annuals List !!!</h1>
+  <div>
+      <a class="btn btn-primary" href="{{ url_for('annual_create') }}">Create New</a>
+  </div>
+  </br>
+  
+  <div>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Name</th>
+          <th scope="col">Description</th>
+          <th scope="col">Annual</th>
+          <th scope="col">Branch</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for annual in annuals %}
+        <tr>
+          <td>{{loop.index}}</td>
+          <td><a href="{{ url_for('annual_view', id=annual.id) }}">{{ annual.name }}</a></td>
+          <td>{{ annual.display_name | replace("None", "") }}</td>
+          <td>{{ annual.annual | replace("None", "") }}</td>
+          <td>{{ annual.branch.name | replace("None", "") }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+    </br>
+    </br>
+    - </br>
+    - </br>
+    </br>
+
+
+  </div>
+
+{% endblock %}

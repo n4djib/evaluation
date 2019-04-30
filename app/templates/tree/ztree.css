@@ -31,4 +31,5 @@
 .ztree li span.button.icon20_ico_docu{margin-right:2px; background: url({{url_for('static', filename='ztree/img/diy/20.png')}}) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
 .ztree li span.button.icon21_ico_docu{margin-right:2px; background: url({{url_for('static', filename='ztree/img/diy/21.png')}}) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
 .ztree li span.button.icon22_ico_docu{margin-right:2px; background: url({{url_for('static', filename='ztree/img/diy/22.png')}}) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
-.ztree li span.button.icon23_ico_docu{background: url({{url_for('static', filename='ztree/img/diy/23.png')}}) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle; margin-right:2px}
+.ztree li span.button.pIcon23_ico_open,
+.ztree li span.button.pIcon23_ico_close{margin-right:2px; background: url({{url_for('static', filename='ztree/img/diy/23.png')}}) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}

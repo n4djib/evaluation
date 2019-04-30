@@ -64,11 +64,6 @@ function addDiyDom(treeId, treeNode) {
       var aObj = $("#" + treeNode.tId + "_a");
       aObj.after(editStr);
 
-
-      // if(treeNode.tId == 'treeDemo_8')
-      //   alert(treeNode.tId + ' - ' + treeNode.id);
-
-      
       var btn = $("#diyBtn_"+treeNode.id);
 
       if (btn) btn.bind("change", function() {
@@ -81,16 +76,6 @@ function addDiyDom(treeId, treeNode) {
     }
 
   }
-  // else {
-
-  //     // if (treeNode.id == 21) {
-  //       // var editStr = "<span class='demoIcon' id='diyBtn_" +treeNode.id+ "' title='"+treeNode.name+"' onfocus='this.blur();'><span class='button icon01'></span></span>";
-  //       var editStr = "<span class='demoIcon' id='diyBtn_14 title='"+treeNode.name+"' onfocus='this.blur();'><span class='button icon01'></span></span>";
-  //       aObj.append(editStr);
-  //       var btn = $("#diyBtn_"+treeNode.id);
-  //       if (btn) btn.bind("click", function(){alert("diy Button for " + treeNode.name);});
-  //     // }
-  // }
 }
 
 var zNodes = {{ zNodes | safe }};;

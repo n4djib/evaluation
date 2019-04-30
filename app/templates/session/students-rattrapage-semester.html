@@ -5,6 +5,13 @@
 {% block styles %}
   {{super()}}
   <style type="text/css">
+    table {
+      border-collapse: collapse;
+    }
+    .name{
+       width: 100%; 
+       /*border: 1px solid red;*/
+    }
   </style>
 {% endblock %}
 
@@ -38,7 +45,7 @@
             <td>{{ name | replace(' ', ' ') }}</td>
             <td>{{ student.average | replace('None', '') }}</td>
             <td>{{ student.credit | replace('None', '') }}</td>
-            <td>{{ student.get_ratt_modules_list_semester_html() | safe | replace(' ', ' ') }}</td>
+            <td>{{ student.get_ratt_modules_list_semester_html() | safe }}</td>
             <td><center><input type="checkbox" name="students[]"
                        value="{{ student.student.id }}" checked ></center>
             </td>

@@ -8,16 +8,26 @@ from flask_breadcrumbs import register_breadcrumb
 
 
 
-def config_to_dict(semester_id):
-    semester = Semester.query.filter_by(id=semester_id).first()
-    if semester == None:
-        return F'Semester with id: {semester_id} Not Found'
-    dict_semester = semester.config_dict()
-    return dict_semester
+# def config_to_dict(semester_id):
+#     semester = Semester.query.filter_by(id=semester_id).first()
+#     if semester == None:
+#         return F'Semester with id: {semester_id} Not Found'
+#     dict_semester = semester.config_dict()
+#     return dict_semester
+
+def update_session_configuraton(session):
+    if session != None:
+        session.configuration = str( session.semester.config_dict() )
+        
+        # update parallel Config
+        parallel_session = session.get_parallel_session()
+        if parallel_session != None:
+            parallel_session.configuration = str( parallel_session.semester.config_dict() )
+
+        db.session.commit() 
 
 def init_session(session):
-    conf_dict = config_to_dict(session.semester_id)
-    session.configuration = str(conf_dict)
+    update_session_configuraton(session)
     db.session.commit()
     return 'init session'
 
@@ -102,48 +112,58 @@ def get_formula(module_id):
         formula += "'"+type.grade_table_field + "': " + str(percentage.percentage) + ", "
 
     coefficient = "'coefficient': " + str(module.coefficient) + ", "
-    credit = "'credit': " + str(module.credit)
-    return "{" + formula + coefficient + credit + "}"
+    credit = "'credit': " + str(module.credit) + ", "
 
-def init_all(session_id):
-    session = Session.query.filter_by(id=session_id).first()
+    # ratt = 'cour'
+    # if :
+    ratt = module.get_rattrapable_field()
+    rattrapable = "'rattrapable': '" + ratt + "'"
+
+    return "{" + formula + coefficient + credit + rattrapable + "}"
+
+def init_all(session):
+    # session = Session.query.filter_by(id=session_id).first()
     message1 = init_session(session)
     message2 = init_grade_unit(session)
     message3 = init_grade(session)
     return F'init all : {message1} - {message2} - {message3}'
 
-@app.route('/session/<session_id>/reinitialize-session/', methods=['GET', 'POST'])
-def reinitialize_session(session_id=0):
-    message = init_all(session_id)
-    flash(message)
-    return redirect(url_for('session', session_id=session_id))
-
-
-@app.route('/session/<session_id>/calculate-all/', methods=['GET', 'POST'])
-def calculate_all(session_id):
-    message = 'calculate_all'
-    # message = init_all(session_id)
-    flash(message)
-
-    
-    grades = Grade.query.join(StudentSession).filter_by(session_id=session_id).all()
+def calculate_all(session):
+    grades = Grade.query.join(StudentSession).filter_by(session_id=session.id).all()
     for grade in grades:
         grade.calculate()
     db.session.commit()
 
-    grade_units = GradeUnit.query.join(StudentSession).filter_by(session_id=session_id).all()
+    grade_units = GradeUnit.query.join(StudentSession).filter_by(session_id=session.id).all()
     for grade_unit in grade_units:
         grade_unit.calculate()
     db.session.commit()
 
-    students_session = StudentSession.query.filter_by(session_id=session_id).all()
+    students_session = StudentSession.query.filter_by(session_id=session.id).all()
     for student_session in students_session:
         student_session.calculate()
     db.session.commit()
 
+    return 'calculate_all'
 
-    # flash('calculated')
+
+@app.route('/session/<session_id>/reinitialize-session/', methods=['GET', 'POST'])
+def reinitialize_session(session_id=0):
+    session = Session.query.get_or_404(session_id)
+    message = init_all(session)
+    # message += "</br>" + calculate_all(session_id)
+    message += "</br>" + calculate_all(session)
+    flash(message)
     return redirect(url_for('session', session_id=session_id))
+
+@app.route('/session/<session_id>/calculate-session/', methods=['GET', 'POST'])
+def calculate_session(session_id):
+    session = Session.query.get_or_404(session_id)
+    message = calculate_all(session)
+    flash(message)
+
+    return redirect(url_for('session', session_id=session_id))
+
 
 #
 #

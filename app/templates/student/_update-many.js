@@ -4,6 +4,10 @@ var wilayas_name_list = {{ wilayas_name_list | safe }};
 var username_list = {{ username_list | safe }};
 var branch_list = {{ branch_list | safe }};
 
+var promo_has_closed = {{ promo_has_closed | safe | replace('T', 't') | replace('F', 'f') }};
+
+
+var username_readOnly = true;
 
 var separator = '-';
 
@@ -16,8 +20,12 @@ var hotElement = document.querySelector('#hot-update-many');
   do not color the usernames of this Promo
     unless there is A duplication
 */
-// function usernameRenderer(instance, td, row, col, prop, value, cellProperties) {
-// 	Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+function usernameRenderer(instance, td, row, col, prop, value, cellProperties) {
+	Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+  if (promo_has_closed)
+    td.style.backgroundColor = '#EEE';
 
 // 	var username = td.innerHTML.toLowerCase();
 // 	var list = username_list.map(v => v.toLowerCase());
@@ -27,8 +35,8 @@ var hotElement = document.querySelector('#hot-update-many');
 
 //     // username.match(/^([0-9]-{5,})$/)
 
-//   return td;
-// }
+  return td;
+}
 
 
 function wilayaRenderer(instance, td, row, col, prop, value, cellProperties) {
@@ -88,7 +96,7 @@ var hot = new Handsontable(hotElement, {
   data: data_arr,
   columns: [
     {data: 0, type: 'text', readOnly: true, renderer: closedRenderer, width: 0.1},
-    {data: 1, type: 'text', /*renderer: usernameRenderer*/},
+    {data: 1, type: 'text', renderer: usernameRenderer, {{ 'readOnly: true' if promo_has_closed }} },
     {data: 2, type: 'text', readOnly: true, renderer: lastNameRenderer},
     {data: 3, type: 'text', readOnly: true, renderer: firstNameRenderer, width: 0.1},
     {data: 4, type: 'date', dateFormat: 'DD/MM/YYYY'},

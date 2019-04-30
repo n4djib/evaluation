@@ -9,6 +9,11 @@
     /*div, table {
       margin: 0px; padding: 0px;
     }*/
+    th {
+      background-color: PowderBlue;
+      /*background-color: Silver;*/
+      /*color: white;*/
+    }
   </style>
 
 {% endblock %}
@@ -33,13 +38,14 @@
 
     <!-- <div class="col-md-7 col-sm-6 col-xs-6"> -->
   	<div class="col-md-6 col-sm-5 col-xs-5">
-      <table id="myTable" class="table table-striped">
-          <thead>
+      <table id="myTable" class="table">
+          <thead class="thead-dark">
             <tr>
               <th scope="col">#</th>
               <th scope="col">Module</th>
               <th scope="col">Coeff</th>
               <th scope="col">Credit</th>
+              <th scope="col"></th>
             </tr>
           </thead>
           <tbody>
@@ -66,7 +72,7 @@
       
 
       {% set init_url = url_for('reinitialize_session', session_id=session.id) %}
-      {% set calc_url = url_for('calculate_all', session_id=session.id) %}
+      {% set calc_url = url_for('calculate_session', session_id=session.id) %}
       <a href="{{ url_for('slow_redirect', url=init_url, message='Initializing') }}"
          class="btn btn-primary {{'disabled' if session.is_closed else ''}}" 
          role="button">(Re)Initialize</a>
@@ -82,12 +88,16 @@
          class="btn btn-primary" role="button">Result</a>
       {% if session.is_rattrapage == True %}
       <a href ="{{url_for('semester_result', session_id=session.id)}}"
-         class="btn btn-primary" role="button">Result 2*******</a>
+         class="btn btn-primary" role="button">Result 2***</a>
       {% endif %}
       <a href ="{{url_for('classement', session_id=session.id)}}"
          class="btn btn-primary" role="button">Classement / Justification</a>
 
       <hr>
+
+      <a href ="{{url_for('create_annual_session', session_id=session.id)}}"
+         class="btn btn-primary" role="button"
+         >Create Annual (S:{{session.semester.annual.annual}})</a>
 
       {% if session.is_rattrapage != True and session.semester.has_fondamental() == True %}
       <a href ="{{url_for('students_rattrapage_semester', session_id=session.id)}}"
@@ -95,12 +105,10 @@
          >Show Ratt (R:{{ session.semester.get_nbr() }})</a>
       {% endif %}
       
-      <a href ="{{url_for('create_annual_session', session_id=session.id)}}"
-         class="btn btn-primary" role="button"
-         >Create Annual (S:{{session.semester.annual}})</a>
-
       <hr>
-      <a class="btn btn-danger {{'disabled' if session.is_closed or session.get_next() != None else ''}}"
+
+      <a class="btn btn-danger 
+      {{'disabled' if session.allow_delete() != True else ''}}"
         data-href="{{url_for('delete_session', session_id=session.id)}}" 
         data-toggle="modal" data-target="#confirm-delete">
           Delete {{'Rattrapage' if session.is_rattrapage else 'Semester'}}
@@ -183,8 +191,9 @@
           <tr>
             <th scope="col">#</th>
             <th scope="col">Username</th>
-            <th scope="col">Last Name</th>
-            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">First Name</th>
+            <th scope="col"></th>
           </tr>
         </thead>
         <tbody>

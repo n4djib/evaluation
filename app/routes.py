@@ -1,22 +1,72 @@
 from app import app, db
 from flask import render_template, redirect, url_for, flash, request
-from app.forms import StudentFormCreate, StudentFormUpdate, RegistrationForm, LoginForm
-from app.models import Student, StudentSession, User, Branch, Session, Wilaya, School
+from app.forms import StudentFormCreate, StudentFormUpdate, StudentFormUpdateCostum, RegistrationForm, LoginForm
+from app.models import Student, StudentSession, AnnualSession, User, Branch, Session, Wilaya, School
 from werkzeug.urls import url_parse
 from flask_login import current_user, login_user, logout_user, login_required
-# import datetime
 from flask_breadcrumbs import register_breadcrumb
-
-from app.permissions_and_roles import *
 from flask_principal import Identity, AnonymousIdentity, identity_changed
-
 from datetime import datetime
+from app.permissions_and_roles import *
 
 
 
 @app.route('/calendar/')
 def calendar():
     return render_template('calendar.html', title='Welcome Page')
+
+
+
+# import re
+
+# @app.route('/reg/')
+# def reg():
+#     text = "httpReport ZSIM_RANDOM_DURATION_ startedddd"
+#     m = re.match(r"http(.*)\ddd", text)
+#     return str(  m.group(1)  )
+
+# @app.route('/promo-annual/<promo_id>/')
+# def promo_latest_annual(promo_id):
+#     promo = Promo.query.get_or_404(promo_id)
+#     annual = promo.get_latest_annual()
+#     return str( annual )
+
+
+@app.route('/annualannual/<id>/')
+def annual_(id):
+    annual_session = AnnualSession.query.get_or_404(id)
+    msg = ''
+    for session in annual_session.get_normal_sessions():
+    # for session in annual_session.sessions:
+        msg += str(session.id ) + ' - '
+    return str(msg)
+
+
+@app.route('/student/promos/<id>/')
+def student_promos(id):
+    student = Student.query.get_or_404(id)
+    promos = student.get_promos()
+    return str(promos)
+
+# from app.models import Semester
+
+# @app.route('/sem/<semester_id>')
+# def sem(semester_id=0):
+#     semester = Semester.query.get_or_404(semester_id)
+#     semesters = semester.get_latest_of_semesters_list()
+
+#     _previous = semester.get_previous()
+#     _next = semester.get_next()
+#     return str(semesters) + " </br></br>---</br></br> " + str(_previous) + " </br></br>---</br></br> " + str(_next)
+
+
+
+
+# # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # #  
+
 
 
 @app.route('/')
@@ -111,6 +161,12 @@ def student_update(id):
     student = Student.query.get_or_404(id)
     form = StudentFormUpdate(student.id)
 
+    ### this disallow username change
+    if student.allow_username_change() != True:
+        form = StudentFormUpdateCostum(student.id)
+        form.username.data = student.username
+
+    # to convert birth_date
     if request.method == 'POST':
         birth_date_request = request.form.get('birth_date_str')
         if birth_date_request != None and birth_date_request != '':
@@ -130,7 +186,6 @@ def student_update(id):
         student.address = form.address.data
         student.branch_id = form.branch_id.data
         student.wilaya_id = form.wilaya_id.data
-
         student.sex = form.sex.data
         student.residency = form.residency.data
         db.session.commit()
@@ -149,7 +204,6 @@ def student_update(id):
         form.address.data = student.address
         form.branch_id.data = student.branch_id
         form.wilaya_id.data = student.wilaya_id
-
         form.sex.data = student.sex
         form.residency.data = student.residency
     return render_template('student/update.html', title='Student Update', form=form)
@@ -274,7 +328,6 @@ def students_update_many(session_id):
 
     data = []
 
-
     for student_session in student_sessions:
         student = student_session.student
 
@@ -289,7 +342,6 @@ def students_update_many(session_id):
         link = '<a href="'+url_for('student_view', id=student.id)+'" target="_blank">'
         link += student.last_name + ' - ' + student.first_name + '</a>'
 
-
         data.append([
             student.id,
             student.username, 
@@ -301,6 +353,10 @@ def students_update_many(session_id):
             wilaya
         ])
 
+    # disallow username change
+    session = Session.query.get_or_404(session_id)
+    promo_has_closed = session.promo.has_closed_session()
+
     return render_template('student/update-many.html', 
         title='Student Update Many', 
         data=data, 
@@ -308,7 +364,8 @@ def students_update_many(session_id):
         username_list=get_username_list(),
         branch_list=get_branches_list(),
         branches=Branch.query.all(),
-        session_id=session_id
+        session_id=session_id,
+        promo_has_closed=promo_has_closed
         )
 
 
@@ -319,13 +376,15 @@ def update_many_student_save():
     for i, data in enumerate(data_arr, start=0):
         #
         #
-        # 
         username_list = get_username_list()
         # if data[0] != '' and data[1] not in username_list:
         if data[0] != '':
             student = Student.query.get_or_404(data[0])
 
-            student.username = data[1].lstrip().rstrip()
+            # allow username change
+            if student.allow_username_change() == True:
+                student.username = data[1].lstrip().rstrip()
+
             # last_name = data[2].lstrip().rstrip()
             # first_name = data[6].lstrip().rstrip()
             student.birth_place = data[5]

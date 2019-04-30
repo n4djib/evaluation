@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+
+  <h1>Teachers List !!!</h1>
+  <div>
+      <a class="btn btn-primary" href="{{ url_for('teacher_create') }}">Create New</a>
+  </div>
+  </br>
+
+  <div>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Username</th>
+          <th scope="col">Last Name</th>
+          <th scope="col">First Name</th>
+          <th scope="col">Phone</th>
+          <th scope="col">Email</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for teacher in teachers %}
+        <tr>
+          <td><a href="{{ url_for('teacher_view', id=teacher.id) }}">
+            {{ teacher.username | replace("None", "") }}</a></td>
+          <td>{{ teacher.last_name | replace("None", "") }}</td>
+          <td>{{ teacher.first_name | replace("None", "") }}</td>
+          <td>{{ teacher.phone | replace("None", "") }}</td>
+          <td>{{ teacher.email | replace("None", "") }}</td>
+          <!-- <td><a href="">Edit</a></td> -->
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+    </br>
+    </br>
+    - </br>
+    - </br>
+    </br>
+
+
+  </div>
+
+{% endblock %}

@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SubmitField, PasswordField, BooleanField
+from wtforms import StringField, IntegerField, SelectField, SubmitField, PasswordField, BooleanField
 from wtforms.validators import DataRequired, Email, ValidationError, Optional, EqualTo
 # from wtforms import DateField
 from wtforms.fields.html5 import DateField
@@ -8,12 +8,12 @@ from wtforms.fields.html5 import DateField
 from flask_admin.form import widgets
 # from flask_admin.form import DatePickerWidget
 
-from app.models import Student, User, School, Branch, Wilaya, Promo
+from app.models import Student, User, School, Branch, Annual, Semester, Wilaya, Promo, Teacher
 from sqlalchemy import and_
 # from datetime import datetime
 
 
-
+################## Student
 class StudentFormBase(FlaskForm):
     branch_id = SelectField('Branch', coerce=int,  
         choices = [('-1', '')]+[(b.id, b.name+' - '+b.description ) for b in Branch.query.order_by('name')
@@ -58,9 +58,16 @@ class StudentFormUpdate(StudentFormBase):
     #     if student is not None:
     #         raise ValidationError('Please use a different email')
 
+class StudentFormUpdateCostum(StudentFormUpdate):
+    username = StringField('Username', 
+        validators=[DataRequired()], 
+        render_kw={'disabled':''})
+    def __init__(self, _id=-1, *args, **kwargs):
+        super(StudentFormUpdate, self).__init__(*args, **kwargs)
+        self._id = _id
 
-##################
 
+################## School
 class SchoolFormBase(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
     description = StringField('description')
@@ -74,8 +81,7 @@ class SchoolFormUpdate(SchoolFormBase):
         super(SchoolFormUpdate, self).__init__(*args, **kwargs)
         self._id = _id
 
-##################
-
+################## Branch
 class BranchFormBase(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
     description = StringField('description')
@@ -92,8 +98,60 @@ class BranchFormUpdate(BranchFormBase):
         super(BranchFormUpdate, self).__init__(*args, **kwargs)
         self._id = _id
 
-##################
+################## Annual
+class AnnualFormBase(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    display_name = StringField('Display Name')
+    annual = IntegerField('Annual')
+    branch_id = SelectField('Branch', coerce=int,  
+        choices = [('-1', '')]+[(b.id, b.get_label()) for b in Branch.query.order_by('name')
+    ])
 
+class AnnualFormCreate(AnnualFormBase):
+    submit = SubmitField('Create')
+
+class AnnualFormUpdate(AnnualFormBase):
+    submit = SubmitField('Update')
+    def __init__(self, _id=-1, *args, **kwargs):
+        super(AnnualFormUpdate, self).__init__(*args, **kwargs)
+        self._id = _id
+
+################## Semester
+class SemesterFormBase(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    display_name = StringField('Display Name')
+    semester = IntegerField('Semester')
+    # is_closed = BooleanField('Closed')
+    annual_id = SelectField('Annual', coerce=int,  
+        choices = [('-1', '')]+[(a.id, a.name) for a in Annual.query.join(Semester).order_by('name')
+        # choices = [('-1', '')]+[(a.id, a.name) for a in Annual.query.join(Semester).filter_by(semester_id=id).order_by('name')
+    ])
+
+class SemesterFormCreate(SemesterFormBase):
+    submit = SubmitField('Create')
+
+class SemesterFormUpdate(SemesterFormBase):
+    # annual_id = SelectField('Annual', coerce=int,  
+    #     # choices = [('-1', '')]+[(a.id, a.name) for a in Annual.query.join(Semester).order_by('name')
+    #     choices = [('-1', '')]+[(a.id, a.name) for a in Annual\
+    #         .query.join(Semester)\
+    #         .filter_by(semester_id=self._id)\
+    #         .order_by('name')
+    # ])
+    submit = SubmitField('Update')
+    def __init__(self, _id=-1, *args, **kwargs):
+        super(SemesterFormUpdate, self).__init__(*args, **kwargs)
+        self._id = _id
+
+#########
+class SemesterFormSpecialUpdate(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    submit = SubmitField('Update')
+    def __init__(self, _id=-1, *args, **kwargs):
+        super(SemesterFormSpecialUpdate, self).__init__(*args, **kwargs)
+        self._id = _id
+
+################## Promo
 class PromoFormBase(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
     display_name = StringField('display_name')
@@ -122,8 +180,7 @@ class PromoFormUpdate(PromoFormBase):
         super(PromoFormUpdate, self).__init__(*args, **kwargs)
         self._id = _id
 
-##################
-
+################## Wilaya
 class WilayaFormBase(FlaskForm):
     code = StringField('code', validators=[DataRequired()])
     name = StringField('name', validators=[DataRequired()])
@@ -152,6 +209,47 @@ class WilayaFormUpdate(WilayaFormBase):
         wilaya = Wilaya.query.filter(and_(Wilaya.name==name.data, Wilaya.id!=self._id)).first()
         if wilaya is not None:
             raise ValidationError('Please use a different name')
+
+################## Teacher
+class TeacherFormBase(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    last_name = StringField('Last Name', validators=[DataRequired()])
+    first_name = StringField('First Name', validators=[DataRequired()])
+    email = StringField('Email', validators=[Optional(), Email()])
+    birth_date = DateField('Birth Date', validators=[Optional()])
+    birth_place = StringField('Birth Place')
+    wilaya_id = SelectField('Wilaya', coerce=int, 
+        choices = [(-1, '')]+[(b.id, b.name) for b in Wilaya.query.order_by('code')
+    ])
+    address = StringField('Address')
+    sex = SelectField('Sex', choices = [('', ''), ('F', 'F'), ('M', 'M')])
+    phone = StringField('Phone')
+
+class TeacherFormCreate(TeacherFormBase):
+    submit = SubmitField('Create')
+    def validate_username(self, username):
+        teacher = Teacher.query.filter(Teacher.username==username.data).first()
+        if teacher is not None:
+            raise ValidationError('Please use a different Username')
+    # def validate_name(self, name):
+    #     teacher = Teacher.query.filter(Teacher.name==name.data).first()
+    #     if teacher is not None:
+    #         raise ValidationError('Please use a different name')
+
+class TeacherFormUpdate(TeacherFormBase):
+    submit = SubmitField('Update')
+    def __init__(self, _id=-1, *args, **kwargs):
+        super(TeacherFormUpdate, self).__init__(*args, **kwargs)
+        self._id = _id
+    def validate_username(self, username):
+        teacher = Teacher.query.filter(and_(Teacher.username==username.data, Teacher.id!=self._id)).first()
+        if teacher is not None:
+            raise ValidationError('Please use a different Username')
+    # def validate_name(self, name):
+    #     teacher = Teacher.query.filter(and_(Teacher.name==name.data, Teacher.id!=self._id)).first()
+    #     if teacher is not None:
+    #         raise ValidationError('Please use a different name')
+
 
 ##################
 ##################

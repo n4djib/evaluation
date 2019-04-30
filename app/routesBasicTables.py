@@ -1,11 +1,22 @@
 from app import app, db
 from flask import render_template, redirect, url_for, flash, request
-from app.forms import SchoolFormCreate, SchoolFormUpdate, PromoFormCreate, PromoFormUpdate, \
-    BranchFormCreate, BranchFormUpdate, WilayaFormCreate, WilayaFormUpdate
-from app.models import School, Branch, Wilaya, Promo
+from app.forms import SchoolFormCreate, SchoolFormUpdate, \
+    PromoFormCreate, PromoFormUpdate, BranchFormCreate, BranchFormUpdate, \
+    AnnualFormCreate, AnnualFormUpdate, SemesterFormCreate, SemesterFormUpdate, SemesterFormSpecialUpdate, \
+    WilayaFormCreate, WilayaFormUpdate, TeacherFormCreate, TeacherFormUpdate
+from app.models import School, Branch, Annual, Semester, Wilaya, Promo, Teacher
 from flask_breadcrumbs import register_breadcrumb
 # import babel
 from datetime import datetime
+
+
+#######################################
+#####            INDEX            #####
+
+@app.route('/basic-tables/')
+@register_breadcrumb(app, '.basic', 'Basic Tables')
+def basic_index():
+    return render_template('basic-forms/index.html', title='Basic Tables List')
 
 
 #######################################
@@ -92,28 +103,20 @@ def promo_view(id):
     promo = Promo.query.get_or_404(id)
     return render_template('basic-forms/promo/view.html', title='Promo View', promo=promo)
 
-# WARNING: i have to check before i delete
 @app.route('/promo/delete/<int:id>/', methods=['GET', 'POST'])
 def promo_delete(id):
     promo = Promo.query.get_or_404(id)
+    # Note:
+    #   has sessions or annual sessions
     if len(promo.sessions) > 0:
         flash("you can't delete this Promo because it is in Relation with other Records", 'alert-danger')
         flash("you have to break the relation with the Sessions first")
-        return redirect(url_for('promo_view', id=promo.id))
+        return redirect(url_for('promo_view', id=id))
+
     db.session.delete(promo)
     db.session.commit()
     flash('Promo: ' + str(promo.name) + ' is deleted', 'alert-success')
     return redirect(url_for('promo_index'))
-
-
-
-#######################################
-#####            INDEX            #####
-
-@app.route('/basic-tables/')
-@register_breadcrumb(app, '.basic', 'Basic Tables')
-def basic_index():
-    return render_template('basic-forms/index.html', title='Basic Tables List')
 
 
 #######################################
@@ -162,14 +165,13 @@ def school_view(id):
     school = School.query.get_or_404(id)
     return render_template('basic-forms/school/view.html', title='School View', school=school)
 
-# WARNING: i have to check before i delete
 @app.route('/school/delete/<int:id>/', methods=['GET', 'POST'])
 def school_delete(id):
     school = School.query.get_or_404(id)
     if len(school.branches) > 0:
         flash("you can't delete this School because it is in Relation with other Records", 'alert-danger')
-        flash("you have to break the relation with the branches first")
-        return redirect(url_for('school_view', id=school.id))
+        flash("you have to break the relation with the Branches first")
+        return redirect(url_for('school_view', id=id))
     db.session.delete(school)
     db.session.commit()
     flash('School: ' + str(school.name) + ' is deleted', 'alert-success')
@@ -227,17 +229,16 @@ def branch_view(id):
     branch = Branch.query.get_or_404(id)
     return render_template('basic-forms/branch/view.html', title='Branch View', branch=branch)
 
-# WARNING: i have to check before i delete
 @app.route('/branch/delete/<int:id>/', methods=['GET', 'POST'])
 def branch_delete(id):
     branch = Branch.query.get_or_404(id)
-    if len(branch.promos) > 0 or len(branch.semesters) > 0:
+    if len(branch.promos) > 0 or len(branch.annuals) > 0 or len(branch.students) > 0:
         flash("you can't delete this Branch because it is in Relation with other Records", 'alert-danger')
         if len(branch.promos) > 0:
             flash("you have to break the relation with the Sessions first")
-        if len(branch.semesters) > 0:
-            flash("you have to break the relation with the Semesters first")
-        return redirect(url_for('branch_view', id=branch.id))
+        if len(branch.annuals) > 0:
+            flash("you have to break the relation with the Annuals first")
+        return redirect(url_for('branch_view', id=id))
     db.session.delete(branch)
     db.session.commit()
     flash('Branch: ' + str(branch.name) + ' is deleted', 'alert-success')
@@ -245,10 +246,196 @@ def branch_delete(id):
 
 
 
+#######################################
+#####           Annual            #####
+
+@app.route('/annual/')
+@register_breadcrumb(app, '.basic.annual', 'Annuales')
+def annual_index():
+    # i have to order by school & annual
+    annuals = Annual.query.join(Branch).order_by(Branch.id, Annual.annual).all()
+    return render_template('basic-forms/annual/index.html', title='Annuals List', annuals=annuals)
+
+@app.route('/annual/create/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.annual.create', 'Create')
+def annual_create():
+    form = AnnualFormCreate()
+    if form.validate_on_submit():
+        annual = Annual(
+            name=form.name.data, 
+            display_name=form.display_name.data, 
+            annual=form.annual.data,
+            branch_id=form.branch_id.data
+        )
+        db.session.add(annual)
+        db.session.commit()
+        flash('Created and Saved Successfully.', 'alert-success')
+        return redirect(url_for('annual_view', id=annual.id))
+    return render_template('basic-forms/annual/create.html', title='Annual Create', form=form)
+
+@app.route('/annual/update/<int:id>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.annual.update', 'Update')
+def annual_update(id):
+    annual = Annual.query.get_or_404(id)
+    form = AnnualFormUpdate(annual.id)
+    if form.validate_on_submit():
+        annual.name = form.name.data
+        annual.display_name = form.display_name.data
+        annual.annual = form.annual.data
+        annual.branch_id = form.branch_id.data
+        db.session.commit()
+        flash('Your changes have been saved.', 'alert-success')
+        return redirect(url_for('annual_view', id=annual.id))
+    elif request.method == 'GET':
+        form.name.data = annual.name
+        form.display_name.data = annual.display_name
+        form.annual.data = annual.annual
+        form.branch_id.data = annual.branch_id
+    return render_template('basic-forms/annual/update.html', title='Annual Update', form=form)
+
+@app.route('/annual/<int:id>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.annual.view', 'View')
+def annual_view(id):
+    annual = Annual.query.get_or_404(id)
+    return render_template('basic-forms/annual/view.html', title='Annual View', annual=annual)
+
+@app.route('/annual/delete/<int:id>/', methods=['GET', 'POST'])
+def annual_delete(id):
+    annual = Annual.query.get_or_404(id)
+    if len(annual.promos) > 0 or len(annual.semesters) > 0:
+        flash("you can't delete this Annual because it is in Relation with other Records", 'alert-danger')
+        if len(annual.promos) > 0:
+            flash("you have to break the relation with the Promoss first")
+        if len(annual.semesters) > 0:
+            flash("you have to break the relation with the Semesters first")
+        return redirect(url_for('annual_view', id=id))
+    db.session.delete(annual)
+    db.session.commit()
+    flash('Annual: ' + str(annual.name) + ' is deleted', 'alert-success')
+    return redirect(url_for('annual_index'))
+
+
+
 
 #######################################
 #####           Semester          #####
 
+@app.route('/semester/')
+@register_breadcrumb(app, '.basic.semester', 'Semesteres')
+def semester_index():
+    # i have to order by school & semester
+    semesters = Semester.query.join(Annual)\
+        .order_by(Annual.id, Semester.semester, Semester.latest_update).all()
+    return render_template('basic-forms/semester/index.html', title='Semesters List', semesters=semesters)
+
+@app.route('/semester/create/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.semester.create', 'Create')
+def semester_create():
+    form = SemesterFormCreate()
+    if form.validate_on_submit():
+        semester = Semester(
+            name=form.name.data, 
+            display_name=form.display_name.data, 
+            semester=form.semester.data,
+            # is_closed=form.is_closed.data,
+            annual_id=form.annual_id.data
+            # latest_update
+        )
+        db.session.add(semester)
+        db.session.commit()
+        flash('Created and Saved Successfully.', 'alert-success')
+        return redirect(url_for('semester_view', id=semester.id))
+    return render_template('basic-forms/semester/create.html', title='Semester Create', form=form)
+
+@app.route('/semester/update/<int:id>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.semester.view.update', 'Update')
+def semester_update(id):
+    semester = Semester.query.get_or_404(id)
+    if semester.is_locked():
+        flash("You can't update a closed Semester")
+        return redirect(url_for('semester_view', id=id))
+    form = SemesterFormUpdate(id)
+    if form.validate_on_submit():
+        semester.name = form.name.data
+        semester.display_name = form.display_name.data
+        semester.semester = form.semester.data
+        # semester.is_closed = form.is_closed.data
+        semester.annual_id = form.annual_id.data
+        db.session.commit()
+        flash('Your changes have been saved.', 'alert-success')
+        return redirect(url_for('semester_view', id=id))
+    elif request.method == 'GET':
+        form.name.data = semester.name
+        form.display_name.data = semester.display_name
+        form.semester.data = semester.semester
+        # form.is_closed.data = semester.is_closed
+        form.annual_id.data = semester.annual_id
+    return render_template('basic-forms/semester/update.html', title='Semester Update', form=form)
+
+@app.route('/semester/duplication-update/<int:id>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.semester.view.update', 'Update Name')
+def semester_special_update(id):
+    semester = Semester.query.get_or_404(id)
+    form = SemesterFormSpecialUpdate(id)
+    if form.validate_on_submit():
+        semester.name = form.name.data
+        db.session.commit()
+        flash('Your changes have been saved.', 'alert-success')
+        return redirect(url_for('semester_view', id=id))
+    elif request.method == 'GET':
+        form.name.data = semester.name
+    return render_template('basic-forms/semester/update.html', title='Semester Duplication Update', form=form)
+
+
+def semester_view_dlc(*args, **kwargs):
+    id = request.view_args['id']
+    semester = Semester.query.get_or_404(id)
+    return [{'text': 'S '+str(semester.get_nbr()), 'url': url_for('semester_view', id=id)}]
+
+@app.route('/semester/<int:id>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.semester.view', '', dynamic_list_constructor=semester_view_dlc)
+def semester_view(id):
+    semester = Semester.query.get_or_404(id)
+    return render_template('basic-forms/semester/view.html', title='Semester View', semester=semester)
+
+# WARNING: i have to check before i delete
+@app.route('/semester/delete/<int:id>/', methods=['GET', 'POST'])
+def semester_delete(id):
+    semester = Semester.query.get_or_404(id)
+    if len(semester.sessions) > 0:
+        flash("you can't delete this Semester because it is in Relation with other Records", 'alert-danger')
+        flash("you have to break the relation with the Sessions first")
+        return redirect(url_for('semester_view', id=id))
+    db.session.delete(semester)
+    db.session.commit()
+    flash('Semester: ' + str(semester.name) + ' is deleted', 'alert-success')
+    return redirect(url_for('semester_index'))
+
+@app.route('/semester/close/<int:id>/', methods=['GET', 'POST'])
+def semester_close(id):
+    semester = Semester.query.get_or_404(id)
+    for parallel in semester.get_parallels():
+        if parallel.is_locked() == True:
+            parallel.is_closed = True
+    semester.is_closed = True
+    db.session.commit()
+    flash("this Semester is now Closed", 'alert-success')
+    return redirect(url_for('semester_view', id=id))
+
+@app.route('/semester/open/<int:id>/', methods=['GET', 'POST'])
+def semester_open(id):
+    semester = Semester.query.get_or_404(id)
+    for parallel in semester.get_parallels():
+        if parallel.is_locked() != True:
+            flash("you can have only one Open Semester at a time", "alert-danger")
+            return redirect(url_for('semester_index'))
+    semester.is_closed = False
+    db.session.commit()
+    flash("this Semester is now Open", 'alert-success')
+    return redirect(url_for('semester_view', id=id))
+
+# you can find Semester Duplication 
+#     in routesConfig.py duplicate_config()
 
 
 #######################################
@@ -302,12 +489,111 @@ def wilaya_view(id):
 @app.route('/wilaya/delete/<int:id>/', methods=['GET', 'POST'])
 def wilaya_delete(id):
     wilaya = Wilaya.query.get_or_404(id)
-    if len(wilaya.students) > 0:
+    if len(wilaya.students) > 0 or len(wilaya.teachers) > 0:
         flash("you can't delete this Wilaya because it is in Relation with other Records", 'alert-danger')
-        flash("you have to break the relation with the Students first")
-        return redirect(url_for('wilaya_view', id=wilaya.id))
+        if len(wilaya.students) > 0:
+            flash("you have to break the relation with the Students first")
+        if len(wilaya.teachers) > 0:
+            flash("you have to break the relation with the Teachers first")
+        return redirect(url_for('wilaya_view', id=id))
     db.session.delete(wilaya)
     db.session.commit()
     flash('Wilaya: ' + str(wilaya.name) + ' is deleted', 'alert-success')
     return redirect(url_for('wilaya_index'))
+
+
+
+#######################################
+#####           Teacher           #####
+
+
+@app.route('/teacher/')
+@register_breadcrumb(app, '.basic.teacher', 'Teachers')
+def teacher_index():
+    teachers = Teacher.query.all()
+    return render_template('basic-forms/teacher/index.html', title='Teachers List', teachers=teachers)
+
+@app.route('/teacher/create/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.teacher.create', 'Create')
+def teacher_create():
+    form = TeacherFormCreate()
+    if form.validate_on_submit():
+        teacher = Teacher(
+            username=form.username.data,
+            last_name=form.last_name.data, 
+            first_name=form.first_name.data,
+            # last_name_arab=form.last_name_arab.data,
+            # first_name_arab=form.first_name_arab.data,
+            email=form.email.data,
+            birth_date=form.birth_date.data,
+            birth_place=form.birth_place.data,
+            address=form.address.data,
+            wilaya_id=form.wilaya_id.data,
+            sex=form.sex.data,
+            phone=form.phone.data
+        )
+        db.session.add(teacher)
+        db.session.commit()
+        flash('Created and Saved Successfully.', 'alert-success')
+        return redirect(url_for('teacher_view', id=teacher.id))
+    return render_template('basic-forms/teacher/create.html', title='Teacher Create', form=form)
+
+@app.route('/teacher/update/<int:id>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.teacher.update', 'Update')
+def teacher_update(id):
+    teacher = Teacher.query.get_or_404(id)
+    form = TeacherFormUpdate(teacher.id)
+    if form.validate_on_submit():
+        teacher.username = form.username.data
+        teacher.last_name = form.last_name.data
+        teacher.first_name = form.first_name.data
+        # teacher.last_name_arab = form.last_name_arab.data
+        # teacher.first_name_arab = form.first_name_arab.data
+        if len(form.email.data) > 0:
+            teacher.email = form.email.data
+        teacher.birth_date = form.birth_date.data
+        teacher.birth_place = form.birth_place.data
+        teacher.address = form.address.data
+        teacher.wilaya_id = form.wilaya_id.data
+        teacher.sex = form.sex.data
+        teacher.phone = form.phone.data
+        db.session.commit()
+        flash('Your changes have been saved.', 'alert-success')
+        return redirect(url_for('teacher_view', id=teacher.id))
+    elif request.method == 'GET':
+        form.username.data = teacher.username
+        form.last_name.data = teacher.last_name
+        form.first_name.data = teacher.first_name
+        # form.last_name_arab.data = teacher.last_name_arab
+        # form.first_name_arab.data = teacher.first_name_arab
+        form.email.data = teacher.email
+        form.birth_date.data = teacher.birth_date
+        form.birth_place.data = teacher.birth_place
+        form.address.data = teacher.address
+        form.wilaya_id.data = teacher.wilaya_id
+        form.sex.data = teacher.sex
+        form.phone.data = teacher.phone
+    return render_template('basic-forms/teacher/update.html', title='Teacher Update', form=form)
+
+@app.route('/teacher/<int:id>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.teacher.view', 'View')
+def teacher_view(id):
+    teacher = Teacher.query.get_or_404(id)
+    return render_template('basic-forms/teacher/view.html', title='Teacher View', teacher=teacher)
+
+# WARNING: i have to check before i delete
+@app.route('/teacher/delete/<int:id>/', methods=['GET', 'POST'])
+def teacher_delete(id):
+    teacher = Teacher.query.get_or_404(id)
+    if len(teacher.module_sessions) > 0 or len(teacher.teacher_attendances) > 0:
+        flash("you can't delete this Teacher because it is in Relation with other Records", 'alert-danger')
+        if len(teacher.module_sessions) > 0:
+            flash("you have to break the relation with the Module Sessions first")
+        if len(teacher.teacher_attendances) > 0:
+            flash("you have to break the relation with the Teacher Attendances first")
+        return redirect(url_for('teacher_view', id=id))
+    db.session.delete(teacher)
+    db.session.commit()
+    flash('Teacher: ' + str(teacher.name) + ' is deleted', 'alert-success')
+    return redirect(url_for('teacher_index'))
 

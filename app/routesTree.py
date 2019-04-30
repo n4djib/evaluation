@@ -1,15 +1,18 @@
 from app import app, db
-from flask import render_template, url_for, request
-from app.models import School, Session, Semester, Promo, AnnualSession
-
+from flask import render_template, url_for, redirect, request, flash
+from app.models import School, Session, Annual, Semester, Promo, AnnualSession
 from flask_breadcrumbs import register_breadcrumb
+# from app.routesSession import is_config_changed
+from datetime import datetime
+from app.routesCalculation import init_all, calculate_all
 
-from app.routesSession import is_config_changed
 
 
 def get_creation_links(promo, seperate=True):
     sessions = promo.sessions
-    semesters = promo.branch.semesters
+    semesters = promo.branch.get_semesters_ordered()
+    semesters = semesters[-1].get_latest_of_semesters_list()
+
     links = ''
     if len(semesters) > 0:
         first_semester_id = semesters[0].id
@@ -19,10 +22,10 @@ def get_creation_links(promo, seperate=True):
         url = url_for('create_session', promo_id=promo.id, semester_id=first_semester_id)
 
         if len(sessions) > 0:
-            first_sessions = sessions[0]
-            sessions_chain = first_sessions.get_chain()
+            first_session = sessions[0]
+            sessions_chain = first_session.get_chain()
             last_session_id = sessions_chain[-1]
-            last_session = Session.query.get(last_session_id)
+            last_session = Session.query.get_or_404(last_session_id)
 
             name = ''
 
@@ -42,15 +45,6 @@ def get_creation_links(promo, seperate=True):
             links += '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", target:"_top", url: "'+url+'", iconSkin:"icon01"},'
     return links
 
-def get_year(promo):
-    # return one (last)
-    sessions = Session.query.filter_by(promo_id=promo.id)\
-        .join(Semester).order_by('annual desc', Semester.semester, Session.start_date)\
-        .all()
-    for session in sessions:
-        return session.semester.annual
-    return '***'
-
 def get_annual_session(session, pId):
     # it shows only after last session in Annual chain
     annual = ''
@@ -61,14 +55,14 @@ def get_annual_session(session, pId):
         if annual_chain[-1] == session.id:
             an_s_id = session.annual_session_id
             url = url_for('annual_session', annual_session_id=an_s_id)
-            # name = 'Annual '+str(session.semester.annual)+' Results       (an:'+str(an_s_id)+')'
-            name = 'Annual '+str(session.semester.annual)+' Results'
+            # name = 'Annual '+str(session.semester.annual.annual)+' Results       (an:'+str(an_s_id)+')'
+            name = 'Annual '+str(session.semester.annual.annual)+' Results'
             annual = '{id:"annual_'+str(an_s_id)+'", pId:"'+pId+'", url: "'+url+'", name:"'+name+'", target:"_self", iconSkin:"icon17"},'
     return annual
 
 def get_sessions_tree(promo, promo_label=''):
-    sessions = Session.query.filter_by(promo_id=promo.id).join(Semester)\
-        .order_by(Semester.annual, Semester.semester).all()
+    sessions = Session.query.filter_by(promo_id=promo.id).join(Semester).join(Annual)\
+        .order_by(Annual.annual, Semester.semester).all()
 
     sessions_tree = ''
     for session in sessions:
@@ -89,9 +83,10 @@ def get_sessions_tree(promo, promo_label=''):
         name += str(semester) + " <span style='font-size: 0.1px;'>" + promo_label + "</span>"
 
         if session.is_closed == True:
-            name += "<span class='button icon13_ico_docu'></span></span>"
+            name += "<span class='button icon13_ico_docu'></span>"
 
-        if is_config_changed(session) and session.is_closed==False:
+        # if is_config_changed(session) and session.is_closed==False:
+        if session.is_config_changed() and session.is_closed==False:
             name += "<span style='color: orange;''>        Configuration has changed, you need to Re(initialized)</span>"
 
         p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:true, url: "'+url+'", '
@@ -117,7 +112,7 @@ def get_promos_tree(branch, open_p_id):
         if promo_display_name != '':
             name += " - <span style='color: "+str(promo.color)+";'>" + promo_display_name + "</span>"
 
-        name = name + ' (' + str(get_year(promo)) + ' Year)'
+        name = name + ' (' + str(  promo.get_latest_annual() ) + ' Year)'
 
         font = '{"font-weight":"bold", "font-style":"italic"}'
         icon = 'pIcon15'
@@ -130,7 +125,6 @@ def get_promos_tree(branch, open_p_id):
             if open_p_id == promo.id:
                 open = 'true'
 
-        # sessions_tree = get_sessions_tree(promo, promo_label)
         sessions_tree = get_sessions_tree(promo, promo.name + ' ' + promo_display_name)
         if sessions_tree == '':
             icon = 'icon15'
@@ -178,8 +172,6 @@ def get_schools_tree(open_s_id, open_b_id, open_p_id):
     return schools_tree
 
 
-
-
 def tree_dlc(*args, **kwargs):
     session_id = request.view_args['session_id']
     session = Session.query.get_or_404(session_id)
@@ -217,12 +209,10 @@ def annual_tree_dlc(*args, **kwargs):
     return [{'text': 'Tree ('+ session.promo.name +')', 
         'url': url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id) }]
 
-
 @app.route('/annual-tree/annual-session/<annual_session_id>/', methods=['GET'])
 @register_breadcrumb(app, '.annual_tree', '', dynamic_list_constructor=annual_tree_dlc)
 def annual_tree_(annual_session_id=0):
     return '*** just used to generate the url-annual-session ***'
-
 
 
 @app.route('/tree/school/<school_id>/branch/<branch_id>/promo/<promo_id>/', methods=['GET'])
@@ -232,16 +222,24 @@ def annual_tree_(annual_session_id=0):
 @register_breadcrumb(app, '.tree_', 'Tree')
 def tree(school_id=0, branch_id=0, promo_id=-1):
     options_arr = get_options()
+    nbr_reinit_needed = check_reinit_needed()
+    if nbr_reinit_needed > 0:
+        reinit_url = url_for('tree_reinit_all')
+        slow_redirect_url = url_for('slow_redirect', url=reinit_url, message='(Re)initializing ' + str(nbr_reinit_needed) + ' sessions')
+        btn = '<a id="re-init-all" class="btn btn-warning" href="'+slow_redirect_url+'" >(Re)init all</a>'
+        msg = str(nbr_reinit_needed) + ' Sessions needs to be (Re)initialized    ' + btn
+        flash(msg, 'alert-warning')
     zNodes = '[' + get_schools_tree(int(school_id), int(branch_id), int(promo_id)) + ']'
     return render_template('tree/tree.html', title='Tree', zNodes=zNodes, options_arr=options_arr)
 
-
 def get_options_by_promo(promo):
     options = ''
-    semesters = promo.branch.semesters
+    semesters = promo.branch.get_semesters_ordered()
+    semesters = semesters[-1].get_latest_of_semesters_list()
     for semester in semesters:
         val = str(semester.id)
-        opt = str(semester.get_nbr())
+        # opt = str(semester.get_nbr())
+        opt = str(semester.get_nbr()) + ' - ' + semester.name
         options += '<option value='+val+'>'+opt+'</option>'
     return options
 
@@ -255,3 +253,28 @@ def get_options():
     return array
 
 
+
+def check_reinit_needed():
+    sessions = Session.query.filter_by(is_closed=False).all()
+    count = 0
+    for session in sessions:
+        if session.is_config_changed():
+            count += 1
+    return count
+
+@app.route('/tree/re-init/school/<school_id>', methods=['GET'])
+@app.route('/tree/re-init/', methods=['GET'])
+def tree_reinit_all(school_id=0):
+    nbr_reinit = check_reinit_needed()
+    sessions = Session.query.filter_by(is_closed=False).all()
+    for session in sessions:
+        if session.is_config_changed():
+            # message = 
+            init_all(session)
+            calculate_all(session)
+            # # a trick to update the Slow redirect page
+            # return redirect( url_for('tree_reinit_all') )
+
+    return redirect( url_for('tree') )
+
+#

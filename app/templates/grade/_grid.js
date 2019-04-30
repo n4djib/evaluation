@@ -1,11 +1,8 @@
 var data_arr = {{ data | safe | replace('None', 'null') }};
-// var data_arr = [[""]]
 var type = '{{ type | safe }}';
 
-var session_is_rattrapage = {{ session.is_rattrapage | safe | replace('T', 't') | replace('F', 'f') }}
-var session_is_closed = {{ session.is_closed | safe | replace('T', 't') | replace('F', 'f') }}
-
-// if(is_rattrapage) alert("aaaaa");
+var session_is_rattrapage = {{ session.is_rattrapage | safe | replace('T', 't') | replace('F', 'f') }};
+var session_is_closed = {{ session.is_closed | safe | replace('T', 't') | replace('F', 'f') }};
 
 var hotElement = document.querySelector('#hot');
 
@@ -69,8 +66,9 @@ function fill_cols() {
   if (type == 'module'){
     var _formula = data_arr[0]['formula'];
     var cour_label = 'Cour';
-    if(session_is_rattrapage == true)
-      cour_label = 'Ratt.'
+    // uncomment this Code to change the label Cour to Ratt.
+    // if(session_is_rattrapage == true)
+    //   cour_label = 'Ratt.'
 
     cols = {
       'username': {visible: true, name: "Username"},
@@ -113,7 +111,6 @@ columns.push({
   data: 'name', type: 'text', readOnly: true, renderer: nameRenderer
 });
 
-
 colHeaders.push(''),
 columns.push({
   data: '__seperator1__', width: 1, readOnly: true, renderer: creditRenderer
@@ -125,35 +122,35 @@ if (cols['cour']['visible'] === true)
   columns.push({
     data: 'cour', className: 'htRight', type: 'numeric', validator: rangeValidator,  
     // numericFormat: { pattern: '0.00', culture: 'en-US'},
-    allowInvalid: true, allowEmpty: false, renderer: lockRenderer
+    allowInvalid: true, allowEmpty: false, renderer: gradeRenderer
   });
 if (cols['td']['visible'] === true)
   colHeaders.push(cols['td']['name']),
   columns.push({
     data: 'td', className: 'htRight', type: 'numeric', validator: rangeValidator,  
     // numericFormat: { pattern: '0,0.00', culture: 'en-US'},
-    allowInvalid: true, allowEmpty: false, renderer: lockRenderer
+    allowInvalid: true, allowEmpty: false, renderer: gradeRenderer
   });
 if (cols['tp']['visible'] === true)
   colHeaders.push(cols['tp']['name']),
   columns.push({
     data: 'tp', className: 'htRight', type: 'numeric', validator: rangeValidator,  
     // numericFormat: { pattern: '0,0.00', culture: 'en-US'},
-    allowInvalid: true, allowEmpty: false, renderer: lockRenderer
+    allowInvalid: true, allowEmpty: false, renderer: gradeRenderer
   });
 if (cols['t_pers']['visible'] === true)
   colHeaders.push(cols['t_pers']['name']),
   columns.push({
     data: 't_pers', className: 'htRight', type: 'numeric', validator: rangeValidator,  
     // numericFormat: { pattern: '0,0.00', culture: 'en-US'},
-    allowInvalid: true, allowEmpty: false, renderer: lockRenderer
+    allowInvalid: true, allowEmpty: false, renderer: gradeRenderer
   });
 if (cols['stage']['visible'] === true)
   colHeaders.push(cols['stage']['name']),
   columns.push({
     data: 'stage', className: 'htRight', type: 'numeric', validator: rangeValidator,  
     // numericFormat: { pattern: '0,0.00', culture: 'en-US'},
-    allowInvalid: true, allowEmpty: false, renderer: lockRenderer
+    allowInvalid: true, allowEmpty: false, renderer: gradeRenderer
   });
 
 colHeaders.push(''),
@@ -267,12 +264,6 @@ var hot = new Handsontable(hotElement, {
     autoSave(change, source);
     autoCalculate(change, source);
   },
-  // afterInit: function (change, source) {
-  //   // hot.render(); /********************/
-  //   alert('afterLoad 11111');
-  //   this.validateCells();
-  //   alert('afterLoad 22222');
-  // }
 });
 
 hot.validateCells(function() {
@@ -284,7 +275,31 @@ hot.addHook('afterRender', function(){
 })
 
 
-hot.updateSettings({ cells: function(row, col, prop){
+
+
+/********************/
+/********************/
+/********************/
+
+function GetColNameByCol(col){
+  for(i=0; i<columns.length; i++)
+    if(i==col)
+      return columns[i]['data'];
+  return '123';
+}
+
+function get_ratt_field(formula){
+  // for(key in formula)
+  //   if(key == 'rattrapable')
+  //     return formula[key];
+
+  if(formula['rattrapable'])
+    return formula['rattrapable'];
+
+  return 'cour';
+}
+
+hot.updateSettings({ cells: function(row, col, prop, td){
     var cell = hot.getCell(row, col);
     if(cell === undefined || cell === null)
       return cell;
@@ -296,7 +311,8 @@ hot.updateSettings({ cells: function(row, col, prop){
     if(fields_list.indexOf(current_field) < 0)
       cell.readOnly = 'true';
 
-    if(session_is_rattrapage && !(is_rattrapage && current_field=='cour'))
+    var ratt_field = get_ratt_field( data_arr[row]['formula'] );
+    if( session_is_rattrapage && !(is_rattrapage && current_field==ratt_field) )
       cell.readOnly = 'true';
 
     if(session_is_closed)
@@ -306,15 +322,10 @@ hot.updateSettings({ cells: function(row, col, prop){
   }
 });
 
-// $('div#example1').handsontable({
-//   cells: function (row, col, prop) {
-//     var cellProperties = {}
-//     if(row === 0 && col === 0) {
-//       cellProperties.readOnly = true;
-//     }
-//     return cellProperties;
-//   }
-// })
+/********************/
+/********************/
+/********************/
+
 
 
 $("#search").keyup(function(){
@@ -386,13 +397,6 @@ $(document).on('keydown', function(e){
 
 //////////////////////////////////////////////////////////////
 
-function GetColNameByCol(col){
-  for(i=0; i<columns.length; i++)
-    if(i==col)
-      return columns[i]['data'];
-  return '123';
-}
-
 function nullifyData(data_arr) {
   var row, r_len;
   for (row = 0, r_len = data_arr.length; row < r_len; row++) {
@@ -445,17 +449,31 @@ function nameRenderer(instance, td) {
   return td;
 }
 
-function lockRenderer(instance, td, row, col, prop, value, cellProperties) {
+function gradeRenderer(instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);
+
   if(td.innerHTML !== '')
     td.innerHTML = Number(td.innerHTML).toFixed(2);
   else
     td.innerHTML = '';
-  
+
+  // coloring the read only cells
   if(cellProperties.readOnly=='true'){
     td.style.backgroundColor = '#EEE';
     td.innerHTML = '<i><font size="-1">' + td.innerHTML + '</font></i>';
   }
+
+  //showing the original grade before rattrpage
+  if(cellProperties.readOnly != 'true' && session_is_rattrapage == true){
+    // original_grade = 'Avant Ratt.   ' + Number(data_arr[row]['original_grade']).toFixed(2)
+    original_grade = Number(data_arr[row]['original_grade']).toFixed(2)
+    if(td.innerHTML === '')
+      td.innerHTML = '<font color="red" size="-1"><strike>'+original_grade+'</strike></font>';
+    else
+      td.innerHTML = '<div title="Avant Ratt.   '+original_grade+'">' + td.innerHTML + '</div>';
+  }
+
+
   return td;
 }
 
@@ -520,7 +538,7 @@ function calculateAverage(record, formula) {
   var average = 0;
   //traverse the formula and exclude credit
   for (key in formula) {
-    if(key !== 'credit' && key !== 'coefficient') {
+    if(key !== 'credit' && key !== 'coefficient' && key !== 'rattrapable') {
       var val = record[key];
       if(val === null || val === '')
         return null;

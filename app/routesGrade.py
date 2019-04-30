@@ -32,13 +32,11 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
     # cols = get_visible_cols(grades, type, _all)
     data = create_data_grid(grades, type)
 
-    grid_title = ''
     module = Module.query.filter_by(id=module_id).first()
-
+    student = Student.query.filter_by(id=student_id).first()
 
     if type=='module':
         get_hidden_values_flash(grades, session_id, module.id)
-
 
     # grid_title = F'Module: {module.display_name}'
     grid_title = F'Module: ***********'
@@ -48,9 +46,9 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
         student = Student.query.filter_by(id=student_id).first()
         grid_title = F'Student: {student.username} - {student.first_name} - {student.last_name}'
 
-    session = Session.query.get(session_id)
+    session = Session.query.get_or_404(session_id)
     return render_template('grade/grade.html', title='Grade Edit', 
-        data=data, _all=_all.lower(), grid_title=grid_title, type=type, session=session, module=module)
+        data=data, _all=_all.lower(), grid_title=grid_title, type=type, session=session, module=module, student=student)
 
 
 def get_hidden_values_flash(grades, session_id, module_id):
@@ -85,12 +83,23 @@ def get_hidden_values_flash(grades, session_id, module_id):
         btn = '<a href="'+url+'" class="btn btn-warning" role="button">Show All Fields</a>'
         flash('there is hidden value, because the Configuration changed  '+btn, 'alert-warning')
 
+def get_original_grade(grade):
+    original_grade = 0
+    parallel_session = grade.student_session.session.get_parallel_session()
+    original = Grade.query.filter_by(module_id=grade.module_id)\
+        .join(StudentSession).filter_by(
+            session_id=parallel_session.id, 
+            student_id=grade.student_session.student_id).first()
+    # get the rattrapable
+    if original != None:
+        field = grade.module.get_rattrapable_field()
+        original_grade = getattr(original, field)
+    return original_grade
 
 def create_data_grid(grades, type='module'):
     data = ""
     for grade in grades:
         grade_id = "id: " + str(grade.id) + ", "
-
         username = "username: '" + grade.get_username() + "', "
         name = "name: '" + grade.get_student_name() + "', "
         if type != "module":
@@ -104,15 +113,16 @@ def create_data_grid(grades, type='module'):
 
         average = "average: " + str(grade.average) + ", "
         credit = "credit: " + str(grade.credit) + ", "
-        # formula = "formula: `" + grade.formula + "` "
         formula = "formula: " + str(grade.formula).replace('None', '') + ", "
 
-        is_rattrapage = "is_rattrapage: false,"
+        is_rattrapage = "is_rattrapage: false, "
+        original_grade = "original_grade: null"
         if grade.is_rattrapage is True:
-            is_rattrapage = "is_rattrapage: true,"
+            is_rattrapage = "is_rattrapage: true, "
+            original_grade = "original_grade: "+str( get_original_grade(grade) )+" "
 
         data += "{" + username + grade_id + name + cour + td + tp + t_pers + stage \
-             + average + credit + formula + is_rattrapage + "}, "
+             + average + credit + formula + is_rattrapage + original_grade +"}, "
  
     return "[ " + data + " ]"
 
@@ -147,18 +157,18 @@ def get_module_cols(module_id):
     cols = []
     for percentage in percentages:
         type_id = percentage.type_id
-        type = Type.query.get(type_id)
+        type = Type.query.get_or_404(type_id)
         cols.append(type.grade_table_field)
     return cols
 
 def get_module_headers(module_id):
-    module = Module.query.get(module_id)
+    module = Module.query.get_or_404(module_id)
     percentages = module.percentages
     headers = ['#', 'Matricule', 'Nom', 'Prenom']
 
     for percentage in percentages:
         type_id = percentage.type_id
-        type = Type.query.get(type_id)
+        type = Type.query.get_or_404(type_id)
         headers.append(type.type + ' ('+str(int(percentage.percentage*100))+'%)')
         # headers.append(type.type + ' ('+  +'%)')
     return headers
@@ -218,7 +228,7 @@ def get_module_print_table(session_id=0, module_id=0, empty='', order='username'
     cols = get_module_cols(module_id)
     headers = get_module_headers(module_id)
     data_arr = create_data_for_module(grades, cols, empty)
-    module = Module.query.get(module_id)
+    module = Module.query.get_or_404(module_id)
 
     session = Session.query.get_or_404(session_id)
 

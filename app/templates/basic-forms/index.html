@@ -9,22 +9,23 @@
         <table class="table table-borderless">
         <tbody>
             <tr><td><a href="{{ url_for('student_index') }}">
-              <font size="5">Students</font> </a></td></tr>
-            <tr><td><a href="">
-              Teachers (Not done)</a></td></tr>
-            <!-- <tr><td> </td></tr> -->
-
-            <tr><td><a href="{{ url_for('school_index') }}">
-              <font size="5">Schools</font> </a></td></tr>
-            <tr><td><a href="{{ url_for('branch_index') }}">
-              <font size="5">Branches</font> </a></td></tr>
-            <tr><td><a href="{{ url_for('promo_index') }}">
-              <font size="5">Promos</font> </a></td></tr>
-            <tr><td><a href="">
-              Semesters (Not done) </a></td></tr>
+              <font size="4">Students</font> </a></td></tr>
+            <tr><td><a href="{{ url_for('teacher_index') }}">
+              <font size="4">Teachers</font> </a></td></tr>
             <tr><td><a href="{{ url_for('wilaya_index') }}">
-              <font size="5">Wilayas</font> </a></td></tr>
+              <font size="4">Wilayas</font> </a></td></tr>
             <tr><td> </td></tr>
+            <!-- <tr><td> </td></tr> -->
+            <tr><td><a href="{{ url_for('school_index') }}">
+              <font size="4">Schools</font> </a></td></tr>
+            <tr><td><a href="{{ url_for('branch_index') }}">
+              <font size="4">Branches</font> </a></td></tr>
+            <tr><td><a href="{{ url_for('promo_index') }}">
+              <font size="4">Promos</font> </a></td></tr>
+            <tr><td><a href="{{ url_for('annual_index') }}">
+              <font size="4">Annuals</font> </a></td></tr>
+            <tr><td><a href="{{ url_for('semester_index') }}">
+              <font size="4">Semesters</font> </a></td></tr>
         </tbody>
       </table>
 

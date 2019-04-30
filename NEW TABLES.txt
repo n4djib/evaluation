@@ -1,22 +1,41 @@
 
-= remove rattrapage from table Type
-
 = remove Semester 1 & Semester 2
 	from Sages femmes Promo 2017 (rihab)
 
-= table "attandance"
-	remove "attandance" to "student_session"
-	change student_session_id to student_id
-	replace it "attandance" to "student"
-	
-= table in "module_session"
-	forign links to
-		module, session, teacher
-	
-	
+
+= add to "annual_grade" do_ratt bool
+	after credit_r
+
+= put timestamp last in "annual_grade"
+
+= in "annual_grade" change 
+	s1 to avr_1
+	c1 to cr_1
+	s2 to avr_2
+	c2 to cr_2
+	rs1 to avr_r_1
+	rc1 to cr_r_1
+	rs2 to avr_r_2
+	rc2 to cr_r_2
+
+= ISP S2 Sémiologie
+	fix rattrapable
+
 = 
-	
-	
+
+= 
+
+= 
+
+= 
+
+= 
+
+= 
+
+
+
+
 
 = don't forget to remove repetition in Semester Result
 = remove *** line 208 -> tree( 

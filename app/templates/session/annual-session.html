@@ -55,11 +55,35 @@
           <thead>
             <tr>
               <th rowspan="2">#</th>
-              <th rowspan="2"><center>name</center></th>
-              <th colspan="2">Semester 1</th>
-              <th colspan="2">Ratt. 1</th>
-              <th colspan="2">Semester 2</th>
-              <th colspan="2">Ratt. 2</th>
+              <th rowspan="2"><center>Name</center></th>
+              <th colspan="2">
+                {% if annual_dict['S1'] != -1 %}
+                  <a href="{{ url_for('session', session_id=annual_dict['S1']) }}" target="_blank" >Semester 1</a>
+                {% else %}
+                  Semester 1
+                {% endif %}
+              </th>
+              <th colspan="2">
+                {% if annual_dict['R1'] != -1 %}
+                  <a href="{{ url_for('session', session_id=annual_dict['R1']) }}" target="_blank" >Ratt. 1</a>
+                {% else %}
+                  Ratt. 1
+                {% endif %}
+              </th>
+              <th colspan="2">
+                {% if annual_dict['S1'] != -1 %}
+                  <a href="{{ url_for('session', session_id=annual_dict['S2']) }}" target="_blank" >Semester 2</a>
+                {% else %}
+                  Semester 2
+                {% endif %}
+              </th>
+              <th colspan="2">
+                {% if annual_dict['R2'] != -1 %}
+                  <a href="{{ url_for('session', session_id=annual_dict['R2']) }}" target="_blank" >Ratt. 2</a>
+                {% else %}
+                  Ratt. 2
+                {% endif %}
+              </th>
               <th colspan="2">Annual</th>
               <th colspan="2">Annual Ratt</th>
               <th colspan="2">Saving</th>
