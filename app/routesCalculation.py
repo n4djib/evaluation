@@ -79,15 +79,18 @@ def init_grade(session):
                     grade.t_pers = copied_grade.t_pers
                     grade.stage  = copied_grade.stage
 
-                    grade.is_rattrapage  = copied_grade.is_rattrapage
+                    grade.is_rattrapage = copied_grade.is_rattrapage
+                    # dirty is set in calculate grade
+                    grade.is_dirty = copied_grade.is_dirty
+                    grade.calculation = copied_grade.calculation
 
                 grade.formula = get_formula(module.id)
                 ## if i am going to use order then there is no need to delete grades
                 # grade.order = module.order
 
-                # calculate_grade(grade)
-                grade.calculate()
+                # grade.calculate()
                 db.session.add(grade)
+
     db.session.commit()
 
     return 'init grade '
@@ -151,7 +154,6 @@ def calculate_all(session):
 def reinitialize_session(session_id=0):
     session = Session.query.get_or_404(session_id)
     message = init_all(session)
-    # message += "</br>" + calculate_all(session_id)
     message += "</br>" + calculate_all(session)
     flash(message)
     return redirect(url_for('session', session_id=session_id))

@@ -397,13 +397,17 @@ class GradeUnit(db.Model):
         credit = 0
         calculation = ''
         for grade in grades:
-            if grade.average == None:
-                average = None
-                break
+            # if grade.average == None:
+            #     average = None
+            #     break
+            g_avr = grade.average
+            if g_avr == None:
+                g_avr = 0
+
             coefficient = grade.module.coefficient
-            average += round(grade.average * coefficient / cumul_unit_coeff, 2)
+            average += round(g_avr * coefficient / cumul_unit_coeff, 2)
             credit += grade.credit
-            calculation += str(grade.average) + ' * ' + str(coefficient) + ' + '
+            calculation += str(g_avr) + ' * ' + str(coefficient) + ' + '
 
         self.average = average
         if average == None:
@@ -433,6 +437,7 @@ class Grade(db.Model):
     formula = db.Column(db.String(200))
     calculation = db.Column(db.String(100))
     is_rattrapage = db.Column(db.Boolean, default=False)
+    is_dirty = db.Column(db.Boolean, default=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'))
     module = db.relationship('Module', back_populates='grades')
@@ -451,34 +456,34 @@ class Grade(db.Model):
             return '1'
         return '2'
     def calculate(self):
-        formula = self.formula
-        dictionary = eval(formula)
         average = 0
         calculation = ''
+        dictionary = eval(self.formula)
         for field in dictionary:
             if field in ['cour', 'td', 'tp', 't_pers', 'stage']:
                 val = getattr(self, field)
                 percentage = dictionary[field]
-                if val == None:
-                    average = None
-                    break
                 getcontext().prec = 4
-                average += round( val * Decimal(percentage) , 2)
+                if val != None:
+                    average += round( val * Decimal(percentage) , 2)
 
+                if val == None:
+                    val = '???'
                 calculation += '('+ str(field) + ': ' + str(val) + ' * ' + str(percentage) + ')' + ' + '
-        
+        # end for
+
         calculation = calculation[:-3]
 
-        credit = None
+        # credit
+        credit = 0
         if average != None:
             if average >= 10:
                 credit = dictionary['credit']
-            else:
-                credit = 0
 
         self.average = average
         self.credit = credit
         self.calculation = calculation
+        self.is_dirty = False
         return 'grade calculated'
 
 class School(db.Model):

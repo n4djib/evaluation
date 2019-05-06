@@ -52,7 +52,8 @@
 - change "name" to "display_name" in printables 
 - annual bultin would not display correctly
 	if the initializition is not updated (rattrapage and normal)
-
+- in Result Be carful of long Module Names
+- in Result Print Browser the tables print wrong if it jumps to the next Page
 
 
 == Note ==
@@ -79,20 +80,22 @@
 				???????????
 			- add a new field of RATTRAPABLE in annual_grade
 				and decide in if he should enter ratt after one semester in the case of Fondamental
+			- calculate even if there is missing fields
+			- in grade don't calculate average if the field is empty
+				but calculate unit and semester
 - MSG
 	do you want to create Ratt before finishing the filling
 - when i don't fill Rattrapage
 	and then calculate annual - some inconsistencies appear
-- warnning of not finishing fields filling
-	if you create a RATT
-- make a warrning in Annual of not filled fields 
+- make a warrning in Annual of not filled fields
+
 - why i can't delete rattrapage in SF
 - in ratt annual indicate students who passed the rattrapage
 	at least one module
 	who is already generated and who is not
-- maybe i should not create RATT from annual when SF
 - in get_annual_chain_students_to_enter_rattrapage_annual
 	students list must return from before rattraage
+- maybe i should not create RATT from annual when SF
 - in SF if i generate RATT from annual
 	it will show students that should not enter RATT
 	it can happen in ISP if ratt 2
@@ -109,6 +112,8 @@
 - check the Observation (SF)
 - add semester name to Semester Tree
 - lock annual
+- Pin Header in Semester Results
+- add filter to semester Results
 
 - i need to implement passage system
 	check every student Annual

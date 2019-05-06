@@ -119,9 +119,11 @@ def tree_unit(unit, is_closed=False):
     }'''
 
 def tree_semester(semester, is_closed=False):
-    href = '/admin/semester/edit/?id=' + str(semester.id)
-    if is_closed:
-        href = 'URL_STRING_TO_BE_REPLACED'
+    # href = '/admin/semester/edit/?id=' + str(semester.id)
+    # if is_closed:
+    #     href = 'URL_STRING_TO_BE_REPLACED'
+
+    href = url_for('semester_view', id=semester.id)
 
     # link = '{ val: "' + semester.name + '", href: "' + href + '", target: "_blank" }'
     link = '{ val: "' + semester.name + '", href: "' + href + '" }'

@@ -8,8 +8,7 @@ from ast import literal_eval
 from sqlalchemy import or_
 
 from app.routesCalculation import init_all, reinitialize_session, update_session_configuraton
-# from app.routesCalculation import config_to_dict
-# from app.routesAnnual import init_annual_session_id
+
 
 
 
@@ -42,17 +41,51 @@ def show_relation(session_id=0):
 
 # ----------------------
 
-def get_icon_progress_module(session_id, module_id):
-    grades = Grade.query.filter_by(module_id=module_id)\
-        .join(StudentSession).filter_by(session_id=session_id)\
-        .all()
-    return get_icon_progress(grades)
+def check_grid_is_complite(session):
+    # return a dictionary
+    #   of errors and empty and calculated
+    cells_nbr = 0
+    filled = 0
+    errors = 0
 
-def get_icon_progress_student(session_id, student_id):
-    grades = Grade.query.join(StudentSession)\
-        .filter_by(session_id=session_id, student_id=student_id)\
-        .all()
-    return get_icon_progress(grades)
+    EPMTY = False
+    ERRS = False
+    CALC = False
+    CONF = False
+
+    # 
+    grades = Grade.query.join(StudentSession).filter_by(session_id=session.id).all()
+    for grade in grades:
+        fields_list = []
+        if grade.formula != None:
+            fields_list = extract_fields(grade.formula)
+        for field in fields_list:
+            if field in ['cour', 'td', 'tp', 't_pers', 'stage']:
+                cells_nbr += 1
+                val = getattr(grade, field)
+                if val != None:
+                    filled += 1
+                    # if val < 0  or  val > 20  or  not isinstance(val, decimal.decimal):
+                    if val < 0  or  val > 20:
+                        errors += 1
+                        ERRS = True
+        # CALC
+        if grade.is_dirty == True:
+            CALC = True
+
+    #
+    if cells_nbr != filled:
+        EPMTY = True
+
+    nbr_empty = cells_nbr - filled
+
+    CONF = session.is_config_changed()
+
+    return {'EPMTY': EPMTY, 'nbr_empty': nbr_empty, 
+            'ERRS': ERRS, 'nbr_errs': errors,
+            'CALC': CALC,
+            'CONF': CONF}
+
 
 def extract_fields(formula):
     fields_list = []
@@ -75,9 +108,9 @@ def get_icon_progress(grades):
             fields_list = extract_fields(grade.formula)
         for field in fields_list:
             if field in ['cour', 'td', 'tp', 't_pers', 'stage']:
-                #if hasattr(a, 'property'):
                 cells_nbr += 1
                 val = getattr(grade, field)
+                #if hasattr(a, 'property'):
                 if val != None:
                     filled += 1
                     if val < 0 or val > 20:
@@ -94,6 +127,18 @@ def get_icon_progress(grades):
     if cells_nbr!=filled and filled > 0  and  errors == 0:
         return 'in_progress.png'
     return ''
+
+def get_icon_progress_module(session_id, module_id):
+    grades = Grade.query.filter_by(module_id=module_id)\
+        .join(StudentSession).filter_by(session_id=session_id)\
+        .all()
+    return get_icon_progress(grades)
+
+def get_icon_progress_student(session_id, student_id):
+    grades = Grade.query.join(StudentSession)\
+        .filter_by(session_id=session_id, student_id=student_id)\
+        .all()
+    return get_icon_progress(grades)
 
 def get_config_changed_flash(session):
     if session.is_config_changed():
@@ -138,10 +183,14 @@ def session(session_id=0):
 
     session.name = make_session_name(session)
 
+    # 
+    C = check_grid_is_complite(session)
+    flash( 'EPMTY: '+str(C['EPMTY'])+' '+str(C['nbr_empty'])+' +++ ERRS: '+str(C['ERRS'])+' '+str(C['nbr_errs']) + ' +++ CALC: '+str(C['CALC'])+' +++ CONF: '+str(C['CONF']) )
+
     return render_template('session/session.html', 
         title='Session', session=session,
         students=students_list, modules=modules_list,
-        icons_module=icons_module, icons_student=icons_student)
+        icons_module=icons_module, icons_student=icons_student, check=C)
 
 
 def make_session_name(session):
@@ -340,7 +389,6 @@ def lock_session(session_id):
     promo_id = session.promo_id
     return redirect(url_for('session', session_id=session.id))
 
-
 # WARNING: i have to check before i delete
 # check that the session is not closed
 @app.route('/session/<session_id>/delete-session/', methods=['GET', 'POST'])
@@ -419,25 +467,6 @@ def create_rattrapage(session_id):
 
     # # if Rattrapage exist -> it is next
     return session
-
-# def students_todo_rattrapage_semester(session_id):
-#     students = StudentSession.query\
-#         .filter_by(session_id=session_id)\
-#         .filter( or_(StudentSession.credit < 30, StudentSession.credit == None) )\
-#         .join(Student).order_by(Student.username)\
-#         .all()
-#     # raise Exception('___todo___:' + str(session_id) + '---' + str(students) + '___todo____')
-#     return students
-
-# @app.route('/session/<session_id>/rattrapage/', methods=['GET', 'POST'])
-# @register_breadcrumb(app, '.tree.session.rattrapage', 'Rattrapage')
-# def students_rattrapage_semester(session_id=0):
-#     students = students_todo_rattrapage_semester(session_id)
-#     return render_template('session/students-rattrapage-semester.html', 
-#         title='students-rattrapage-semester', 
-#         students=students, 
-#         session_id=session_id)
-
 
 def init_grades_rattrapage(session, rattrapage):
     # # travers students in Rattrapage and Init from Session
@@ -1459,9 +1488,9 @@ def get_th_2(configuration, cols_per_module):
     for unit in conf_dict['units']:
         for module in unit['modules']:
             display_name = module["display_name"]
-            header += F'<th colspan={cols_per_module}><center>{display_name}</center></th>'
+            header += F'<th style="word-wrap: break-word" colspan={cols_per_module}><font size="-1"><center>{display_name}</center></font></th>'
         name = 'Resultat de ' + unit["display_name"] 
-        header += F'<th class="unit" rowspan=3 colspan={cols_per_module}><center>{name}</center></th>'
+        header += F'<th style="word-wrap: break-word" class="unit" rowspan=3 colspan={cols_per_module}><center>{name}</center></th>'
     return header
 
 def get_th_3(configuration, cols_per_module):
@@ -1570,9 +1599,11 @@ def get_semester_result_data(session_id, cols_per_module=2):
 
     for index, student_session in enumerate(students_session, start=1):
         student = student_session.student
+        name = student.last_name + ' ' + student.first_name
+        name = name.replace(' ', ' ')
         _std = '<td class="center td">' + str(index) + '</td>'
         _std += '<td class="no-wrap td">' + student.username + '</td>'
-        _std += '<td class="no-wrap td">' + student.last_name + ' ' + student.first_name + '</td>'
+        _std += '<td class="no-wrap td">' + name + '</td>'
         row = _std + get_row_semester(student_session, cols_per_module)
         data_arr.append(row)
 

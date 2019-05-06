@@ -3,25 +3,18 @@
 	from Sages femmes Promo 2017 (rihab)
 
 
-= add to "annual_grade" do_ratt bool
-	after credit_r
 
-= put timestamp last in "annual_grade"
+= fix rattrapable
+	SF S9 Travaux séminaires
+	SF S10 ??????
+	
+	ISP S2 Sémiologie
+	ISP S6 ?????
+	
+	HYGN S6 Elabor
+	
+	LSP S6 ?????
 
-= in "annual_grade" change 
-	s1 to avr_1
-	c1 to cr_1
-	s2 to avr_2
-	c2 to cr_2
-	rs1 to avr_r_1
-	rc1 to cr_r_1
-	rs2 to avr_r_2
-	rc2 to cr_r_2
-
-= ISP S2 Sémiologie
-	fix rattrapable
-
-= 
 
 = 
 

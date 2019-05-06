@@ -74,24 +74,24 @@
       {% set init_url = url_for('reinitialize_session', session_id=session.id) %}
       {% set calc_url = url_for('calculate_session', session_id=session.id) %}
       <a href="{{ url_for('slow_redirect', url=init_url, message='Initializing') }}"
-         class="btn btn-primary {{'disabled' if session.is_closed else ''}}" 
+         class="btn btn-{{'warning' if check['CONF'] else 'primary'}} {{'disabled' if session.is_closed else ''}}" 
          role="button">(Re)Initialize</a>
       <a href="{{url_for('slow_redirect', url=calc_url, message='Calculating', gif='Preloader_3')}}"
-         class="btn btn-primary {{'disabled' if session.is_closed else ''}}" 
+         class="btn btn-{{'warning' if check['CALC'] else 'primary'}} {{'disabled' if session.is_closed else ''}}" 
          role="button">(Re)Calculate</a>
 
       <hr>
       
       <a href ="{{url_for('semester_averages', session_id=session.id)}}"
-         class="btn btn-primary" role="button">Averages</a>
+         class="btn btn-primary {{'disabled' if check['CALC'] else ''}}" role="button">Averages</a>
       <a href ="{{url_for('semester_result', session_id=session.id)}}"
-         class="btn btn-primary" role="button">Result</a>
+         class="btn btn-primary {{'disabled' if check['CALC'] else ''}}" role="button">Result</a>
       {% if session.is_rattrapage == True %}
       <a href ="{{url_for('semester_result', session_id=session.id)}}"
-         class="btn btn-primary" role="button">Result 2***</a>
+         class="btn btn-primary {{'disabled' if check['CALC'] else ''}}" role="button">Result Tout</a>
       {% endif %}
       <a href ="{{url_for('classement', session_id=session.id)}}"
-         class="btn btn-primary" role="button">Classement / Justification</a>
+         class="btn btn-primary {{'disabled' if check['CALC'] else ''}}" role="button">Classement / Justification</a>
 
       <hr>
 
@@ -101,7 +101,7 @@
 
       {% if session.is_rattrapage != True and session.semester.has_fondamental() == True %}
       <a href ="{{url_for('students_rattrapage_semester', session_id=session.id)}}"
-         class="btn btn-primary" role="button"
+         class="btn btn-primary {{'disabled' if check['CALC'] or check['EMPTY'] else ''}}" role="button"
          >Show Ratt (R:{{ session.semester.get_nbr() }})</a>
       {% endif %}
       

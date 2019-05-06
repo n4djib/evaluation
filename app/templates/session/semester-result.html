@@ -10,7 +10,7 @@
       border-collapse: collapse;
       margin-left: 0px;
       margin-right: 30px;
-      display:inline-block;
+      display: inline-block;
     }
     th {
       border: 1px solid lightgray;
@@ -22,7 +22,7 @@
     }
     .no-wrap {
       white-space: nowrap;
-      /*word-wrap: false;*/
+      word-wrap: false;
     }
     .unit {
       background-color: Bisque;
@@ -55,7 +55,8 @@
   <div class="container" style="border-color:black; text-align:center;">
     <div class="container" style="display:inline-block; text-align:left; 
         border-width:1px; border-width:1px; border-color:red;" >
-      {{ sem_result | safe | replace('None', '') }}
+      <!-- { { sem_result | safe | replace('None', '') }} -->
+      {{ sem_result | safe }}
     
       </br>
       </br>

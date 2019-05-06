@@ -41,7 +41,7 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
     # grid_title = F'Module: {module.display_name}'
     grid_title = F'Module: ***********'
     if module_id!=0:
-        grid_title = F'Module: {module.display_name}'
+        grid_title = F'Module: {module.code} - {module.display_name}'
     if student_id!=0:
         student = Student.query.filter_by(id=student_id).first()
         grid_title = F'Student: {student.username} - {student.first_name} - {student.last_name}'
@@ -126,13 +126,31 @@ def create_data_grid(grades, type='module'):
  
     return "[ " + data + " ]"
 
+
+def grade_going_to_change(grade, data):
+    if grade.cour != data['cour']:
+        return True
+    if grade.td != data['td']:
+        return True
+    if grade.tp != data['tp']:
+        return True
+    if grade.t_pers != data['t_pers']:
+        return True
+    if grade.stage != data['stage']:
+        return True
+
+    return False
+
 @app.route('/grade/save/', methods = ['GET', 'POST'])
 def grade_save():
     data_arr = request.json
 
     for i, data in enumerate(data_arr, start=0):
         grade = Grade.query.filter_by(id = int(data['id'])).first()
-        #
+
+        if grade_going_to_change(grade, data) == True:
+            grade.is_dirty = True
+
         # saved fields must be according to the Permission
         #
         grade.cour = data['cour']
@@ -140,8 +158,11 @@ def grade_save():
         grade.tp = data['tp']
         grade.t_pers = data['t_pers']
         grade.stage = data['stage']
-        grade.average = data['average']
-        grade.credit = data['credit']
+
+
+        # commected this to not save Null Averages
+        # grade.average = data['average']
+        # grade.credit = data['credit']
 
         db.session.commit()
 

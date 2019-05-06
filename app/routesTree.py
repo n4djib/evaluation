@@ -272,6 +272,7 @@ def tree_reinit_all(school_id=0):
             # message = 
             init_all(session)
             calculate_all(session)
+            flash(" ---- " + str(session.id) )
             # # a trick to update the Slow redirect page
             # return redirect( url_for('tree_reinit_all') )
 
