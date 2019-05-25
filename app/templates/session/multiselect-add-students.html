@@ -121,13 +121,16 @@
         },
         sort: {
           left: function(a, b) {
-            // return a.value > b.value ? 1 : -1;
+            var isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
+            if (isChrome) 
+              return a.style.color < b.style.color ? 1 : -1;
             return a.style.color > b.style.color ? 1 : -1;
           },
           right: function(a, b) {
+            var isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
+            if (isChrome) 
+              return 1;
             return -1;
-            // return a.value > b.value ? 1 : -1;
-            // return a.style.color > b.style.color ? 1 : -1;
           }
         },
       });

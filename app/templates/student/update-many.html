@@ -50,6 +50,9 @@
 
     <input id="search" name="search" placeholder="Filter ..." type="text" autocomplete="off">
 
+    <a id="reorder" class="btn btn-default" style="float:right"
+      href="{{ url_for('update_many_username_ordered', session_id=session_id) }}" >reorder</a>
+
     <div id="hot-update-many" class="hot handsontable">
 	  </div>
     </br>

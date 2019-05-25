@@ -61,11 +61,11 @@
             <!-- <table>
             <tr>
               <td class="pad">
-                <a href ="{{ url_for('justification', session_id=student_session.session_id, student_id=student_session.student_id) }}"
+                <a href ="{ { url_for('justification', session_id=student_session.session_id, student_id=student_session.student_id) }}"
                   class="btn btn-primary btn-xs" role="button">Justification</a>
               </td>
               <td class="pad">
-                <a href ="{{ url_for('bultin_semester', session_id=student_session.session_id, student_id=student_session.student_id) }}"
+                <a href ="{ { url_for('bultin_semester', session_id=student_session.session_id, student_id=student_session.student_id) }}"
                   class="btn btn-primary btn-xs" role="button">Bultin</a>
               </td>
             </tr>
@@ -75,7 +75,7 @@
           </td>
           <td align="middle">
             <a href ="{{ url_for('bultin_semester_print', session_id=student_session.session_id, student_id=student_session.student_id) }}" target="_blank"
-                  class="btn btn-primary btn-xs" role="button">Bultin Brw</a>
+                  class="btn btn-primary btn-xs" role="button">Bultin</a>
           </td>
           
         </tr>

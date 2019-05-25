@@ -27,7 +27,11 @@
 
   <h1>Bultin</h1>
 
-  {{ table | safe }}
+  {{ header | safe }}
+  <table class="table table-bordered">
+  {{ bultin | safe }}
+  </table>
+  {{ footer | safe }}
 
   </br>
   </br>

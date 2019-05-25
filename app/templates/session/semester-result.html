@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% import 'bootstrap/wtf.html' as wtf %}
 
 
 {% block styles %}
@@ -40,6 +39,12 @@
     .right { text-align: right; }
     .center { text-align: center; }
 
+    .filter_w {
+      max-width: 300px;
+      float: left;
+      /*margin: 3px;*/
+       /*style="float: right;"*/
+    }
   </style>
 {% endblock %}
 
@@ -49,26 +54,37 @@
 
 {% block app_content %}
 
-  </br>
-  </br>
+  <!-- { { header | safe }} -->
 
   <div class="container" style="border-color:black; text-align:center;">
     <div class="container" style="display:inline-block; text-align:left; 
         border-width:1px; border-width:1px; border-color:red;" >
-      <!-- { { sem_result | safe | replace('None', '') }} -->
-      {{ sem_result | safe }}
-    
-      </br>
+
+      <div style="margin: 2px; float: left" class="input-group filter_w"> 
+        <span class="input-group-addon">Filter</span>
+        <input id="filter" type="text" class="form-control" placeholder="Type here...">
+      </div>
+      <div style="margin: 2px; float: left">
+        <a href ="{{ url_for('semester_result_print_browser', session_id=session.id) }}"
+           target="_blank" class="input-group btn btn-primary" role="button">Print</a>
+      </div>
+
       </br>
 
-      <a href ="{{ url_for('print_semester_result', session_id=session.id, id=session.id) }}"
-         target="_blank" class="btn btn-primary" role="button">Print PDF</a>
-      <a href ="{{ url_for('semester_result_print_browser', session_id=session.id) }}"
-         target="_blank" class="btn btn-primary" role="button">Print Browser</a>
+      <table class="table_1">
+        <thead>{{ t_head | safe | replace('None', '') }}</thead>
+          
+        <tbody class="searchable">
+          {% for data in data_arr %}
+            <tr>{{ data | safe | replace('None', '') }}</tr>
+          {% endfor %}
+        </tbody>
+      </table>
         
     </div>
-
   </div>
+
+
 
 
 
@@ -90,9 +106,12 @@
   {{ super() }}
 
   <script type="text/javascript">
-  </script>
+    {% include "_filter.js" %}
 
+  </script>
 {% endblock %}
+
+
 
 
 

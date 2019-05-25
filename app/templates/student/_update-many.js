@@ -7,7 +7,7 @@ var branch_list = {{ branch_list | safe }};
 var promo_has_closed = {{ promo_has_closed | safe | replace('T', 't') | replace('F', 'f') }};
 
 
-var username_readOnly = true;
+// var username_readOnly = true;
 
 var separator = '-';
 

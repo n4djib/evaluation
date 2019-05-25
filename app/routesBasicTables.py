@@ -2,9 +2,10 @@ from app import app, db
 from flask import render_template, redirect, url_for, flash, request
 from app.forms import SchoolFormCreate, SchoolFormUpdate, \
     PromoFormCreate, PromoFormUpdate, BranchFormCreate, BranchFormUpdate, \
-    AnnualFormCreate, AnnualFormUpdate, SemesterFormCreate, SemesterFormUpdate, SemesterFormSpecialUpdate, \
+    AnnualFormCreate, AnnualFormUpdate, ModuleFormCreate, ModuleFormUpdate, \
+    SemesterFormCreate, SemesterFormUpdate, SemesterFormSpecialUpdate, \
     WilayaFormCreate, WilayaFormUpdate, TeacherFormCreate, TeacherFormUpdate
-from app.models import School, Branch, Annual, Semester, Wilaya, Promo, Teacher
+from app.models import School, Branch, Annual, Semester, Module, Unit, Wilaya, Promo, Teacher
 from flask_breadcrumbs import register_breadcrumb
 # import babel
 from datetime import datetime
@@ -436,6 +437,90 @@ def semester_open(id):
 
 # you can find Semester Duplication 
 #     in routesConfig.py duplicate_config()
+
+
+#######################################
+#####            Wilaya           #####
+
+@app.route('/module/')
+@register_breadcrumb(app, '.basic.module', 'Modules')
+def module_index():
+    modules = Module.query.join(Unit).join(Semester).join(Annual).join(Branch).join(School)\
+        .order_by(School.name, Branch.name, Annual.annual, Semester.semester, Unit.name, Module.code).all()
+    return render_template('basic-forms/module/index.html', title='Modules List', modules=modules)
+
+
+@app.route('/module/create/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.module.create', 'Create')
+def module_create():
+    form = ModuleFormCreate()
+    if form.validate_on_submit():
+        module = Module(
+            code=form.code.data, 
+            name=form.name.data, 
+            display_name=form.display_name.data, 
+            coefficient=form.coefficient.data, 
+            credit=form.credit.data, 
+            time=form.credit.data, 
+            order=form.credit.data, 
+            unit_id=form.unit_id.data
+        )
+        db.session.add(module)
+        db.session.commit()
+        flash('Created and Saved Successfully.', 'alert-success')
+        return redirect(url_for('module_view', id=module.id))
+    return render_template('basic-forms/module/create.html', title='Module Create', form=form)
+
+@app.route('/module/update/<int:id>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.module.update', 'Update')
+def module_update(id):
+    module = Module.query.get_or_404(id)
+    form = ModuleFormUpdate(module.id)
+    if form.validate_on_submit():
+        module.code = form.code.data
+        module.name = form.name.data
+        module.display_name = form.display_name.data
+        module.coefficient = form.coefficient.data
+        module.credit = form.credit.data
+        module.time = form.time.data
+        module.order = form.order.data
+        # module.unit_id = form.unit_id.data
+        db.session.commit()
+        flash('Your changes have been saved.', 'alert-success')
+        return redirect(url_for('module_view', id=module.id))
+    elif request.method == 'GET':
+        form.code.data = module.code
+        form.name.data = module.name
+        form.display_name.data = module.display_name
+        form.coefficient.data = module.coefficient
+        form.credit.data = module.credit
+        form.time.data = module.time
+        form.order.data = module.order
+        form.unit_id.data = module.unit_id
+    return render_template('basic-forms/module/update.html', title='Module Update', form=form)
+
+@app.route('/module/<int:id>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.module.view', 'View')
+def module_view(id):
+    module = Module.query.get_or_404(id)
+    return render_template('basic-forms/module/view.html', title='Module View', module=module)
+
+@app.route('/module/delete/<int:id>/', methods=['GET', 'POST'])
+def module_delete(id):
+    module = Module.query.get_or_404(id)
+    if len(module.grades) > 0 or len(module.module_sessions) > 0 or len(module.percentages) > 0:
+        flash("you can't delete this Module because it is in Relation with other Records", 'alert-danger')
+        if len(module.grades) > 0:
+            flash("you have to break the relation with the Grades first")
+        if len(module.module_sessions) > 0:
+            flash("you have to break the relation with the ModuleSessions first")
+        if len(module.module_sessions) > 0:
+            flash("you have to break the relation with the ModuleSessions first")
+        return redirect(url_for('module_view', id=id))
+    db.session.delete(module)
+    db.session.commit()
+    flash('Module: ' + str(module.name) + ' is deleted', 'alert-success')
+    return redirect(url_for('module_index'))
 
 
 #######################################

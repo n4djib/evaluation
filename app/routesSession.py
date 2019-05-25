@@ -6,7 +6,7 @@ from flask_breadcrumbs import register_breadcrumb
 from decimal import *
 from ast import literal_eval
 from sqlalchemy import or_
-
+from datetime import datetime
 from app.routesCalculation import init_all, reinitialize_session, update_session_configuraton
 
 
@@ -44,11 +44,11 @@ def show_relation(session_id=0):
 def check_grid_is_complite(session):
     # return a dictionary
     #   of errors and empty and calculated
-    cells_nbr = 0
-    filled = 0
-    errors = 0
+    nbr_cells = 0
+    nbr_filled = 0
+    nbr_errs = 0
 
-    EPMTY = False
+    EMPTY = False
     ERRS = False
     CALC = False
     CONF = False
@@ -61,30 +61,30 @@ def check_grid_is_complite(session):
             fields_list = extract_fields(grade.formula)
         for field in fields_list:
             if field in ['cour', 'td', 'tp', 't_pers', 'stage']:
-                cells_nbr += 1
+                nbr_cells += 1
                 val = getattr(grade, field)
                 if val != None:
-                    filled += 1
+                    nbr_filled += 1
                     # if val < 0  or  val > 20  or  not isinstance(val, decimal.decimal):
                     if val < 0  or  val > 20:
-                        errors += 1
+                        nbr_errs += 1
                         ERRS = True
         # CALC
         if grade.is_dirty == True:
             CALC = True
 
     #
-    if cells_nbr != filled:
-        EPMTY = True
+    if nbr_cells != nbr_filled:
+        EMPTY = True
 
-    nbr_empty = cells_nbr - filled
+    nbr_empty = nbr_cells - nbr_filled
 
     CONF = session.is_config_changed()
 
-    return {'EPMTY': EPMTY, 'nbr_empty': nbr_empty, 
-            'ERRS': ERRS, 'nbr_errs': errors,
-            'CALC': CALC,
-            'CONF': CONF}
+    return {'nbr_cells': nbr_cells, 'nbr_filled': nbr_filled,
+            'EMPTY': EMPTY, 'nbr_empty': nbr_empty, 
+            'ERRS': ERRS, 'nbr_errs': nbr_errs,
+            'CALC': CALC, 'CONF': CONF}
 
 
 def extract_fields(formula):
@@ -161,8 +161,8 @@ def session_dlc(*args, **kwargs):
 @register_breadcrumb(app, '.tree.session', '', dynamic_list_constructor=session_dlc)
 def session(session_id=0):
     session = Session.query.filter_by(id=session_id).first_or_404()
-    if session.is_closed==False:
-        get_config_changed_flash(session)
+    # if session.is_closed==False:
+    #     get_config_changed_flash(session)
     
     units = session.semester.units
     modules_list = []
@@ -181,11 +181,11 @@ def session(session_id=0):
         icon = get_icon_progress_student(session_id, student.id)
         icons_student.append(icon)
 
-    session.name = make_session_name(session)
+    # session.name = make_session_name(session)
 
     # 
     C = check_grid_is_complite(session)
-    flash( 'EPMTY: '+str(C['EPMTY'])+' '+str(C['nbr_empty'])+' +++ ERRS: '+str(C['ERRS'])+' '+str(C['nbr_errs']) + ' +++ CALC: '+str(C['CALC'])+' +++ CONF: '+str(C['CONF']) )
+    # flash( 'EMPTY: '+str(C['EMPTY'])+' '+str(C['nbr_empty'])+'    +++    ERRS: '+str(C['ERRS'])+' '+str(C['nbr_errs']) + '    +++    CALC: '+str(C['CALC'])+'    +++    CONF: '+str(C['CONF']) )
 
     return render_template('session/session.html', 
         title='Session', session=session,
@@ -193,16 +193,17 @@ def session(session_id=0):
         icons_module=icons_module, icons_student=icons_student, check=C)
 
 
-def make_session_name(session):
-    semester_nbr = session.semester.get_nbr()
-    # name = session.promo.name
-    name = session.promo.display_name
+# def make_session_name(session):
+#     semester_nbr = session.semester.get_nbr()
+#     # name = session.promo.name
+#     name = session.promo.display_name
 
-    if session.is_rattrapage is None or session.is_rattrapage is False:
-        name += ' / Semester: ' + str(semester_nbr)
-    else:
-         name += ' / Rattrapage: ' + str(semester_nbr)
-    return name
+#     if session.is_rattrapage is None or session.is_rattrapage is False:
+#         name += ' / Semester: ' + str(semester_nbr)
+#     else:
+#          name += ' / Rattrapage: ' + str(semester_nbr)
+#     return name
+
 
 def update_student_session(students_from, students_to, session_id):
     session = Session.query.filter_by(id=session_id).first()
@@ -430,6 +431,19 @@ def delete_session(session_id):
             flash("you can't delete a Session related to an Annual", 'alert-danger')
         
     return redirect(url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id))
+
+
+
+#######################################
+#####                             #####
+#####          Progrission        #####
+#####                             #####
+#######################################
+
+
+# @app.route('/progrission-status/', methods=['GET', 'POST'])
+# def progrission_status():
+#     sessions = Session.query.
 
 
 
@@ -673,8 +687,6 @@ def create_session(promo_id=0, semester_id=0):
     branch_id = session.promo.branch_id
     promo_id = session.promo_id
     return redirect( url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id) )
-
-
 
 
 
@@ -962,11 +974,15 @@ def create_data_annual_session(annual_session_id):
         if an.avr_r_1 != None or an.avr_r_2 != None:
             cross_average = 'line-through'
 
-        # bultin_annual(annual_session_id, student_id
         url = url_for('bultin_annual_print', 
             annual_session_id=annual_session_id, student_id=student.id)
         bultin = '''<a href ="''' +  url + '''" class="btn btn-primary btn-xs"
-            target="_blank" role="button">Bultin Brw</a>'''
+            target="_blank" role="button"> Bultin </a>'''
+
+        url_ratt = url_for('bultin_annual_print', 
+            annual_session_id=annual_session_id, student_id=student.id)
+        bultin_ratt = '''<a href ="''' +  url_ratt + '''" class="btn btn-primary btn-xs"
+            target="_blank" role="button"> Bultin Ratt </a>'''
 
         array_data.append([
             '<td class="center">' + str(index+1) + '</td>', 
@@ -991,6 +1007,7 @@ def create_data_annual_session(annual_session_id):
             '<td class="center">' + str(an.saving_credit) + '</td>',
             '<td>' + str(an.obs_html).replace('None', '') + '</td>',
             '<td>' + bultin  + '</td>'
+            '<td>' + bultin_ratt  + '</td>'
         ])
 
     return array_data
@@ -1007,7 +1024,10 @@ def annual_session_dlc(*args, **kwargs):
     annual_session_id = request.view_args['annual_session_id']
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
     # name = annual_session.name
-    name = 'Annual (' + str(annual_session.annual.annual)+')'
+    name = 'Annual ()'
+    if annual_session.annual != None:
+        name = 'Annual (' + str(annual_session.annual.annual) + ')'
+    
     return [{'text': '' + name, 
         'url': url_for('annual_session', annual_session_id=annual_session_id) }]
 
@@ -1084,6 +1104,10 @@ def create_annual_session(session_id):
         db.session.add(annual_session)
         db.session.commit()
         annual_session_id = annual_session.id
+    elif annual_session.annual_id == None:
+        annual = session.semester.annual
+        annual_session.annual_id = annual.id
+        db.session.commit()
 
     init_annual_session_id(session.id, annual_session_id)
 
@@ -1113,13 +1137,193 @@ def delete_annual_session(annual_session_id):
 
 
 
+#######################################
+#####                             #####
+#####                             #####
+#####           Bultin            #####
+#####                             #####
+#####                             #####
+#######################################
+
+def get_thhead_bultin_semester():
+    header = '<tr class="head">'
+    header += '<th colspan=3>Unité d''Enseignement</th>'
+    header += '<th colspan=4>Matière d''Enseignement</th>'
+    header += '<th colspan=6>Résultats obtenus</th>'
+    header += '</tr>'
+    header += '<tr class="head">'
+    header += '<th rowspan=2>Nature</th>'
+    header += '<th rowspan=2>Crédit</br>requis</th>'
+    header += '<th rowspan=2>Coeff</th>'
+
+    header += '<th rowspan=2>Code</th>'
+    header += '<th rowspan=2>Intitulé</th>'
+    header += '<th rowspan=2>Crédit</br>requis</th>'
+    header += '<th rowspan=2>Coeff</th>'
+
+    header += '<th colspan=3>Matière</th> <th colspan=3>U.E</th>'
+    header += '</tr>'
+    header += '<tr class="head">'
+    header += '<th>Moy</th> <th>Cr</th> <th>S</th>'
+    header += '<th>Moy</th> <th>Cr</th> <th>S</th>'
+    header += '</tr>'
+
+    return header
+
+
+def get_header_bultin_semester(student_session):
+    student = student_session.student
+    semester = student_session.session.semester
+    sem = semester.semester
+
+    annual_string = str(semester.annual.annual)
+    annual_string += '<sup>ére</sup>' if semester.annual.annual == 1 else '<sup>ème</sup>'
+
+    # header
+    header = '<center><h2>Releve de Notes Semeste '+str(sem)+'</h2></center>'
+    header += "Le directeur de <b>"+student.branch.school.name+",</b> atteste que l'étudiant(e)</br>"
+    header += 'Nom: <b>'+student.last_name+'</b>     '
+    header += 'Prenom: <b>'+student.first_name+'</b>    '
+    header += 'Né(e) le: <b>'+str(student.birth_date).replace('None', '???')+'</b>'
+    header += ' à <b>'+str(student.birth_place).replace('None', '???')+'</b></br>'
+    header += 'Inscrit(e) en <b>' + str(annual_string) + ' année</b>   '
+    header += 'Corps des: <b>'+student.branch.description+'</b></br>'
+    header += 'Sous le matricule: <b>' + student.username + '</b>'
+    header += "  a obtenu les résultats suivants durant l'année pédagogique: "
+    header += "<b>"+student_session.session.get_annual_pedagogique()+"</b>"
+    header += '</br></br>'
+
+    return header
+
+def get_footer_bultin_semester(student_session):
+    # footer
+    footer = '</br>'
+    footer += 'Moyenne Semestrielle: <b>'+str(student_session.average)+'</b>    '
+    footer += 'Crédits cumulés dans le Semeste: <b>'+str(student_session.credit)+'</b></br>'
+    footer += 'Décision de la commission de classement et '
+    footer += 'd''orientation:  <b>******</b></br></br>'
+    footer += 'Ouargla le:  ..................'
+
+    return footer
+
+def get_bultin_semester(student_session):
+    student = student_session.student
+    semester = student_session.session.semester
+
+    # Table
+    grade_units = student_session.grade_units
+    table = get_thhead_bultin_semester()
+
+    for grade_unit in grade_units:
+        modules_in_unit = [module.id for module in grade_unit.unit.modules]
+        grades_in_unit = Grade.query\
+            .filter_by(student_session_id=student_session.id)\
+            .filter(Grade.module_id.in_(modules_in_unit)).all()
+
+        grades_tr = ''
+        rowspan = 0
+        # EMPTY = '<font color="red"><b>X</b></font>'
+        def EMPTY(text):
+            return '<font color="red"><b>' + text + '</b></font>'
+
+        for grade in grades_in_unit:
+            module = grade.module
+            if rowspan > 0:
+                grades_tr += '<tr>'
+            grades_tr += '<td>'+str(module.code).replace('None', EMPTY('???'))+'</td>'
+            grades_tr += '<td class="intitule">'+module.display_name.replace(' ', ' ')+'</td>'
+            grades_tr += '<td>'+str(module.credit)+'</td> <td>'+str(module.coefficient)+'</td>'
+            grades_tr += '<td>'+str(grade.average).replace('None', EMPTY('X'))+'</td>'
+            grades_tr += '<td>'+str(grade.credit).replace('None', EMPTY('X'))+'</td>'
+            grades_tr += '<td>'+str(grade.get_ratt_bultin())+'</td>'
+            if rowspan == 0:
+                grades_tr += '<td rowspan=_rowspan_>'+str(grade_unit.average).replace('None', EMPTY('X'))+'</td>'
+                grades_tr += '<td rowspan=_rowspan_>'+str(grade_unit.credit).replace('None', EMPTY('X'))+'</td>'
+                grades_tr += '<td rowspan=_rowspan_>'+str(grade_unit.get_ratt_bultin())+'</td>'
+            
+            grades_tr += '</tr>'
+            rowspan += 1
+
+        unit = grade_unit.unit
+        tr =  '<td rowspan='+str(rowspan)+'>'+unit.display_name+'</td>'
+        tr += '<td rowspan='+str(rowspan)+'>'+str(unit.get_unit_cumul_credit())+'</td>'
+        tr += '<td rowspan='+str(rowspan)+'>'+str(unit.unit_coefficient)+'</td>'
+        tr += grades_tr.replace('_rowspan_', str(rowspan) )
+
+        table += '<tr>' + tr + '</tr>'
+
+    return table
+
+# @app.route('/session/<session_id>/student/<student_id>/bultin/', methods=['GET', 'POST'])
+# @register_breadcrumb(app, '.tree.session.classement.bultin', 'Bultin')
+# def bultin_semester(session_id, student_id):
+#     student_session = StudentSession.query\
+#         .filter_by(session_id=session_id, student_id=student_id).first()
+
+
+#     header = get_header_bultin_semester(student_session)
+#     footer = get_footer_bultin_semester(student_session)
+
+#     table = get_bultin_semester(student_session)
+#     return render_template('student/bultin-semester.html',
+#         title='Bultin', bultin=bultin, header=header, footer=footer, 
+#         session_id=session_id, student_id=student_id)
+
+@app.route('/session/<session_id>/student/<student_id>/bultin-print/', methods=['GET', 'POST'])
+def bultin_semester_print(session_id, student_id):
+    # return '1'
+    student_session = StudentSession.query\
+        .filter_by(session_id=session_id, student_id=student_id).first()
+    bultin = get_bultin_semester(student_session)
+
+    header = get_header_bultin_semester(student_session)
+    footer = get_footer_bultin_semester(student_session)
+
+    session = Session.query.get_or_404(session_id)
+    branch = session.promo.branch.name
+    semester = session.semester.get_nbr()
+    promo = session.promo.name
+    s = student_session.student
+    student = s.username+' '+s.last_name+' '+s.first_name
+    dt = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    title = 'Bultin - '+branch+' S'+str(semester) + ' ['+promo+'] {'+student+'} ('+str(dt)+')' 
+
+    # return table
+    return render_template('student/bultin-semester-print.html', 
+            title=title, bultin=bultin, header=header, footer=footer, session_id=session_id)
+
+
+@app.route('/session/<session_id>/bultin-print-all/', methods=['GET', 'POST'])
+def bultin_semester_print_all(session_id):
+    student_sessions = StudentSession.query\
+        .filter_by(session_id=session_id).all()
+
+    bultins = []
+    for student_session in student_sessions:
+        header = get_header_bultin_semester(student_session)
+        bultin = '<table class="table table-bordered">'
+        bultin += get_bultin_semester(student_session)
+        bultin += '</table>'
+        footer = get_footer_bultin_semester(student_session)
+
+        bultins.append( header + bultin + footer )
+
+    session = Session.query.get_or_404(session_id)
+    branch = session.promo.branch.name
+    semester = session.semester.get_nbr()
+    promo = session.promo.name
+    dt = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    title = 'Bultin All - '+branch+' S'+str(semester) + ' ['+promo+'] ('+str(dt)+')' 
+
+    return render_template('student/bultin-semester-print-all.html', 
+            title=title, bultins=bultins, session_id=session_id)
 
 
 # ----------------------
 # ----------------------
 # ----------------------
 
-def get_header_bultin_annual():
+def get_thhead_bultin_annual():
     header = '<tr class="head">'
     header += '<th class="rotate" rowspan=3><div>Semestre</div></th>'
     header += '<th colspan=3>Unité d''Enseignement</th>'
@@ -1240,22 +1444,27 @@ def get_active_student_sessions(annual_session_id, student_id):
 
     return sessions
 
-def get_bultin_annual(annual_session_id, student_id):
-    student_sessions = get_active_student_sessions(annual_session_id, student_id)
-    student = Student.query.get_or_404(student_id)
+
+def get_header_bultin_annual(annual_grade):
+    student = annual_grade.student
+    annual_pedagogique = annual_grade.annual_session.get_annual_pedagogique()
+    annual_literal = annual_grade.annual_session.annual.get_string_literal()
 
     # header
     header = '<center><h2>Releve de Notes</h2></center>'
     header += "Le directeur de <b>"+student.branch.school.name+",</b> atteste que l'étudiant(e)</br>"
     header += 'Nom:  <b>'+student.last_name+'</b>     '
     header += 'Prenom:  <b>'+student.first_name+'</b>    '
-    header += 'Né(e) le: <b>'+str(student.birth_date)+'</b> à <b>'+student.birth_place+'</b></br>'
-    header += 'Inscrit(e) en <b>' + '*****annual_string******' + ' année</b>   '
+    header += 'Né(e) le: <b>'+str(student.birth_date)+'</b> à <b>'+str(student.birth_place)+'</b></br>'
+    header += 'Inscrit(e) en <b>' + annual_literal + ' année</b>   '
     header += 'Corps des:  <b>'+student.branch.description+'</b></br>'
     header += 'Sous le matricule: <b>' + student.username + '</b>'
-    header += "  a obtenu les résultats suivants durant l'année pédagogique: <b>********</b>"
+    header += "  a obtenu les résultats suivants durant l'année pédagogique: <b>"+annual_pedagogique+"</b>"
     header += '</br></br>'
 
+    return header
+
+def get_footer_bultin_annual(annual_grade):
     # footer
     footer = '</br></br>'
     # you have to take average_r
@@ -1266,39 +1475,40 @@ def get_bultin_annual(annual_session_id, student_id):
     footer += "d'orientation:  <b>******</b></br></br>"
     footer += 'Ouargla le:  ..................'
 
+    return footer
+
+def get_bultin_annual(annual_grade):
+    student_sessions = get_active_student_sessions(annual_grade.annual_session_id, annual_grade.student_id)
+
     # Table
-    table = '<table class="table table-bordered">'
-    table += get_header_bultin_annual()
+    bultin = get_thhead_bultin_annual()
 
     for student_session in student_sessions:
-        table += get_semester_modules_html(student_session)
+        bultin += get_semester_modules_html(student_session)
 
-    table += '</table>'
-    return header + table + footer
+    return bultin
 
 
-@app.route('/annual-session/<annual_session_id>/student/<student_id>/bultin/', methods=['GET', 'POST'])
-# @register_breadcrumb(app, '.tree.session.classement.bultin', 'Bultin')
-def bultin_annual(annual_session_id, student_id):
-    bultin = get_bultin_annual(annual_session_id, student_id)
-    return render_template('student/bultin-annual.html',
-        title='Bultin-Annual', table=bultin, annual_session_id=annual_session_id, student_id=student_id)
-
+# @app.route('/annual-session/<annual_session_id>/student/<student_id>/bultin/', methods=['GET', 'POST'])
+# # @register_breadcrumb(app, '.tree.session.classement.bultin', 'Bultin')
+# def bultin_annual(annual_session_id, student_id):
+#     bultin = get_bultin_annual(annual_session_id, student_id)
+#     return render_template('student/bultin-annual.html',
+#         title='Bultin-Annual', table=bultin, annual_session_id=annual_session_id, student_id=student_id)
 
 @app.route('/annual-session/<annual_session_id>/student/<student_id>/bultin-print/', methods=['GET', 'POST'])
 # @register_breadcrumb(app, '.tree.session.classement.bultin', 'Bultin')
 def bultin_annual_print(annual_session_id, student_id):
-    ########################
-    # student_sessions = get_active_student_sessions(annual_session_id, student_id)
-    # table = '<table class="table table-bordered" border=1>'
-    # for student_session in student_sessions:
-    #     table += get_semester_modules_html(student_session)
-    # table += '</table>'
-    # return table
-    ########################
-    bultin = get_bultin_annual(annual_session_id, student_id)
+    annual_grade = AnnualGrade.query.filter_by(annual_session_id=annual_session_id, student_id=student_id).first()
+    # student = Student.query.get_or_404(student_id)
+
+    header = get_header_bultin_annual(annual_grade)
+    footer = get_footer_bultin_annual(annual_grade)
+
+    bultin = get_bultin_annual(annual_grade)
     return render_template('student/bultin-annual-print.html',
-        title='Bultin-Annual', table=bultin, annual_session_id=annual_session_id, student_id=student_id)
+        title='Bultin-Annual', table=bultin, header=header, footer=footer, 
+        annual_session_id=annual_session_id, student_id=student_id)
 
 @app.route('/annual-session/<annual_session_id>/bultin-print-all/', methods=['GET', 'POST'])
 # @register_breadcrumb(app, '.tree.session.classement.bultin', 'Bultin')
@@ -1308,155 +1518,17 @@ def bultin_annual_print_all(annual_session_id):
     
     bultins = []
     for annual_grade in annual_grades:
-        student_id = annual_grade.student_id
-        bultins.append( get_bultin_annual(annual_session_id, student_id) )
+        header = get_header_bultin_annual(annual_grade)
+        bultin = '<table class="table table-bordered">'
+        bultin += get_bultin_annual(annual_grade)
+        bultin += '</table>'
+        footer = get_footer_bultin_annual(annual_grade)
+
+        bultins.append( header + bultin + footer )
 
     return render_template('student/bultin-annual-print-all.html',
-        title='Bultin-Annual', tables=bultins, annual_session_id=annual_session_id, student_id=student_id)
-
-
-
-
-
-#######################################
-#####                             #####
-#####                             #####
-#####           Bultin            #####
-#####                             #####
-#####                             #####
-#######################################
-
-def get_header_bultin_semester():
-    header = '<tr class="head">'
-    header += '<th colspan=3>Unité d''Enseignement</th>'
-    header += '<th colspan=4>Matière d''Enseignement</th>'
-    header += '<th colspan=6>Résultats obtenus</th>'
-    header += '</tr>'
-    header += '<tr class="head">'
-    header += '<th rowspan=2>Nature</th>'
-    header += '<th rowspan=2>Crédit</br>requis</th>'
-    header += '<th rowspan=2>Coeff</th>'
-
-    header += '<th rowspan=2>Code</th>'
-    header += '<th rowspan=2>Intitulé</th>'
-    header += '<th rowspan=2>Crédit</br>requis</th>'
-    header += '<th rowspan=2>Coeff</th>'
-
-    header += '<th colspan=3>Matière</th> <th colspan=3>U.E</th>'
-    header += '</tr>'
-    header += '<tr class="head">'
-    header += '<th>Moy</th> <th>Cr</th> <th>S</th>'
-    header += '<th>Moy</th> <th>Cr</th> <th>S</th>'
-    header += '</tr>'
-
-    return header
-
-def get_bultin_semester(student_session):
-    student = student_session.student
-    semester = student_session.session.semester
-    sem = semester.semester
-
-    annual_string = str(semester.annual.annual)
-    annual_string += '<sup>ére</sup>' if semester.annual.annual == 1 else '<sup>ème</sup>'
-
-    # header
-    header = '<center><h2>Releve de Notes Semeste '+str(sem)+'</h2></center>'
-    header += "Le directeur de <b>"+student.branch.school.name+",</b> atteste que l'étudiant(e)</br>"
-    header += 'Nom: <b>'+student.last_name+'</b>     '
-    header += 'Prenom: <b>'+student.first_name+'</b>    '
-    header += 'Né(e) le: <b>'+str(student.birth_date)+'</b> à <b>'+student.birth_place+'</b></br>'
-    header += 'Inscrit(e) en <b>' + str(annual_string) + ' année</b>   '
-    header += 'Corps des: <b>'+student.branch.description+'</b></br>'
-    header += 'Sous le matricule: <b>' + student.username + '</b>'
-    header += "  a obtenu les résultats suivants durant l'année pédagogique: <b>*********</b>"
-    header += '</br></br>'
-
-    # footer
-    footer = '</br>'
-    footer += 'Moyenne Semestrielle: <b>'+str(student_session.average)+'</b>    '
-    footer += 'Crédits cumulés dans le Semeste: <b>'+str(student_session.credit)+'</b></br>'
-    footer += 'Décision de la commission de classement et '
-    footer += 'd''orientation:  <b>******</b></br></br>'
-    footer += 'Ouargla le:  ..................'
-
-    # Table
-    grade_units = student_session.grade_units
-    table = '<table class="table table-bordered">'
-    table += get_header_bultin_semester()
-
-    for grade_unit in grade_units:
-        modules_in_unit = [module.id for module in grade_unit.unit.modules]
-        grades_in_unit = Grade.query\
-            .filter_by(student_session_id=student_session.id)\
-            .filter(Grade.module_id.in_(modules_in_unit)).all()
-
-        grades_tr = ''
-        rowspan = 0
-        # EMPTY = '<font color="red"><b>X</b></font>'
-        def EMPTY(text):
-            return '<font color="red"><b>' + text + '</b></font>'
-
-        for grade in grades_in_unit:
-            module = grade.module
-            if rowspan > 0:
-                grades_tr += '<tr>'
-            grades_tr += '<td>'+str(module.code).replace('None', EMPTY('???'))+'</td>'
-            grades_tr += '<td class="intitule">'+module.display_name.replace(' ', ' ')+'</td>'
-            grades_tr += '<td>'+str(module.credit)+'</td> <td>'+str(module.coefficient)+'</td>'
-            grades_tr += '<td>'+str(grade.average).replace('None', EMPTY('X'))+'</td>'
-            grades_tr += '<td>'+str(grade.credit).replace('None', EMPTY('X'))+'</td>'
-            grades_tr += '<td>'+str(grade.get_ratt_bultin())+'</td>'
-            if rowspan == 0:
-                grades_tr += '<td rowspan=_rowspan_>'+str(grade_unit.average).replace('None', EMPTY('X'))+'</td>'
-                grades_tr += '<td rowspan=_rowspan_>'+str(grade_unit.credit).replace('None', EMPTY('X'))+'</td>'
-                grades_tr += '<td rowspan=_rowspan_>'+str(grade_unit.get_ratt_bultin())+'</td>'
-            
-            grades_tr += '</tr>'
-            rowspan += 1
-
-        unit = grade_unit.unit
-        tr =  '<td rowspan='+str(rowspan)+'>'+unit.display_name+'</td>'
-        tr += '<td rowspan='+str(rowspan)+'>'+str(unit.get_unit_cumul_credit())+'</td>'
-        tr += '<td rowspan='+str(rowspan)+'>'+str(unit.unit_coefficient)+'</td>'
-        tr += grades_tr.replace('_rowspan_', str(rowspan) )
-
-        table += '<tr>' + tr + '</tr>'
-    table += '</table>'
-
-    return header + table + footer
-
-@app.route('/session/<session_id>/student/<student_id>/bultin/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree.session.classement.bultin', 'Bultin')
-def bultin_semester(session_id, student_id):
-    student_session = StudentSession.query\
-        .filter_by(session_id=session_id, student_id=student_id).first()
-
-    table = get_bultin_semester(student_session)
-
-    return render_template('student/bultin-semester.html',
-        title='Bultin', table=table, session_id=session_id, student_id=student_id)
-
-@app.route('/session/<session_id>/student/<student_id>/bultin-print/', methods=['GET', 'POST'])
-def bultin_semester_print(session_id, student_id):
-    # return '1'
-    student_session = StudentSession.query\
-        .filter_by(session_id=session_id, student_id=student_id).first()
-    table = get_bultin_semester(student_session)
-    # return table
-    return render_template('student/bultin-semester-print.html', 
-            title='Bultin', table=table, session_id=session_id)
-
-@app.route('/session/<session_id>/bultin-print-all/', methods=['GET', 'POST'])
-def bultin_semester_print_all(session_id):
-    student_sessions = StudentSession.query\
-        .filter_by(session_id=session_id).all()
-
-    tables = []
-    for student_session in student_sessions:
-        tables.append( get_bultin_semester(student_session) )
-
-    return render_template('student/bultin-semester-print-all.html', 
-            title='Bultin All', tables=tables, session_id=session_id)
+        title='Bultin-Annual', bultins=bultins, 
+        annual_session_id=annual_session_id)
 
 
 
@@ -1468,13 +1540,15 @@ def bultin_semester_print_all(session_id):
 #####                             #####
 #######################################
 
+# Note: the Data is taken from the Config String
+
 def get_th_1(configuration, cols_per_module):
     conf_dict = literal_eval(configuration)
     header = '<th>Unit</th>'
     for unit in conf_dict['units']:
         display_name = unit["display_name"]
-        coeff = unit["unit_coeff"]
-        unit_name = F'{display_name} ({coeff})'
+        unit_coefficient = unit["unit_coefficient"]
+        unit_name = F'{display_name} ({unit_coefficient})'
         colspan = cols_per_module
         for module in unit['modules']:
             colspan += cols_per_module
@@ -1487,8 +1561,9 @@ def get_th_2(configuration, cols_per_module):
     header = '<th>Module</th>'
     for unit in conf_dict['units']:
         for module in unit['modules']:
-            display_name = module["display_name"]
-            header += F'<th style="word-wrap: break-word" colspan={cols_per_module}><font size="-1"><center>{display_name}</center></font></th>'
+            module_name = module["code"] + ' ' + module["display_name"]
+            # module_name = module["display_name"]
+            header += F'<th style="word-wrap: break-word" colspan={cols_per_module}><font size="-1"><center>{module_name}</center></font></th>'
         name = 'Resultat de ' + unit["display_name"] 
         header += F'<th style="word-wrap: break-word" class="unit" rowspan=3 colspan={cols_per_module}><center>{name}</center></th>'
     return header
@@ -1561,7 +1636,7 @@ def get_row_module(grade, cols_per_module):
     if cols_per_module >= 2:
         row += F'<td class="center td">{grade.credit}</td>'
     if cols_per_module == 3:
-        row += F'<td class="center td">**</td>'
+        row += F'<td class="center td">*</td>'
     return row
 
 def get_row_unit(grade_unit, cols_per_module):
@@ -1576,7 +1651,7 @@ def get_row_unit(grade_unit, cols_per_module):
     if cols_per_module >= 2:
         row += F'<td class="unit center td">{grade_unit.credit}</td>'
     if cols_per_module == 3:
-        row += F'<td class="unit center td">**</td>'
+        row += F'<td class="unit center td">+</td>'
     return row
 
 def get_row_semester(student_session, cols_per_module=2):
@@ -1600,41 +1675,55 @@ def get_semester_result_data(session_id, cols_per_module=2):
     for index, student_session in enumerate(students_session, start=1):
         student = student_session.student
         name = student.last_name + ' ' + student.first_name
-        name = name.replace(' ', ' ')
+        # name = name.replace(' ', ' ')
         _std = '<td class="center td">' + str(index) + '</td>'
         _std += '<td class="no-wrap td">' + student.username + '</td>'
         _std += '<td class="no-wrap td">' + name + '</td>'
         row = _std + get_row_semester(student_session, cols_per_module)
         data_arr.append(row)
 
-    # for index, student_session in enumerate(students_session, start=1):
-    #     student = student_session.student
-    #     _std = '<td class="center td">' + str(index+31) + '</td>'
-    #     _std += '<td class="no-wrap td">' + student.username + '</td>'
-    #     _std += '<td class="no-wrap td">' + student.last_name + ' ' + student.first_name + '</td>'
-    #     row = _std + get_row_semester(student_session, cols_per_module)
-    #     data_arr.append(row)
-    # for index, student_session in enumerate(students_session, start=1):
-    #     student = student_session.student
-    #     _std = '<td class="center td">' + str(index+31+31) + '</td>'
-    #     _std += '<td class="no-wrap td">' + student.username + '</td>'
-    #     _std += '<td class="no-wrap td">' + student.last_name + ' ' + student.first_name + '</td>'
-    #     row = _std + get_row_semester(student_session, cols_per_module)
-    #     data_arr.append(row)
-    # for index, student_session in enumerate(students_session, start=1):
-    #     student = student_session.student
-    #     _std = '<td class="center td">' + str(index+31+31+31) + '</td>'
-    #     _std += '<td class="no-wrap td">' + student.username + '</td>'
-    #     _std += '<td class="no-wrap td">' + student.last_name + ' ' + student.first_name + '</td>'
-    #     row = _std + get_row_semester(student_session, cols_per_module)
-    #     data_arr.append(row)
-    # for index, student_session in enumerate(students_session, start=1):
-    #     student = student_session.student
-    #     _std = '<td class="center td">' + str(index+31+31+31+31) + '</td>'
-    #     _std += '<td class="no-wrap td">' + student.username + '</td>'
-    #     _std += '<td class="no-wrap td">' + student.last_name + ' ' + student.first_name + '</td>'
-    #     row = _std + get_row_semester(student_session, cols_per_module)
-    #     data_arr.append(row)
+    return data_arr
+
+
+def make_link_button(route, label, session_id, student_id, target='popup', size=''):
+    href = url_for(route, session_id=session_id, student_id=student_id)
+    bultin = '<a style="margin-left:1px;margin-bottom:1px;" target="'+target+'" class="btn btn-primary '+size+'" role="button" '
+    bultin += ' href ="'+href+'" '
+    if target == 'popup':
+        bultin += ' onclick="window.open(`'+href+'`, `popup`, `width=max,height=max`); " '
+    bultin += '>'+label+'</a>'
+    return bultin
+
+
+def get_semester_result_data__plus_buttons(session_id, cols_per_module=2):
+    data_arr = []
+    students_session = StudentSession.query.filter_by(session_id=session_id)\
+        .join(Student).order_by(Student.username).all()
+
+    for index, student_session in enumerate(students_session, start=1):
+        student = student_session.student
+
+        btn_grades = '<td>'+ make_link_button(
+            'grade', 'Notes', 
+            session_id, student.id, '_target', size='btn-xs') +'</td>'
+        btn_bultin = '<td>'+ make_link_button(
+            'bultin_semester_print', 'Bultin', 
+            session_id, student.id, '_target', size='btn-xs') +'</td>'
+        btn_just = '<td>'+ make_link_button(
+            'justification', 'Justification', 
+            session_id, student.id, '_target', size='btn-xs') +'</td>'
+
+        name = student.last_name + ' ' + student.first_name
+        # name = name.replace(' ', ' ')
+        _std = '<td class="center td">' + str(index) + '</td>'
+        _std += '<td class="no-wrap td">' + student.username + '</td>'
+        _std += '<td class="no-wrap td">' + name + '</td>'
+        row = _std + get_row_semester(student_session, cols_per_module)
+
+        row += btn_grades
+        row += btn_bultin
+        row += btn_just
+        data_arr.append(row)
 
     return data_arr
 
@@ -1643,69 +1732,99 @@ def get_semester_result_data(session_id, cols_per_module=2):
 @register_breadcrumb(app, '.tree.session.result', 'Semester Result')
 def semester_result(session_id=0):
     session = Session.query.filter_by(id=session_id).first_or_404()
-    header = get_thead(session.configuration, 2)
-    data_arr = get_semester_result_data(session_id, 2)
-
-    sem_result = ''
-    sem_result += '<table class="">'
-    sem_result += '<thead>' + header + '</thead>'
-    sem_result += '<tbody>'
-    for data in data_arr:
-        sem_result += '<tr>' + data + '</tr>'
-    sem_result += '</tbody>'
-    sem_result += '</table>'
-
-    # data_arr.insert(10, '<td border="0"> </td>')
-    # data_arr.insert(11, '<td border="0"> </td>')
+    cols_per_module = 2
+    t_head = get_thead(session.configuration, cols_per_module)
+    data_arr = get_semester_result_data__plus_buttons(session_id, cols_per_module)
+    # header = get_print_header(session)
 
     return render_template('session/semester-result.html',
         title='Semester ' + str(session.semester.semester) + ' Result', 
-        header=header, sem_result=sem_result, session=session)
+        t_head=t_head, data_arr=data_arr, session=session)
+
+def get_print_header(session):
+    school = session.promo.branch.school.description
+    branch = session.promo.branch.description
+    annual = session.semester.annual.get_string_literal()
+    semester = session.get_name()
+    promo = session.promo.name
+    annual_pedagogique = session.get_annual_pedagogique()
+
+    header = F"""
+      <b>
+      <div class="container" style="display: flex;">
+        <div style="flex-grow: 1;">
+            {school}<br/>
+            Sous Direction des Affaires Pèdagogiques<br/>
+            Département d'evaluation
+        </div>
+        <div style="flex-grow: 1;" align="center">
+            Promo {promo}<br/>
+            Année {annual_pedagogique}<br/>
+            Relevé {semester}
+        </div>
+        <div style="flex-grow: 1;" align="right">
+            {annual}<br/>
+            {branch}
+        </div>
+      </div>
+      </b>
+    """
+    return header
+
 
 @app.route('/session/<session_id>/semester-result-print-browser/', methods=['GET', 'POST'])
-# @register_breadcrumb(app, '.tree.session.result', 'Semester Result')
 def semester_result_print_browser(session_id=0):
     session = Session.query.filter_by(id=session_id).first_or_404()
-    header = get_thead(session.configuration, 2)
-    data_arr = get_semester_result_data(session_id, 2)
+    cols_per_module = 2
+    t_head = get_thead(session.configuration, cols_per_module)
+    data_arr = get_semester_result_data(session_id, cols_per_module)
+    header = get_print_header(session)
 
-    sem_result = ''
-    sem_result += '<table class="">'
-    sem_result += '<thead>' + header + '</thead>'
-    sem_result += '<tbody>'
-    for data in data_arr:
-        sem_result += '<tr>' + data + '</tr>'
-    sem_result += '</tbody>'
-    sem_result += '</table>'
+    # sem_result = ''
+    # sem_result += '<table class="">'
+    # sem_result += '<thead>' + t_head + '</thead>'
+    # sem_result += '<tbody>'
+    # for data in data_arr:
+    #     sem_result += '<tr>' + data + '</tr>'
+    # sem_result += '</tbody>'
+    # sem_result += '</table>'
+
+    branch = session.promo.branch.name
+    semester = session.semester.get_nbr()
+    dt = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    title = 'Releve ' + branch + ' S'+str(semester) + ' [' + session.promo.name + '] ('+str(dt)+')'
+
+    # return render_template('session/semester-result-print-browser.html',
+    #     title=title, header=header, sem_result=sem_result, session=session)
 
     return render_template('session/semester-result-print-browser.html',
-        title='Semester ' + str(session.semester.semester) + ' Result', 
-        header=header, sem_result=sem_result, session=session)
+        title=title, header=header, t_head=t_head, data_arr=data_arr, session=session)
 
 @app.route('/session/<session_id>/semester-result-print/<_id>/', methods=['GET', 'POST'])
 @app.route('/session/<session_id>/semester-result-print/', methods=['GET', 'POST'])
 def semester_result_print(session_id=0, _id=0,
                           insert1=43, insert2=43+56, insert3=43+56+57):
-    session = Session.query.filter_by(id=session_id).first_or_404()
-    header = get_thead(session.configuration, 2)
-    data_arr = get_semester_result_data(session_id, 2)
+    yield
+    # session = Session.query.filter_by(id=session_id).first_or_404()
+    # header = get_thead(session.configuration, 2)
+    # data_arr = get_semester_result_data(session_id, 2)
 
-    # data_arr.insert(insert1+1, '<td border="0"> </td>')
-    # data_arr.insert(insert1+2, '<td border="0"> </td>')
-    # data_arr.insert(insert1+3, '<td border="0"> </td>')
+    # # data_arr.insert(insert1+1, '<td border="0"> </td>')
+    # # data_arr.insert(insert1+2, '<td border="0"> </td>')
+    # # data_arr.insert(insert1+3, '<td border="0"> </td>')
 
-    # data_arr.insert(insert2+1, '<td border="0"> </td>')
-    # data_arr.insert(insert2+2, '<td border="0"> </td>')
-    # data_arr.insert(insert2+3, '<td border="0"> </td>')
+    # # data_arr.insert(insert2+1, '<td border="0"> </td>')
+    # # data_arr.insert(insert2+2, '<td border="0"> </td>')
+    # # data_arr.insert(insert2+3, '<td border="0"> </td>')
 
-    # data_arr.insert(insert3+1, '<td border="0"> </td>')
-    # data_arr.insert(insert3+2, '<td border="0"> </td>')
-    # data_arr.insert(insert3+3, '<td border="0"> </td>')
+    # # data_arr.insert(insert3+1, '<td border="0"> </td>')
+    # # data_arr.insert(insert3+2, '<td border="0"> </td>')
+    # # data_arr.insert(insert3+3, '<td border="0"> </td>')
 
-    return render_template('session/semester-result-print.html', 
-        title='Semester ' + str(session.semester.semester) + ' Result', 
-        header=header, data_arr=data_arr, session=session,
-        insert1=insert1, insert2=insert2, insert3=insert3)
+    # return render_template('session/semester-result-print.html', 
+    #     title='Semester ' + str(session.semester.semester) + ' Result', 
+    #     header=header, data_arr=data_arr, session=session,
+    #     insert1=insert1, insert2=insert2, insert3=insert3)
 
 
 #######################################

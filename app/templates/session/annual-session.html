@@ -21,11 +21,12 @@
         width: 1px;
         white-space: nowrap;
     }
-/*    .wdth {
-      padding: 0px;
-      margin: 0px;
-      width: 2px;
-    }*/
+    .filter_w {
+      max-width: 300px;
+      float: left;
+      margin-top: 3px;
+      /*margin-left: 2px;*/
+    }
   </style>
 
 {% endblock %}
@@ -40,6 +41,12 @@
   	<div class="row">
       <h2> {{ annual_session.name }} </h2>
 
+      <div class="input-group filter_w"> 
+        <span class="input-group-addon">Filter</span>
+        <input id="filter" type="text" class="form-control" placeholder="Type here...">
+      </div>
+
+      <div style="margin: 3px; float: left">
       {% set refrech_url = url_for('annual_session_refrech', annual_session_id=annual_session.id) %}
       <a href="{{url_for('slow_redirect', url=refrech_url) }}" class="btn btn-primary" role="button" >(Re)Calculate Annual Session</a>
 
@@ -47,69 +54,69 @@
 
       {% set all_bultin_url = url_for('bultin_annual_print_all', annual_session_id=annual_session.id) %}
       <a href="{{ url_for('slow_redirect', url=all_bultin_url, message='Collecting...') }}" class="btn btn-primary" role="button" target="_blank" >Print All Bultin</a>
+      </div>
 
-      </br>
-      </br>
+      </br> </br>
 
       <table id="myTable" class="table table-striped table-bordered ">
-          <thead>
-            <tr>
-              <th rowspan="2">#</th>
-              <th rowspan="2"><center>Name</center></th>
-              <th colspan="2">
-                {% if annual_dict['S1'] != -1 %}
-                  <a href="{{ url_for('session', session_id=annual_dict['S1']) }}" target="_blank" >Semester 1</a>
-                {% else %}
-                  Semester 1
-                {% endif %}
-              </th>
-              <th colspan="2">
-                {% if annual_dict['R1'] != -1 %}
-                  <a href="{{ url_for('session', session_id=annual_dict['R1']) }}" target="_blank" >Ratt. 1</a>
-                {% else %}
-                  Ratt. 1
-                {% endif %}
-              </th>
-              <th colspan="2">
-                {% if annual_dict['S1'] != -1 %}
-                  <a href="{{ url_for('session', session_id=annual_dict['S2']) }}" target="_blank" >Semester 2</a>
-                {% else %}
-                  Semester 2
-                {% endif %}
-              </th>
-              <th colspan="2">
-                {% if annual_dict['R2'] != -1 %}
-                  <a href="{{ url_for('session', session_id=annual_dict['R2']) }}" target="_blank" >Ratt. 2</a>
-                {% else %}
-                  Ratt. 2
-                {% endif %}
-              </th>
-              <th colspan="2">Annual</th>
-              <th colspan="2">Annual Ratt</th>
-              <th colspan="2">Saving</th>
-              <th colspan="1" rowspan="2">Obs.</th>
-              <th colspan="1" rowspan="2">Bultin</th>
-            </tr>
-            <tr>
-              <th>A</th><th>C</th><th>A</th><th>C</th>
+        <thead>
+          <tr>
+            <th rowspan="2">#</th>
+            <th rowspan="2"><center>Name</center></th>
+            <th colspan="2">
+              {% if annual_dict['S1'] != -1 %}
+                <a href="{{ url_for('session', session_id=annual_dict['S1']) }}" target="_blank" >Semester 1</a>
+              {% else %}
+                Semester 1
+              {% endif %}
+            </th>
+            <th colspan="2">
+              {% if annual_dict['R1'] != -1 %}
+                <a href="{{ url_for('session', session_id=annual_dict['R1']) }}" target="_blank" >Ratt. 1</a>
+              {% else %}
+                Ratt. 1
+              {% endif %}
+            </th>
+            <th colspan="2">
+              {% if annual_dict['S1'] != -1 %}
+                <a href="{{ url_for('session', session_id=annual_dict['S2']) }}" target="_blank" >Semester 2</a>
+              {% else %}
+                Semester 2
+              {% endif %}
+            </th>
+            <th colspan="2">
+              {% if annual_dict['R2'] != -1 %}
+                <a href="{{ url_for('session', session_id=annual_dict['R2']) }}" target="_blank" >Ratt. 2</a>
+              {% else %}
+                Ratt. 2
+              {% endif %}
+            </th>
+            <th colspan="2">Annual</th>
+            <th colspan="2">Annual Ratt</th>
+            <th colspan="2">Saving</th>
+            <th colspan="1" rowspan="2">Obs.</th>
+            <th colspan="1" rowspan="2">Bultin</th>
+          </tr>
+          <tr>
+            <th>A</th><th>C</th><th>A</th><th>C</th>
 
-              <th>A</th><th>C</th><th>A</th><th>C</th>
+            <th>A</th><th>C</th><th>A</th><th>C</th>
 
-              <th>A</th><th>C</th><th>A</th><th>C</th>
+            <th>A</th><th>C</th><th>A</th><th>C</th>
 
-              <th>A</th><th>C</th>
-              <!-- <th>Obs.</th> -->
-            </tr>
-          </thead>
-          <tbody>
-          {% for data in array_data %}
-            <tr>
-            {% for td in data %}
-              {{ td | safe | replace('None', '') }}
-            {% endfor %}
-            </tr>
+            <th>A</th><th>C</th>
+            <!-- <th>Obs.</th> -->
+          </tr>
+        </thead>
+        <tbody class="searchable">
+        {% for data in array_data %}
+          <tr>
+          {% for td in data %}
+            {{ td | safe | replace('None', '') }}
           {% endfor %}
-          </tbody>
+          </tr>
+        {% endfor %}
+        </tbody>
       </table>
     </div>
 
@@ -160,6 +167,10 @@
   {{ super() }}
 
   <script type="text/javascript">
+  
+    {% include "_filter.js" %} 
+
+    
     $('#confirm-delete').on('show.bs.modal', function(e) {
       $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
     });

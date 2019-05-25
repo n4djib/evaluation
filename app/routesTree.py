@@ -267,14 +267,13 @@ def check_reinit_needed():
 def tree_reinit_all(school_id=0):
     nbr_reinit = check_reinit_needed()
     sessions = Session.query.filter_by(is_closed=False).all()
+    nbr_init = 0
     for session in sessions:
         if session.is_config_changed():
-            # message = 
             init_all(session)
             calculate_all(session)
-            flash(" ---- " + str(session.id) )
-            # # a trick to update the Slow redirect page
-            # return redirect( url_for('tree_reinit_all') )
+            nbr_init += 1
+    flash( str(nbr_init) + " reinitialized")
 
     return redirect( url_for('tree') )
 

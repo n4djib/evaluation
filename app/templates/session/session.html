@@ -5,15 +5,28 @@
 {% block styles %}
   {{super()}}
 
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/csshake.min.css') }}">
+
   <style type="text/css">
-    /*div, table {
+
+    div, table {
       margin: 0px; padding: 0px;
-    }*/
+      /*border-style: solid;*/
+      /*border-width: 1px;*/
+    }
     th {
       background-color: PowderBlue;
       /*background-color: Silver;*/
       /*color: white;*/
     }
+    .no-wrap {  white-space: nowrap; }
+
+    div.inline { 
+      float:left; 
+      /*margin:0px;*/
+      /*margin-left:0px;*/
+    }
+
   </style>
 
 {% endblock %}
@@ -36,8 +49,33 @@
       <h2> {{ session.get_label() }} </h2>
     </div>
 
-    <!-- <div class="col-md-7 col-sm-6 col-xs-6"> -->
-  	<div class="col-md-6 col-sm-5 col-xs-5">
+    <div style="margin:2px; margin-left:15px; margin-right:15px;" class="row" >
+
+      <div style="margin-right:4px; float:left"; > <!-- class="col-md-12 col-sm-10 col-xs-8" -->
+        <a href="{{url_for('conf_session', session_id=session.id, semester_id=session.semester_id)}}" 
+           class="btn btn-default" role="button">
+           <img src='/static/ztree/img/diy/19-big.png'>
+           Config. of {{ session.semester.display_name }}</a>
+        {% set init_url = url_for('reinitialize_session', session_id=session.id) %}
+        {% set calc_url = url_for('calculate_session', session_id=session.id) %}
+        <a href="{{ url_for('slow_redirect', url=init_url, message='Initializing') }}"
+           class="btn btn-{{'warning shake-slow shake-constant' if check['CONF'] and session.is_closed==False else 'primary'}} {{'disabled' if session.is_closed else ''}}" 
+           role="button" style="z-index:9999;">(Re)Initialize</a>
+        <a href="{{url_for('slow_redirect', url=calc_url, message='Calculating', gif='Preloader_3')}}"
+           class="btn btn-{{'warning shake-slow shake-constant' if check['CALC'] else 'primary'}} {{'disabled' if session.is_closed else ''}}" 
+           role="button" style="z-index:9999;">(Re)Calculate</a>
+      </div>
+
+      <div style="float:right; max-width:300px;" class="input-group filter_w"> 
+        <span class="input-group-addon">Filter</span>
+        <input id="filter" type="text" class="form-control" placeholder="Type here...">
+      </div>
+
+    </div>
+
+
+
+  	<div style="padding-right: 5px;" class="col-md-6 col-sm-5 col-xs-4">
       <table id="myTable" class="table">
           <thead class="thead-dark">
             <tr>
@@ -48,7 +86,7 @@
               <th scope="col"></th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="searchable">
           {% for module in modules %}
             <tr>
               <td>{{loop.index}}</td>
@@ -62,46 +100,28 @@
           </tbody>
       </table>
 
-
-      <a href="{{url_for('conf_session', 
-                          session_id=session.id, 
-                          semester_id=session.semester_id)}}" 
-         class="btn btn-primary" role="button">
-         <img src='/static/ztree/img/diy/19-big.png'>
-         Configuration of {{ session.semester.display_name }}</a>
-      
-
-      {% set init_url = url_for('reinitialize_session', session_id=session.id) %}
-      {% set calc_url = url_for('calculate_session', session_id=session.id) %}
-      <a href="{{ url_for('slow_redirect', url=init_url, message='Initializing') }}"
-         class="btn btn-{{'warning' if check['CONF'] else 'primary'}} {{'disabled' if session.is_closed else ''}}" 
-         role="button">(Re)Initialize</a>
-      <a href="{{url_for('slow_redirect', url=calc_url, message='Calculating', gif='Preloader_3')}}"
-         class="btn btn-{{'warning' if check['CALC'] else 'primary'}} {{'disabled' if session.is_closed else ''}}" 
-         role="button">(Re)Calculate</a>
-
       <hr>
       
       <a href ="{{url_for('semester_averages', session_id=session.id)}}"
-         class="btn btn-primary {{'disabled' if check['CALC'] else ''}}" role="button">Averages</a>
+         class="btn btn-primary {{'disabled' if check['CALC'] or check['ERRS'] else ''}}" role="button">Averages</a>
       <a href ="{{url_for('semester_result', session_id=session.id)}}"
-         class="btn btn-primary {{'disabled' if check['CALC'] else ''}}" role="button">Result</a>
+         class="btn btn-primary {{'disabled' if check['CALC'] or check['ERRS'] else ''}}" role="button">Result</a>
       {% if session.is_rattrapage == True %}
       <a href ="{{url_for('semester_result', session_id=session.id)}}"
-         class="btn btn-primary {{'disabled' if check['CALC'] else ''}}" role="button">Result Tout</a>
+         class="btn btn-primary {{'disabled' if check['CALC'] or check['ERRS'] else ''}}" role="button">Result Apres Ratt.</a>
       {% endif %}
       <a href ="{{url_for('classement', session_id=session.id)}}"
-         class="btn btn-primary {{'disabled' if check['CALC'] else ''}}" role="button">Classement / Justification</a>
+         class="btn btn-primary {{'disabled' if check['CALC'] or check['ERRS'] else ''}}" role="button">Classement / Justification</a>
 
       <hr>
 
       <a href ="{{url_for('create_annual_session', session_id=session.id)}}"
-         class="btn btn-primary" role="button"
+         class="btn btn-primary {{'disabled' if check['CALC'] or check['ERRS'] else ''}}" role="button"
          >Create Annual (S:{{session.semester.annual.annual}})</a>
 
       {% if session.is_rattrapage != True and session.semester.has_fondamental() == True %}
       <a href ="{{url_for('students_rattrapage_semester', session_id=session.id)}}"
-         class="btn btn-primary {{'disabled' if check['CALC'] or check['EMPTY'] else ''}}" role="button"
+         class="btn btn-primary {{'disabled' if check['CALC'] or check['ERRS'] or check['EMPTY'] else ''}}" role="button"
          >Show Ratt (R:{{ session.semester.get_nbr() }})</a>
       {% endif %}
       
@@ -132,7 +152,7 @@
       </div>
 
       {% if session.is_closed != True %}
-      <button class="btn btn-warning"
+      <button class="btn btn-success {{'disabled' if check['CALC'] or check['ERRS'] or check['EMPTY'] else ''}}"
         data-href="{{url_for('lock_session', session_id=session.id)}}" 
         data-toggle="modal" data-target="#confirm-lock">
           Lock {{'Rattrapage' if session.is_rattrapage else 'Semester'}}
@@ -157,7 +177,7 @@
       {% endif %}
 
       {% if session.is_closed == True %}
-      <button class="btn btn-warning"
+      <button class="btn btn-success"
         data-href="{{url_for('unlock_session', session_id=session.id)}}" 
         data-toggle="modal" data-target="#confirm-unlock">
           Unlock {{'Rattrapage' if session.is_rattrapage else 'Semester'}}
@@ -182,10 +202,10 @@
       {% endif %}
     </div>
 
-  	<div class="col-md-1 col-sm-1 col-xs-1">
-    </div>
+  	<!-- <div class="col-md-1 col-sm-1 col-xs-1">
+    </div> -->
 
-  	<div class="col-md-4 col-sm-4 col-xs-5">
+  	<div class="col-md-6 col-sm-5 col-xs-4">
       <table class="table table-striped">
         <thead>
           <tr>
@@ -196,15 +216,16 @@
             <th scope="col"></th>
           </tr>
         </thead>
-        <tbody>
+        <tbody class="searchable">
         {% for student in students %}
           <tr>
             <td>{{loop.index}}</td>
-            <td>
-              <a href="{{url_for('grade', session_id=session.id, student_id=student.id)}}">{{ student.username }}</a>
+            <td class="no-wrap">
+              <a href="{{url_for('grade', session_id=session.id, student_id=student.id)}}"
+                >{{ student.username }}</a>
             </td>
-            <td>{{ student.last_name | replace(' ', ' ') }}</td>
-            <td>{{ student.first_name | replace(' ', ' ') }}</td>
+            <td class="no-wrap">{{ student.last_name }}</td>
+            <td class="no-wrap">{{ student.first_name }}</td>
             <td> <img src="{{ url_for('static', filename='img/' + icons_student[loop.index-1] ) }}"
                alt="{{ icons_student[loop.index-1] }}" height="25" width="25">
             </td>
@@ -222,7 +243,7 @@
 
     </div>
 
-    <br>
+    <br/>
        
   </div>
 
@@ -240,8 +261,6 @@
   </br>
 
 
-  </div>
-
 
 {% endblock %}
 
@@ -255,6 +274,8 @@
   {{ super() }}
 
   <script type="text/javascript">
+    {% include "_filter.js" %}
+    
     $('#confirm-delete').on('show.bs.modal', function(e) {
       $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
     });
@@ -264,11 +285,9 @@
     $('#confirm-unlock').on('show.bs.modal', function(e) {
       $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
     });
+  
+
   </script>
 
 {% endblock %}
 
-
-
-
- 

@@ -54,7 +54,8 @@
 	if the initializition is not updated (rattrapage and normal)
 - in Result Be carful of long Module Names
 - in Result Print Browser the tables print wrong if it jumps to the next Page
-
+- all Printables in one PDF of a Session | Annual | Promo 
+	for all or for one Student
 
 == Note ==
 ----------------
@@ -83,6 +84,36 @@
 			- calculate even if there is missing fields
 			- in grade don't calculate average if the field is empty
 				but calculate unit and semester
+			- add justification button to Semester Result
+			- initialize button is Orange but session is closd
+				http://localhost:5000/session/2/
+			- in Grid change to Display_name
+			- add filter to Students in Session
+			- check where Semester Result is comming with the Module DisplayName
+				from Cofig String
+
+- in ratt check the data
+	is the grades Consistant
+	is the grade hiegher
+- close session before generating rattrapage
+- Etat de Progrission de Saisie
+- a button to calculate all Open Sessions
+			- in Massive Edit add Button to change Students Matricule when channge is possible
+				rename matricule according to order
+- a place to run code on DATA
+- a mask to Sort the studets of the third year
+- add Session Config
+- download Lists as Excel
+- make Choise(Select) Empty in insert many Studets
+	and don't allow submition
+- check if a student is in a Sessions and not in the Other 
+- Submit Data by CRTL+Enter in Update many & create many
+- make the filter in Handsontale like the one in in _filter.js
+- i add/remove multi select flag the studet who has Grades Entered
+- in annual add link to Notes in Grid of the Annual
+- in grade by student add button to Bultin and Justification
+- shake the Calculate button
+- in add/remove Gliphcon Not appearig when internet is Off
 - MSG
 	do you want to create Ratt before finishing the filling
 - when i don't fill Rattrapage
@@ -113,7 +144,9 @@
 - add semester name to Semester Tree
 - lock annual
 - Pin Header in Semester Results
-- add filter to semester Results
+			- add filter to semester Results
+- add filter to Annual
+- upload PDF automaticaly to Google Drive
 
 - i need to implement passage system
 	check every student Annual
@@ -125,8 +158,6 @@
 - make module list like the one in student
 	and add unit + semester
 - link from Annual to Student Grades
-
-
 
 - finish view link in Update like in semester
 	@register_breadcrumb(app, '.basic.semester.view.update', 'Update')
@@ -217,7 +248,7 @@
 - show for every student his promos and sessions and Grades
 	and printables
 - CHECK THE Tables Data in the database and decide what you shool fill from the APP
-- 
+- Note: i am grabing Semester Result Iformations from the Config String
 - 
 - 
 - 

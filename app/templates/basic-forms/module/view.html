@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+
+    <h1>Module: {{module.name}}</h1>
+
+    <div>
+        <!-- <a class="btn btn-primary" href="{{ url_for('module_update', id=module.id) }}">Update</a> -->
+
+        <button class="btn btn-danger"
+            data-href="{{url_for('module_delete', id=module.id)}}" 
+            data-toggle="modal" data-target="#confirm-delete">
+            Delete
+        </button>
+        <div class="modal fade" id="confirm-delete" tabindex="-1"
+            role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <!--div class="modal-header">
+                        ...
+                    </div-->
+                    <div class="modal-body">
+                        do you really want to delete this Module?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <a class="btn btn-danger btn-ok">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    </br>
+    <div>
+        <table class="table table-bordered">
+          <tr><td><i>ID</i></td> <td>{{module.id}}</td></tr>
+          <tr><td><i>Code</i></td> <td>{{module.code}}</td></tr>
+          <tr><td><i>Name</i></td> <td>{{module.name}}</td></tr>
+          <tr><td><i>Display Name</i></td> <td>{{module.display_name}}</td></tr>
+
+          <tr><td><i>Coefficient</i></td> <td>{{module.coefficient}}</td></tr>
+          <tr><td><i>Credit</i></td> <td>{{module.credit}}</td></tr>
+          <tr><td><i>Time</i></td> <td>{{module.time}}</td></tr>
+          <tr><td><i>Order</i></td> <td>{{module.order}}</td></tr>
+          <tr><td><i>Tree</i></td> 
+            <td>
+              {{ module.unit.semester.annual.branch.school.name | replace("None", "") }} -> 
+              {{ module.unit.semester.annual.branch.name | replace("None", "") }} -> 
+              {{ module.unit.semester.annual.display_name | replace("None", "") }} -> 
+              {{ module.unit.semester.display_name | replace("None", "") }} -> 
+              {{ module.unit.display_name | replace("None", "") }}
+            </td>
+          </tr>
+          <tr><td><i>Config</i></td> 
+            <td>
+              <a target="_blanck" href="{{ url_for('conf', semester_id=module.unit.semester.id) }}">Config</a>
+            </td>
+          </tr>
+          <tr><td><i>Promos and Sessions</i></td> 
+            <td>
+              {% for session in module.get_sessions() %}
+                <a href="{{ url_for('session', session_id=session.id) }}"
+                  >{{ session.promo.name }} - {{ session.get_name() }}</a>
+                </br>
+              {% endfor %}
+            </td>
+          </tr>
+        </table>
+
+
+        <!-- # code
+        # name
+        # display_name
+        # coefficient
+        # credit
+        # time
+        # order
+        # unit_id -->
+
+      </br>
+      </br>
+      - </br>
+      </br>
+
+
+    </div>
+
+{% endblock %}
+
+
+
+{% block scripts %}
+  {{ super() }}
+
+  <script type="text/javascript">
+    $('#confirm-delete').on('show.bs.modal', function(e) {
+      $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+    });
+  </script>
+
+{% endblock %}

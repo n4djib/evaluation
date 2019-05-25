@@ -2,8 +2,6 @@
 = remove Semester 1 & Semester 2
 	from Sages femmes Promo 2017 (rihab)
 
-
-
 = fix rattrapable
 	SF S9 Travaux séminaires
 	SF S10 ??????
@@ -15,6 +13,10 @@
 	
 	LSP S6 ?????
 
+= shorten longer modules name
+
+=  	ISP-2018-74 	Tati 	Aira
+	Amira
 
 = 
 
@@ -23,11 +25,6 @@
 = 
 
 = 
-
-= 
-
-
-
 
 
 = don't forget to remove repetition in Semester Result

@@ -52,13 +52,19 @@
 
 {% block app_content %}
 
+    <!--div class="input-group filter_w"> 
+      <span class="input-group-addon">Filter</span>
+      <input id="filter" type="text" class="form-control" placeholder="Type here...">
+    </div-->
+
   {% set S = "Semester" -%}
   {% if session.is_rattrapage %}
     {% set S = "Rattrapage" %}
   {% endif %}
     
   <h3>Grades by {{ grid_title }}</h3>
-  <div class="container" onbeforeunload ="alert('aaaaa');">
+  <!-- <div class="container" onbeforeunload ="alert('aaaaa');"> -->
+  <div class="container" >
 
     <input id="search" name="search" placeholder="Filter ..." type="text" autocomplete="off">
 

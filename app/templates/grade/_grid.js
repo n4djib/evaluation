@@ -200,11 +200,7 @@ Handsontable.dom.addEvent(autosave, 'click', function() {
 function shake_message(){
   var shake = '';
   var color = '';
-  // if(is_dirty === true){
-  //   shake = 'shake-slow shake-constant ';
-  //   color = 'color: red;';
-  // }
-
+  
   var msg = '<b style="'+color+'"><div class="'+shake+'">';
   msg = msg + '<font size="2">' + msg_autosaved + '</font></div></b>';
 

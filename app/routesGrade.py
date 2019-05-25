@@ -43,8 +43,8 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
     if module_id!=0:
         grid_title = F'Module: {module.code} - {module.display_name}'
     if student_id!=0:
-        student = Student.query.filter_by(id=student_id).first()
-        grid_title = F'Student: {student.username} - {student.first_name} - {student.last_name}'
+        student = Student.query.filter_by(id=student_id).first_or_404()
+        grid_title = F'Student: {student.username} - {student.last_name} - {student.first_name}'
 
     session = Session.query.get_or_404(session_id)
     return render_template('grade/grade.html', title='Grade Edit', 
@@ -97,34 +97,34 @@ def get_original_grade(grade):
     return original_grade
 
 def create_data_grid(grades, type='module'):
-    data = ""
+    data = ''
     for grade in grades:
-        grade_id = "id: " + str(grade.id) + ", "
-        username = "username: '" + grade.get_username() + "', "
-        name = "name: '" + grade.get_student_name() + "', "
-        if type != "module":
-            name = "name: '" + grade.module.name + "', "
+        grade_id = 'id: ' + str(grade.id) + ', '
+        username = 'username: "' + grade.get_username() + '", '
+        name = 'name: "' + grade.get_student_name() + '", '
+        if type != 'module':
+            name = 'name: "' + grade.module.display_name + '", '
 
-        cour = "cour: " + str(grade.cour) + ", "
-        td = "td: " + str(grade.td) + ", "
-        tp = "tp: " + str(grade.tp) + ", "
-        t_pers = "t_pers: " + str(grade.t_pers) + ", "
-        stage = "stage: " + str(grade.stage) + ", "
+        cour = 'cour: ' + str(grade.cour) + ', '
+        td = 'td: ' + str(grade.td) + ', '
+        tp = 'tp: ' + str(grade.tp) + ', '
+        t_pers = 't_pers: ' + str(grade.t_pers) + ', '
+        stage = 'stage: ' + str(grade.stage) + ', '
 
-        average = "average: " + str(grade.average) + ", "
-        credit = "credit: " + str(grade.credit) + ", "
-        formula = "formula: " + str(grade.formula).replace('None', '') + ", "
+        average = 'average: ' + str(grade.average) + ', '
+        credit = 'credit: ' + str(grade.credit) + ', '
+        formula = 'formula: ' + str(grade.formula).replace("None", "") + ', '
 
-        is_rattrapage = "is_rattrapage: false, "
-        original_grade = "original_grade: null"
+        is_rattrapage = 'is_rattrapage: false, '
+        original_grade = 'original_grade: null '
         if grade.is_rattrapage is True:
-            is_rattrapage = "is_rattrapage: true, "
-            original_grade = "original_grade: "+str( get_original_grade(grade) )+" "
+            is_rattrapage = 'is_rattrapage: true, '
+            original_grade = 'original_grade: '+str( get_original_grade(grade) )+' '
 
-        data += "{" + username + grade_id + name + cour + td + tp + t_pers + stage \
-             + average + credit + formula + is_rattrapage + original_grade +"}, "
+        data += '{' + username + grade_id + name + cour + td + tp + t_pers + stage \
+             + average + credit + formula + is_rattrapage + original_grade +'}, '
  
-    return "[ " + data + " ]"
+    return '[ ' + data + ' ]'
 
 
 def grade_going_to_change(grade, data):

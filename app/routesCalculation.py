@@ -226,7 +226,7 @@ def get_semester_justification(student_session, conf_dict):
 @app.route('/session/<session_id>/justification/<student_id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree.session.classement.justification', 'Justification')
 def justification(session_id, student_id):
-    student_session = StudentSession.query.filter_by(session_id=session_id, student_id=student_id).first()    
+    student_session = StudentSession.query.filter_by(session_id=session_id, student_id=student_id).first()
     grade_units = student_session.grade_units
     grades = student_session.grades
     session = student_session.session
@@ -240,6 +240,26 @@ def justification(session_id, student_id):
         justs.append( get_unit_justification(grade_unit, conf_dict) )
     justs.append( get_semester_justification(student_session, conf_dict) )
     return render_template('session/justification.html', title='Session', justs=justs)
+
+@app.route('/session/<session_id>/justification/username/<username>/', methods=['GET', 'POST'])
+# @register_breadcrumb(app, '.tree.session.classement.justification', 'Justification')
+def justification_by_username(session_id, username):
+    student_session = StudentSession.query.filter_by(session_id=session_id)\
+        .join(student).filter_by(username=username).first()
+    grade_units = student_session.grade_units
+    grades = student_session.grades
+    session = student_session.session
+    conf_dict = literal_eval( session.configuration )
+
+    justs = []
+    for grade_unit in grade_units:
+        for grade in grades:
+            if grade_unit.unit_id == grade.module.unit_id:
+                justs.append( get_module_justification(grade, conf_dict) )
+        justs.append( get_unit_justification(grade_unit, conf_dict) )
+    justs.append( get_semester_justification(student_session, conf_dict) )
+    return render_template('session/justification.html', title='Session', justs=justs)
+    
 
 @app.route('/session/<session_id>/classement/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree.session.classement', 'Classement')

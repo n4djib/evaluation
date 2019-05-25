@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SelectField, SubmitField, PasswordField, BooleanField
+from wtforms import StringField, IntegerField, DecimalField, SelectField, SubmitField, PasswordField, BooleanField
 from wtforms.validators import DataRequired, Email, ValidationError, Optional, EqualTo
 # from wtforms import DateField
 from wtforms.fields.html5 import DateField
@@ -8,7 +8,7 @@ from wtforms.fields.html5 import DateField
 from flask_admin.form import widgets
 # from flask_admin.form import DatePickerWidget
 
-from app.models import Student, User, School, Branch, Annual, Semester, Wilaya, Promo, Teacher
+from app.models import Student, User, School, Branch, Annual, Semester, Module, Unit, Wilaya, Promo, Teacher
 from sqlalchemy import and_
 # from datetime import datetime
 
@@ -122,7 +122,7 @@ class SemesterFormBase(FlaskForm):
     display_name = StringField('Display Name')
     semester = IntegerField('Semester')
     # is_closed = BooleanField('Closed')
-    annual_id = SelectField('Annual', coerce=int,  
+    annual_id = SelectField('Annual', coerce=int, render_kw={'disabled':''}, 
         choices = [('-1', '')]+[(a.id, a.name) for a in Annual.query.join(Semester).order_by('name')
         # choices = [('-1', '')]+[(a.id, a.name) for a in Annual.query.join(Semester).filter_by(semester_id=id).order_by('name')
     ])
@@ -143,12 +143,33 @@ class SemesterFormUpdate(SemesterFormBase):
         super(SemesterFormUpdate, self).__init__(*args, **kwargs)
         self._id = _id
 
-#########
 class SemesterFormSpecialUpdate(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     submit = SubmitField('Update')
     def __init__(self, _id=-1, *args, **kwargs):
         super(SemesterFormSpecialUpdate, self).__init__(*args, **kwargs)
+        self._id = _id
+
+################## Module
+class ModuleFormBase(FlaskForm):
+    code = StringField('Code')
+    name = StringField('Name', validators=[DataRequired()])
+    display_name = StringField('Display Name')
+    coefficient = IntegerField('Coefficient')
+    credit = IntegerField('Credit')
+    time = DecimalField('Time')
+    order = IntegerField('Order')
+    unit_id = SelectField('Unit', coerce=int, validators=[Optional()], render_kw={'disabled':''},  
+        choices = [(-1, '')]+[(u.id, u.name) for u in Unit.query.order_by('name')
+    ])
+
+class ModuleFormCreate(ModuleFormBase):
+    submit = SubmitField('Create')
+
+class ModuleFormUpdate(ModuleFormBase):
+    submit = SubmitField('Update')
+    def __init__(self, _id=-1, *args, **kwargs):
+        super(ModuleFormUpdate, self).__init__(*args, **kwargs)
         self._id = _id
 
 ################## Promo

@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>Bultin</title>
+  <title>{{title}}</title>
 
   <style type="text/css">
     table {
@@ -25,7 +25,6 @@
         background-color: rgb(230,230,230);
     }
 
-
     @media print {
       .new-page {
         page-break-before: always;
@@ -35,17 +34,37 @@
 </head>
 
 
-<body onload="window.print();">
+<body onload="PrintWindow();">
  
   <div class="container" style="border-color:black; text-align:center;">
-    <div class="container" 
-             style="display:inline-block; text-align:left; 
+    <div class="container" style="display:inline-block; text-align:left; 
                     border-width:1px; border-width:1px; border-color:red;" >
 
-      {{ table | safe }}
+      {{ header | safe }}
+      <table class="table table-bordered">
+      {{ bultin | safe }}
+      </table>
+      {{ footer | safe }}
       
     </div>
   </div>
+
+
+  <script type="text/javascript">
+    function PrintWindow() {                    
+       window.print();            
+       CheckWindowState();
+    }
+    function CheckWindowState()    {           
+        if(document.readyState=="complete") {
+            window.close(); 
+        } else {           
+            setTimeout("CheckWindowState()", 2000)
+        }
+    }
+    PrintWindow();
+  </script> 
+
 
 </body>
 </html>

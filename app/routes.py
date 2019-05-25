@@ -1,7 +1,7 @@
 from app import app, db
 from flask import render_template, redirect, url_for, flash, request
 from app.forms import StudentFormCreate, StudentFormUpdate, StudentFormUpdateCostum, RegistrationForm, LoginForm
-from app.models import Student, StudentSession, AnnualSession, User, Branch, Session, Wilaya, School
+from app.models import Student, StudentSession, AnnualSession, User, Branch, Session, Wilaya, School, Module
 from werkzeug.urls import url_parse
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_breadcrumbs import register_breadcrumb
@@ -16,6 +16,20 @@ def calendar():
     return render_template('calendar.html', title='Welcome Page')
 
 
+@app.route('/code/')
+def run_code():
+    modules = Module.query.all()
+    
+    # sss = 'aa/aa'
+    # sss = sss.replace('/', ' / ')
+    # return sss
+
+    for module in modules:
+        module.display_name = module.display_name.replace('/', ' / ')
+        module.display_name = module.display_name.replace('  ', ' ')
+        db.session.commit()
+    
+    return 'excuted code'
 
 # import re
 
@@ -32,14 +46,14 @@ def calendar():
 #     return str( annual )
 
 
-@app.route('/annualannual/<id>/')
-def annual_(id):
-    annual_session = AnnualSession.query.get_or_404(id)
-    msg = ''
-    for session in annual_session.get_normal_sessions():
-    # for session in annual_session.sessions:
-        msg += str(session.id ) + ' - '
-    return str(msg)
+# @app.route('/annualannual/<id>/')
+# def annual_(id):
+#     annual_session = AnnualSession.query.get_or_404(id)
+#     msg = ''
+#     for session in annual_session.get_normal_sessions():
+#     # for session in annual_session.sessions:
+#         msg += str(session.id ) + ' - '
+#     return str(msg)
 
 
 @app.route('/student/promos/<id>/')
@@ -145,14 +159,20 @@ def students_create():
         return redirect(url_for('student_view', id=student.id))
     elif request.method == 'GET':
         # form.username.data = form.get_username('SF', str(datetime.datetime.now().year))
-        form.username.data = Student.get_username('**', str(datetime.now().year), SEPARATOR)
+        form.username.data = Student.get_username('**', str(get_current_year()), SEPARATOR)
     return render_template('student/create.html', title='Student Create', form=form)
+
+def get_current_year():
+    this_year = datetime.now().year
+    if datetime.now().month < 8:
+        this_year = this_year - 1
+    return this_year
 
 @app.route('/student/get-username/', methods=['POST'])
 def student_get_username():
     branch_id = request.json
     branch = Branch.query.filter_by(id=branch_id).first()
-    branch_name = Student.get_username(branch.name, str(datetime.now().year), SEPARATOR)
+    branch_name = Student.get_username(branch.name, str(get_current_year()), SEPARATOR)
     return str(branch_name)
 
 @app.route('/student/update/<id>/', methods=['GET', 'POST'])
@@ -256,6 +276,7 @@ def get_branches_list():
     return branch_list
 
 @app.route('/student/create-many/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.basic.student.create_many', 'Create Many')
 def students_create_many():
     data = []
     i = 0
@@ -322,7 +343,65 @@ def create_many_student_save():
     return 'data saved'
 
 
-@app.route('/session/<session_id>/student/update-many/', methods=['GET', 'POST'])
+
+#######################################
+#            update_many              #
+
+@app.route('/session/<session_id>/update-many-student-username/t/<template>/', methods=['GET', 'POST'])
+@app.route('/session/<session_id>/update-many-student-username/', methods=['GET', 'POST'])
+def update_many_username_ordered(session_id, template=''):
+    # check change is allowed
+    session = Session.query.get_or_404(session_id)
+    promo_has_closed = session.promo.has_closed_session()
+    if promo_has_closed == True:
+        flash("you can't Update the Usernames because ********")
+        return redirect( url_for('students_update_many', session_id=session_id) )
+        
+    # get the Username Template
+    if template == '':
+        branch_name = session.promo.branch.name
+        start_date = session.promo.start_date
+        if start_date == None:
+            start_date = datetime.now()
+        template = branch_name+'-'+str(start_date.year)+'-'
+
+    # get the students to change in the Session or Promo
+    students = Student.query.join(StudentSession).filter_by(session_id=session_id).all()
+
+    # change to somthing nutral
+    for student in students:
+        student.username = 'tmp-'+student.username
+    db.session.commit()
+
+    # order and rename 
+    students = Student.query.join(StudentSession)\
+        .filter_by(session_id=session_id)\
+        .order_by(Student.last_name, Student.first_name).all()
+
+    i = 1
+    for student in students:
+        # get username and check it doesn't exist
+        while True:
+            new_student = template + str(i)
+            if i < 10:
+                new_student = template + '0' + str(i)
+
+            s = Student.query.filter_by(username=new_student).first()
+            if s == None:
+                student.username = new_student
+                i += 1
+                break
+            else:
+                flash('There is a Name Conflict - ' + new_student, 'alert-warning')
+                i += 1
+
+    db.session.commit()
+
+    flash('Ordered and renamed', 'alert-success')
+    return redirect(url_for('students_update_many', session_id=session_id))
+
+@app.route('/session/<session_id>/update-many-student/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.tree.session.update_many', 'Update Many')
 def students_update_many(session_id):
     student_sessions = StudentSession.query.filter_by(session_id=session_id).all()
 
@@ -330,7 +409,6 @@ def students_update_many(session_id):
 
     for student_session in student_sessions:
         student = student_session.student
-
         birth_date = None
         wilaya = None
 
@@ -340,7 +418,8 @@ def students_update_many(session_id):
             wilaya = str(student.wilaya.name)
 
         link = '<a href="'+url_for('student_view', id=student.id)+'" target="_blank">'
-        link += student.last_name + ' - ' + student.first_name + '</a>'
+        link += student.last_name + ' - ' + student.first_name
+        link += '</a>'
 
         data.append([
             student.id,
@@ -367,7 +446,6 @@ def students_update_many(session_id):
         session_id=session_id,
         promo_has_closed=promo_has_closed
         )
-
 
 @app.route('/student/update-many/save/', methods = ['POST'])
 def update_many_student_save():
@@ -404,8 +482,8 @@ def update_many_student_save():
     return 'data updated'
 
 
-
 #######################################
+
 
 
 @app.route('/login/', methods=['GET', 'POST'])

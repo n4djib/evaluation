@@ -84,6 +84,9 @@ class AnnualSession(db.Model):
             if session.is_rattrapage != True:
                 normal_sessions.append(session)
         return normal_sessions
+    def get_annual_pedagogique(self):
+        session = self.sessions[0]
+        return session.get_annual_pedagogique()
 
 class AnnualGrade(db.Model):
     __tablename__ = 'annual_grade'
@@ -145,15 +148,16 @@ class Session(db.Model):
     annual_session = db.relationship('AnnualSession', back_populates='sessions')
     student_sessions = db.relationship('StudentSession', back_populates='session')
     module_sessions = db.relationship('ModuleSession', backref='session')
-    # def __repr__(self):
-    #     return '<{} - {}>'.format(self.id, self.name)
     def __repr__(self):
         return '<Session {}>'.format(self.id)
+        # return '<{} - {}>'.format(self.id, self.name)
     def get_label(self):
-        # if self.name != None and self.name != '':
-        #     return self.name
         label = 'Rattrapage ' if self.is_rattrapage else 'Semester '
         label += '(' + str(self.semester.get_nbr()) + ') - ' + self.promo.get_label() 
+        return label
+    def get_name(self):
+        label = 'Rattrapage ' if self.is_rattrapage else 'Semester '
+        label += '(' + str(self.semester.get_nbr()) + ')'
         return label
     def student_nbr(self):
         return StudentSession.query.filter_by(session_id=self.id).count()
@@ -257,6 +261,26 @@ class Session(db.Model):
         return False
     # def init(self):
     #     self.session.init()
+    def get_annual_pedagogique(self):
+        annual_dict = self.get_annual_dict()
+        session_1 = Session.query.get( annual_dict['S1'] )
+        session_2 = Session.query.get( annual_dict['S2'] )
+
+        if session_1 != None and session_1.start_date != None:
+            start = session_1.start_date.year
+            return str(start) + '/' + str(start+1)
+        if session_2 != None and session_2.finish_date != None:
+            finish = session_2.start_finish.year
+            return str(finish-1) + '/' + str(finish)
+
+        # if it didn't return then try to grab it from Promo
+        # what year is this and the caclculate from Start of Promo
+        annual = self.semester.annual.annual
+        if self.promo.start_date != None:
+            promo_start = self.promo.start_date.year
+            return str(promo_start+annual-1) + '/' + str(promo_start+annual)
+
+        return '[ ??? ]/[ ??? ]'
 
 class StudentSession(db.Model):
     __tablename__ = 'student_session'
@@ -316,7 +340,6 @@ class StudentSession(db.Model):
 
             self.calculation = '(' + calculation[:-3] + ') / ' + str(cumul_semester_coeff)
         return 'semester calculated'
-
     # move this to grade_unit
     def get_ratt_modules_list_unit(self, grade_unit):
         mudules_in_unit = [module.id for module in grade_unit.unit.modules]
@@ -545,6 +568,10 @@ class Annual(db.Model):
         if self.display_name != None and self.display_name != '':
             return self.name + ' - ' + self.display_name
         return self.name
+    def get_string_literal(self):
+        if self.annual > 1:
+            return str(self.annual) + ' eme Année'
+        return '1 ére Année'
 
 class Semester(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -735,7 +762,7 @@ class Module(db.Model):
     def config_dict(self):
         # modules = { 'm_id': self.id, 'name': self.name, 'display_name': self.display_name, 
         #     'coeff': self.coefficient, 'credit': self.credit, 'time': str(self.time) }
-        modules = { 'm_id': self.id, 'name': self.name, 'display_name': self.display_name, 
+        modules = { 'm_id': self.id, 'code': self.code, 'name': self.name, 'display_name': self.display_name, 
             'coeff': self.coefficient, 'credit': self.credit }
         for percentage in self.percentages:
             modules.setdefault('percentages', []).append(percentage.config_dict())
@@ -764,6 +791,10 @@ class Module(db.Model):
     # def set_latest_update(self):
     #     # raise Exception('___tttttt____: '+str(datetime.utcnow()) )
     #     self.unit.semester.latest_update = datetime.utcnow()
+    def get_sessions(self):
+        semester = self.unit.semester
+        sessions = semester.sessions
+        return sessions
 
 # listen(Module, 'before_update', set_latest_update_semester_from_module)
 # listen(Module, 'after_update', commit_semester_from_module)
@@ -858,9 +889,8 @@ class Student(db.Model):
         if student == None:
             return username_start + '01'
             
-        
         # username = student.username.lower()
-        last =''
+        last = ''
         try:
             last = int( student.username.lower().replace(username_start.lower(), '') )
         except:
@@ -872,6 +902,11 @@ class Student(db.Model):
         else:
             username_end = str(_next)
         return username_start + username_end
+    def get_sessions_ordered(self):
+        sessions = Session.query.join(StudentSession).filter_by(student_id=self.id)\
+            .join(Semester).join(Annual)\
+            .order_by(Annual.annual, Semester.semester).all()
+        return sessions
 
 class Phone(db.Model):
     id = db.Column(db.Integer, primary_key=True)
