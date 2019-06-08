@@ -11,33 +11,28 @@
 - 2019-03- - enter students infos
 - 
 - 
-
-
 == QUESTIONS ==
 ---------------
-- what about the students who need to pass some modules (avec dette)
 - find an example of people who repeated the year
 - do i have to print Zerbia for the Annual
 	ask Sabah and Sahel about the required Printables
 - Rattrapage printables
 - doublage ????
-					- if there is no Cour, how deos the student pass the ratt
-- if an SF student has Average of 10 and credit < 60
-	does she pass the rattrapage in non Fonamental Modules
-	there is not point in repassing them
 - 
 
 == PRINTABLES ==
 ----------------
-- a location to print all Printables
-- you have to show session (normal or ratt) in printables
-	result & bultin
+			- if there is no Cour, how deos the student pass the ratt
 - in result header    on the left is centering
 - in Result and Bultin 
 	be carefull of the source of the data (semester vs ratt)
 - semester Result in fire firefox is skiping the first page
 - Don't forget to Comment 
 	get_semester_result_data in routesSession.py
+- a location to print all Printables
+- you have to show session (normal or ratt) in printables
+	result & bultin
+
 - when printing XPS & PDF
 	name the file with a date
 - print Module list
@@ -46,7 +41,9 @@
 - print Annual (sem1 + sem2 + ratt)
 - print Zerbia (Ratt + normal)
 	and show session 1 or 2
-- Print Module with average
+- what about the students who need to pass some modules (avec dette)
+- make check_grid_is_complite() universal in routesSession.py
+	pass grades and check them
 - add diolog box to print Module to choose
 - add the headers and footers for the printables
 - change "name" to "display_name" in printables 
@@ -68,99 +65,109 @@
 	watch how people use the application
        to find out how you can make the application UX better
 
+	Write things you Note missing in the App
+
 
 ==BREADCRUMBS to finish==
 -------------------------
-- in Massive Student Update
-- in Configuration Tree and in Semester Tree
-	add Semester Number to breadcrumbs
 
 == PRIORITY 1 ==
 ----------------
-			- when i created SF S2 ratt it does not initialize
-				???????????
-			- add a new field of RATTRAPABLE in annual_grade
-				and decide in if he should enter ratt after one semester in the case of Fondamental
-			- calculate even if there is missing fields
-			- in grade don't calculate average if the field is empty
-				but calculate unit and semester
-			- add justification button to Semester Result
-			- initialize button is Orange but session is closd
-				http://localhost:5000/session/2/
-			- in Grid change to Display_name
-			- add filter to Students in Session
-			- check where Semester Result is comming with the Module DisplayName
-				from Cofig String
-
-- in ratt check the data
-	is the grades Consistant
-	is the grade hiegher
-- close session before generating rattrapage
-- Etat de Progrission de Saisie
-- a button to calculate all Open Sessions
-			- in Massive Edit add Button to change Students Matricule when channge is possible
-				rename matricule according to order
-- a place to run code on DATA
-- a mask to Sort the studets of the third year
-- add Session Config
-- download Lists as Excel
-- make Choise(Select) Empty in insert many Studets
-	and don't allow submition
-- check if a student is in a Sessions and not in the Other 
-- Submit Data by CRTL+Enter in Update many & create many
-- make the filter in Handsontale like the one in in _filter.js
-- i add/remove multi select flag the studet who has Grades Entered
-- in annual add link to Notes in Grid of the Annual
-- in grade by student add button to Bultin and Justification
-- shake the Calculate button
-- in add/remove Gliphcon Not appearig when internet is Off
-- MSG
-	do you want to create Ratt before finishing the filling
-- when i don't fill Rattrapage
-	and then calculate annual - some inconsistencies appear
-- make a warrning in Annual of not filled fields
-
-- why i can't delete rattrapage in SF
+			- remove 1% from percentage of Session
+- add delete button to the Tree
+- in Config Tree
+	order the percentages according to grid
+- after saving in config tree
+	the flash is not showin color
+	maybe i have to handel the class of the alert
+- Print Module with average
 - in ratt annual indicate students who passed the rattrapage
 	at least one module
 	who is already generated and who is not
-- in get_annual_chain_students_to_enter_rattrapage_annual
-	students list must return from before rattraage
-- maybe i should not create RATT from annual when SF
+- make a system (configurable) for passage
+	table
+	and configurable
 - in SF if i generate RATT from annual
 	it will show students that should not enter RATT
 	it can happen in ISP if ratt 2
 		you have to take into considiration that the semester is passed
-- in rattrapage generation from annual
-	are you taking into considiration if the student
-	and check the differences between SF and ISP
-		include the test of having Fondamental
-	ISP do not pass rattrapage if annual is above 10
-		routesAnnual.py - calculate_annual() 
-			an.credit_r = C1 + C2
-- when i update all config in Tree 
-	is it updating rattrapage twice
-- check the Observation (SF)
-- add semester name to Semester Tree
-- lock annual
-- Pin Header in Semester Results
-			- add filter to semester Results
-- add filter to Annual
-- upload PDF automaticaly to Google Drive
-
 - i need to implement passage system
 	check every student Annual
 	and take into consideration Branch+Annual
 
 - FINISH PRINTABLES
+- classement in resultat
+- a mask to Sort the studets of the third year
+- finish the 3 printables first
+	bultin header + annual + ratt
+	and the choice between the two sessions
+	print From Annual Page
+	and module header
+- in grade by student add button to Bultin and Justification
+- annual Obs before and After Ratt
+- add Session Config
+- redirect correctly after saving in Admin
+
+- make Choice(Select) Empty in insert many Students
+	and don't allow submition
+- in module print
+	construct title
+	close page automaticaly after printing
+	and change the header
+- make the filter in Handsontale like the one in in _filter.js
+- make grid Save And Fetch Data from Server at the same time
+	to allow parrallel editing
+- open ratt with  Normal 
+- add create annual link to tree
+- use Python to retrive data from google forms
+- in module session
+	it only allow one teacher
+- finish Progrission Etat
+- add a place to run checkups on everything by buttons
+	* use ajax
+	like naming errors
+	missing filds
+	errors
+- add group to student session
+	order by group
+	teacher by group
+- in ratt check the data - FLASHES
+	is the grades Consistent
+	is the grade hiegher
+- MSG - do you want to create Ratt before finishing the filling
+- close session before generating rattrapage
+	maybe no need
+	because we want to allow starting Ratt before coplite
+- Etat de Progrission de Saisie
+- a button to calculate all Open Sessions
+- a place to run code on DATA
+- download Lists as Excel
+- i add/remove multi select flag the studet who has Grades Entered
+- Submit Data by CRTL+S in Update many & create many
+- in annual add link to Notes in Grid of the AnnualSession
+
+- in tree - the +/- is reloading 
+	not like clicking the title to expand
+
+- in add/remove Student - Gliphcon Not appearig when internet is Off
+- when i don't fill Rattrapage
+	and then calculate annual - some inconsistencies appear
+- make a warrning in Annual of not filled fields
+
+- why i can't delete rattrapage in SF
+- in get_annual_chain_students_to_enter_rattrapage_annual
+	students list must return from before rattraage
+- maybe i should not create RATT from annual when SF
+
+- check the Observation (SF)
+- lock annual
+- upload PDF automaticaly to Google Drive
 
 
-- make module list like the one in student
-	and add unit + semester
+
+
 - link from Annual to Student Grades
 
-- finish view link in Update like in semester
-	@register_breadcrumb(app, '.basic.semester.view.update', 'Update')
 - how to add new nodes in Config Tree
 - pre-populate a table of bultin
 - move annual functions from Semester to Annual
@@ -170,8 +177,6 @@
         choices = [('-1', '')] + [(a.id, a.name) for a in Annual.query.order_by('name')])
     shoud filter by branch_id
 - add a button to navigate between a session(semester) and its ratt
-- when i save the config
-	the tree redirects to the Semester Tree which shows a bad breadcrumb
 - move annual calcul to model "annual grade" and "annual session"
 
 - DANGER: a Promo can be in a Branch and have a Session and Semester in a different Branch
@@ -228,27 +233,16 @@
 - After Finishing the Job I should Publish Pre-rendered pages
 - detect bezare values after calculating
 
-- Copy Paste is not working in Grades grid
-- in firebug
-	Error: Bootstrap's JavaScript requires jQuery
-	http://localhost:5000/session/58/module/1/
-
-- check the Semester has been Calculated
-	show a flash when all Grades are entered	
-		at least for one student
 - change annual + semsester to semester
-- make a system (configurable) for passage
-	table
-	and configurable
 - give the ability to create the pair of semesters
 - when creating a session with no student
 	the modules do not show
 - maybe don't allow session deletion until you remove all students
 	delete_session
-- show for every student his promos and sessions and Grades
-	and printables
-- CHECK THE Tables Data in the database and decide what you shool fill from the APP
-- Note: i am grabing Semester Result Iformations from the Config String
+			- show for every student his promos and sessions and Grades
+				and printables
+- CHECK THE Tables Data in the database and decide what you should fill from the APP
+- Note: i am grabing Semester Result Informations from the Config String
 - 
 - 
 - 
@@ -457,6 +451,66 @@
 			- in ratt semester module name is showing wrong
 			- in SF ratt annual
 				it shows the same student who has to diffrent Semesters seperated
+			- when i created SF S2 ratt it does not initialize
+				???????????
+			- add a new field of RATTRAPABLE in annual_grade
+				and decide in if he should enter ratt after one semester in the case of Fondamental
+			- calculate even if there is missing fields
+			- in grade don't calculate average if the field is empty
+				but calculate unit and semester
+			- add justification button to Semester Result
+			- initialize button is Orange but session is closed
+				http://localhost:5000/session/2/
+			- in Grid change to Display_name
+			- add filter to Students in Session
+			- check where Semester Result is comming with the Module DisplayName
+				from Cofig String
+			- in Massive Edit add Button to change Students Matricule when channge is possible
+				rename matricule according to order
+
+			- change names CAPITALIZITION
+				last_name CAPITAL
+				first_name Camel Case
+			- disallow row adding in Handsontable
+				also in update many
+			- allow draging data
+			- don't lock rattrapage with Normal
+			- indecate the advancement in tree
+			- in grade BreadCrumb add module name
+			- add annual Icon to create_annual button
+			- move classement to Resultat
+			- put justification Button in Resultat
+			- percentage de ratt is wrong
+			- find renigade Students
+				if a student is has no Session out it up in RED
+			- add sorting to semester result
+			- detect students with no Promo (Session)
+				put them on top in red
+			- shake the Calculate button
+			- when i update all config in Tree 
+				is it updating rattrapage twice
+			- Pin Header in Semester Results
+			- add filter to semester Results
+			- add filter to Annual
+			- make module list like the one in student
+				and add unit + semester
+			- Copy Paste is not working in Grades grid
+			- in firebug
+				Error: Bootstrap's JavaScript requires jQuery
+				http://localhost:5000/session/58/module/1/
+
+			- check the Semester has been Calculated
+				show a flash when all Grades are entered	
+					at least for one student
+			- in Tree - Expand and collapse by the +/- signs
+				the problems happen when you add 'beforeExpand'
+			- in Massive Student Update
+			- in Configuration Tree and in Semester Tree
+				add Semester Number to breadcrumbs
+			- finish view link in Update like in semester
+				@register_breadcrumb(app, '.basic.semester.view.update', 'Update')
+			- when i save the config
+				the tree redirects to the Semester Tree which shows a bad breadcrumb
 
 
 

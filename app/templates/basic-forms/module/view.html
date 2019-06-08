@@ -5,7 +5,7 @@
     <h1>Module: {{module.name}}</h1>
 
     <div>
-        <!-- <a class="btn btn-primary" href="{{ url_for('module_update', id=module.id) }}">Update</a> -->
+        <a class="btn btn-primary" href="{{ url_for('module_update', id=module.id) }}">Update</a>
 
         <button class="btn btn-danger"
             data-href="{{url_for('module_delete', id=module.id)}}" 
@@ -54,7 +54,7 @@
           </tr>
           <tr><td><i>Config</i></td> 
             <td>
-              <a target="_blanck" href="{{ url_for('conf', semester_id=module.unit.semester.id) }}">Config</a>
+              <a target="_blanck" href="{{ url_for('conf_semester', semester_id=module.unit.semester.id) }}">Config</a>
             </td>
           </tr>
           <tr><td><i>Promos and Sessions</i></td> 

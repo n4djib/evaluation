@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, current_app
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -9,8 +9,7 @@ from flask_login import LoginManager
 from flask_breadcrumbs import Breadcrumbs
 # from flask_rbac import RBAC
 from flask_principal import Principal
-
-
+from flask_caching import Cache
 
 
 
@@ -25,6 +24,8 @@ principals = Principal(app)
 
 Breadcrumbs(app=app)
 
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+cache.init_app(app)
 
 # admin = Admin(app, template_mode='bootstrap3')
 
@@ -32,5 +33,5 @@ Breadcrumbs(app=app)
 
 
 from app import routes, routesAdmin, routesSession, routesGrade, routesTree,\
-	routesBasicTables, routesConfig, routesCalculation, models, errors
+	routesStudent, routesBasicTables, routesConfig, routesCalculation, models, errors
 

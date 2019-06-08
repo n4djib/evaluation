@@ -84,7 +84,7 @@
         </thead>
         <tbody class="searchable">
         {% for student in students %}
-          <tr>
+          <tr {{ 'class=danger' if student.empty == True else '' }}>
             <td>{{loop.index}}</td>
             <td><a href="{{ url_for('student_view', id=student.id) }}"
               >{{ student.username }}</a></td>

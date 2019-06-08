@@ -51,11 +51,15 @@
 
     <div style="margin:2px; margin-left:15px; margin-right:15px;" class="row" >
 
-      <div style="margin-right:4px; float:left"; > <!-- class="col-md-12 col-sm-10 col-xs-8" -->
-        <a href="{{url_for('conf_session', session_id=session.id, semester_id=session.semester_id)}}" 
-           class="btn btn-default" role="button">
-           <img src='/static/ztree/img/diy/19-big.png'>
-           Config. of {{ session.semester.display_name }}</a>
+      <div style="margin-right:4px; float:left"; >
+
+        <a href="" class="btn btn-default" role="button"
+          ><img src='/static/img/config-session.png'> Session</a>
+
+        <a href="{{url_for('conf_session', session_id=session.id, semester_id=session.semester_id)}}" class="btn btn-default" role="button"
+          ><img src='/static/img/config-semester.png'
+          > Config. of {{ session.semester.display_name }}</a>
+
         {% set init_url = url_for('reinitialize_session', session_id=session.id) %}
         {% set calc_url = url_for('calculate_session', session_id=session.id) %}
         <a href="{{ url_for('slow_redirect', url=init_url, message='Initializing') }}"
@@ -75,7 +79,7 @@
 
 
 
-  	<div style="padding-right: 5px;" class="col-md-6 col-sm-5 col-xs-4">
+    <div style="padding-right: 5px;" class="col-md-6 col-sm-5 col-xs-4">
       <table id="myTable" class="table">
           <thead class="thead-dark">
             <tr>
@@ -105,19 +109,19 @@
       <a href ="{{url_for('semester_averages', session_id=session.id)}}"
          class="btn btn-primary {{'disabled' if check['CALC'] or check['ERRS'] else ''}}" role="button">Averages</a>
       <a href ="{{url_for('semester_result', session_id=session.id)}}"
-         class="btn btn-primary {{'disabled' if check['CALC'] or check['ERRS'] else ''}}" role="button">Result</a>
+         class="btn btn-primary {{'disabled' if check['CALC'] or check['ERRS'] else ''}}" role="button">Resultat</a>
       {% if session.is_rattrapage == True %}
       <a href ="{{url_for('semester_result', session_id=session.id)}}"
          class="btn btn-primary {{'disabled' if check['CALC'] or check['ERRS'] else ''}}" role="button">Result Apres Ratt.</a>
       {% endif %}
-      <a href ="{{url_for('classement', session_id=session.id)}}"
-         class="btn btn-primary {{'disabled' if check['CALC'] or check['ERRS'] else ''}}" role="button">Classement / Justification</a>
+      <!-- <a href ="{{url_for('classement', session_id=session.id)}}"
+         class="btn btn-primary {{'disabled' if check['CALC'] or check['ERRS'] else ''}}" role="button">C/J</a> -->
 
       <hr>
 
       <a href ="{{url_for('create_annual_session', session_id=session.id)}}"
          class="btn btn-primary {{'disabled' if check['CALC'] or check['ERRS'] else ''}}" role="button"
-         >Create Annual (S:{{session.semester.annual.annual}})</a>
+         ><img src='/static/ztree/img/diy/17.png'> Create Annual</a>
 
       {% if session.is_rattrapage != True and session.semester.has_fondamental() == True %}
       <a href ="{{url_for('students_rattrapage_semester', session_id=session.id)}}"
@@ -202,10 +206,10 @@
       {% endif %}
     </div>
 
-  	<!-- <div class="col-md-1 col-sm-1 col-xs-1">
+    <!-- <div class="col-md-1 col-sm-1 col-xs-1">
     </div> -->
 
-  	<div class="col-md-6 col-sm-5 col-xs-4">
+    <div class="col-md-6 col-sm-5 col-xs-4">
       <table class="table table-striped">
         <thead>
           <tr>
@@ -218,15 +222,15 @@
         </thead>
         <tbody class="searchable">
         {% for student in students %}
-          <tr>
-            <td>{{loop.index}}</td>
-            <td class="no-wrap">
+          <tr style="padding-bottom:0px; padding-top:3px; ">
+            <td style="padding-bottom:0px; padding-top:3px; ">{{loop.index}}</td>
+            <td  style="padding-bottom:0px; padding-top:3px; "class="no-wrap">
               <a href="{{url_for('grade', session_id=session.id, student_id=student.id)}}"
                 >{{ student.username }}</a>
             </td>
-            <td class="no-wrap">{{ student.last_name }}</td>
-            <td class="no-wrap">{{ student.first_name }}</td>
-            <td> <img src="{{ url_for('static', filename='img/' + icons_student[loop.index-1] ) }}"
+            <td  style="padding-bottom:0px; padding-top:3px; "class="no-wrap">{{ student.last_name }}</td>
+            <td  style="padding-bottom:0px; padding-top:3px; "class="no-wrap">{{ student.first_name }}</td>
+            <td style="padding-bottom:0px; padding-top:0px; "> <img src="{{ url_for('static', filename='img/' + icons_student[loop.index-1] ) }}"
                alt="{{ icons_student[loop.index-1] }}" height="25" width="25">
             </td>
           </tr>

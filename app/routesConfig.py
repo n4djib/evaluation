@@ -1,5 +1,5 @@
 from app import app, db
-from flask import render_template, url_for, redirect, flash, redirect
+from flask import render_template, url_for, request, redirect, flash, redirect
 from app.models import Annual, Semester, Unit, Module, Percentage, Type, School
 from flask_breadcrumbs import register_breadcrumb
 from datetime import datetime
@@ -12,16 +12,16 @@ def tree_type(id):
         return '*'
     return type.type
 
-def tree_percentage(percentage, is_closed=False):
+def tree_percentage(percentage, is_closed=False, return_url=''):
+    href = '/admin/percentage/edit/?id=' + str(percentage.id)+return_url
+    if is_closed:
+        href = 'URL_STRING_TO_BE_REPLACED'
+
     # percent = str(percentage.percentage * 100)
     percent = ('0.00' if percentage.percentage is None else str(percentage.percentage * 100)) 
     normalized = percent.rstrip('0').rstrip('.')
     val = tree_type(percentage.type_id) + ': ' + normalized + '%'
     # val = tree_type(percentage.type_id) + ': ' + percent
-    href = '/admin/percentage/edit/?id=' + str(percentage.id)
-    if is_closed:
-        href = 'URL_STRING_TO_BE_REPLACED'
-
     # link = '{ val: "' + val + '", href: "' + href + '", target: "_blank" }'
     link = '{ val: "' + val + '", href: "' + href + '" }'
 
@@ -42,13 +42,13 @@ def tree_percentage(percentage, is_closed=False):
         }
     }'''
 
-def tree_module(module, is_closed=False):
-    # replacing Spaces by Empty Character
-    val = module.name.replace(' ', ' ')
-    href = '/admin/module/edit/?id=' + str(module.id)
+def tree_module(module, is_closed=False, return_url=''):
+    href = '/admin/module/edit/?id=' + str(module.id)+return_url
     if is_closed:
         href = 'URL_STRING_TO_BE_REPLACED'
 
+    # replacing Spaces by Empty Character
+    val = module.name.replace(' ', ' ')
     # link = '{ val: "' + val + '", href: "' + href + '", target: "_blank" }'
     link = '{ val: "' + val + '", href: "' + href + '" }'
     code = str(module.code).replace('None', '???????')
@@ -61,7 +61,7 @@ def tree_module(module, is_closed=False):
     percentages = ''
     percent = 0
     for percentage in module.percentages:
-        percentages += tree_percentage(percentage, is_closed) + ','
+        percentages += tree_percentage(percentage, is_closed, return_url) + ','
         if percentage.percentage != None and percentage.percentage > 0:
             percent += percentage.percentage
 
@@ -89,8 +89,8 @@ def tree_module(module, is_closed=False):
         children: [''' + percentages + ''']
     }'''
 
-def tree_unit(unit, is_closed=False):
-    href = '/admin/unit/edit/?id=' + str(unit.id)
+def tree_unit(unit, is_closed=False, return_url=''):
+    href = '/admin/unit/edit/?id=' + str(unit.id)+return_url
     if is_closed:
         href = 'URL_STRING_TO_BE_REPLACED'
 
@@ -101,7 +101,7 @@ def tree_unit(unit, is_closed=False):
     credit = str( unit.get_unit_cumul_credit() )
     modules = ''
     for module in unit.modules:
-        modules += tree_module(module, is_closed) + ','
+        modules += tree_module(module, is_closed, return_url) + ','
 
     is_fondamental = ' '
     if unit.is_fondamental == True:
@@ -118,12 +118,12 @@ def tree_unit(unit, is_closed=False):
         children: [''' + modules + ''']
     }'''
 
-def tree_semester(semester, is_closed=False):
-    # href = '/admin/semester/edit/?id=' + str(semester.id)
-    # if is_closed:
-    #     href = 'URL_STRING_TO_BE_REPLACED'
+def tree_semester(semester, is_closed=False, return_url=''):
+    href = '/admin/semester/edit/?id=' + str(semester.id)
+    if is_closed:
+        href = 'URL_STRING_TO_BE_REPLACED'
 
-    href = url_for('semester_view', id=semester.id)
+    # href = url_for('semester_view', id=semester.id)
 
     # link = '{ val: "' + semester.name + '", href: "' + href + '", target: "_blank" }'
     link = '{ val: "' + semester.name + '", href: "' + href + '" }'
@@ -131,7 +131,7 @@ def tree_semester(semester, is_closed=False):
     units = ''
     credit = semester.get_semester_cumul_credit()
     for unit in semester.units:
-        units += tree_unit(unit, is_closed) + ','
+        units += tree_unit(unit, is_closed, return_url) + ','
 
     return '''
     {
@@ -146,12 +146,12 @@ def tree_semester(semester, is_closed=False):
         children: [''' + units + ''']
     }'''
 
-def tree_conf_data(semester_id):
+def tree_conf_data(semester_id, return_url=''):
     semester = Semester.query.filter_by(id=semester_id).first_or_404()
 
     # is_closed = semester.is_locked() or semester.is_closed
     is_closed = semester.is_locked()
-    t_semester = tree_semester(semester, is_closed)
+    t_semester = tree_semester(semester, is_closed, return_url)
 
     conf_data = '''
     {
@@ -182,16 +182,26 @@ def tree_conf_data(semester_id):
     
     return conf_data
 
+
+def conf_dlc(*args, **kwargs):
+    semester_id = request.view_args['semester_id']
+    semester = Semester.query.get_or_404(semester_id)
+    nbr = semester.get_nbr()
+    return [{'text': 'Config. of Semester ('+str(nbr)+')', 
+        'url': url_for('conf_semester', semester_id=semester_id)}]
+
 @app.route('/conf-semester/<semester_id>/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.semester_tree.cccconf', 'Configuration')
-def conf(semester_id=0):
-    conf_data = tree_conf_data(semester_id)
+@register_breadcrumb(app, '.semester_tree.conf_semester', '**Config**', dynamic_list_constructor=conf_dlc)
+def conf_semester(semester_id=0):
+    return_url = '&url=/conf-semester/'+semester_id+'/'
+    conf_data = tree_conf_data(semester_id, return_url)
     return render_template('conf/treant.html', title='Conficuration Tree', data=conf_data)
 
 @app.route('/session/<session_id>/conf-semester/<semester_id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree.session.conf', 'Configuration')
 def conf_session(session_id, semester_id):
-    conf_data = tree_conf_data(semester_id)
+    return_url = '&url=/session/'+session_id+'/conf-semester/'+semester_id+'/'
+    conf_data = tree_conf_data(semester_id, return_url)
     return render_template('conf/treant.html', title='Conficuration Tree', data=conf_data)
 
 # @app.route('/conf-mod/<semester_id>/', methods=['GET', 'POST'])
@@ -279,7 +289,7 @@ def semesters_tr(annual, open_sem_id):
                 open = 'true'
 
         icon = 'icon21'
-        url = url_for('conf', semester_id=semester.id)
+        url = url_for('conf_semester', semester_id=semester.id)
         # <span id="hh">Text Demo...</span>
         sem = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:'+open+', url: "'+url+'", target:"_self", iconSkin:"'+icon+'", font:'+font+'},'
         semesters_tree += sem 
@@ -451,4 +461,100 @@ def duplicate_config(semester_id=0):
     # return redirect( url_for('semester_view', id=new_semester[0].id) )
     return redirect( url_for('semester_special_update', id=new_semester[0].id) )
     # return 'Semester: ' + str(semester.id) + ' duplicate: ' + str(new_semester[0]) + ' \n--- ' + new_semester[1]
+
+
+
+#######################################
+#####                             #####
+#####         ***********         #####
+#####                             #####
+#######################################
+
+import random
+
+@app.route('/create-node-for-config-tree/<type>/id/<id>/', methods=['GET', 'POST'])
+def create_module_for_config_tree(type='', id=0):
+    flash('New Node Created ****** type: '+type+' id: '+str(id))
+
+    if type == 'semester':
+        semester = Semester.query.get_or_404(id)
+        # create new unit
+        rand = str( random.randint(1,999) )
+        unit = Unit(
+            semester_id=id, 
+            name='name-'+rand, 
+            display_name='display_name-'+rand,
+            order=1)
+        db.session.add(unit)
+        db.session.commit()
+        return redirect( url_for('conf_semester', semester_id=semester.id) )
+
+    if type == 'unit':
+        unit = Unit.query.get_or_404(id)
+        semester = unit.semester
+        # create new module
+        rand = str( random.randint(1,999) )
+        module = Module(
+            unit_id=id, 
+            code='code-'+rand, 
+            name='name-'+rand, 
+            display_name='display_name-'+rand,
+            order=1)
+        db.session.add(module)
+        db.session.commit()
+        return redirect( url_for('conf_semester', semester_id=semester.id) )
+
+    if type == 'module':
+        module = Module.query.get_or_404(id)
+        semester = module.unit.semester
+
+        # create new percentage
+        rand = str( random.randint(1,999) )
+        percentage = Percentage(
+            module_id=id, 
+            # name='name-'+rand, 
+            # percentage= ,
+            order=1)
+        db.session.add(percentage)
+        db.session.commit()
+
+        return redirect( url_for('conf_semester', semester_id=semester.id) )
+
+    return 'type not catched'
+
+
+@app.route('/delete-node-for-config-tree/<type>/id/<id>/', methods=['GET', 'POST'])
+def delete_module_for_config_tree(type='', id=0):
+    children = None
+    semester = None
+
+    if type == 'unit':
+        unit = Unit.query.get_or_404(id)
+        semester = unit.semester
+        children = unit.modules
+        if len(children) == 0:
+            db.session.delete(unit)
+            flash("Unit is deleted", "alert-success")
+        else:
+            flash("you can't delete this Unit because it has Children", "alert-danger")
+
+    if type == 'module':
+        module = Module.query.get_or_404(id)
+        semester = module.unit.semester
+        children = module.percentages
+        if len(children) == 0:
+            db.session.delete(module)
+            flash("Module is deleted", "alert-success")
+        else:
+            flash("you can't delete this Module because it has Children", "alert-danger")
+            
+    if type == 'percentage':
+        percentage = Percentage.query.get_or_404(id)
+        semester = percentage.module.unit.semester
+        db.session.delete(percentage)
+        flash("Percentage is deleted", "alert-success")
+
+    db.session.commit()
+    return redirect( url_for('conf_semester', semester_id=semester.id) )
+
 

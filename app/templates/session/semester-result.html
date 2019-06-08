@@ -2,90 +2,104 @@
 
 
 {% block styles %}
-  {{super()}}
+  {{super()}} 
+  <!-- <link rel="stylesheet" href=""> -->
+  
+  <link rel="stylesheet" href="">
+  
   
   <style type="text/css">
     table {
       border-collapse: collapse;
       margin-left: 0px;
-      margin-right: 30px;
+      /*margin-right: 30px;*/
+      margin-right: 0px;
       display: inline-block;
     }
     th {
       border: 1px solid lightgray;
       padding: 0px 4px;
+
     }
     .td {
       border: 1px solid lightgray;
       padding: 0px 4px;
     }
-    .no-wrap {
-      white-space: nowrap;
-      word-wrap: false;
-    }
-    .unit {
-      background-color: Bisque;
-    }
-    .semester {
-      background-color: LightSalmon;
-    }
-    .header5 {
-      background-color: Gainsboro;
-    }
-    tbody > tr:nth-child(even) {background-color: #f7f7ff;}
-    tbody > tr:hover {background-color: #f5f5f5;}
-
-    /*.table_1 th:nth-of-type(1){ background: skyblue; }*/
+    .no-wrap { white-space: nowrap; /*word-wrap: false;*/ }
+    .module { background-color: Gainsboro; }
+    .unit { background-color: Bisque; }
+    .semester { background-color: LightSalmon; }
     .right { text-align: right; }
+    .left { text-align: left; }
     .center { text-align: center; }
+
+    tbody > tr:nth-child(even) { background-color: #f7f7ff; }
+    tbody > tr:hover { background-color: #f5f5f5; }
 
     .filter_w {
       max-width: 300px;
       float: left;
-      /*margin: 3px;*/
-       /*style="float: right;"*/
     }
+
+    .sorter {
+      cursor: pointer;
+    }
+
+    .sort-icon {
+      margin: 0px;
+      padding: 0px;
+      zoom: 0.8; 
+      /* For Firefox */
+      -moz-transform: scale(0.8); 
+    }
+
   </style>
 {% endblock %}
 
 
 
-
-
 {% block app_content %}
+
 
   <!-- { { header | safe }} -->
 
-  <div class="container" style="border-color:black; text-align:center;">
+  <!-- <div class="container" style="border-color:black; text-align:center;">
     <div class="container" style="display:inline-block; text-align:left; 
-        border-width:1px; border-width:1px; border-color:red;" >
+        border-width:1px; border-width:1px; border-color:red;" > -->
 
       <div style="margin: 2px; float: left" class="input-group filter_w"> 
         <span class="input-group-addon">Filter</span>
         <input id="filter" type="text" class="form-control" placeholder="Type here...">
       </div>
       <div style="margin: 2px; float: left">
-        <a href ="{{ url_for('semester_result_print_browser', session_id=session.id) }}"
-           target="_blank" class="input-group btn btn-primary" role="button">Print</a>
+        <a href ="{{ url_for('semester_result_print', session_id=session.id) }}"
+           target="_blank" class="input-group btn btn-warning" role="button">Print Resultat</a>
+      </div>
+      <div style="margin: 2px; float: left">
+        <a href ="{{ url_for('bultin_semester_print_all', session_id=session.id) }}"
+           target="_blank" class="input-group btn btn-success" role="button">Print All Bultins</a>
+      </div>
+      <div style="margin: 2px; float: left">
+        <a href ="{{url_for('classement', session_id=session.id)}}"
+           target="_blank" class="input-group btn btn-primary" role="button">***** Classement</a>
       </div>
 
       </br>
 
-      <table class="table_1">
-        <thead>{{ t_head | safe | replace('None', '') }}</thead>
+
+
+      <table id="sort" class="">
+        <thead>{{ t_head | replace('None', '') | replace('((img))', '<img class="sort-icon" src="/static/img/sort-icons.png">') | safe }}</thead>
           
-        <tbody class="searchable">
+        <tbody id="sort_tbody" class="searchable">
           {% for data in data_arr %}
             <tr>{{ data | safe | replace('None', '') }}</tr>
           {% endfor %}
         </tbody>
       </table>
         
-    </div>
-  </div>
-
-
-
+    <!-- </div>
+  </div> -->
 
 
   </br></br>
@@ -100,13 +114,86 @@
 
 
 
-
-
 {% block scripts %}
   {{ super() }}
+  <!-- <script src=""></script> -->
+
+  <script src=""></script>
+
 
   <script type="text/javascript">
-    {% include "_filter.js" %}
+     {% include "_filter.js" %}
+
+
+
+function sortTable(n) {
+  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+  // table = document.getElementById("sort");
+  table = document.getElementById("sort_tbody");
+  switching = true;
+  //Set the sorting direction to ascending:
+  dir = "asc"; 
+  /*Make a loop that will continue until
+  no switching has been done:*/
+  while (switching) {
+    //start by saying: no switching is done:
+    switching = false;
+    rows = table.rows;
+    /*Loop through all table rows (except the
+    first, which contains table headers):*/
+    for (i = 0; i < (rows.length - 2); i++) {
+      //start by saying there should be no switching:
+      shouldSwitch = false;
+      /*Get the two elements you want to compare,
+      one from current row and one from the next:*/
+      x = rows[i].getElementsByTagName("TD")[n];
+      y = rows[i + 1].getElementsByTagName("TD")[n];
+
+      /*check if the two rows should switch place,
+      based on the direction, asc or desc:*/
+      var _x = "0000"+x.innerHTML.toLowerCase();
+      var _y = "0000"+y.innerHTML.toLowerCase();
+
+      if(n==0){
+        _x = "0000"+_x
+        _y = "0000"+_y
+        _x = _x.substring(_x.length-4, _x.length);
+        _y = _y.substring(_y.length-4, _y.length);
+      }
+
+      if (dir == "asc") {
+        if (_x > _y) {
+          //if so, mark as a switch and break the loop:
+          shouldSwitch = true;
+          break;
+        }
+      } else if (dir == "desc") {
+        if (_x < _y) {
+          //if so, mark as a switch and break the loop:
+          shouldSwitch = true;
+          break;
+        }
+      }
+    }
+
+    if (shouldSwitch) {
+      /*If a switch has been marked, make the switch
+      and mark that a switch has been done:*/
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      //Each time a switch is done, increase this count by 1:
+      switchcount ++;      
+    } else {
+      /*If no switching has been done AND the direction is "asc",
+      set the direction to "desc" and run the while loop again.*/
+      if (switchcount == 0 && dir == "asc") {
+        dir = "desc";
+        switching = true;
+      }
+    }
+
+  }
+}
 
   </script>
 {% endblock %}

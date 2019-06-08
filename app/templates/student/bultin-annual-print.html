@@ -3,13 +3,18 @@
   <title>Bultin</title>
 
   <style type="text/css">
+    body {
+      font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    }
     table {
       border-collapse: collapse;
       margin-left: 0px;
       margin-right: 0px;
       display:inline-block;
       /*border-color: black;*/
+
     }
+
     th, td {
       border: 1px solid lightgray;
       padding: 2px 4px;
@@ -47,8 +52,8 @@
 </head>
 
 
-<body onload="PrintWindow();">
-<!-- <body onload=""> -->
+<!-- <body onload="PrintWindow();"> -->
+<body onload="">
  
   <div class="container" style="border-color:black; text-align:center;"> 
     <div class="container" style="display:inline-block; text-align:left; 
@@ -76,7 +81,7 @@
             setTimeout("CheckWindowState()", 2000)
         }
     }
-    PrintWindow();
+    // PrintWindow();
   </script> 
 
 

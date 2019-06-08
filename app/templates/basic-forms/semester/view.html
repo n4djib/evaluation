@@ -57,7 +57,7 @@
 
       <a href="{{ url_for('duplicate_config', semester_id=semester.id) }}"
          class="btn btn-default btn-ok">Duplicate</a>
-      <a class="btn btn-success" href="{{ url_for('conf', semester_id=semester.id) }}">Config</a>
+      <a class="btn btn-success" href="{{ url_for('conf_semester', semester_id=semester.id) }}">Config</a>
 
       {% if semester.is_locked() == True %}
         <a href="{{ url_for('semester_open', id=semester.id) }}"

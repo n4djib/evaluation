@@ -1,92 +1,83 @@
-<html>
+  <html>
 <head>
-  <title>Resultat</title>
+  <title>{{title}}</title>
 
   <style type="text/css">
     table {
       border-collapse: collapse;
       margin-left: 0px;
-      margin-right: 30px;
-      /*display:inline-block;*/
+      /*margin-right: 30px;*/
+      margin-right: 0px;
+      display: inline-block;
+
+      font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+      font-size: 14px;
+      line-height: 1.42857143;
+      color: #111;
     }
     th {
       border: 1px solid lightgray;
       padding: 0px 4px;
     }
+
     .td {
       border: 1px solid lightgray;
       padding: 0px 4px;
     }
-    .no-wrap {
-      white-space: nowrap;
-      /*word-wrap: false;*/
-    }
-    .unit {
-      background-color: Bisque;
-    } 
-    .semester {
-      background-color: LightSalmon;
-    }
-    .header5 {
-      background-color: Gainsboro;
-    }
-
-    /*@media print {
-      table {
-        border-collapse: collapse;
-        margin-left: 0px;
-        margin-right: 30px;
-        background-color: Bisque;
-      }
-    }*/
-
-
-    tr:nth-child(2n+7) {background-color: #f7f7ff;}
-    tr:hover {background-color: #f5f5f5;}
-
-    .right { text-align: right; } 
+    .no-wrap { white-space: nowrap; /*word-wrap: false;*/}
+    .module { background-color: Gainsboro; }
+    .unit { background-color: Bisque; }
+    .semester { background-color: LightSalmon; }
+    .right { text-align: right; }
+    .left { text-align: left; }
     .center { text-align: center; }
 
-/*    tr:nth-child({{insert1+7}}) {background-color: green;}
-    tr:nth-child({{insert1+7+1}}) {background-color: red;}
-    tr:nth-child({{insert1+7+2}}) {background-color: yellow;}
-
-    tr:nth-child({{insert2+7}}) {background-color: green;}
-    tr:nth-child({{insert2+7+1}}) {background-color: red;}
-    tr:nth-child({{insert2+7+2}}) {background-color: yellow;}
-
-    tr:nth-child({{insert3+7}}) {background-color: green;}
-    tr:nth-child({{insert3+7+1}}) {background-color: red;}
-    tr:nth-child({{insert3+7+2}}) {background-color: yellow;}*/
-
-    /*tr:nth-child({{insert1+7}}) {background-color: white;}*/
+    tbody > tr:nth-child(even) { background-color: #f7f7ff; }
+    tbody > tr:hover { background-color: #f5f5f5; }
 
 
-    
   </style>
 </head>
 
 
-<body>
-  </br>
+<!-- <body onload="PrintWindow();"> -->
+<body onload="">
+  {{ header | safe }}
   </br>
 
-  <div class="container" style="border-width:0px; border-style:solid; border-color:black;">
-    <table class="table_1">
-<!--       <tr> {{ headers | safe | replace('None', '')}} </tr>
-      {% for data in data_arr %}
-        <tr > {{ data | safe | replace('None', '') }} </tr>
-      {% endfor %} -->
-      <!-- <thead> -->
-        {{ t_header | safe | replace('None', '') }}
-      <!-- </thead>
-      <tbody> -->
-        {% for data in data_arr %}
-          <tr>{{ data | safe | replace('None', '') }}</tr>
-        {% endfor %}
-      <!-- </tbody> -->
-    </table>
+  <div class="container" style="border-color:black; text-align:center;">
+    <div class="container" style=" text-align:left; border-color:red;" >
+
+      <table class="">
+        <thead>{{ t_head | replace('None', '') | replace('((img))', '') | safe }}</thead>
+        <tbody>
+          {% for data in data_arr %}
+            <tr>{{ data | safe | replace('None', '') }}</tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      
+    </div>
+
   </div>
+
+
+  <script type="text/javascript">
+    function PrintWindow() {                    
+       window.print();            
+       CheckWindowState();
+    }
+
+    function CheckWindowState()    {           
+        if(document.readyState=="complete") {
+            window.close(); 
+        } else {           
+            setTimeout("CheckWindowState()", 2000)
+        }
+    }
+    // PrintWindow();
+  </script> 
+
 
 </body>
 </html>

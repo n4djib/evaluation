@@ -5,7 +5,7 @@ from flask_login import UserMixin
 from app import login
 from sqlalchemy.event import listen
 from decimal import *
-
+from app._shared_functions import extract_fields, check_grades_status
 
 # FIX:  = db.Column(db.String(64), index=True, unique=True)
 
@@ -36,7 +36,8 @@ class Promo(db.Model):
         return next_semester
     def get_label(self):
         if self.display_name != None and self.display_name != '':
-            return self.name + ' - ' + self.display_name
+            # return self.name + ' - ' + self.display_name
+            return self.name + ' ' + self.display_name
         return self.name
     def get_color(self):
         return '#333333' if self.color == None or self.color == '' else self.color
@@ -259,8 +260,6 @@ class Session(db.Model):
         if configuration != self.configuration:
             return True
         return False
-    # def init(self):
-    #     self.session.init()
     def get_annual_pedagogique(self):
         annual_dict = self.get_annual_dict()
         session_1 = Session.query.get( annual_dict['S1'] )
@@ -281,16 +280,37 @@ class Session(db.Model):
             return str(promo_start+annual-1) + '/' + str(promo_start+annual)
 
         return '[ ??? ]/[ ??? ]'
+    # 
+    # Note: if you have 5 students and 4 of them are filled
+    #    you'll get 80% because AVERAGE(100% + 100% + 100% + 100% + 0%) = 80%
+    def check_progress(self):
+        student_sessions = self.student_sessions
+        percentages = 0
+        nbr_students = 0
+        for ss in student_sessions:
+            percentages += ss.check_progress()
+            nbr_students += 1
+
+        if nbr_students == 0:
+            return int(0)
+
+        progress = int(percentages / nbr_students)
+        if progress == 100:
+            grades = Grade.query.join(StudentSession).filter_by(session_id=self.id).all()
+            check = check_grades_status(grades)
+            if check['CALC'] == True:
+                return progress - 1
+        return progress
 
 class StudentSession(db.Model):
     __tablename__ = 'student_session'
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
     average = db.Column(db.Numeric(10,2))
     credit = db.Column(db.Integer)
     calculation = db.Column(db.String(100))
     student = db.relationship("Student", back_populates="student_sessions")
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
     session_id = db.Column(db.Integer, db.ForeignKey('session.id'))
     session = db.relationship('Session', back_populates='student_sessions')
     grades = db.relationship('Grade', back_populates='student_session')
@@ -386,6 +406,44 @@ class StudentSession(db.Model):
         html += '</table>'
 
         return html
+    def check_progress(self):
+        nbr_cells = 0
+        nbr_filled = 0
+        nbr_errs = 0
+
+        grades = Grade.query.filter_by(student_session_id=self.id).all()
+        
+        for grade in grades:
+            fields_list = []
+            if grade.formula != None:
+                fields_list = extract_fields(grade.formula)
+            for field in fields_list:
+                if field in ['cour', 'td', 'tp', 't_pers', 'stage']:
+                    # check if Rattrapage
+                    if not self.session.is_rattrapage:
+                        nbr_cells += 1
+                        val = getattr(grade, field)
+                        if val != None:
+                            nbr_filled += 1
+                            # # if  not isinstance(val, decimal.decimal):
+                            # if val < 0  or  val > 20:
+                            #     nbr_errs += 1
+                            #     # ERRS = True
+                    elif grade.is_rattrapage == True:
+                        ratt = grade.module.get_rattrapable_field()
+                        if field == ratt:
+                            nbr_cells += 1
+                            val = getattr(grade, field)
+                            if val != None:
+                                nbr_filled += 1
+                                # # if  not isinstance(val, decimal.decimal):
+                                # if val < 0  or  val > 20:
+                                #     nbr_errs += 1
+                                #     # ERRS = True
+
+        if nbr_cells == 0:
+            return 0
+        return nbr_filled * 100 / nbr_cells
 
 class GradeUnit(db.Model):
     __tablename__ = 'grade_unit'
@@ -716,7 +774,7 @@ class Unit(db.Model):
     unit_coefficient = db.Column(db.Integer)
     is_fondamental = db.Column(db.Boolean, default=False)
     semester_id = db.Column(db.Integer, db.ForeignKey('semester.id'))
-    order = db.Column(db.Integer)
+    order = db.Column(db.Integer, default=1)
     modules = db.relationship('Module', backref='unit', order_by="Module.order")
     grade_units = db.relationship('GradeUnit', back_populates='unit')
     def __repr__(self):
@@ -725,13 +783,13 @@ class Unit(db.Model):
         modules = self.modules
         coeff = 0
         for module in modules:
-            coeff = coeff + module.coefficient
+            coeff = coeff + module.coefficient if module.coefficient != None else 0
         return coeff
     def get_unit_cumul_credit(self):
         modules = self.modules
         credit = 0
         for module in modules:
-            credit = credit + module.credit
+            credit = credit + module.credit if module.credit != None else 0
         return credit
     def config_dict(self):
         units = { 'u_id': self.id, 'name': self.name, 'display_name': self.display_name, 
@@ -741,9 +799,6 @@ class Unit(db.Model):
             units.setdefault('modules', []).append(module.config_dict())
         return units
 
-# def set_latest_update_semester_from_module(mapper, connect, target):
-#     target.set_latest_update()
-
 class Module(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(20))
@@ -752,7 +807,7 @@ class Module(db.Model):
     coefficient = db.Column(db.Integer)
     credit = db.Column(db.Integer)
     time = db.Column(db.Numeric(10,2))
-    order = db.Column(db.Integer)
+    order = db.Column(db.Integer, default=1)
     unit_id = db.Column(db.Integer, db.ForeignKey('unit.id'))
     percentages = db.relationship('Percentage', backref='module', order_by='Percentage.order')
     grades = db.relationship('Grade', back_populates='module')
@@ -795,9 +850,8 @@ class Module(db.Model):
         semester = self.unit.semester
         sessions = semester.sessions
         return sessions
-
-# listen(Module, 'before_update', set_latest_update_semester_from_module)
-# listen(Module, 'after_update', commit_semester_from_module)
+    def get_label(self):
+        return str(self.code)+' - '+self.display_name
 
 class Percentage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -807,7 +861,7 @@ class Percentage(db.Model):
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'))
     type_id = db.Column(db.Integer, db.ForeignKey('type.id'))
     rattrapable = db.Column(db.Boolean, default=False)
-    order = db.Column(db.Integer)
+    order = db.Column(db.Integer, default=1)
     def config_dict(self):
         type = Type.query.filter_by(id=self.type_id).first()
         # config = { 'type': type.type, 'per': str(self.percentage), 'time': str(self.time) } 
@@ -822,7 +876,8 @@ class Type(db.Model):
     grade_table_field = db.Column(db.String(45))
     percentages = db.relationship('Percentage', backref='type')
     def __repr__(self):
-        return '<Type {}>'.format(self.type)
+        return '{}'.format(self.type)
+        # return '<Type {}>'.format(self.type)
 
 class Wilaya(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -949,6 +1004,10 @@ class ModuleSession(db.Model):
     exam_date = db.Column(db.Date)
     results_delivered_date = db.Column(db.Date)
     exam_surveyors = db.Column(db.Text)
+    def has_teacher(self):
+        if self.teacher_id == None:
+            return True
+        return False
 
 class Attendance(db.Model):
     id = db.Column(db.Integer, primary_key=True)

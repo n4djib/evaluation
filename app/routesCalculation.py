@@ -262,7 +262,7 @@ def justification_by_username(session_id, username):
     
 
 @app.route('/session/<session_id>/classement/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree.session.classement', 'Classement')
+@register_breadcrumb(app, '.tree.session.result.classement', 'Classement')
 def classement(session_id):
     students_session = StudentSession.query\
         .filter_by(session_id=session_id)\

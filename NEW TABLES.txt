@@ -12,11 +12,48 @@
 	HYGN S6 Elabor
 	
 	LSP S6 ?????
+	
+	
+	
+= check if they saved Students in Excel and Eval
+= check if they corrected the names
 
+
+
+= run http://localhost:5000/code-change-case/
+	to fill annual_id
+
+= run http://localhost:5000/code-change-case/
+	to change the case of Names
+
+= teachers
 = shorten longer modules name
+= 
+= 
 
-=  	ISP-2018-74 	Tati 	Aira
-	Amira
+= HYGN Promos
+	2017 / 2020
+	2018 / 2021
+
+= LSP Promos
+	2018 / 2021
+	
+= add to teacher table
+1	T-01	ben dounia	aa
+2	T-02	boukheloua	lllll
+3	T-03	ben Tebba	Sabah
+4	T-04	Sahel	moumoud
+5	T-05	touzeri	mohammed
+
+= 
+
+= 
+
+= 
+
+= 
+
+= 
 
 = 
 

@@ -1,8 +1,32 @@
 from app import app, db
 from flask import render_template, request, redirect, url_for, flash
 from app.models import StudentSession, Grade, Module, Session, Student, Type, ModuleSession
+from app.forms import ModuleSessionForm
 from flask_breadcrumbs import register_breadcrumb
+from datetime import datetime
 
+
+
+
+
+def grade_dlc(*args, **kwargs):
+    session_id = request.view_args['session_id']
+    
+    if 'module_id' in request.view_args:
+        module_id = request.view_args['module_id']
+        module = Module.query.get_or_404(module_id)
+        text = 'Module ('+module.code+' '+module.name+')'
+        return [{'text': text, 
+            'url': url_for('grade', session_id=session_id, module_id=module_id)}]
+
+    elif 'student_id' in request.view_args:
+        student_id = request.view_args['student_id']
+        student = Student.query.get_or_404(student_id)
+        text = 'Student ('+student.username+' '+student.last_name+' '+student.first_name+')'
+        return [{'text': text, 
+            'url': url_for('grade', session_id=session_id, student_id=student_id)}]
+
+    # return [{'text': '***', 'url': '']
 
 
 
@@ -10,7 +34,7 @@ from flask_breadcrumbs import register_breadcrumb
 @app.route('/session/<session_id>/module/<module_id>/', methods=['GET', 'POST'])
 @app.route('/session/<session_id>/student/<student_id>/<_all>/', methods=['GET', 'POST'])
 @app.route('/session/<session_id>/student/<student_id>/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree.session.grade', 'Grades')
+@register_breadcrumb(app, '.tree.session.grade', 'Grades by ***** ', dynamic_list_constructor=grade_dlc)
 def grade(session_id=0, module_id=0, student_id=0, _all=''):
     grades = None
     if session_id == 0:
@@ -34,8 +58,14 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
 
     module = Module.query.filter_by(id=module_id).first()
     student = Student.query.filter_by(id=student_id).first()
+    session = Session.query.get_or_404(session_id)
+    # 
+    # Note: it will return only one Record
+    module_session = ModuleSession.query.\
+        filter_by(session_id=session_id, module_id=module_id).first()
 
-    if type=='module':
+
+    if type == 'module':
         get_hidden_values_flash(grades, session_id, module.id)
 
     # grid_title = F'Module: {module.display_name}'
@@ -46,9 +76,9 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
         student = Student.query.filter_by(id=student_id).first_or_404()
         grid_title = F'Student: {student.username} - {student.last_name} - {student.first_name}'
 
-    session = Session.query.get_or_404(session_id)
     return render_template('grade/grade.html', title='Grade Edit', 
-        data=data, _all=_all.lower(), grid_title=grid_title, type=type, session=session, module=module, student=student)
+        data=data, _all=_all.lower(), grid_title=grid_title, type=type, 
+        session=session, module=module, student=student, module_session=module_session)
 
 
 def get_hidden_values_flash(grades, session_id, module_id):
@@ -78,7 +108,7 @@ def get_hidden_values_flash(grades, session_id, module_id):
             if grade.stage!=None and grade.stage!='':
                 hidden_value = True
 
-    if hidden_value==True:
+    if hidden_value == True:
         url = url_for('grade', session_id=session_id, module_id=module_id, _all='all')
         btn = '<a href="'+url+'" class="btn btn-warning" role="button">Show All Fields</a>'
         flash('there is hidden value, because the Configuration changed  '+btn, 'alert-warning')
@@ -170,10 +200,57 @@ def grade_save():
 
 
 ##########################
+##########################
 
 
-def get_module_cols(module_id):
-    module = Module.query.get_or_404(module_id)
+
+#
+# it only allow one teacher
+#
+@app.route('/session/<session_id>/module/<module_id>/module-session/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.tree.session.grade.module_session', 'Module Session')
+def module_session_update(session_id, module_id):
+    module_sessions = ModuleSession.query.\
+        filter_by(session_id=session_id, module_id=module_id)\
+        .all()
+
+    if len(module_sessions) == 0:
+        #create new module_session
+        module_session = ModuleSession(
+            session_id=session_id, 
+            module_id=module_id
+        )
+        db.session.add(module_session)
+        db.session.commit()
+    else:
+        module_session = module_sessions[0]
+
+    form = ModuleSessionForm(module_session.id)
+    if form.validate_on_submit():    
+        module_session.teacher_id = None if form.teacher_id.data == -1 else form.teacher_id.data
+        module_session.start_date = form.start_date.data
+        module_session.finish_date = form.finish_date.data
+        module_session.exam_date = form.exam_date.data
+        module_session.results_delivered_date = form.results_delivered_date.data
+        module_session.exam_surveyors = form.exam_surveyors.data
+        db.session.commit()
+        flash('Your changes have been saved.', 'alert-success')
+        return redirect(url_for('grade', session_id=session_id, module_id=module_id))
+    elif request.method == 'GET':
+        form.teacher_id.data = module_session.teacher_id
+        form.start_date.data = module_session.start_date
+        form.finish_date.data = module_session.finish_date
+        form.exam_date.data = module_session.exam_date
+        form.results_delivered_date.data = module_session.results_delivered_date
+        form.exam_surveyors.data = module_session.exam_surveyors
+
+    return render_template('grade/module_session.html', title='module_session', form=form)
+
+
+##########################
+##########################
+
+def get_module_cols(module):
     percentages = module.percentages
     cols = []
     for percentage in percentages:
@@ -182,8 +259,7 @@ def get_module_cols(module_id):
         cols.append(type.grade_table_field)
     return cols
 
-def get_module_headers(module_id):
-    module = Module.query.get_or_404(module_id)
+def get_module_columns(module):
     percentages = module.percentages
     headers = ['#', 'Matricule', 'Nom', 'Prenom']
 
@@ -233,64 +309,32 @@ def create_data_for_module(grades, cols, empty=''):
 # with grades
 # with averages
 # by order
-def get_module_print_table(session_id=0, module_id=0, empty='', order='username'):
+def get_module_print_table(session, module, empty='', order='username'):
     grades = None
     if order == 'username':
-        grades = Grade.query.filter_by(module_id=module_id)\
-            .join(StudentSession).filter_by(session_id=session_id)\
+        grades = Grade.query.filter_by(module_id=module.id)\
+            .join(StudentSession).filter_by(session_id=session.id)\
             .join(Student).order_by(Student.username)\
             .all()
     else:
-        grades = Grade.query.filter_by(module_id=module_id)\
-            .join(StudentSession).filter_by(session_id=session_id)\
+        grades = Grade.query.filter_by(module_id=module.id)\
+            .join(StudentSession).filter_by(session_id=session.id)\
             .join(Student).order_by(Student.last_name, Student.first_name)\
             .all()
 
-    cols = get_module_cols(module_id)
-    headers = get_module_headers(module_id)
+    cols = get_module_cols(module)
+    columns = get_module_columns(module)
     data_arr = create_data_for_module(grades, cols, empty)
-    module = Module.query.get_or_404(module_id)
-
-    session = Session.query.get_or_404(session_id)
-
-    module_session = ModuleSession.query\
-        .filter_by(module_id=module_id)\
-        .join(Session).filter_by(id=session_id)\
-        .first()
-
-    teacher = None
-    if module_session != None:
-        teacher = module_session.teacher
-
-    teacher_name = '?????'
-    if teacher != None:
-        teacher_name = teacher.last_name + ' ' + teacher.first_name
-
-    time = '?????'
-    if module.time != None: time = module.time
-    
-    table = ''
-    table += '<center><h5>'
-    table += '<b>Ecole: </b>' + session.promo.branch.school.name + ' <b>-</b> '
-    table += '<b>Branch: </b>' + session.promo.branch.description + ' <b>-</b> '
-    table += '<b>Promo: </b>' + session.promo.name + ' <b>-</b> '
-    table += '<b>Semestre: </b>' + str(session.semester.get_nbr())
-    table += '</h5></center>'
-    table += '<center><h4><b>Module: </b>' + module.code + ' <b>-</b> ' + module.display_name + '</h4></center>'
-    table += '<center><h5>'
-    table += '<b>Coefficient: </b>' + str(module.coefficient) + ' <b>-</b> '
-    table += '<b>Credit: </b>' + str(module.credit) + ' <b>-</b> '
-    table += '<b>VHS: </b>' + str(time) + ' <b>-</b> '
-    table += '<b>Enseignant: </b>' + str(teacher_name)
-    table += '</h5></center>'
 
 
-    table += '<table class="table table-condensed ">'
-    table += '<tr>'
-    for header in headers:
-        table += '<th>' + header + '</th>'
-    table += '</tr>'
+    table = '<table class="table table-condensed ">'
+    table += '<thead>'
+    table += '<tr style="background-color: lightgrey;">'
+    for column in columns:
+        table += '<th>' + column + '</th>'
+    table += '</thead> </tr>'
 
+    table += '<tbody>'
     for data in data_arr:
         table += '<tr>'
         # table += '<td>'+str(data)+'</td>'
@@ -298,11 +342,62 @@ def get_module_print_table(session_id=0, module_id=0, empty='', order='username'
             table += '<td>' + str(_da) + '</td>'
         table += '</tr>'
 
+    table += '</tbody>'
     table += '</table>'
 
     return table
 
+def get_module_print_header(session, module):
+    school = session.promo.branch.school.description
+    branch = session.promo.branch.description
+    annual = session.semester.annual.get_string_literal()
+    semester = session.get_name()
+    promo = session.promo.name
+    annual_pedagogique = session.get_annual_pedagogique()
 
+    time = '?????'
+    if module.time != None: time = module.time
+
+    module_session = ModuleSession.query\
+        .filter_by(module_id=module.id)\
+        .join(Session).filter_by(id=session.id)\
+        .first()
+
+    teacher = None
+    if module_session != None:
+        teacher = module_session.teacher
+
+    teacher_name = '???'
+    if teacher != None:
+        teacher_name = teacher.last_name + ' ' + teacher.first_name
+
+    header = F"""
+      <div class="container" style="display: flex;">
+        <div style="flex-grow: 1;">
+            {school}<br/>
+            Sous Direction des Affaires Pèdagogiques<br/>
+            Département d'evaluation
+        </div>
+        <div style="flex-grow: 1;" align="center">
+            Promo {promo}<br/>
+            Année {annual_pedagogique}<br/>
+            <b><font size="+2">Relevé de Notes {semester}</font></b>
+        </div>
+        <div style="flex-grow: 1;" align="right">
+            {annual}<br/>
+            {branch}
+        </div>
+      </div>
+      
+      <div class="container" >
+        <h4><b>Module: </b>{module.code} <b>-</b> {module.display_name}</h4>
+        <b>Coefficient: </b>{module.coefficient} <b>-</b> 
+        <b>Credit: </b>{module.credit} <b>-</b> 
+        <b>VHS: </b>{time} <b>-</b> 
+        <b>Enseignant: </b>{teacher_name}
+      </div>
+    """
+    return header
 
 @app.route('/session/<session_id>/module/<module_id>/print/order/<order>/empty/<empty>/', methods=['GET', 'POST'])
 @app.route('/session/<session_id>/module/<module_id>/print/empty/<empty>/order/<order>/', methods=['GET', 'POST'])
@@ -310,8 +405,18 @@ def get_module_print_table(session_id=0, module_id=0, empty='', order='username'
 @app.route('/session/<session_id>/module/<module_id>/print/empty/<empty>/', methods=['GET', 'POST'])
 @app.route('/session/<session_id>/module/<module_id>/print/', methods=['GET', 'POST'])
 def module_print(session_id=0, module_id=0, empty='', order='username'):
-    table = get_module_print_table(session_id, module_id, empty, order)
-    return render_template('grade/module-print.html', 
-        title='module ***', table=table)
+    session = Session.query.get_or_404(session_id)
+    module = Module.query.get_or_404(module_id)
+
+    print_header = get_module_print_header(session, module)
+    table = get_module_print_table(session, module, empty, order)
+    
+    branch = session.promo.branch.name
+    semester = session.semester.get_nbr()
+    dt = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    title = 'Releve de Notes '+branch+' S'+str(semester) + ' {'+module.get_label()+'}' + ' ['+session.promo.name+'] ('+str(dt)+')'
+
+    return render_template('grade/module-print.html', title=title, table=table, print_header=print_header)
+
 
 

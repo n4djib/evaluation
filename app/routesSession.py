@@ -8,7 +8,7 @@ from ast import literal_eval
 from sqlalchemy import or_
 from datetime import datetime
 from app.routesCalculation import init_all, reinitialize_session, update_session_configuraton
-
+from app._shared_functions import extract_fields, check_session_is_complite
 
 
 
@@ -41,59 +41,6 @@ def show_relation(session_id=0):
 
 # ----------------------
 
-def check_grid_is_complite(session):
-    # return a dictionary
-    #   of errors and empty and calculated
-    nbr_cells = 0
-    nbr_filled = 0
-    nbr_errs = 0
-
-    EMPTY = False
-    ERRS = False
-    CALC = False
-    CONF = False
-
-    # 
-    grades = Grade.query.join(StudentSession).filter_by(session_id=session.id).all()
-    for grade in grades:
-        fields_list = []
-        if grade.formula != None:
-            fields_list = extract_fields(grade.formula)
-        for field in fields_list:
-            if field in ['cour', 'td', 'tp', 't_pers', 'stage']:
-                nbr_cells += 1
-                val = getattr(grade, field)
-                if val != None:
-                    nbr_filled += 1
-                    # if val < 0  or  val > 20  or  not isinstance(val, decimal.decimal):
-                    if val < 0  or  val > 20:
-                        nbr_errs += 1
-                        ERRS = True
-        # CALC
-        if grade.is_dirty == True:
-            CALC = True
-
-    #
-    if nbr_cells != nbr_filled:
-        EMPTY = True
-
-    nbr_empty = nbr_cells - nbr_filled
-
-    CONF = session.is_config_changed()
-
-    return {'nbr_cells': nbr_cells, 'nbr_filled': nbr_filled,
-            'EMPTY': EMPTY, 'nbr_empty': nbr_empty, 
-            'ERRS': ERRS, 'nbr_errs': nbr_errs,
-            'CALC': CALC, 'CONF': CONF}
-
-
-def extract_fields(formula):
-    fields_list = []
-    dictionary = eval(formula)
-    for key in dictionary:
-        fields_list += [key]
-
-    return fields_list
 
 def get_icon_progress(grades):
     cells_nbr = 0
@@ -158,7 +105,7 @@ def session_dlc(*args, **kwargs):
         'url': url_for('session', session_id=session_id)}]
 
 @app.route('/session/<session_id>/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree.session', '', dynamic_list_constructor=session_dlc)
+@register_breadcrumb(app, '.tree.session', '***', dynamic_list_constructor=session_dlc)
 def session(session_id=0):
     session = Session.query.filter_by(id=session_id).first_or_404()
     # if session.is_closed==False:
@@ -184,26 +131,14 @@ def session(session_id=0):
     # session.name = make_session_name(session)
 
     # 
-    C = check_grid_is_complite(session)
+    grades = Grade.query.join(StudentSession).filter_by(session_id=session_id).all()
+    check = check_session_is_complite(grades, session)
     # flash( 'EMPTY: '+str(C['EMPTY'])+' '+str(C['nbr_empty'])+'    +++    ERRS: '+str(C['ERRS'])+' '+str(C['nbr_errs']) + '    +++    CALC: '+str(C['CALC'])+'    +++    CONF: '+str(C['CONF']) )
 
     return render_template('session/session.html', 
         title='Session', session=session,
         students=students_list, modules=modules_list,
-        icons_module=icons_module, icons_student=icons_student, check=C)
-
-
-# def make_session_name(session):
-#     semester_nbr = session.semester.get_nbr()
-#     # name = session.promo.name
-#     name = session.promo.display_name
-
-#     if session.is_rattrapage is None or session.is_rattrapage is False:
-#         name += ' / Semester: ' + str(semester_nbr)
-#     else:
-#          name += ' / Rattrapage: ' + str(semester_nbr)
-#     return name
-
+        icons_module=icons_module, icons_student=icons_student, check=check)
 
 def update_student_session(students_from, students_to, session_id):
     session = Session.query.filter_by(id=session_id).first()
@@ -341,21 +276,18 @@ def semester_averages(session_id=0):
 @app.route('/session/<session_id>/unlock-session/', methods=['GET', 'POST'])
 def unlock_session(session_id):
     session = Session.query.filter_by(id=session_id).first_or_404()
-    parallel_session = session.get_parallel_session()
-    # session.is_closed = False
     session.reverse_status()
-    if parallel_session != None:
-        parallel_session.reverse_status()
+
+    # parallel_session = session.get_parallel_session()
+    # if parallel_session != None:
+    #     parallel_session.reverse_status()
+
+    # if parallel_session != None:
+    #     flash("Sessions ("+str(session.id)+") and ("+str(parallel_session.id)+") unlocked.", 'alert-success')
+    # else:
+    #     flash("Session ("+str(session.id)+") unlocked.", 'alert-success')
+
     db.session.commit()
-
-    if parallel_session != None:
-        flash("Sessions ("+str(session.id)+") and ("+str(parallel_session.id)+") unlocked.", 'alert-success')
-    else:
-        flash("Session ("+str(session.id)+") unlocked.", 'alert-success')
-
-    school_id = session.promo.branch.school_id
-    branch_id = session.promo.branch_id
-    promo_id = session.promo_id
     return redirect(url_for('session', session_id=session.id))
 
 @app.route('/session/<session_id>/lock-session/', methods=['GET', 'POST'])
@@ -374,20 +306,18 @@ def lock_session(session_id):
             + str(_not_complite) + " student(s).", 'alert-danger')
         return redirect(url_for('session', session_id=session.id))
 
-    parallel_session = session.get_parallel_session()
     session.reverse_status()
-    if parallel_session != None:
-        parallel_session.reverse_status()
-    db.session.commit()
 
-    if parallel_session != None:
-        flash("Sessions ("+str(session.id)+") and ("+str(parallel_session.id)+") locked.", 'alert-success')
-    else:
-        flash("Session ("+str(session.id)+") locked.", 'alert-success')
+    # parallel_session = session.get_parallel_session()
+    # if parallel_session != None:
+    #     parallel_session.reverse_status()
+
+    # if parallel_session != None:
+    #     flash("Sessions ("+str(session.id)+") and ("+str(parallel_session.id)+") locked.", 'alert-success')
+    # else:
+    #     flash("Session ("+str(session.id)+") locked.", 'alert-success')
     
-    school_id = session.promo.branch.school_id
-    branch_id = session.promo.branch_id
-    promo_id = session.promo_id
+    db.session.commit()
     return redirect(url_for('session', session_id=session.id))
 
 # WARNING: i have to check before i delete
@@ -1032,7 +962,6 @@ def annual_session_dlc(*args, **kwargs):
         'url': url_for('annual_session', annual_session_id=annual_session_id) }]
 
 @app.route('/annual-session/<annual_session_id>/', methods=['GET', 'POST'])
-# @register_breadcrumb(app, '.tree.annual', 'Annual Session')
 @register_breadcrumb(app, '.annual_tree.annual', '***', dynamic_list_constructor=annual_session_dlc)
 def annual_session(annual_session_id=0):
     annual_session = AnnualSession.query.filter_by(id=annual_session_id).first_or_404()
@@ -1060,7 +989,7 @@ def renegade_annual_session(annual_session_id):
 
     return count
 
-# if annual_session_id=None -> take from other session in the same Annual
+# if annual_session_id == None -> take from other session in the same Annual
 # else -> init with the new one
 def init_annual_session_id(session_id, annual_session_id=None):
     session = Session.query.get_or_404(session_id)
@@ -1145,7 +1074,7 @@ def delete_annual_session(annual_session_id):
 #####                             #####
 #######################################
 
-def get_thhead_bultin_semester():
+def get_thead_bultin_semester():
     header = '<tr class="head">'
     header += '<th colspan=3>Unité d''Enseignement</th>'
     header += '<th colspan=4>Matière d''Enseignement</th>'
@@ -1169,7 +1098,6 @@ def get_thhead_bultin_semester():
     header += '</tr>'
 
     return header
-
 
 def get_header_bultin_semester(student_session):
     student = student_session.student
@@ -1212,7 +1140,7 @@ def get_bultin_semester(student_session):
 
     # Table
     grade_units = student_session.grade_units
-    table = get_thhead_bultin_semester()
+    table = get_thead_bultin_semester()
 
     for grade_unit in grade_units:
         modules_in_unit = [module.id for module in grade_unit.unit.modules]
@@ -1259,8 +1187,6 @@ def get_bultin_semester(student_session):
 # def bultin_semester(session_id, student_id):
 #     student_session = StudentSession.query\
 #         .filter_by(session_id=session_id, student_id=student_id).first()
-
-
 #     header = get_header_bultin_semester(student_session)
 #     footer = get_footer_bultin_semester(student_session)
 
@@ -1292,7 +1218,6 @@ def bultin_semester_print(session_id, student_id):
     return render_template('student/bultin-semester-print.html', 
             title=title, bultin=bultin, header=header, footer=footer, session_id=session_id)
 
-
 @app.route('/session/<session_id>/bultin-print-all/', methods=['GET', 'POST'])
 def bultin_semester_print_all(session_id):
     student_sessions = StudentSession.query\
@@ -1323,7 +1248,7 @@ def bultin_semester_print_all(session_id):
 # ----------------------
 # ----------------------
 
-def get_thhead_bultin_annual():
+def get_thead_bultin_annual():
     header = '<tr class="head">'
     header += '<th class="rotate" rowspan=3><div>Semestre</div></th>'
     header += '<th colspan=3>Unité d''Enseignement</th>'
@@ -1332,12 +1257,12 @@ def get_thhead_bultin_annual():
     header += '</tr>'
     header += '<tr class="head">'
     header += '<th rowspan=2>Nature</th>'
-    header += '<th rowspan=2>Crédit requis</th>'
+    header += '<th rowspan=2>Crédit</br>requis</th>'
     header += '<th rowspan=2>Coeff</th>'
 
     header += '<th rowspan=2>Code</th>'
     header += '<th rowspan=2>Intitulé</th>'
-    header += '<th rowspan=2>Crédit requis</th>'
+    header += '<th rowspan=2>Crédit</br>requis</th>'
     header += '<th rowspan=2>Coeff</th>'
 
     header += '<th colspan=3>Matière</th> <th colspan=3>U.E</th> <th colspan=3>Semestre</th>'
@@ -1451,29 +1376,48 @@ def get_header_bultin_annual(annual_grade):
     annual_literal = annual_grade.annual_session.annual.get_string_literal()
 
     # header
-    header = '<center><h2>Releve de Notes</h2></center>'
+    header = F"""
+      <div class="container" style="display: flex;">
+        <div style="flex-grow: 1; margin:0px; padding:0px;">
+            <img src='/static/img/logo.png'>
+        </div>
+        <div style="flex-grow: 1; " align="center">
+            <font size="">
+            REPUBLIQUE ALGERIENNE DEMOCRATIQUE ET POPULAIRE</br>
+            MINISTERE DE LA SANTE DE LA POPULATION ET DE LA REFORME HOSPITALIRE</br></br>
+            <b>INSTITUT NATIONAL DE FORMATION SUPERIEUR PARAMEDICALE DE OUARGLA</br>
+            DEPARTEMENT D’EVALUATION</br>
+            </b></font>
+            <font size="+3"><b>Releve de Notes</b></font>
+        </div>
+        <div style="flex-grow: 1; margin:0px; padding:0px;" align="right">
+            <img src='/static/img/logo-empty.png'>
+        </div>
+      </div>
+    """
+
     header += "Le directeur de <b>"+student.branch.school.name+",</b> atteste que l'étudiant(e)</br>"
     header += 'Nom:  <b>'+student.last_name+'</b>     '
     header += 'Prenom:  <b>'+student.first_name+'</b>    '
     header += 'Né(e) le: <b>'+str(student.birth_date)+'</b> à <b>'+str(student.birth_place)+'</b></br>'
-    header += 'Inscrit(e) en <b>' + annual_literal + ' année</b>   '
+    header += 'Inscrit(e) en <b>' + annual_literal + '</b>   '
     header += 'Corps des:  <b>'+student.branch.description+'</b></br>'
     header += 'Sous le matricule: <b>' + student.username + '</b>'
     header += "  a obtenu les résultats suivants durant l'année pédagogique: <b>"+annual_pedagogique+"</b>"
-    header += '</br></br>'
+    header += '</br>'
 
     return header
 
 def get_footer_bultin_annual(annual_grade):
     # footer
-    footer = '</br></br>'
+    footer = '</br>'
     # you have to take average_r
     #    in case of Rattrapage
-    footer += 'Moyenne Annuelle: <b>'+str('*********')+'</b>    '
+    footer += "Moyenne Annuelle: <b>"+str('*********')+"</b>    "
     footer += "Crédits cumulés dans l'année: <b>********</b> et <b>"+str('*********')+"</b></br>"
-    footer += 'Décision de la commission de classement et '
-    footer += "d'orientation:  <b>******</b></br></br>"
-    footer += 'Ouargla le:  ..................'
+    footer += "Décision de la commission de classement et "
+    footer += "d'orientation:  <b>"+str('*********')+"</b></br></br>"
+    footer += "Ouargla le:  .................."
 
     return footer
 
@@ -1481,7 +1425,7 @@ def get_bultin_annual(annual_grade):
     student_sessions = get_active_student_sessions(annual_grade.annual_session_id, annual_grade.student_id)
 
     # Table
-    bultin = get_thhead_bultin_annual()
+    bultin = get_thead_bultin_annual()
 
     for student_session in student_sessions:
         bultin += get_semester_modules_html(student_session)
@@ -1532,6 +1476,7 @@ def bultin_annual_print_all(annual_session_id):
 
 
 
+
 #######################################
 #####                             #####
 #####                             #####
@@ -1544,7 +1489,7 @@ def bultin_annual_print_all(annual_session_id):
 
 def get_th_1(configuration, cols_per_module):
     conf_dict = literal_eval(configuration)
-    header = '<th>Unit</th>'
+    header = '<th class="left">Unit</th>'
     for unit in conf_dict['units']:
         display_name = unit["display_name"]
         unit_coefficient = unit["unit_coefficient"]
@@ -1552,25 +1497,25 @@ def get_th_1(configuration, cols_per_module):
         colspan = cols_per_module
         for module in unit['modules']:
             colspan += cols_per_module
-        header += F'<th class="unit" colspan={colspan}><center>{unit_name}</center></th>'
+        header += F'<th class="unit center" colspan={colspan}>{unit_name}</th>'
     display_name = conf_dict["display_name"]
-    return header + F'<th class="semester" rowspan=4 colspan={cols_per_module}><center>{display_name}</center></th>'
+    return header + F'<th class="semester center" rowspan=4 colspan={cols_per_module}>{display_name}</th>'
 
 def get_th_2(configuration, cols_per_module):
     conf_dict = literal_eval(configuration)
-    header = '<th>Module</th>'
+    header = '<th class="left">Module</th>'
     for unit in conf_dict['units']:
         for module in unit['modules']:
             module_name = module["code"] + ' ' + module["display_name"]
             # module_name = module["display_name"]
             header += F'<th style="word-wrap: break-word" colspan={cols_per_module}><font size="-1"><center>{module_name}</center></font></th>'
         name = 'Resultat de ' + unit["display_name"] 
-        header += F'<th style="word-wrap: break-word" class="unit" rowspan=3 colspan={cols_per_module}><center>{name}</center></th>'
+        header += F'<th style="word-wrap: break-word" class="unit center" rowspan=3 colspan={cols_per_module}>{name}</th>'
     return header
 
 def get_th_3(configuration, cols_per_module):
     conf_dict = literal_eval(configuration)
-    header = '<th>Required Credit</th>'
+    header = '<th class="left">Required Credit</th>'
     for unit in conf_dict['units']:
         for module in unit['modules']:
             credit = module['credit']
@@ -1579,40 +1524,43 @@ def get_th_3(configuration, cols_per_module):
 
 def get_th_4(configuration, cols_per_module):
     conf_dict = literal_eval(configuration)
-    header = '<th>Coefficient</th>'
+    header = '<th class="left">Coefficient</th>'
     for unit in conf_dict['units']:
         for module in unit['modules']:
             coeff = module['coeff']
             header += F'<th colspan={cols_per_module}><center>{coeff}</center></th>'
     return header
 
+def get_cols_ths(index, label, class_name, cols_per_module):
+    sort = 'onclick="sortTable('+str(index)+')" '
+    label_a = label['a']
+    label_c = label['c']
+    label_s = label['s']
+    th = F'<th {sort} class="{class_name} center sorter">{label_a}((img))</th>'
+    # th = F'<th {sort} class="{class_name} center">{label_a}</th>'
+    if cols_per_module >= 2:
+        th += F'<th class="{class_name} center">{label_c}</th>'
+    if cols_per_module == 3:
+        th += F'<th class="{class_name} center">{label_s}</th>'
+    return th
+
 def get_th_5(configuration, cols_per_module):
     conf_dict = literal_eval(configuration)
-    header = '<th class="header5">N°</th><th class="header5">Matricule</th><th class="header5">Nom</th>'
-
-    average = 'A'
-    credit = 'C'
-    session = 'S'
-
-    th_module = F'<th class="header5"><center>{average}</center></th>'
-    th_unit = F'<th class="unit"><center>{average}</center></th>'
-    th_semester = F'<th class="semester"><center>{average}</center></th>'
-
-    if cols_per_module >= 2:
-        th_module += F'<th class="header5"><center>{credit}</center></th>'
-        th_unit += F'<th class="unit"><center>{credit}</center></th>'
-        th_semester += F'<th class="semester"><center>{credit}</center></th>'
-    if cols_per_module == 3:
-        th_module += F'<th class="header5"><center>{session}</center></th>'
-        th_unit += F'<th class="unit"><center>{session}</center></th>'
-        th_semester += F'<th class="semester"><center>{session}</center></th>'
+    header = '<th onclick="sortTable(0)" class="module center sorter no-wrap">N°((img))</th>'
+    header += '<th onclick="sortTable(1)" class="module center sorter no-wrap">Matricule((img))</th>'
+    header += '<th onclick="sortTable(2)" class="module center sorter">Nom((img))</th>'
     
+    label = {'a':'M', 'c':'C', 's':'S'}
+    index = 3
     for unit in conf_dict['units']:
         for module in unit['modules']:
-            header += th_module
-        header += th_unit
+            header += get_cols_ths(index, label, 'module', cols_per_module)
+            index += cols_per_module
+        header += get_cols_ths(index, label, 'unit', cols_per_module)
+        index += cols_per_module
+
     # semester
-    header += th_semester
+    header += get_cols_ths(index, label, 'semester', cols_per_module)
     return header
 
 def get_thead(configuration, cols_per_module=2):
@@ -1685,15 +1633,14 @@ def get_semester_result_data(session_id, cols_per_module=2):
     return data_arr
 
 
-def make_link_button(route, label, session_id, student_id, target='popup', size=''):
+def make_link_button(route, label, session_id, student_id, target='popup', size='', btn='btn-primary'):
     href = url_for(route, session_id=session_id, student_id=student_id)
-    bultin = '<a style="margin-left:1px;margin-bottom:1px;" target="'+target+'" class="btn btn-primary '+size+'" role="button" '
+    bultin = '<a style="margin-left:1px;margin-bottom:1px;" target="'+target+'" class="btn '+btn+' '+size+'" role="button" '
     bultin += ' href ="'+href+'" '
     if target == 'popup':
         bultin += ' onclick="window.open(`'+href+'`, `popup`, `width=max,height=max`); " '
     bultin += '>'+label+'</a>'
     return bultin
-
 
 def get_semester_result_data__plus_buttons(session_id, cols_per_module=2):
     data_arr = []
@@ -1704,14 +1651,28 @@ def get_semester_result_data__plus_buttons(session_id, cols_per_module=2):
         student = student_session.student
 
         btn_grades = '<td>'+ make_link_button(
-            'grade', 'Notes', 
-            session_id, student.id, '_target', size='btn-xs') +'</td>'
+            'grade', 
+            'Notes', 
+            session_id, 
+            student.id, 
+            '_target', 
+            size='btn-xs',
+            btn='btn-default') +'</td>'
+
         btn_bultin = '<td>'+ make_link_button(
             'bultin_semester_print', 'Bultin', 
-            session_id, student.id, '_target', size='btn-xs') +'</td>'
+            session_id, 
+            student.id, 
+            '_target', 
+            size='btn-xs',
+            btn='btn-success') +'</td>'
         btn_just = '<td>'+ make_link_button(
-            'justification', 'Justification', 
-            session_id, student.id, '_target', size='btn-xs') +'</td>'
+            'justification', 
+            'Justification', 
+            session_id, 
+            student.id, 
+            '_target', 
+            size='btn-xs') +'</td>'
 
         name = student.last_name + ' ' + student.first_name
         # name = name.replace(' ', ' ')
@@ -1727,21 +1688,20 @@ def get_semester_result_data__plus_buttons(session_id, cols_per_module=2):
 
     return data_arr
 
-
 @app.route('/session/<session_id>/semester-result/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree.session.result', 'Semester Result')
+@register_breadcrumb(app, '.tree.session.result', 'Relevé Resultat')
 def semester_result(session_id=0):
     session = Session.query.filter_by(id=session_id).first_or_404()
     cols_per_module = 2
     t_head = get_thead(session.configuration, cols_per_module)
     data_arr = get_semester_result_data__plus_buttons(session_id, cols_per_module)
-    # header = get_print_header(session)
 
     return render_template('session/semester-result.html',
         title='Semester ' + str(session.semester.semester) + ' Result', 
         t_head=t_head, data_arr=data_arr, session=session)
 
-def get_print_header(session):
+
+def get_semester_result_print_header(session):
     school = session.promo.branch.school.description
     branch = session.promo.branch.description
     annual = session.semester.annual.get_string_literal()
@@ -1750,7 +1710,6 @@ def get_print_header(session):
     annual_pedagogique = session.get_annual_pedagogique()
 
     header = F"""
-      <b>
       <div class="container" style="display: flex;">
         <div style="flex-grow: 1;">
             {school}<br/>
@@ -1760,71 +1719,31 @@ def get_print_header(session):
         <div style="flex-grow: 1;" align="center">
             Promo {promo}<br/>
             Année {annual_pedagogique}<br/>
-            Relevé {semester}
+            <b><font size="+2">Relevé {semester}</font></b>
         </div>
         <div style="flex-grow: 1;" align="right">
             {annual}<br/>
             {branch}
         </div>
       </div>
-      </b>
     """
     return header
 
-
-@app.route('/session/<session_id>/semester-result-print-browser/', methods=['GET', 'POST'])
-def semester_result_print_browser(session_id=0):
+@app.route('/session/<session_id>/semester-result-print/', methods=['GET', 'POST'])
+def semester_result_print(session_id=0):
     session = Session.query.filter_by(id=session_id).first_or_404()
     cols_per_module = 2
     t_head = get_thead(session.configuration, cols_per_module)
     data_arr = get_semester_result_data(session_id, cols_per_module)
-    header = get_print_header(session)
-
-    # sem_result = ''
-    # sem_result += '<table class="">'
-    # sem_result += '<thead>' + t_head + '</thead>'
-    # sem_result += '<tbody>'
-    # for data in data_arr:
-    #     sem_result += '<tr>' + data + '</tr>'
-    # sem_result += '</tbody>'
-    # sem_result += '</table>'
+    header = get_semester_result_print_header(session)
 
     branch = session.promo.branch.name
     semester = session.semester.get_nbr()
     dt = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     title = 'Releve ' + branch + ' S'+str(semester) + ' [' + session.promo.name + '] ('+str(dt)+')'
 
-    # return render_template('session/semester-result-print-browser.html',
-    #     title=title, header=header, sem_result=sem_result, session=session)
-
-    return render_template('session/semester-result-print-browser.html',
+    return render_template('session/semester-result-print.html',
         title=title, header=header, t_head=t_head, data_arr=data_arr, session=session)
-
-@app.route('/session/<session_id>/semester-result-print/<_id>/', methods=['GET', 'POST'])
-@app.route('/session/<session_id>/semester-result-print/', methods=['GET', 'POST'])
-def semester_result_print(session_id=0, _id=0,
-                          insert1=43, insert2=43+56, insert3=43+56+57):
-    yield
-    # session = Session.query.filter_by(id=session_id).first_or_404()
-    # header = get_thead(session.configuration, 2)
-    # data_arr = get_semester_result_data(session_id, 2)
-
-    # # data_arr.insert(insert1+1, '<td border="0"> </td>')
-    # # data_arr.insert(insert1+2, '<td border="0"> </td>')
-    # # data_arr.insert(insert1+3, '<td border="0"> </td>')
-
-    # # data_arr.insert(insert2+1, '<td border="0"> </td>')
-    # # data_arr.insert(insert2+2, '<td border="0"> </td>')
-    # # data_arr.insert(insert2+3, '<td border="0"> </td>')
-
-    # # data_arr.insert(insert3+1, '<td border="0"> </td>')
-    # # data_arr.insert(insert3+2, '<td border="0"> </td>')
-    # # data_arr.insert(insert3+3, '<td border="0"> </td>')
-
-    # return render_template('session/semester-result-print.html', 
-    #     title='Semester ' + str(session.semester.semester) + ' Result', 
-    #     header=header, data_arr=data_arr, session=session,
-    #     insert1=insert1, insert2=insert2, insert3=insert3)
 
 
 #######################################
@@ -1833,9 +1752,9 @@ def semester_result_print(session_id=0, _id=0,
 #####                             #####
 #######################################
 
-@app.route('/page-break/', methods=['GET'])
-def page_break():
-    return render_template('page-break.html')
+# @app.route('/page-break/', methods=['GET'])
+# def page_break():
+#     return render_template('page-break.html')
 
 
 # from flask_weasyprint import HTML, render_pdf
@@ -1853,77 +1772,79 @@ def page_break():
 
 
 
-import pdfkit
-from flask import send_file, send_from_directory
-from flask import Response
+# import pdfkit
+# from flask import send_file, send_from_directory
+# from flask import Response
 
 '''
 be carefull returning the file in the right version
 it looks like if i change the file it keeps returning the old one
 it seems to work right when changing the URL
 ''' 
-@app.route('/pdf/session/<session_id>/nbr/<id>/')
-def print_semester_result(session_id=0, id=0):
-    # options = {'orientation': 'landscape', 'page-size':'A4', 'dpi':400}
-    options = {'orientation': 'landscape', 
-        'page-size':'A4', 
-        'encoding':'utf-8', 'dpi':400
-        # 'margin-top':'0.5cm',
-        # 'margin-bottom':'0.8cm',
-        # 'margin-left':'0.5cm',
-        # 'margin-right':'0.2cm'
+# @app.route('/pdf/session/<session_id>/nbr/<id>/')
+# def print_semester_result(session_id=0, id=0):
+#     # options = {'orientation': 'landscape', 'page-size':'A4', 'dpi':400}
+#     options = {'orientation': 'landscape', 
+#         'page-size':'A4', 
+#         'encoding':'utf-8', 'dpi':400
+#         # 'margin-top':'0.5cm',
+#         # 'margin-bottom':'0.8cm',
+#         # 'margin-left':'0.5cm',
+#         # 'margin-right':'0.2cm'
 
-    }
+#     }
 
-    # url = 'http://localhost:5001/session/1/semester-result-print/'+str(id)+'/'
+#     # url = 'http://localhost:5001/session/1/semester-result-print/'+str(id)+'/'
 
-    url = url_for('semester_result_print', session_id=session_id, _external=True)
-    pdf_file_name = 'semester_zerbia.pdf'
-    return html_to_pdf(url, pdf_file_name, options)
-
-
-@app.route('/pdf/session/<session_id>/student/<student_id>/bultin-print/')
-def print_semester_bultin(session_id, student_id):
-    options = {'orientation': 'landscape', 
-        'page-size':'A4', 
-    }
-
-    url = url_for('bultin_semester_print', session_id=session_id, student_id=student_id, _external=True)
-    pdf_file_name = 'semester_bultin.pdf'
-    return html_to_pdf(url, pdf_file_name, options)
+#     url = url_for('semester_result_print', session_id=session_id, _external=True)
+#     pdf_file_name = 'semester_zerbia.pdf'
+#     return html_to_pdf(url, pdf_file_name, options)
 
 
-@app.route('/session/<session_id>/module/<module_id>/students-print/empty/<empty>')
-@app.route('/session/<session_id>/module/<module_id>/students-print/')
-def print_module_students_empty(session_id=0, module_id=0, empty='no'):
-    url = url_for('module_print', session_id=session_id, 
-        module_id=module_id, _external=True)
-    if empty == 'yes':
-        url = url_for('module_print', session_id=session_id, 
-            module_id=module_id, _external=True, empty='yes')
-
-    pdf_file_name = 'module_students_print.pdf'
-    return html_to_pdf(url, pdf_file_name)
 
 
-@app.route('/print-page-break/')
-def print_page_break():
-    url = 'http://localhost:5000/page-break/'
-    pdf_file_name = 'page-break.pdf'
-    return html_to_pdf(url, pdf_file_name)
+# @app.route('/pdf/session/<session_id>/student/<student_id>/bultin-print/')
+# def print_semester_bultin(session_id, student_id):
+#     options = {'orientation': 'landscape', 
+#         'page-size':'A4', 
+#     }
+
+#     url = url_for('bultin_semester_print', session_id=session_id, student_id=student_id, _external=True)
+#     pdf_file_name = 'semester_bultin.pdf'
+#     return html_to_pdf(url, pdf_file_name, options)
 
 
-@app.route('/print-test/')
-def print_test():
-    url = 'https://www.w3schools.com/colors/colors_picker.asp'
-    pdf_file_name = 'azerty.pdf'
-    return html_to_pdf(url, pdf_file_name)
+# @app.route('/session/<session_id>/module/<module_id>/students-print/empty/<empty>')
+# @app.route('/session/<session_id>/module/<module_id>/students-print/')
+# def print_module_students_empty(session_id=0, module_id=0, empty='no'):
+#     url = url_for('module_print', session_id=session_id, 
+#         module_id=module_id, _external=True)
+#     if empty == 'yes':
+#         url = url_for('module_print', session_id=session_id, 
+#             module_id=module_id, _external=True, empty='yes')
 
-def html_to_pdf(url, pdf_file_name, options={}):
-    wkhtmltopdf_path = app.config['WKHTMLTOPDF_PATH']
-    config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
-    pdf = pdfkit.from_url(url, 'app\\pdf\\'+pdf_file_name, configuration=config, options=options)
-    return send_from_directory('pdf', pdf_file_name)
+#     pdf_file_name = 'module_students_print.pdf'
+#     return html_to_pdf(url, pdf_file_name)
+
+
+# @app.route('/print-page-break/')
+# def print_page_break():
+#     url = 'http://localhost:5000/page-break/'
+#     pdf_file_name = 'page-break.pdf'
+#     return html_to_pdf(url, pdf_file_name)
+
+
+# @app.route('/print-test/')
+# def print_test():
+#     url = 'https://www.w3schools.com/colors/colors_picker.asp'
+#     pdf_file_name = 'azerty.pdf'
+#     return html_to_pdf(url, pdf_file_name)
+
+# def html_to_pdf(url, pdf_file_name, options={}):
+#     wkhtmltopdf_path = app.config['WKHTMLTOPDF_PATH']
+#     config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
+#     pdf = pdfkit.from_url(url, 'app\\pdf\\'+pdf_file_name, configuration=config, options=options)
+#     return send_from_directory('pdf', pdf_file_name)
 
 
 

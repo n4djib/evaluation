@@ -1,4 +1,4 @@
-from app import app, db
+from app import app, db, cache
 from flask import render_template, url_for, redirect, request, flash
 from app.models import School, Session, Annual, Semester, Promo, AnnualSession
 from flask_breadcrumbs import register_breadcrumb
@@ -60,7 +60,40 @@ def get_annual_session(session, pId):
             annual = '{id:"annual_'+str(an_s_id)+'", pId:"'+pId+'", url: "'+url+'", name:"'+name+'", target:"_self", iconSkin:"icon17"},'
     return annual
 
-def get_sessions_tree(promo, promo_label=''):
+def get_percentage_progress(percentage):
+    load = "load-green"
+    # load = "load-gold"
+    perc = str(percentage)
+    if percentage < 10:
+        # perc = " "+str(percentage)
+        perc = str(percentage)
+
+    if percentage <= 25:
+        load = "load-red"
+    elif percentage <= 65:
+        load = "load-orange"
+    elif percentage <= 99:
+        load = "load-green-yellow"
+
+    perc_width = 1.5 if percentage <= 2 else percentage
+
+    progress = "  "
+    progress += "<div class='ld noload' style='display: inline-block; height:70%; width:70%;'>"
+    progress += "  <span class='ld loadtext'>"+perc+"%</span>"
+    progress += "  <div class='"+load+"' "
+    progress += "    style='height:100%; width:"+str(perc_width)+"%;' "
+    progress += "    style='width:"+str(percentage)+"%; '></div>"
+    progress += "</div>"
+
+    return progress
+
+
+@app.route('/get_async_sessions_by_promo/<promo_id>/', methods=['GET', 'POST'])
+def get_async_sessions_by_promo(promo_id):
+    promo = Promo.query.get_or_404(promo_id)
+    return '[' + get_sessions_tree(promo) + ']'
+
+def get_sessions_tree(promo):
     sessions = Session.query.filter_by(promo_id=promo.id).join(Semester).join(Annual)\
         .order_by(Annual.annual, Semester.semester).all()
 
@@ -77,23 +110,33 @@ def get_sessions_tree(promo, promo_label=''):
         if session.is_rattrapage == True:
             icon = 'icon22'
 
-        name = 'Semester: '
+        name = "Semester: "+str(semester)+" "
+        if semester < 10:
+            name += "  "
         if session.is_rattrapage:
-            name = 'Rattrapage: '
-        name += str(semester) + " <span style='font-size: 0.1px;'>" + promo_label + "</span>"
+            name = 'Rattrapage: '+str(semester)
 
         if session.is_closed == True:
-            name += "<span class='button icon13_ico_docu'></span>"
+            name += " <span class='button icon13_ico_docu'></span> "
+        else:
+            name += "       "
 
-        # if is_config_changed(session) and session.is_closed==False:
+        # progress
+        if not session.is_closed:
+            name += get_percentage_progress( session.check_progress() )
+        else:
+            name += "                                "
+
+        name += " <span style='font-size: 0.1px;'>" + session.promo.get_label() + "</span>"
+
+        # Configuration change
         if session.is_config_changed() and session.is_closed==False:
             name += "<span style='color: orange;''>        Configuration has changed, you need to Re(initialized)</span>"
 
         p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:true, url: "'+url+'", '
         p += 'target:"_self", iconSkin:"'+icon+'" },'
 
-        sessions_tree += p
-        sessions_tree += get_annual_session(session, pId)
+        sessions_tree += p + get_annual_session(session, pId)
 
     seperate = True
     if sessions_tree == '':
@@ -103,6 +146,7 @@ def get_sessions_tree(promo, promo_label=''):
 def get_promos_tree(branch, open_p_id):
     promos = branch.promos
     promos_tree = ''
+
     for promo in promos:
         id = 'promo_' + str(promo.id)
         pId = 'branch_' + str(branch.id)
@@ -125,10 +169,14 @@ def get_promos_tree(branch, open_p_id):
             if open_p_id == promo.id:
                 open = 'true'
 
-        sessions_tree = get_sessions_tree(promo, promo.name + ' ' + promo_display_name)
-        if sessions_tree == '':
-            icon = 'icon15'
-        p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:'+open+', iconSkin:"'+icon+'", font:'+font+'},'
+        sessions_tree = ''
+        if open == 'true':
+            # promo_name = promo.name + ' ' + promo_display_name
+            # sessions_tree = get_sessions_tree(promo, promo_name)
+            sessions_tree = get_sessions_tree(promo)
+
+
+        p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", times:1, isParent:true, open:'+open+', iconSkin:"'+icon+'", font:'+font+'},'
         promos_tree += p + sessions_tree
 
     return promos_tree
@@ -153,7 +201,14 @@ def get_branches_tree(school, open_b_id, open_p_id):
             b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:'+open+', isParent:true},'
         
         branches_tree += b + p
+
+        ##################
+        # break
+        ##################
+
+
     return branches_tree
+
 
 def get_schools_tree(open_s_id, open_b_id, open_p_id):
     schools = School.query.all()
@@ -171,6 +226,10 @@ def get_schools_tree(open_s_id, open_b_id, open_p_id):
         schools_tree += s + branches_tree
     return schools_tree
 
+# @cache.cached(timeout=500)
+# def get_schools_tree_cached(open_s_id, open_b_id, open_p_id):
+#     return get_schools_tree(open_s_id, open_b_id, open_p_id)
+
 
 def tree_dlc(*args, **kwargs):
     session_id = request.view_args['session_id']
@@ -181,7 +240,7 @@ def tree_dlc(*args, **kwargs):
     promo_id = 0
     if session != None:
         promo_id = session.promo_id
-        # branch_id = session.promo.branch_id
+        branch_id = session.promo.branch_id
         school_id = session.promo.branch.school_id
 
     return [{'text': 'Tree ('+ session.promo.name +')', 
@@ -223,13 +282,18 @@ def annual_tree_(annual_session_id=0):
 def tree(school_id=0, branch_id=0, promo_id=-1):
     options_arr = get_options()
     nbr_reinit_needed = check_reinit_needed()
+    # nbr_reinit_needed = 1
     if nbr_reinit_needed > 0:
         reinit_url = url_for('tree_reinit_all')
         slow_redirect_url = url_for('slow_redirect', url=reinit_url, message='(Re)initializing ' + str(nbr_reinit_needed) + ' sessions')
         btn = '<a id="re-init-all" class="btn btn-warning" href="'+slow_redirect_url+'" >(Re)init all</a>'
         msg = str(nbr_reinit_needed) + ' Sessions needs to be (Re)initialized    ' + btn
         flash(msg, 'alert-warning')
-    zNodes = '[' + get_schools_tree(int(school_id), int(branch_id), int(promo_id)) + ']'
+
+    _tree_ = get_schools_tree(int(school_id), int(branch_id), int(promo_id))
+    # _tree_ = get_schools_tree_cached(int(school_id), int(branch_id), int(promo_id))
+
+    zNodes = '[' + _tree_ + ']'
     return render_template('tree/tree.html', title='Tree', zNodes=zNodes, options_arr=options_arr)
 
 def get_options_by_promo(promo):
@@ -253,6 +317,10 @@ def get_options():
     return array
 
 
+
+# @cache.cached(timeout=300)
+# def check_reinit_cached():
+#     return check_reinit_needed()
 
 def check_reinit_needed():
     sessions = Session.query.filter_by(is_closed=False).all()

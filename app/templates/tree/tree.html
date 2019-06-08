@@ -11,7 +11,49 @@
   <style type="text/css">
 
     {% include "tree/ztree.css" %}
+
+    .ld{
+      -moz-border-radius: 4px;
+      border-radius: 4px;
+    }
   
+    .load-gold{
+      height: 12px;
+      background: url(/static/img/progress-load-gold.png); 
+    }
+    .load-green{
+      height: 12px;
+      background: url(/static/img/progress-load-green.png); 
+    }
+    .load-green-yellow{
+      height: 12px;
+      background: url(/static/img/progress-load-green-yellow.png); 
+    }
+    .load-orange{
+      height: 12px;
+      background: url(/static/img/progress-load-orange.png); 
+    }
+    .load-red{
+      height: 12px;
+      background: url(/static/img/progress-load-red.png); 
+    }
+
+    .noload{
+      width: 100px;
+      background: url(/static/img/progress-noload.png);
+      border: 1px solid #999999;
+      position: relative;
+    }
+
+    .loadtext {
+      font-family: Consolas;
+      font-size: 11px;
+      color: #000000;
+      position: absolute;
+      bottom: -3.5px;
+      left: 38%;       
+    }
+
   </style>
 
 {% endblock %}
@@ -36,6 +78,7 @@
   </br>
   </br>
   - add form to change the icons</br>
+  - NOTE: after using the filter all the tree is expanded</br>
   - </br>
 
   </br>

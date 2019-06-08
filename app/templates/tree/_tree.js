@@ -32,10 +32,101 @@ var setting = {
       enable: true
     }
   },
+
+  async: {
+    enable: true,
+    url: getUrl
+  },
   callback: {
-    onClick: onClick
+    onClick: onClick,
+
+    beforeExpand: beforeExpand,
+    onAsyncSuccess: onAsyncSuccess,
+    onAsyncError: onAsyncError
   }
 }; 
+
+
+//async
+var log, 
+    className = "dark",
+    startTime = 0, 
+    endTime = 0, 
+    perCount = 100, 
+    perTime = 100;
+
+function getUrl(treeId, treeNode) {
+  var promo_id = parseInt( treeNode.id.replace('promo_', '') )
+  // alert(treeId+' - '+id+' - '+promo_id);
+  return '/get_async_sessions_by_promo/'+promo_id+'/'
+}
+
+function beforeExpand(treeId, treeNode) {
+  if (!treeNode.isAjaxing) {
+    startTime = new Date();
+    treeNode.times = 1;
+    ajaxGetNodes(treeNode, "refresh");
+    return true;
+  } else {
+    alert("Downloading data, Please wait to expand node...");
+    return false;
+  }
+}
+
+function onAsyncSuccess(event, treeId, treeNode, msg) {
+  if (!msg || msg.length == 0) {
+    return;
+  }
+  var zTree = $.fn.zTree.getZTreeObj("treeDemo"),
+  totalCount = treeNode.count;
+  if (treeNode.children.length < totalCount) {
+    setTimeout(function() {ajaxGetNodes(treeNode);}, perTime);
+  } else {
+    treeNode.icon = "";
+    zTree.updateNode(treeNode);
+    zTree.selectNode(treeNode.children[0]);
+    endTime = new Date();
+    var usedTime = (endTime.getTime() - startTime.getTime())/1000;
+    className = (className === "dark" ? "":"dark");
+    showLog("[ "+getTime()+" ]&nbsp;&nbsp;treeNode:" + treeNode.name );
+    showLog("Child node has finished loading, a total of "+ (treeNode.times-1) +" times the asynchronous load, elapsed time: "+ usedTime + " seconds ");
+  }
+}
+
+function onAsyncError(event, treeId, treeNode, XMLHttpRequest, textStatus, errorThrown) {
+  var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+  alert("ajax error...");
+  treeNode.icon = "";
+  zTree.updateNode(treeNode);
+}
+
+    function ajaxGetNodes(treeNode, reloadType) {
+      var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+      if (reloadType == "refresh") {
+        treeNode.icon = "/static/ztree/img/loading.gif";
+        zTree.updateNode(treeNode);
+      }
+      zTree.reAsyncChildNodes(treeNode, reloadType, true);
+    }
+   
+    function showLog(str) {
+      if (!log) log = $("#log");
+      log.append("<li class='"+className+"'>"+str+"</li>");
+      if(log.children("li").length > 4) {
+        log.get(0).removeChild(log.children("li")[0]);
+      }
+    }
+    
+    function getTime() {
+      var now= new Date(),
+      h=now.getHours(),
+      m=now.getMinutes(),
+      s=now.getSeconds(),
+      ms=now.getMilliseconds();
+      return (h+":"+m+":"+s+ " " +ms);
+    } 
+
+//
 
 function getFont(treeId, node) {
   return node.font ? node.font : {};
@@ -83,6 +174,7 @@ var zNodes = {{ zNodes | safe }};;
 $(document).ready(function(){
   $.fn.zTree.init($("#treeDemo"), setting, zNodes);
   //initialize fuzzysearch function
+  // fuzzySearch('treeDemo','#key', null, true); 
   fuzzySearch('treeDemo','#key', null, true); 
   // fuzzySearch('treeDemo','#key', isHighLight, true); 
 });

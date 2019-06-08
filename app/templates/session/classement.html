@@ -28,14 +28,12 @@
 
 
 {% block app_content %}
-
-  </br>
-  </br>
+ 
 
   <div class="">
     
-    <a href ="{{ url_for('bultin_semester_print_all', session_id=session_id) }}"
-       class="btn btn-primary" target="_blank" role="button">Print all Bultin</a>
+    <!-- <a href ="{{ url_for('bultin_semester_print_all', session_id=session_id) }}"
+       class="btn btn-primary" target="_blank" role="button">Print all Bultin</a> -->
     </br>
     </br>
 
@@ -46,8 +44,8 @@
           <th scope="col" class="center">Name</th>
           <th scope="col" class="center">Average</th>
           <th scope="col" class="center">Credit</th>
-          <th scope="col" class="center smallCell">Justification</th>
-          <th scope="col" class="center smallCell">Bultin</th>
+          <!-- <th scope="col" class="center smallCell">Justification</th> -->
+          <!-- <th scope="col" class="center smallCell">Bultin</th> -->
         </tr>
       </thead>
       <tbody>
@@ -57,26 +55,14 @@
           <td>{{ student_session.student.username }} - {{ student_session.student.last_name }} {{ student_session.student.first_name }}</td>
           <td align="middle">{{ student_session.average | replace('None', '') }}</td>
           <td align="middle">{{ student_session.credit | replace('None', '') }}</td>
-          <td align="middle">
-            <!-- <table>
-            <tr>
-              <td class="pad">
-                <a href ="{ { url_for('justification', session_id=student_session.session_id, student_id=student_session.student_id) }}"
-                  class="btn btn-primary btn-xs" role="button">Justification</a>
-              </td>
-              <td class="pad">
-                <a href ="{ { url_for('bultin_semester', session_id=student_session.session_id, student_id=student_session.student_id) }}"
-                  class="btn btn-primary btn-xs" role="button">Bultin</a>
-              </td>
-            </tr>
-            </table> -->
+          <!-- <td align="middle">
             <a href ="{{ url_for('justification', session_id=student_session.session_id, student_id=student_session.student_id) }}"
                   class="btn btn-primary btn-xs" role="button">Justification</a>
-          </td>
-          <td align="middle">
+          </td> -->
+          <!-- <td align="middle">
             <a href ="{{ url_for('bultin_semester_print', session_id=student_session.session_id, student_id=student_session.student_id) }}" target="_blank"
                   class="btn btn-primary btn-xs" role="button">Bultin</a>
-          </td>
+          </td> -->
           
         </tr>
       {% endfor %}

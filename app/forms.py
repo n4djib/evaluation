@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, DecimalField, SelectField, SubmitField, PasswordField, BooleanField
+from wtforms import StringField, TextAreaField, IntegerField, DecimalField, SelectField, SubmitField, PasswordField, BooleanField
 from wtforms.validators import DataRequired, Email, ValidationError, Optional, EqualTo
 # from wtforms import DateField
 from wtforms.fields.html5 import DateField
@@ -270,6 +270,22 @@ class TeacherFormUpdate(TeacherFormBase):
     #     teacher = Teacher.query.filter(and_(Teacher.name==name.data, Teacher.id!=self._id)).first()
     #     if teacher is not None:
     #         raise ValidationError('Please use a different name')
+
+################## ModuleSession
+class ModuleSessionForm(FlaskForm):
+    teacher_id = SelectField('Teacher', coerce=int, validators=[Optional()], 
+        choices = [(-1, '')]+[(t.id, t.last_name+' - '+t.first_name) for t in Teacher.query.order_by('last_name', 'last_name')
+    ])
+    start_date = DateField('Start Date', format='%Y-%m-%d', validators=[Optional()])
+    finish_date = DateField('Start Date', validators=[Optional()])
+    exam_date = DateField('Exam Date', validators=[Optional()])
+    results_delivered_date = DateField('Results Delivered Date', validators=[Optional()])
+    exam_surveyors = TextAreaField('Exam Surveyors', validators=[Optional()])
+    submit = SubmitField('Update')
+    def __init__(self, _id=-1, *args, **kwargs):
+        super(ModuleSessionForm, self).__init__(*args, **kwargs)
+        self._id = _id
+        
 
 
 ##################

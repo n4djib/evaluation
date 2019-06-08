@@ -5,6 +5,7 @@
 {% block styles %}
   {{super()}}
   <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/sheetclip.0.3.js') }}"></script>
   <link rel="stylesheet" type="text/css" 
         href="{{ url_for('static', filename='handsontable/handsontable.full.2.0.0.min.css') }}">
   <script src="{{ url_for('static', filename='handsontable/handsontable.full.2.0.0.min.js') }}"></script>
@@ -87,8 +88,15 @@
       {% endif %}
     {% endif %}
 
-    <a id="all" class="btn btn-default" style="float:right"
+    <a id="all" class="btn btn-default" style="float:right;"
       href="{{ href }}" >{{ label }}</a>
+
+    {% if type == 'module' %}
+    <a href="{{ url_for('module_session_update', session_id=session.id, module_id=module.id) }}" 
+      class="btn btn-warning {{'shake-slow shake-constant' if module_session != None and module_session.has_teacher() else ''}}" 
+      role="button" style="margin-bottom:2px; margin-right:4px; float:right;"; 
+      ><img src='/static/img/config-session.png'></a>
+    {% endif %}
 
     
     <div id="hot" class="hot handsontable">
@@ -104,9 +112,9 @@
     </br>
 
     {% if type == 'module' %}
-    <a href ="{{url_for('print_module_students_empty', session_id=session.id, module_id=module.id)}}"
-      target="_blank" class="btn btn-primary" role="button">Print PDF</a>
-    <a href ="{{url_for('print_module_students_empty', session_id=session.id, module_id=module.id, empty='yes')}}" target="_blank" class="btn btn-primary" role="button">Print PDF Empty</a>
+    <!-- <a href="{ {url_for('print_module_students_empty', session_id=session.id, module_id=module.id)}}"
+      target="_blank" class="btn btn-primary" role="button">Print PDF</a> -->
+    <!-- <a href ="{ {url_for('print_module_students_empty', session_id=session.id, module_id=module.id, empty='yes')}}" target="_blank" class="btn btn-primary" role="button">Print PDF Empty</a> -->
 
     <a href ="{{url_for('module_print', session_id=session.id, module_id=module.id) }}"
       target="_blank" class="btn btn-primary" role="button">Print</a>

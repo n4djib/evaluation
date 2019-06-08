@@ -16,16 +16,49 @@
       padding: 5 !important;
       margin: 2 !important;
     }
+
   </style>
 </head>
 
 
-<body onload="window.print();">
-<!-- <body > -->
+<!-- <body onload="PrintWindow();"> -->
+<body >
+  {{ print_header | safe }}
+  
 
   <div class="container" style="border-width:0px; border-style:solid; border-color:black;">
     {{ table | safe | replace('None', '') }}
+    
   </div>
+
+  <div class="container" style="display: flex;">
+      <div style="flex-grow: 1;">
+        Date de Correction : . . . . . . . . . . . . . . . . .
+      </div>
+      <div style="flex-grow: 1;" align="right">
+        Signature : . . . . . . . . . . . . . . . . .        
+      </div>
+  </div>
+
+  </br></br>
+
+
+  <script type="text/javascript">
+    function PrintWindow() {                    
+       window.print();            
+       CheckWindowState();
+    }
+
+    function CheckWindowState()    {           
+        if(document.readyState=="complete") {
+            window.close(); 
+        } else {           
+            setTimeout("CheckWindowState()", 2000)
+        }
+    }
+    // PrintWindow();
+  </script> 
+
 
 </body>
 </html>

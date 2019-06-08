@@ -3,6 +3,8 @@ var type = '{{ type | safe }}';
 
 var session_is_rattrapage = {{ session.is_rattrapage | safe | replace('T', 't') | replace('F', 'f') }};
 var session_is_closed = {{ session.is_closed | safe | replace('T', 't') | replace('F', 'f') }};
+var maxRows = data_arr.length;
+
 
 var hotElement = document.querySelector('#hot');
 
@@ -225,6 +227,9 @@ if('module'=='{{type}}') {
 
 var _first_after_change = 0;
 
+var clipboardCache = '';
+var sheetclip = new SheetClip();
+
 var hot = new Handsontable(hotElement, {
   data: data_arr,
   rowHeaders: true,
@@ -235,15 +240,16 @@ var hot = new Handsontable(hotElement, {
 
   //autoWrapRow: true,
   //minSpareRows: true,
-  //fillHandle: false,
+  // fillHandle: false,
   stretchH: "all",
   // readOnly: true,
 
   fillHandle: {
     autoInsertRow: false,
-    //direction: 'vertical',
-    direction: false,
+    direction: 'vertical',
+    // direction: false,
   },
+  maxRows: maxRows,
 
   colHeaders: colHeaders,
   columns: columns,
@@ -260,6 +266,37 @@ var hot = new Handsontable(hotElement, {
     autoSave(change, source);
     autoCalculate(change, source);
   },
+
+  afterCopy: function(changes) {
+    clipboardCache = sheetclip.stringify(changes);
+  },
+  afterCut: function(changes) {
+    clipboardCache = sheetclip.stringify(changes);
+  },
+  afterPaste: function(changes) {
+    // we want to be sure that our cache is up to date, even if someone pastes data from another source than our tables.
+    clipboardCache = sheetclip.stringify(changes);
+  },
+  contextMenu: [
+    'copy', 
+    'cut', 
+    '---------', 
+    {
+      key: 'paste',
+      name: 'Paste',
+      disabled: function() {
+        return clipboardCache.length === 0;
+      },
+      callback: function() {
+        var plugin = this.getPlugin('copyPaste');
+
+        this.listen();
+        plugin.paste(clipboardCache);
+      }
+    },
+    'if <i>Paste</i> is not working use <b>CRTL+V</b> to <i>Paste</i>',
+    // '<strike> paste </strike> (this is not working)</br>use <b>CRTL+V</b> to <i>paste</i>'
+  ],
 });
 
 hot.validateCells(function() {

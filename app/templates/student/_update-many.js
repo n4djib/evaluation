@@ -6,6 +6,7 @@ var branch_list = {{ branch_list | safe }};
 
 var promo_has_closed = {{ promo_has_closed | safe | replace('T', 't') | replace('F', 'f') }};
 
+var maxRows = data_arr.length;
 
 // var username_readOnly = true;
 
@@ -126,6 +127,7 @@ var hot = new Handsontable(hotElement, {
     //direction: 'vertical',s
     direction: false,
   },
+  maxRows: maxRows,
   autoWrapRow: true,
   manualRowResize: true,
   manualColumnResize: true,
