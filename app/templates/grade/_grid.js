@@ -299,6 +299,13 @@ var hot = new Handsontable(hotElement, {
   ],
 });
 
+
+
+
+
+
+
+
 hot.validateCells(function() {
   hot.render();
 });

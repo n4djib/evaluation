@@ -19,7 +19,7 @@
 
 {% block app_content %}
 
-    <h1>Students List !!!</h1>
+    <h1>Students List !!! ({{ students | length }})</h1>
     <div>
         <a class="btn btn-primary" href="{{ url_for('students_create') }}">Create New</a>
         <a class="btn btn-primary" href="{{ url_for('students_create_many') }}"

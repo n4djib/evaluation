@@ -1,10 +1,10 @@
 from app import app, db
-from flask_admin import Admin, BaseView, expose
+from flask import url_for #, request, current_app
+from flask_admin import Admin
 from flask_admin.form import rules
 from flask_admin.contrib.sqla import ModelView
 from app.models import User, Student, Phone, School, Branch, Promo, \
 	StudentSession, Session, Grade, Semester, Unit, Module, Percentage, Type
-from flask import url_for #, request, current_app
 from datetime import datetime
 
 
@@ -24,16 +24,11 @@ def make_button(model, action, _type, label, btn='btn-success'):
 	"""
 
 	button = F"""
-	<div>
-		<a id="btn-{action}" href="************" class="btn {btn}" >
+		<a id="btn-{action}" href="***" class="btn {btn} btn-xs"  style="float:right; margin:2px;">
 		{label}
 		</a>
-
 		<!-- -->
-
 		{js}
-	</div>
-	</br>
 	"""
 	return button
 
@@ -41,13 +36,9 @@ class S(ModelView):
 	form_excluded_columns = ['next_semester', 'units', 'sessions', 'branch']
 	can_create = False
 	can_delete = False
-	def get_save_return_url(self, model, is_created):
-		semester = model
-		semester.latest_update = datetime.utcnow()
-		db.session.commit()
-		return url_for('conf_semester', semester_id=semester.id)
 	def __init__(self, model, session, **kwargs):
-		new_label = '<img src="/static/img/new_yellow.ico"> Add a New Unit' 
+		# new_label = '<img src="/static/img/new_yellow.ico"> Add a New Unit'
+		new_label = '<img src="/static/img/New-16.png"> Add Unit' 
 		new_button = make_button(model, 'create', 'semester', new_label)
 		self.form_edit_rules = (
 		    "name", 
@@ -55,21 +46,21 @@ class S(ModelView):
 		    rules.HTML( new_button  ),
 		)
 		super(S, self).__init__(model, session, **kwargs)
+	def get_save_return_url(self, model, is_created):
+		semester = model
+		semester.latest_update = datetime.utcnow()
+		db.session.commit()
+		return url_for('conf_semester', semester_id=semester.id)
 
 class U(ModelView):
 	form_excluded_columns = ['modules', 'grade_units', 'semester']
 	can_create = False
 	can_delete = False
-	def get_save_return_url(self, model, is_created):
-		unit = model
-		semester = unit.semester
-		semester.latest_update = datetime.utcnow()
-		db.session.commit()
-		return url_for('conf_semester', semester_id=semester.id)
 	def __init__(self, model, session, **kwargs):
-		new_label = '<img src="/static/img/new_yellow.ico"> Add a New Module' 
+		# new_label = '<img src="/static/img/new_yellow.ico"> Add a New Module' 
+		new_label = '<img src="/static/img/New-16.png"> Add Module' 
 		new_button = make_button(model, 'create', 'unit', new_label)
-		del_button = make_button(model, 'delete', 'unit', 'Delete this Unit', btn='btn-danger')
+		del_button = make_button(model, 'delete', 'unit', 'Delete Unit', btn='btn-danger')
 		self.form_edit_rules = (
 		    "name", 
 		    "display_name", 
@@ -80,21 +71,23 @@ class U(ModelView):
 		    rules.HTML( del_button ),
 		)
 		super(U, self).__init__(model, session, **kwargs)
+	def get_save_return_url(self, model, is_created):
+		unit = model
+		semester = unit.semester
+		semester.latest_update = datetime.utcnow()
+		db.session.commit()
+		# return url_for('conf_semester', semester_id=semester.id)
+		return url_for('conf_semester', semester_id=semester.id, type='unit', id=unit.id)
 
 class M(ModelView):
 	form_excluded_columns = ['percentages', 'grades', 'unit', 'module_sessions']
 	can_create = False
 	can_delete = False
-	def get_save_return_url(self, model, is_created):
-		module = model
-		semester = module.unit.semester
-		semester.latest_update = datetime.utcnow()
-		db.session.commit()
-		return url_for('conf_semester', semester_id=semester.id)
 	def __init__(self, model, session, **kwargs):
-		new_label = '<img src="/static/img/new_yellow.ico"> Add a New Percentage' 
+		# new_label = '<img src="/static/img/new_yellow.ico"> Add a New Percentage' 
+		new_label = '<img src="/static/img/New-16.png"> Add Percentage' 
 		new_button = make_button(model, 'create', 'module', new_label)
-		del_button = make_button(model, 'delete', 'module', 'Delete this Module', btn='btn-danger')
+		del_button = make_button(model, 'delete', 'module', 'Delete Module', btn='btn-danger')
 		self.form_edit_rules = (
 		    "code", 
 		    "name", 
@@ -107,24 +100,22 @@ class M(ModelView):
 		    rules.HTML( del_button ),
 		)
 		super(M, self).__init__(model, session, **kwargs)
+	def get_save_return_url(self, model, is_created):
+		module = model
+		semester = module.unit.semester
+		semester.latest_update = datetime.utcnow()
+		db.session.commit()
+		# return url_for('conf_semester', semester_id=semester.id)
+		return url_for('conf_semester', semester_id=semester.id, type='module', id=module.id)
 
 class P(ModelView):
 	form_excluded_columns = ['module', 'name']
 	# column_editable_list = ['name', 'percentage', 'type']
 	column_filters = ['module', 'name']
-	def get_save_return_url(self, model, is_created):
-		# Parameters
-		#   • model – Saved object
-		#   • is_created – Whether new object was created or existing one was updated
-		precentage = model
-		semester = precentage.module.unit.semester
-		semester.latest_update = datetime.utcnow()
-		db.session.commit()
-		return url_for('conf_semester', semester_id=semester.id)
 	can_create = False
 	can_delete = False
 	def __init__(self, model, session, **kwargs): 
-		del_button = make_button(model, 'delete', 'percentage', 'Delete this Percentage', btn='btn-danger')
+		del_button = make_button(model, 'delete', 'percentage', 'Delete Percentage', btn='btn-danger')
 		self.form_edit_rules = (
 		    # "name", 
 		    "type", 
@@ -135,6 +126,16 @@ class P(ModelView):
 		    rules.HTML( del_button ),
 		)
 		super(P, self).__init__(model, session, **kwargs)
+	def get_save_return_url(self, model, is_created):
+		# Parameters
+		#   • model – Saved object
+		#   • is_created – Whether new object was created or existing one was updated
+		precentage = model
+		semester = precentage.module.unit.semester
+		semester.latest_update = datetime.utcnow()
+		db.session.commit()
+		# return url_for('conf_semester', semester_id=semester.id)
+		return url_for('conf_semester', semester_id=semester.id, type='precentage', id=precentage.id)
 
 class T(ModelView):
 	form_excluded_columns = ['percentages']
@@ -142,7 +143,7 @@ class T(ModelView):
 	can_delete = False
 
 admin.add_view( S(Semester, db.session) )
-admin.add_view( U(Unit, db.session, url='/admin/unit') )
+admin.add_view( U(Unit, db.session) )
 admin.add_view( M(Module, db.session) )
 admin.add_view( P(Percentage, db.session) )
 admin.add_view( T(Type, db.session) )

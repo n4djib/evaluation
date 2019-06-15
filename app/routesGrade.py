@@ -34,45 +34,49 @@ def grade_dlc(*args, **kwargs):
 @app.route('/session/<session_id>/module/<module_id>/', methods=['GET', 'POST'])
 @app.route('/session/<session_id>/student/<student_id>/<_all>/', methods=['GET', 'POST'])
 @app.route('/session/<session_id>/student/<student_id>/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree.session.grade', 'Grades by ***** ', dynamic_list_constructor=grade_dlc)
+@register_breadcrumb(app, '.tree_session.session.grade', 'Grades by ***** ', dynamic_list_constructor=grade_dlc)
 def grade(session_id=0, module_id=0, student_id=0, _all=''):
     grades = None
-    if session_id == 0:
+    # if session_id == 0:
+    #     type = 'module'
+    #     grades = Grade.query.all()
+    # else:
+    if module_id != 0:
         type = 'module'
-        grades = Grade.query.all()
-    else:
-        if module_id != 0:
-            type = 'module'
-            grades = Grade.query.filter_by(module_id=module_id)\
-                .join(StudentSession).filter_by(session_id=session_id)\
-                .all()
-        if student_id != 0:
-            type = 'student'
-            grades = Grade.query\
-                .join(StudentSession).filter_by(session_id=session_id, student_id=student_id)\
-                .all()
+        grades = Grade.query.filter_by(module_id=module_id)\
+            .join(StudentSession).filter_by(session_id=session_id)\
+            .all()
+    if student_id != 0:
+        type = 'student'
+        grades = Grade.query\
+            .join(StudentSession).filter_by(session_id=session_id, student_id=student_id)\
+            .all()
 
     ### Initialize the Columns
     # cols = get_visible_cols(grades, type, _all)
     data = create_data_grid(grades, type)
 
-    module = Module.query.filter_by(id=module_id).first()
-    student = Student.query.filter_by(id=student_id).first()
+
+    module = Module.query.get(module_id)
+    student = Student.query.get(student_id)
     session = Session.query.get_or_404(session_id)
+
+    # return str(module.id) + '-'+ str(student) + '-'+ str(session.id)
+
+
     # 
     # Note: it will return only one Record
     module_session = ModuleSession.query.\
         filter_by(session_id=session_id, module_id=module_id).first()
 
-
     if type == 'module':
-        get_hidden_values_flash(grades, session_id, module.id)
+        get_hidden_values_flash(grades, session, module)
 
     # grid_title = F'Module: {module.display_name}'
     grid_title = F'Module: ***********'
-    if module_id!=0:
+    if module_id != 0:
         grid_title = F'Module: {module.code} - {module.display_name}'
-    if student_id!=0:
+    if student_id != 0:
         student = Student.query.filter_by(id=student_id).first_or_404()
         grid_title = F'Student: {student.username} - {student.last_name} - {student.first_name}'
 
@@ -81,8 +85,8 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
         session=session, module=module, student=student, module_session=module_session)
 
 
-def get_hidden_values_flash(grades, session_id, module_id):
-    cols = get_module_cols(module_id)
+def get_hidden_values_flash(grades, session, module):
+    cols = get_module_cols(module)
     fields = ['cour', 'td', 'tp', 't_pers', 'stage']
     hidden_cols = []
     for field in fields:
@@ -109,7 +113,7 @@ def get_hidden_values_flash(grades, session_id, module_id):
                 hidden_value = True
 
     if hidden_value == True:
-        url = url_for('grade', session_id=session_id, module_id=module_id, _all='all')
+        url = url_for('grade', session_id=session.id, module_id=module.id, _all='all')
         btn = '<a href="'+url+'" class="btn btn-warning" role="button">Show All Fields</a>'
         flash('there is hidden value, because the Configuration changed  '+btn, 'alert-warning')
 
@@ -155,7 +159,6 @@ def create_data_grid(grades, type='module'):
              + average + credit + formula + is_rattrapage + original_grade +'}, '
  
     return '[ ' + data + ' ]'
-
 
 def grade_going_to_change(grade, data):
     if grade.cour != data['cour']:
@@ -208,7 +211,7 @@ def grade_save():
 # it only allow one teacher
 #
 @app.route('/session/<session_id>/module/<module_id>/module-session/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree.session.grade.module_session', 'Module Session')
+@register_breadcrumb(app, '.tree_session.session.grade.module_session', 'Module Session')
 def module_session_update(session_id, module_id):
     module_sessions = ModuleSession.query.\
         filter_by(session_id=session_id, module_id=module_id)\
@@ -251,6 +254,7 @@ def module_session_update(session_id, module_id):
 ##########################
 
 def get_module_cols(module):
+    # raise Exception ('ddddd:'+str(module.id))
     percentages = module.percentages
     cols = []
     for percentage in percentages:
@@ -407,6 +411,8 @@ def get_module_print_header(session, module):
 def module_print(session_id=0, module_id=0, empty='', order='username'):
     session = Session.query.get_or_404(session_id)
     module = Module.query.get_or_404(module_id)
+
+    # return "module_print: " + str(module.name)
 
     print_header = get_module_print_header(session, module)
     table = get_module_print_table(session, module, empty, order)

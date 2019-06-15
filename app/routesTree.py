@@ -8,10 +8,79 @@ from app.routesCalculation import init_all, calculate_all
 
 
 
-def get_creation_links(promo, seperate=True):
-    sessions = promo.sessions
-    semesters = promo.branch.get_semesters_ordered()
-    semesters = semesters[-1].get_latest_of_semesters_list()
+
+def get_classement_link(promo, separate=True):
+    id = 'classement_' + str(promo.id)
+    pId = 'promo_' + str(promo.id)
+    name = 'Classement'
+    icon = 'icon24'
+    url = url_for('classement_laureats', promo_id=promo.id)
+
+    links = ''
+    if separate is True:
+        links += '{id:"separate_'+id+'", pId:"'+pId+'", name:"", iconSkin:"icon0"},'
+    
+    links += '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", target:"_top", url: "'+url+'", iconSkin:"'+icon+'"},'
+    return links
+
+def get_students_list_link(promo, separate=True):
+    id = 'students_list_' + str(promo.id)
+    pId = 'promo_' + str(promo.id)
+    name = 'Students List'
+    icon = 'icon15'
+    url = url_for('student_by_promo', promo_id=promo.id)
+
+    links = ''
+    if separate is True:
+        links += '{id:"separate_'+id+'", pId:"'+pId+'", name:"", iconSkin:"icon0"},'
+    
+    links += '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", target:"_top", url: "'+url+'", iconSkin:"'+icon+'"},'
+    return links
+
+# def get_creation_links(promo, separate=True):
+#     sessions = promo.sessions
+#     semesters = promo.branch.get_semesters_ordered()
+#     semesters = semesters[-1].get_latest_of_semesters_list()
+
+#     links = ''
+#     if len(semesters) > 0:
+#         first_semester_id = semesters[0].id
+
+#         id = 'new_' + str(promo.id)
+#         pId = 'promo_' + str(promo.id)
+#         url = url_for('create_session', promo_id=promo.id, semester_id=first_semester_id)
+
+#         if len(sessions) > 0:
+#             first_session = sessions[0]
+#             sessions_chain = first_session.get_chain()
+#             last_session_id = sessions_chain[-1]
+#             last_session = Session.query.get_or_404(last_session_id)
+
+#             name = ''
+
+#             if last_session is not None:
+#                 next_semester = last_session.semester.get_next()
+#                 if last_session is not None and next_semester is not None:
+#                     # next_semester_id = next_semester.get_nbr()
+#                     next_semester_id = next_semester.id
+#                     name = 'Create Next Semester (' + str(next_semester.get_nbr()) + ')'
+#                     # url = url_for('create_session', promo_id=promo.id, semester_id=next_semester_id)
+#                     url = url_for('create_next_session', promo_id=promo.id)
+#                     if separate is True:
+#                         links += '{id:"separate_'+id+'", pId:"'+pId+'", name:"", iconSkin:"icon0"},'
+#                     links += '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", target:"_top", url: "'+url+'", iconSkin:"icon01"},'
+#         else:
+#             name = 'Create First Semester'
+#             links += '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", target:"_top", url: "'+url+'", iconSkin:"icon01"},'
+#     return links
+
+def get_creation_links(promo, separate=True):
+    # sessions = promo.sessions
+    # semesters = promo.branch.get_semesters_ordered()
+    # semesters = semesters[-1].get_latest_of_semesters_list()
+
+
+    semesters = get_semesters_in_promo(promo)
 
     links = ''
     if len(semesters) > 0:
@@ -20,29 +89,8 @@ def get_creation_links(promo, seperate=True):
         id = 'new_' + str(promo.id)
         pId = 'promo_' + str(promo.id)
         url = url_for('create_session', promo_id=promo.id, semester_id=first_semester_id)
-
-        if len(sessions) > 0:
-            first_session = sessions[0]
-            sessions_chain = first_session.get_chain()
-            last_session_id = sessions_chain[-1]
-            last_session = Session.query.get_or_404(last_session_id)
-
-            name = ''
-
-            if last_session is not None:
-                next_semester = last_session.semester.get_next()
-                if last_session is not None and next_semester is not None:
-                    # next_semester_id = next_semester.get_nbr()
-                    next_semester_id = next_semester.id
-                    name = 'Create Next Semester (' + str(next_semester.get_nbr()) + ')'
-                    # url = url_for('create_session', promo_id=promo.id, semester_id=next_semester_id)
-                    url = url_for('create_next_session', promo_id=promo.id)
-                    if seperate is True:
-                        links += '{id:"seperate_'+id+'", pId:"'+pId+'", name:"", iconSkin:"icon0"},'
-                    links += '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", target:"_top", url: "'+url+'", iconSkin:"icon01"},'
-        else:
-            name = 'Create First Semester'
-            links += '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", target:"_top", url: "'+url+'", iconSkin:"icon01"},'
+        name = 'Create Semester'
+        links += '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", target:"_top", url: "'+url+'", iconSkin:"icon01"},'
     return links
 
 def get_annual_session(session, pId):
@@ -138,10 +186,13 @@ def get_sessions_tree(promo):
 
         sessions_tree += p + get_annual_session(session, pId)
 
-    seperate = True
+    separate = True
     if sessions_tree == '':
-        seperate = False
-    return sessions_tree + get_creation_links(promo, seperate)
+        separate = False
+    return sessions_tree \
+        + get_students_list_link(promo, separate)\
+        + get_classement_link(promo, False)\
+        + get_creation_links(promo, separate)
 
 def get_promos_tree(branch, open_p_id):
     promos = branch.promos
@@ -159,7 +210,7 @@ def get_promos_tree(branch, open_p_id):
         name = name + ' (' + str(  promo.get_latest_annual() ) + ' Year)'
 
         font = '{"font-weight":"bold", "font-style":"italic"}'
-        icon = 'pIcon15'
+        icon = 'pIcon16'
 
         open = 'false'
         if open_p_id == 0:
@@ -195,12 +246,15 @@ def get_branches_tree(school, open_b_id, open_p_id):
             open = 'false'
             if open_b_id == branch.id:
                 open = 'true'
+
+        separation = '{id:"separate_'+id+'", pId:"'+pId+'", name:"", iconSkin:"icon0"},'
+
         if p == '':
             b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:'+open+', iconSkin:"icon11"},'
         else:
             b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+name+'", open:'+open+', isParent:true},'
         
-        branches_tree += b + p
+        branches_tree += b + p + separation
 
         ##################
         # break
@@ -208,7 +262,6 @@ def get_branches_tree(school, open_b_id, open_p_id):
 
 
     return branches_tree
-
 
 def get_schools_tree(open_s_id, open_b_id, open_p_id):
     schools = School.query.all()
@@ -231,28 +284,33 @@ def get_schools_tree(open_s_id, open_b_id, open_p_id):
 #     return get_schools_tree(open_s_id, open_b_id, open_p_id)
 
 
-def tree_dlc(*args, **kwargs):
-    session_id = request.view_args['session_id']
-    session = Session.query.get_or_404(session_id)
-
-    school_id = 0
-    branch_id = 0
-    promo_id = 0
-    if session != None:
-        promo_id = session.promo_id
-        branch_id = session.promo.branch_id
-        school_id = session.promo.branch.school_id
-
+def tree_session_dlc(*args, **kwargs):
+    session = Session.query.get_or_404(request.view_args['session_id'])
     return [{'text': 'Tree ('+ session.promo.name +')', 
-        'url': url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id) }]
+        'url': url_for('tree', school_id=session.promo.branch.school.id, 
+                               branch_id=session.promo.branch.id, 
+                               promo_id=session.promo.id) }]
 
 @app.route('/tree/session/<session_id>/', methods=['GET'])
-@register_breadcrumb(app, '.tree', '', dynamic_list_constructor=tree_dlc)
-def tree_(session_id=0):
+@register_breadcrumb(app, '.tree_session', '', dynamic_list_constructor=tree_session_dlc)
+def tree_session(session_id=0):
     return '*** just used to generate the url ***'
 
 
-def annual_tree_dlc(*args, **kwargs):
+def tree_promo_dlc(*args, **kwargs):
+    promo = Promo.query.get_or_404(request.view_args['promo_id'])
+    return [{'text': 'Tree ('+ promo.name +')', 
+        'url': url_for('tree', school_id=promo.branch.school.id, 
+                               branch_id=promo.branch.id, 
+                               promo_id=promo.id) }]
+
+@app.route('/tree/promo/<promo_id>/', methods=['GET'])
+@register_breadcrumb(app, '.tree_promo', '', dynamic_list_constructor=tree_promo_dlc)
+def tree_promo(promo_id=0):
+    return '*** just used to generate the url ***'
+
+
+def tree_annual_dlc(*args, **kwargs):
     annual_session_id = request.view_args['annual_session_id']
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
     session = annual_session.sessions[0]
@@ -269,16 +327,17 @@ def annual_tree_dlc(*args, **kwargs):
         'url': url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id) }]
 
 @app.route('/annual-tree/annual-session/<annual_session_id>/', methods=['GET'])
-@register_breadcrumb(app, '.annual_tree', '', dynamic_list_constructor=annual_tree_dlc)
-def annual_tree_(annual_session_id=0):
+@register_breadcrumb(app, '.tree_annual', '', dynamic_list_constructor=tree_annual_dlc)
+def tree_annual(annual_session_id=0):
     return '*** just used to generate the url-annual-session ***'
+
 
 
 @app.route('/tree/school/<school_id>/branch/<branch_id>/promo/<promo_id>/', methods=['GET'])
 @app.route('/tree/school/<school_id>/branch/<branch_id>/', methods=['GET'])
 @app.route('/tree/school/<school_id>/', methods=['GET'])
 @app.route('/tree/', methods=['GET'])
-@register_breadcrumb(app, '.tree_', 'Tree')
+@register_breadcrumb(app, '.tree', 'Tree')
 def tree(school_id=0, branch_id=0, promo_id=-1):
     options_arr = get_options()
     nbr_reinit_needed = check_reinit_needed()
@@ -296,24 +355,68 @@ def tree(school_id=0, branch_id=0, promo_id=-1):
     zNodes = '[' + _tree_ + ']'
     return render_template('tree/tree.html', title='Tree', zNodes=zNodes, options_arr=options_arr)
 
-def get_options_by_promo(promo):
-    options = ''
+# def get_options_by_promo(promo):
+#     options = ''
+#     semesters = promo.branch.get_semesters_ordered()
+#     semesters = semesters[-1].get_latest_of_semesters_list()
+#     for semester in semesters:
+#         val = str(semester.id)
+#         # opt = str(semester.get_nbr())
+#         opt = str(semester.get_nbr()) + ' - ' + semester.name
+#         options += '<option value='+val+'>'+opt+'</option>'
+#     return options
+
+
+def get_semesters_id_in_promo(promo):
+    semesters_id_list = []
+    sessions = promo.sessions
+    for session in sessions:
+        semester_id = session.semester.id
+        if semester_id not in semesters_id_list:
+            semesters_id_list.append(semester_id)
+    return semesters_id_list
+
+def get_semesters_in_promo(promo):
     semesters = promo.branch.get_semesters_ordered()
     semesters = semesters[-1].get_latest_of_semesters_list()
+    semesters_id_in_promo = get_semesters_id_in_promo(promo)
+
+    semesters_in_promo = []
+    for semester in semesters:
+        if semester.id not in semesters_id_in_promo:
+            semesters_in_promo.append(semester)
+    return semesters_in_promo
+
+def get_options_by_promo(promo):
+    options = ''
+    semesters = get_semesters_in_promo(promo)
     for semester in semesters:
         val = str(semester.id)
-        # opt = str(semester.get_nbr())
         opt = str(semester.get_nbr()) + ' - ' + semester.name
         options += '<option value='+val+'>'+opt+'</option>'
     return options
+
+# def get_options_by_promo(promo):
+#     options = ''
+#     semesters = promo.branch.get_semesters_ordered()
+#     semesters = semesters[-1].get_latest_of_semesters_list()
+#     semesters_id_in_promo = get_semesters_id_in_promo(promo)
+#     for semester in semesters:
+#         if semester.id not in semesters_id_in_promo:
+#             val = str(semester.id)
+#             opt = str(semester.get_nbr()) + ' - ' + semester.name
+#             options += '<option value='+val+'>'+opt+'</option>'
+#     return options
 
 def get_options():
     array = []
     promos = Promo.query.all()
     for promo in promos:
         # only "promos" that does not have "sessions"
-        if len(promo.sessions) == 0:
-            array.append( [ promo.id, get_options_by_promo(promo) ] )
+        
+        # if len(promo.sessions) == 0:
+        # array.append( [promo.id, get_options_by_promo(promo), focus] )
+        array.append( [promo.id, get_options_by_promo(promo)] )
     return array
 
 

@@ -100,33 +100,37 @@ function onAsyncError(event, treeId, treeNode, XMLHttpRequest, textStatus, error
   zTree.updateNode(treeNode);
 }
 
-    function ajaxGetNodes(treeNode, reloadType) {
-      var zTree = $.fn.zTree.getZTreeObj("treeDemo");
-      if (reloadType == "refresh") {
-        treeNode.icon = "/static/ztree/img/loading.gif";
-        zTree.updateNode(treeNode);
-      }
-      zTree.reAsyncChildNodes(treeNode, reloadType, true);
+function ajaxGetNodes(treeNode, reloadType) {
+  var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+  // var treeNode_id_str = treeNode.id+'';
+  // alert(treeNode.id.includes("promo"));
+  if ( treeNode.id.includes("promo") ) {
+    if (reloadType == "refresh") {
+      treeNode.icon = "/static/ztree/img/loading.gif";
+      zTree.updateNode(treeNode);
     }
-   
-    function showLog(str) {
-      if (!log) log = $("#log");
-      log.append("<li class='"+className+"'>"+str+"</li>");
-      if(log.children("li").length > 4) {
-        log.get(0).removeChild(log.children("li")[0]);
-      }
-    }
-    
-    function getTime() {
-      var now= new Date(),
-      h=now.getHours(),
-      m=now.getMinutes(),
-      s=now.getSeconds(),
-      ms=now.getMilliseconds();
-      return (h+":"+m+":"+s+ " " +ms);
-    } 
+    zTree.reAsyncChildNodes(treeNode, reloadType, true);
+  }
+}
 
-//
+function showLog(str) {
+  if (!log) log = $("#log");
+  log.append("<li class='"+className+"'>"+str+"</li>");
+  if(log.children("li").length > 4) {
+    log.get(0).removeChild(log.children("li")[0]);
+  }
+}
+
+function getTime() {
+  var now= new Date(),
+  h=now.getHours(),
+  m=now.getMinutes(),
+  s=now.getSeconds(),
+  ms=now.getMilliseconds();
+  return (h+":"+m+":"+s+ " " +ms);
+} 
+
+////////////////////////////
 
 function getFont(treeId, node) {
   return node.font ? node.font : {};

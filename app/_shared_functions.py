@@ -53,4 +53,9 @@ def check_session_is_complite(grades, session):
     CONF = session.is_config_changed()
     status = check_grades_status(grades)
     status['CONF'] = CONF
+    if (status['nbr_cells'] == 0 
+        and session.type != 'historic' 
+        and session.type != 'historique' 
+        and len(session.student_sessions) > 0):
+        status['need_init'] = True
     return status

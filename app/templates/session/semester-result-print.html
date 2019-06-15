@@ -31,6 +31,7 @@
     .right { text-align: right; }
     .left { text-align: left; }
     .center { text-align: center; }
+    .yellow { background-color: #ffff7a; }
 
     tbody > tr:nth-child(even) { background-color: #f7f7ff; }
     tbody > tr:hover { background-color: #f5f5f5; }
@@ -40,8 +41,7 @@
 </head>
 
 
-<!-- <body onload="PrintWindow();"> -->
-<body onload="">
+<body>
   {{ header | safe }}
   </br>
 
@@ -63,19 +63,7 @@
 
 
   <script type="text/javascript">
-    function PrintWindow() {                    
-       window.print();            
-       CheckWindowState();
-    }
-
-    function CheckWindowState()    {           
-        if(document.readyState=="complete") {
-            window.close(); 
-        } else {           
-            setTimeout("CheckWindowState()", 2000)
-        }
-    }
-    // PrintWindow();
+    {% include "_print.js" %}
   </script> 
 
 

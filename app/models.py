@@ -26,6 +26,7 @@ class Promo(db.Model):
     branch_id = db.Column(db.Integer, db.ForeignKey('branch.id'))
     sessions = db.relationship('Session', backref='promo')
     annual_session = db.relationship('AnnualSession', back_populates='promo')
+    classement = db.relationship("Classement", uselist=False, back_populates="promo")
     def __repr__(self):
         return '<{} - {}>'.format(self.id, self.name)
     def get_next_semester(self):
@@ -53,15 +54,11 @@ class Promo(db.Model):
         if latest_annual is None:
             return '***'
         return latest_annual.annual
-    # @hybrid_property
-    # def color(self):
-    #     return self.color
-    #     # if self.color == None:
-    #     #     return '#555599'
-    #     # if self.color == '':
-    #     #     return '#555599'
-    #     # return self.color
-
+    # def get_semesters_in_promo(self):
+    #     semesters = self.branch.get_semesters_ordered()
+    #     semesters = semesters[-1].get_latest_of_semesters_list()
+    #     sessions = self.sessions
+    
 class AnnualSession(db.Model):
     __tablename__ = 'annual_session'
     id = db.Column(db.Integer, primary_key=True)
@@ -141,6 +138,9 @@ class Session(db.Model):
     finish_date = db.Column(db.Date)
     is_rattrapage = db.Column(db.Boolean, default=False)
     is_closed = db.Column(db.Boolean, default=False)
+    type = db.Column(db.String(20))
+    #   historic  or  historique
+    #   None  or  ''  or  Standard
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     configuration = db.Column(db.Text)
     semester_id = db.Column(db.Integer, db.ForeignKey('semester.id'))
@@ -181,8 +181,8 @@ class Session(db.Model):
             return None
         return Session.query.get_or_404(sessions[index+1])
     def get_chain(self):
-        sessions = Session.query.filter_by(promo_id=self.promo.id).join(Semester).join(Annual)\
-            .order_by(Annual.annual, Semester.semester).all()
+        sessions = Session.query.filter_by(promo_id=self.promo.id).join(Semester)\
+            .join(Annual).order_by(Annual.annual, Semester.semester).all()
         sessions_id = []
         for session in sessions:
             sessions_id.append(session.id)
@@ -295,6 +295,11 @@ class Session(db.Model):
             return int(0)
 
         progress = int(percentages / nbr_students)
+
+        # type = historic
+        if self.type == 'historic' or self.type == 'historique':
+            return progress
+
         if progress == 100:
             grades = Grade.query.join(StudentSession).filter_by(session_id=self.id).all()
             check = check_grades_status(grades)
@@ -411,6 +416,14 @@ class StudentSession(db.Model):
         nbr_filled = 0
         nbr_errs = 0
 
+        # type = historic
+        if self.session.type == 'historic' or self.session.type == 'historique':
+            average = 50 if self.average else 0
+            credit = 50 if self.credit else 0
+            return average + credit
+
+
+        # type != historic
         grades = Grade.query.filter_by(student_session_id=self.id).all()
         
         for grade in grades:
@@ -473,7 +486,11 @@ class GradeUnit(db.Model):
             # grades = self.student_session.grades
 
         cumul_unit_coeff = self.unit.get_unit_cumul_coeff()
+        cumul_unit_coeff = cumul_unit_coeff if cumul_unit_coeff != None else 0 
+
         cumul_unit_credit = self.unit.get_unit_cumul_credit()
+        cumul_unit_credit = cumul_unit_credit if cumul_unit_credit != None else 0 
+
         average = 0
         credit = 0
         calculation = ''
@@ -486,6 +503,8 @@ class GradeUnit(db.Model):
                 g_avr = 0
 
             coefficient = grade.module.coefficient
+            coefficient = coefficient if coefficient != None else 0 
+            
             average += round(g_avr * coefficient / cumul_unit_coeff, 2)
             credit += grade.credit
             calculation += str(g_avr) + ' * ' + str(coefficient) + ' + '
@@ -603,6 +622,8 @@ class Branch(db.Model):
         semesters = Semester.query.join(Annual).filter_by(branch_id=self.id)\
             .order_by(Annual.annual, Semester.semester, Semester.latest_update).all()
         return semesters
+    def years_from_config(self):
+        return len(self.annuals)
 
 class Annual(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -913,6 +934,7 @@ class Student(db.Model):
     wilaya_id = db.Column(db.Integer, db.ForeignKey('wilaya.id'))
     student_sessions = db.relationship('StudentSession', back_populates='student')
     annual_grades = db.relationship('AnnualGrade', backref='student')
+    classement = db.relationship("Classement", uselist=False, back_populates="student")
     def __repr__(self):
         return '<{} - {} - {}>'.format(self.id, self.username, self.last_name)
     # @staticmethod
@@ -1029,6 +1051,32 @@ class TeacherAttendance(db.Model):
     attended = db.Column(db.Boolean, default=False)
     create_time = db.Column(db.DateTime, default=datetime.utcnow)
     update_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+############################## 
+
+class Classement(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    # connect to promo & student
+    promo_id = db.Column(db.Integer, db.ForeignKey('promo.id'))
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+    avr_licence = db.Column(db.Numeric(10,2))
+    avr_master = db.Column(db.Numeric(10,2))
+    classement_years = db.relationship('ClassementYear', backref='classement')
+    student = db.relationship("Student", back_populates="classement")
+    promo = db.relationship("Promo", back_populates="classement")
+
+class ClassementYear(db.Model):
+    __tablename__ = 'classement_year'
+    id = db.Column(db.Integer, primary_key=True)
+    classement_id = db.Column(db.Integer, db.ForeignKey('classement.id'))
+    year = db.Column(db.Integer)
+    average = db.Column(db.Numeric(10,2))
+    average_app = db.Column(db.Numeric(10,2))
+    R = db.Column(db.Numeric(10,2))
+    R_app = db.Column(db.Numeric(10,2))
+    S = db.Column(db.Numeric(10,2))
+    S_app = db.Column(db.Numeric(10,2))
+    avr_classement = db.Column(db.Numeric(10,2))
 
 ############################## 
 

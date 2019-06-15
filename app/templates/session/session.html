@@ -53,7 +53,8 @@
 
       <div style="margin-right:4px; float:left"; >
 
-        <a href="" class="btn btn-default" role="button"
+        <a href="{{url_for('session_config', session_id=session.id)}}" 
+          class="btn btn-default" role="button"
           ><img src='/static/img/config-session.png'> Session</a>
 
         <a href="{{url_for('conf_session', session_id=session.id, semester_id=session.semester_id)}}" class="btn btn-default" role="button"
@@ -63,7 +64,7 @@
         {% set init_url = url_for('reinitialize_session', session_id=session.id) %}
         {% set calc_url = url_for('calculate_session', session_id=session.id) %}
         <a href="{{ url_for('slow_redirect', url=init_url, message='Initializing') }}"
-           class="btn btn-{{'warning shake-slow shake-constant' if check['CONF'] and session.is_closed==False else 'primary'}} {{'disabled' if session.is_closed else ''}}" 
+           class="btn btn-{{'warning shake-slow shake-constant' if (check['CONF'] or check['need_init']) and session.is_closed==False else 'primary'}} {{'disabled' if session.is_closed else ''}}" 
            role="button" style="z-index:9999;">(Re)Initialize</a>
         <a href="{{url_for('slow_redirect', url=calc_url, message='Calculating', gif='Preloader_3')}}"
            class="btn btn-{{'warning shake-slow shake-constant' if check['CALC'] else 'primary'}} {{'disabled' if session.is_closed else ''}}" 

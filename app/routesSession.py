@@ -1,7 +1,9 @@
 from app import app, db
 from flask import render_template, request, redirect, url_for, flash
 from app.models import Promo, Session, StudentSession, Grade, GradeUnit, Unit, Semester,\
-     School, Module, Student, Type, AnnualSession, AnnualGrade, Grade, Annual
+     School, Module, Student, Type, AnnualSession, AnnualGrade, Grade, Annual,\
+     Classement, ClassementYear
+from app.forms import SessionConfigForm
 from flask_breadcrumbs import register_breadcrumb
 from decimal import *
 from ast import literal_eval
@@ -40,7 +42,6 @@ def show_relation(session_id=0):
         '<br><br>Previous of ('+str(session_id)+'): ' + previous_id
 
 # ----------------------
-
 
 def get_icon_progress(grades):
     cells_nbr = 0
@@ -105,173 +106,40 @@ def session_dlc(*args, **kwargs):
         'url': url_for('session', session_id=session_id)}]
 
 @app.route('/session/<session_id>/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree.session', '***', dynamic_list_constructor=session_dlc)
+@register_breadcrumb(app, '.tree_session.session', '***', dynamic_list_constructor=session_dlc)
 def session(session_id=0):
-    session = Session.query.filter_by(id=session_id).first_or_404()
+    session = Session.query.get_or_404(session_id)
     # if session.is_closed==False:
     #     get_config_changed_flash(session)
-    
-    units = session.semester.units
-    modules_list = []
-    icons_module = []
-    for unit in units:
-        modules = unit.modules
-        for module in modules:
-            modules_list.append(module)
-            icon = get_icon_progress_module(session_id, module.id)
-            icons_module.append(icon)
 
-    students_list = Student.query.join(StudentSession)\
-        .filter_by(session_id=session_id).order_by(Student.username).all()
-    icons_student = []
-    for student in students_list:
-        icon = get_icon_progress_student(session_id, student.id)
-        icons_student.append(icon)
-
-    # session.name = make_session_name(session)
-
-    # 
-    grades = Grade.query.join(StudentSession).filter_by(session_id=session_id).all()
-    check = check_session_is_complite(grades, session)
-    # flash( 'EMPTY: '+str(C['EMPTY'])+' '+str(C['nbr_empty'])+'    +++    ERRS: '+str(C['ERRS'])+' '+str(C['nbr_errs']) + '    +++    CALC: '+str(C['CALC'])+'    +++    CONF: '+str(C['CONF']) )
-
-    return render_template('session/session.html', 
-        title='Session', session=session,
-        students=students_list, modules=modules_list,
-        icons_module=icons_module, icons_student=icons_student, check=check)
-
-def update_student_session(students_from, students_to, session_id):
-    session = Session.query.filter_by(id=session_id).first()
-
-    dirty_add = False
-    # all the students in this current Session
-    students = Student.query.join(StudentSession).filter_by(session_id=session_id).all()
-    for select in students_to:
-        # check if  s  exists in  students
-        s = Student.query.join(StudentSession).filter_by(student_id=select, session_id=session_id).first()
-        if s not in students:
-            student_session = StudentSession(student_id=select, session_id=session_id)
-            db.session.add( student_session )
-            dirty_add = True
-    db.session.commit()
-
-    message_add = 'No One added to Session: ' + str(session_id)
-    if dirty_add == True:
-        message_add = 'added Student(s) to Session: ' + str(session_id)
-
-
-    dirty_remove = False
-    # get new list of Student after adding
-    students_session = StudentSession.query.filter_by(session_id=session_id)\
-        .join(Student).order_by(Student.username).all()
-    for student_session in students_session:
-        if str(student_session.student_id) in students_from:
-            grades = student_session.grades
-            for grade in grades:
-                db.session.delete(grade)
-            grade_units = student_session.grade_units
-            for grade_unit in grade_units:
-                db.session.delete(grade_unit)
-            db.session.delete(student_session)
-            dirty_remove = True
-    db.session.commit()
-
-    message_remove = 'No One Removed from Session: ' + str(session_id)
-    if dirty_remove == True:
-        dirty_remove = 'Removed Student(s) from Session: ' + str(session_id)
-
-    return message_add + '   -   ' + message_remove
-
-def get_students_previous(session):
-    students_previous = Student.query.order_by(Student.username).join(StudentSession)\
-        .join(Session).filter_by(promo_id=session.promo_id).all()
-    return students_previous
-
-def get_students_candidates(session, _all):
-    # I HAVE TO FIND ONLY THE ONES WITHOUT A SESSION
-    # or just take ones from the Promo
-
-    students_previous = get_students_previous(session)
-    students_in_other_promos = Student.query.order_by(Student.username)\
-        .join(StudentSession)\
-        .join(Session).filter(Session.promo_id != session.promo_id).all()
-
-    candidates_list = []
-    for student in students_previous:
-        candidates_list.append(student.id)
-    for student in students_in_other_promos:
-        candidates_list.append(student.id)
-
-    if _all == '':
-        return Student.query.filter_by(branch_id=session.semester.annual.branch_id)\
-            .filter(Student.id.notin_(candidates_list)).all()
+    if session.type == 'historique' or session.type == 'historic':
+        # test session-historic progress
+        data_arr = create_data_session_historic(session)
+        return render_template('session/session-historic.html', title='Session Historique', 
+            session=session, data_arr=data_arr)
     else:
-        # return Student.query.filter(Student.id.notin_(candidates_list)).all()
-        return Student.query.filter_by(branch_id=session.semester.annual.branch_id).all()
+        modules_list = []
+        icons_module = []
+        for unit in session.semester.units:
+            for module in unit.modules:
+                modules_list.append(module)
+                icon = get_icon_progress_module(session_id, module.id)
+                icons_module.append(icon)
 
-# Note (security): can you change the id (post) and send it to another session ?????
-@app.route('/session/<session_id>/add-student/', methods=['GET', 'POST'])
-@app.route('/session/<session_id>/add-student/<_all>/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree.session.student', 'Add Students')
-def student_session(session_id=0, _all=''):
-    students_from = request.form.getlist('from[]')
-    students_to = request.form.getlist('to[]')
+        students_list = Student.query.join(StudentSession)\
+            .filter_by(session_id=session_id).order_by(Student.username).all()
+        icons_student = []
+        for student in students_list:
+            icon = get_icon_progress_student(session_id, student.id)
+            icons_student.append(icon)
 
-    if students_from != [] or students_to != []:
-        msg = update_student_session(students_from, students_to, session_id)
-        # re-initialize
-        session = Session.query.get_or_404(session_id)
-        msg2 = init_all(session)
-        flash(msg)
-        return redirect(url_for('session', session_id=session_id))
+        grades = Grade.query.join(StudentSession).filter_by(session_id=session_id).all()
+        check = check_session_is_complite(grades, session)
 
-    session = Session.query.get_or_404(session_id)
-
-    students_previous = get_students_previous(session)
-    students_candidates = get_students_candidates(session, _all)
-    students_session = Student.query.order_by(Student.username)\
-        .join(StudentSession).filter_by(session_id=session_id).all()
-
-    return render_template('session/multiselect-add-students.html', 
-        title='Session',
-        students_previous=students_previous,
-        students_candidates=students_candidates,
-        students_session=students_session,
-        session=session,
-        _all=_all)
-
-@app.route('/session/<session_id>/averages/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree.session.average', 'Averages')
-def semester_averages(session_id=0):
-    # get modules list
-    modules = []
-    grades = Grade.query.join(StudentSession).filter_by(session_id=session_id).all()
-    for grade in grades:
-        _modules = (m[0] for m in modules)
-        if grade.module_id not in _modules:
-            module = []
-            module.append(grade.module_id)
-            module.append(grade.module.display_name)
-            modules.append(module)
-
-    data = []
-    students_session = StudentSession.query.filter_by(session_id=session_id).all()
-    for student_session in students_session:
-        averages = []
-        averages.append(student_session.student.username)
-        averages.append(student_session.student.first_name.replace(' ', ' '))
-        averages.append(student_session.student.last_name.replace(' ', ' '))
-        for module in modules:
-            grade = Grade.query.filter_by(student_session_id=student_session.id, module_id=module[0]).first()
-            averages.append(grade.average)
-        data.append(averages)
-
-    return render_template('session/averages.html', title='Averages', 
-        data=data, modules=modules, session_id=session_id)
-
-
-#################
-
+        return render_template('session/session.html', 
+            title='Session', session=session,
+            students=students_list, modules=modules_list,
+            icons_module=icons_module, icons_student=icons_student, check=check)
 
 @app.route('/session/<session_id>/unlock-session/', methods=['GET', 'POST'])
 def unlock_session(session_id):
@@ -292,7 +160,7 @@ def unlock_session(session_id):
 
 @app.route('/session/<session_id>/lock-session/', methods=['GET', 'POST'])
 def lock_session(session_id):
-    session = Session.query.filter_by(id=session_id).first_or_404()
+    session = Session.query.get_or_404(session_id)
 
     # check that we calculated 
     student_sessions = session.student_sessions
@@ -362,19 +230,219 @@ def delete_session(session_id):
         
     return redirect(url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id))
 
+#######################################
+
+@app.route('/session/<session_id>/config/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.tree_session.session.config', 'Session Config' )
+def session_config(session_id=0):
+    session = Session.query.get_or_404(session_id)
+    form = SessionConfigForm(session.id)
+
+    # be carefull of existing Semesters
+
+    if form.validate_on_submit():
+        session.name = form.name.data
+        session.start_date = form.start_date.data
+        session.finish_date = form.finish_date.data
+        session.semester_id = form.semester_id.data
+        session.type = form.type.data
+        db.session.commit()
+        if session.type == 'historic' or session.type == 'historique':
+            init_all(session)
+        flash('Your changes have been saved.', 'alert-success')
+        return redirect(url_for('session', session_id=session_id))
+    elif request.method == 'GET':
+        form.name.data = session.name
+        form.start_date.data = session.start_date
+        form.finish_date.data = session.finish_date
+        form.semester_id.data = session.semester_id
+        form.type.data = session.type
+    return render_template('session/session-config.html', 
+        title='Session Config', form=form)
+
+def create_data_session_historic(session):
+    data_arr = ''
+    student_sessions = session.student_sessions
+    # return "dddddddd-"+str(session.id)+"-gggggggggg"
+    # return "dddddddd-"+str(session.student_sessions)
+    # for index, student_session in enumerate(student_sessions):
+    for student_session in student_sessions:
+        student = student_session.student
+
+        id = 'id: ' + str(student_session.id) + ', '
+        name = 'name: "' + student.username+' - '+ student.last_name+' '+student.first_name + '", '
+        average = 'average: ' + str(student_session.average) + ', '
+        credit = 'credit: ' + str(student_session.credit) + ', '
+        
+        data_arr += '{'+ id + name + average + credit +'}, '
+
+    # if data_arr == '':
+    #     return '[ { id: 0, index: "", name: "", average: '+str(None)+', credit: '+str(None)+' }, ]'
+
+    return '[ ' + data_arr + ' ]'
+
+@app.route('/session-historic/save/', methods = ['GET', 'POST'])
+def session_historic_save():
+    data_arr = request.json
+
+    # return 'session_historic_save'
+    
+
+    for data in data_arr:
+        student_session = StudentSession.query.filter_by(id = int(data['id'])).first()
+
+        # check if the student_sessino_id is a Historic
+        type = student_session.session.type
+        if type != 'historic' and type != 'historique':
+            return "returned before finoshing because it's Not Historic"
+
+        # saved fields must be according to the Permission
+        #
+        student_session.average = data['average']
+        student_session.credit = data['credit']
+
+
+        # commected this to not save Null Averages
+
+    db.session.commit()
+
+    return 'data saved'
 
 
 #######################################
 #####                             #####
-#####          Progrission        #####
+#####     classement-laureats     #####
 #####                             #####
 #######################################
 
+def init_classement_laureats(promo_id):
+    students = Student.query.join(StudentSession).join(Session).filter_by(promo_id=promo_id).all()
+    student_in_classements = Student.query.join(Classement).filter_by(promo_id=promo_id).all()
 
-# @app.route('/progrission-status/', methods=['GET', 'POST'])
-# def progrission_status():
-#     sessions = Session.query.
+    # insert missing students in classement
+    for student in students:
+        if student not in student_in_classements:
+            classement = Classement(promo_id=promo_id, student_id=student.id)
+            db.session.add(classement)
+            student_in_classements.append(student)
+    db.session.commit()
 
+
+    promo = Promo.query.get_or_404(promo_id)
+    annuals = promo.branch.annuals
+
+    classements = Classement.query.filter_by(promo_id=promo_id).all()
+    # classement_years = ClassementYear.query.join(Classement).filter_by(promo_id=promo_id).all()
+
+    # insert missing students in classement_years
+    for classement in classements:
+        for annual in annuals:
+            classement_year = ClassementYear.query\
+                .filter_by(classement_id=classement.id, year=annual.annual).first()
+            if classement_year == None:
+                classement_year = ClassementYear(classement_id=classement.id, year=annual.annual)
+                db.session.add(classement_year)
+    db.session.commit()
+
+    #
+    #
+    # remove excess from Classement and ClassementYear
+    #
+    #
+    return 'init_classement_laureats'
+
+def fill_classement_laureats_data(promo_id):
+    promo = Promo.query.get_or_404(promo_id)
+    classement_years = ClassementYear.query.join(Classement).filter_by(promo_id=promo_id).all()
+    for classement_year in classement_years:
+        student_id = classement_year.classement.student_id
+        year = classement_year.year
+        annual_grade = AnnualGrade.query.filter_by(student_id=student_id)\
+            .join(AnnualSession).filter_by(promo_id=promo_id)\
+            .join(Annual).filter_by(annual=year).first()
+        if annual_grade != None:
+            classement_year.average_app = annual_grade.average
+            # classement_year.average = AnnualGrade.average_r
+
+    db.session.commit()
+
+    return 'fill_classement_laureats_data'
+
+def calulate_avr_classement(promo_id):
+    promo = Promo.query.get_or_404(promo_id)
+    classement_years = ClassementYear.query.join(Classement).filter_by(promo_id=promo_id)\
+        .join(Student).order_by(Student.username, ClassementYear.year).all()
+
+    getcontext().prec = 4
+    for cy in classement_years:
+        average_app = cy.average_app if cy.average_app != None else 0
+        average =   cy.average if cy.average != None else average_app
+        R_app = cy.R_app if cy.R_app != None else 0
+        R =   cy.R if cy.R != None else R_app
+        S_app = cy.S_app if cy.S_app != None else 0
+        S =   cy.S if cy.S != None else S_app
+        
+        cy.avr_classement = average * (1 - Decimal((R+S)/20) )
+
+    db.session.commit()
+
+    return 'calulate_avr_classement'
+
+@app.route('/classement-laureats/promo/<promo_id>/', methods=['GET'])
+@register_breadcrumb(app, '.tree_promo.classement_laureats', 'Classement Laureats')
+def classement_laureats(promo_id=0, type_id=0):
+    msg = init_classement_laureats(promo_id)
+    msg1 = fill_classement_laureats_data(promo_id)
+
+    calulate_avr_classement(promo_id)
+
+    # flash(msg)
+    promo = Promo.query.get_or_404(promo_id)
+    years = promo.branch.years_from_config()
+
+    classement_years = ClassementYear.query.join(Classement).filter_by(promo_id=promo_id)\
+        .join(Student).order_by(Student.username, ClassementYear.year).all()
+
+    data_arr = create_classement_data_grid(classement_years, years)
+    mergeCells = create_classement_merge_arr(classement_years, years)
+
+    return render_template( 'classement-laureats/classement-laureats.html', 
+        data_arr=data_arr, mergeCells=mergeCells, years=years)
+
+def create_classement_merge_arr(classement_years, years):
+    mergeCells = ''
+    last_i = None
+    for index, cy in enumerate(classement_years):
+        i =  str( int( (index-(index%years))/years ) )  
+        
+        if i != last_i:
+            col1 = ' {row:'+str(index)+', col:1, rowspan:'+str(years)+', colspan:1}, '
+            col2 = ' {row:'+str(index)+', col:2, rowspan:'+str(years)+', colspan:1}, '
+            mergeCells += col1 + col2
+            last_i = i
+
+    return '[ ' + mergeCells + ' ]'
+
+def create_classement_data_grid(classement_years, years):
+    data_arr = ''
+    for index, cy in enumerate(classement_years):
+        s = cy.classement.student
+
+        id = 'id: ' + str(cy.id) + ', '
+        index = 'index: "' + str( int( (index-(index%years))/years ) + 1 ) + '", '
+        name = 'name: "' + s.username+' - '+ s.last_name+' '+s.first_name + '", '
+        year = 'year: ' + str(cy.year) + ', '
+        average = 'average: ' + str(cy.average) + ', '
+        average_app = 'average_app: ' + str(cy.average_app) + ', '
+        R = 'R: ' + str(cy.R) + ', '
+        R_app = 'R_app: ' + str(cy.R_app) + ', '
+        S = 'S: ' + str(cy.S) + ', '
+        S_app = 'S_app: ' + str(cy.S_app) + ', '
+        avr_classement = 'avr_classement: ' + str(cy.avr_classement) + ', '
+
+        data_arr += '{'+ id + index + name + year + average + average_app + R + R_app + S + S_app + avr_classement +'}, '
+
+    return '[ ' + data_arr + ' ]'
 
 
 #######################################
@@ -393,9 +461,12 @@ def create_rattrapage(session_id):
     create_R2 = annual_dict['S2']==int(session_id) and annual_dict['R2']==-1
     
     if create_R1 == True or create_R2 == True:
-        new_session = Session(semester_id=session.semester_id, 
-            promo_id=session.promo_id, is_rattrapage=True, 
-            annual_session_id=session.annual_session_id)
+        new_session = Session(
+            semester_id=session.semester_id, 
+            promo_id=session.promo_id, 
+            is_rattrapage=True, 
+            annual_session_id=session.annual_session_id,
+            type=session.type)
         # set start_date and finish_date    
         # would it reference Semester before it is saved ???
         new_session.configuration = session.configuration
@@ -525,6 +596,7 @@ def get_student_id_todo_rattrapage_semester(session_id):
     return student_ids
 
 def create_rattrapage_sem(session_id, students):
+    session = Session.query.get_or_404(session_id)
     session_rattrapage = create_rattrapage(session_id)
     ratt_id = session_rattrapage.id
 
@@ -534,10 +606,12 @@ def create_rattrapage_sem(session_id, students):
         # check the student need to enter RATT in this session
         if int(student_id) in students_todo_ratt:
             student_session_ratt = transfer_student_session(session_id, ratt_id, student_id)
-            transfer_grades(session_id, ratt_id, student_session_ratt.id, student_id)
+            # if not historic
+            if session.type != 'historic' and session.type != 'historique':  
+                transfer_grades(session_id, ratt_id, student_session_ratt.id, student_id)
     db.session.commit()
 
-    # initialize
+    # initialize 
     init_all(session_rattrapage)
     
     return session_rattrapage
@@ -582,24 +656,51 @@ def create_next_session(promo_id=0):
 
     return ' *** create_next_session *** '
 
+
+
+
+
+def has_next(promo_id, semester_id):
+    sessions = Session.query.filter_by(promo_id=promo_id).join(Semester)\
+        .join(Annual).order_by(Annual.annual, Semester.semester).all()
+
+    existing_sem_nbrs = []
+    for session in sessions:
+        existing_sem_nbrs.append( session.semester.get_nbr() )
+
+    semester = Semester.query.get_or_404(semester_id)
+    current_nbr = semester.get_nbr()
+
+    for exist_nbrs in existing_sem_nbrs:
+        if exist_nbrs > current_nbr:
+            return True
+    
+    return False
+
+
+
 @app.route('/create-session/promo/<promo_id>/semester/<semester_id>/', methods=['GET', 'POST'])
 def create_session(promo_id=0, semester_id=0):
     session = None
 
     sessions = Session.query.filter_by(
-        promo_id=promo_id, semester_id=semester_id, is_rattrapage=False
-        ).all()
+        promo_id=promo_id, semester_id=semester_id, is_rattrapage=False).all()
     if len(sessions) > 0:
-        # check if the session of this simester exists
+        # check if the session of this semester exists
         session = Session.query\
             .filter_by(promo_id=promo_id, semester_id=semester_id, is_rattrapage=False)\
             .first()
         if session is not None:
             flash('Semester (' + str(session.semester.get_nbr()) + ') already exist', 'alert-warning')
     else:
-        session = Session(promo_id=promo_id, semester_id=semester_id)
+        type = None
+        if has_next(promo_id, semester_id):  
+            type = 'historic'
+
+        session = Session(promo_id=promo_id, semester_id=semester_id, type=type)
         db.session.add(session)
         db.session.commit()
+
         init_annual_session_id(session.id)
         flash('Semester (' + str(session.semester.get_nbr()) + ') created', 'alert-success')
 
@@ -613,6 +714,7 @@ def create_session(promo_id=0, semester_id=0):
     # to fill configuration at creation
     update_session_configuraton(session)
 
+
     school_id = session.promo.branch.school_id
     branch_id = session.promo.branch_id
     promo_id = session.promo_id
@@ -625,6 +727,11 @@ def create_session(promo_id=0, semester_id=0):
 
 # grab them from Session
 def get_students_to_enter_rattrapage_semester(session_id):
+    # session = Session.query.get_or_404(session_id)
+    # if ()
+    #     
+    #     return students
+
     students = StudentSession.query\
         .filter_by(session_id=session_id)\
         .filter( or_(StudentSession.credit < 30, StudentSession.credit == None) )\
@@ -659,14 +766,14 @@ def get_students_to_enter_rattrapage_annual(annual_session_id):
 
 
 @app.route('/session/<session_id>/rattrapage/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree.session.rattrapage', 'Rattrapage')
+@register_breadcrumb(app, '.tree_session.session.rattrapage', 'Rattrapage')
 def students_rattrapage_semester(session_id=0):
     students = get_students_to_enter_rattrapage_semester(session_id)
     return render_template('session/students-rattrapage-semester.html', 
         title='ratt-semester', students=students, session_id=session_id)
 
 @app.route('/annual-session/<annual_session_id>/rattrapage/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.annual_tree.annual.rattrapage', 'Annual Rattrapage')
+@register_breadcrumb(app, '.tree_annual.annual.rattrapage', 'Annual Rattrapage')
 def students_rattrapage_annual(annual_session_id=0):
     students = get_students_to_enter_rattrapage_annual(annual_session_id)
     return render_template('session/students-rattrapage-annual.html', 
@@ -962,7 +1069,7 @@ def annual_session_dlc(*args, **kwargs):
         'url': url_for('annual_session', annual_session_id=annual_session_id) }]
 
 @app.route('/annual-session/<annual_session_id>/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.annual_tree.annual', '***', dynamic_list_constructor=annual_session_dlc)
+@register_breadcrumb(app, '.tree_annual.annual', '***', dynamic_list_constructor=annual_session_dlc)
 def annual_session(annual_session_id=0):
     annual_session = AnnualSession.query.filter_by(id=annual_session_id).first_or_404()
     array_data = create_data_annual_session(annual_session_id)
@@ -1183,7 +1290,7 @@ def get_bultin_semester(student_session):
     return table
 
 # @app.route('/session/<session_id>/student/<student_id>/bultin/', methods=['GET', 'POST'])
-# @register_breadcrumb(app, '.tree.session.classement.bultin', 'Bultin')
+# @register_breadcrumb(app, '.tree_session.session.classement.bultin', 'Bultin')
 # def bultin_semester(session_id, student_id):
 #     student_session = StudentSession.query\
 #         .filter_by(session_id=session_id, student_id=student_id).first()
@@ -1434,14 +1541,14 @@ def get_bultin_annual(annual_grade):
 
 
 # @app.route('/annual-session/<annual_session_id>/student/<student_id>/bultin/', methods=['GET', 'POST'])
-# # @register_breadcrumb(app, '.tree.session.classement.bultin', 'Bultin')
+# # @register_breadcrumb(app, '.tree_session.session.classement.bultin', 'Bultin')
 # def bultin_annual(annual_session_id, student_id):
 #     bultin = get_bultin_annual(annual_session_id, student_id)
 #     return render_template('student/bultin-annual.html',
 #         title='Bultin-Annual', table=bultin, annual_session_id=annual_session_id, student_id=student_id)
 
 @app.route('/annual-session/<annual_session_id>/student/<student_id>/bultin-print/', methods=['GET', 'POST'])
-# @register_breadcrumb(app, '.tree.session.classement.bultin', 'Bultin')
+# @register_breadcrumb(app, '.tree_session.session.classement.bultin', 'Bultin')
 def bultin_annual_print(annual_session_id, student_id):
     annual_grade = AnnualGrade.query.filter_by(annual_session_id=annual_session_id, student_id=student_id).first()
     # student = Student.query.get_or_404(student_id)
@@ -1455,7 +1562,7 @@ def bultin_annual_print(annual_session_id, student_id):
         annual_session_id=annual_session_id, student_id=student_id)
 
 @app.route('/annual-session/<annual_session_id>/bultin-print-all/', methods=['GET', 'POST'])
-# @register_breadcrumb(app, '.tree.session.classement.bultin', 'Bultin')
+# @register_breadcrumb(app, '.tree_session.session.classement.bultin', 'Bultin')
 def bultin_annual_print_all(annual_session_id):
     # annual_session = AnnualSession.query.get_or_404(annual_session_id)
     annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session_id).all()
@@ -1484,6 +1591,39 @@ def bultin_annual_print_all(annual_session_id):
 #####                             #####
 #####                             #####
 #######################################
+
+
+@app.route('/session/<session_id>/averages/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.tree_session.session.average', 'Averages')
+def semester_averages(session_id=0):
+    # get modules list
+    modules = []
+    grades = Grade.query.join(StudentSession).filter_by(session_id=session_id).all()
+    for grade in grades:
+        _modules = (m[0] for m in modules)
+        if grade.module_id not in _modules:
+            module = []
+            module.append(grade.module_id)
+            module.append(grade.module.display_name)
+            modules.append(module)
+
+    data = []
+    students_session = StudentSession.query.filter_by(session_id=session_id).all()
+    for student_session in students_session:
+        averages = []
+        averages.append(student_session.student.username)
+        averages.append(student_session.student.first_name.replace(' ', ' '))
+        averages.append(student_session.student.last_name.replace(' ', ' '))
+        for module in modules:
+            grade = Grade.query.filter_by(student_session_id=student_session.id, module_id=module[0]).first()
+            averages.append(grade.average)
+        data.append(averages)
+
+    return render_template('session/averages.html', title='Averages', 
+        data=data, modules=modules, session_id=session_id)
+
+#################
+
 
 # Note: the Data is taken from the Config String
 
@@ -1532,12 +1672,11 @@ def get_th_4(configuration, cols_per_module):
     return header
 
 def get_cols_ths(index, label, class_name, cols_per_module):
-    sort = 'onclick="sortTable('+str(index)+')" '
+    onclick = 'onclick="sortTable('+str(index)+')" '
     label_a = label['a']
     label_c = label['c']
     label_s = label['s']
-    th = F'<th {sort} class="{class_name} center sorter">{label_a}((img))</th>'
-    # th = F'<th {sort} class="{class_name} center">{label_a}</th>'
+    th = F'<th {onclick} class="{class_name} center sorter">{label_a}<img id="sort-{index}" class="sort-icon" ((img))></th>'
     if cols_per_module >= 2:
         th += F'<th class="{class_name} center">{label_c}</th>'
     if cols_per_module == 3:
@@ -1546,10 +1685,12 @@ def get_cols_ths(index, label, class_name, cols_per_module):
 
 def get_th_5(configuration, cols_per_module):
     conf_dict = literal_eval(configuration)
-    header = '<th onclick="sortTable(0)" class="module center sorter no-wrap">N°((img))</th>'
-    header += '<th onclick="sortTable(1)" class="module center sorter no-wrap">Matricule((img))</th>'
-    header += '<th onclick="sortTable(2)" class="module center sorter">Nom((img))</th>'
-    
+    cls = 'class="module center sorter no-wrap"'
+    # header =  '<th onclick="sortTable(0)" '+cls+'>N°<img id="sort-0" class="sort-icon" ((img))></th>'
+    header =  '<th onclick="sortTable(0)" '+cls+'>N°<img id="sort-0" class="sort-icon" src="/static/img/sort-icons-asc.png"></th>'
+    header += '<th onclick="sortTable(1)" '+cls+'>Matricule<img id="sort-1" class="sort-icon" ((img))></th>'
+    header += '<th onclick="sortTable(2)" '+cls+'>Nom<img id="sort-2" class="sort-icon" ((img))></th>'
+
     label = {'a':'M', 'c':'C', 's':'S'}
     index = 3
     for unit in conf_dict['units']:
@@ -1608,11 +1749,16 @@ def get_row_semester(student_session, cols_per_module=2):
     for grade_unit in grade_units:
         row += get_row_unit(grade_unit, cols_per_module)
 
-    row += F'<td class="semester right td">{student_session.average}</td>'
+    yellow = ''
+    if (student_session.credit < 30):
+        yellow = 'yellow'
+
+    
+    row += F'<td class="semester right td {yellow}">{student_session.average}</td>'
     if cols_per_module >= 2:
-        row += F'<td class="semester center td">{student_session.credit}</td>'
+        row += F'<td class="semester center td {yellow}">{student_session.credit}</td>'
     if cols_per_module == 3:
-        row += F'<td class="semester center td">{student_session.session_id}</td>'
+        row += F'<td class="semester center td {yellow}">{student_session.session_id}</td>'
     return row
 
 def get_semester_result_data(session_id, cols_per_module=2):
@@ -1689,7 +1835,7 @@ def get_semester_result_data__plus_buttons(session_id, cols_per_module=2):
     return data_arr
 
 @app.route('/session/<session_id>/semester-result/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree.session.result', 'Relevé Resultat')
+@register_breadcrumb(app, '.tree_session.session.result', 'Relevé Resultat')
 def semester_result(session_id=0):
     session = Session.query.filter_by(id=session_id).first_or_404()
     cols_per_module = 2

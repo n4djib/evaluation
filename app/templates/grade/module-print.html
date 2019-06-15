@@ -21,7 +21,6 @@
 </head>
 
 
-<!-- <body onload="PrintWindow();"> -->
 <body >
   {{ print_header | safe }}
   
@@ -44,19 +43,7 @@
 
 
   <script type="text/javascript">
-    function PrintWindow() {                    
-       window.print();            
-       CheckWindowState();
-    }
-
-    function CheckWindowState()    {           
-        if(document.readyState=="complete") {
-            window.close(); 
-        } else {           
-            setTimeout("CheckWindowState()", 2000)
-        }
-    }
-    // PrintWindow();
+    {% include "_print.js" %}
   </script> 
 
 

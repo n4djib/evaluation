@@ -6,6 +6,21 @@ from datetime import datetime
 
 
 
+
+
+
+#######################################
+#####      checking problems      #####
+#######################################
+
+
+# def check_percentage_problem():
+
+
+
+#######################################
+
+
 def tree_type(id):
     type = Type.query.filter_by(id=id).first()
     if type == None:
@@ -39,14 +54,14 @@ def tree_percentage(percentage, is_closed=False, return_url=''):
             link: ''' + link + ''',
             time: "''' + time + '''",
             rattrapable: "''' + ratt + '''"
-        }
+        },
     }'''
 
-def tree_module(module, is_closed=False, return_url=''):
+def tree_module(module, is_closed=False, return_url='', collapsibles={}):
     href = '/admin/module/edit/?id=' + str(module.id)+return_url
     if is_closed:
         href = 'URL_STRING_TO_BE_REPLACED'
-
+        
     # replacing Spaces by Empty Character
     val = module.name.replace(' ', ' ')
     # link = '{ val: "' + val + '", href: "' + href + '", target: "_blank" }'
@@ -74,6 +89,13 @@ def tree_module(module, is_closed=False, return_url=''):
     if module.has_rattrapable_error() == True:
         rattrapable_error = ', ratt_err: "rattrapable ERROR"'
 
+    # collapsed
+    collapsed = 'collapsed: false,'
+    if collapsibles['module'] != None:
+      collapsed = 'collapsed: true,'
+    if module == collapsibles['module']:
+      collapsed = 'collapsed: false,'
+
     return '''
     {
         text:{
@@ -86,10 +108,11 @@ def tree_module(module, is_closed=False, return_url=''):
             ''' + rattrapable_error + '''
         }, 
         stackChildren: true, 
+        ''' + collapsed + '''
         children: [''' + percentages + ''']
     }'''
 
-def tree_unit(unit, is_closed=False, return_url=''):
+def tree_unit(unit, is_closed=False, return_url='', collapsibles={}):
     href = '/admin/unit/edit/?id=' + str(unit.id)+return_url
     if is_closed:
         href = 'URL_STRING_TO_BE_REPLACED'
@@ -101,11 +124,18 @@ def tree_unit(unit, is_closed=False, return_url=''):
     credit = str( unit.get_unit_cumul_credit() )
     modules = ''
     for module in unit.modules:
-        modules += tree_module(module, is_closed, return_url) + ','
+        modules += tree_module(module, is_closed, return_url, collapsibles) + ','
 
     is_fondamental = ' '
     if unit.is_fondamental == True:
         is_fondamental = 'Fondamental'
+
+    # collapsed
+    collapsed = 'collapsed: false,'
+    if collapsibles['unit'] != None:
+      collapsed = 'collapsed: true,'
+    if unit == collapsibles['unit']:
+      collapsed = 'collapsed: false,'
 
     return '''
     {
@@ -115,10 +145,11 @@ def tree_unit(unit, is_closed=False, return_url=''):
             credit: "Credit: ''' + credit + '''",
             is_fondamental: "''' + is_fondamental + '''",
         }, 
+        ''' + collapsed + '''
         children: [''' + modules + ''']
     }'''
 
-def tree_semester(semester, is_closed=False, return_url=''):
+def tree_semester(semester, is_closed=False, return_url='', collapsibles={}):
     href = '/admin/semester/edit/?id=' + str(semester.id)
     if is_closed:
         href = 'URL_STRING_TO_BE_REPLACED'
@@ -131,7 +162,7 @@ def tree_semester(semester, is_closed=False, return_url=''):
     units = ''
     credit = semester.get_semester_cumul_credit()
     for unit in semester.units:
-        units += tree_unit(unit, is_closed, return_url) + ','
+        units += tree_unit(unit, is_closed, return_url, collapsibles) + ','
 
     return '''
     {
@@ -146,12 +177,12 @@ def tree_semester(semester, is_closed=False, return_url=''):
         children: [''' + units + ''']
     }'''
 
-def tree_conf_data(semester_id, return_url=''):
+def tree_conf_data(semester_id, return_url='', collapsibles={}):
     semester = Semester.query.filter_by(id=semester_id).first_or_404()
 
     # is_closed = semester.is_locked() or semester.is_closed
     is_closed = semester.is_locked()
-    t_semester = tree_semester(semester, is_closed, return_url)
+    t_semester = tree_semester(semester, is_closed, return_url, collapsibles)
 
     conf_data = '''
     {
@@ -183,6 +214,23 @@ def tree_conf_data(semester_id, return_url=''):
     return conf_data
 
 
+def get_collapsibles(type, id):
+    module = None
+    unit = None
+    if type == 'percentage':
+        percentage = Percentage.query.get(id)
+        if percentage != None:
+            module = percentage.module
+            unit = module.unit
+    if type == 'module':
+        module = Module.query.get(id)
+        if module != None:
+            unit = module.unit
+    if type == 'unit':
+        unit = Unit.query.get(id)
+
+    return {'unit': unit, 'module': module}
+
 def conf_dlc(*args, **kwargs):
     semester_id = request.view_args['semester_id']
     semester = Semester.query.get_or_404(semester_id)
@@ -190,44 +238,23 @@ def conf_dlc(*args, **kwargs):
     return [{'text': 'Config. of Semester ('+str(nbr)+')', 
         'url': url_for('conf_semester', semester_id=semester_id)}]
 
+@app.route('/conf-semester/<semester_id>/collapse/<type>/<id>/', methods=['GET', 'POST'])
 @app.route('/conf-semester/<semester_id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.semester_tree.conf_semester', '**Config**', dynamic_list_constructor=conf_dlc)
-def conf_semester(semester_id=0):
+def conf_semester(semester_id=0, type='', id=0):
     return_url = '&url=/conf-semester/'+semester_id+'/'
-    conf_data = tree_conf_data(semester_id, return_url)
+    collapsibles = get_collapsibles(type, id)
+    conf_data = tree_conf_data(semester_id, return_url, collapsibles)
     return render_template('conf/treant.html', title='Conficuration Tree', data=conf_data)
 
+@app.route('/session/<session_id>/conf-semester/<semester_id>/<type>/<id>/', methods=['GET', 'POST'])
 @app.route('/session/<session_id>/conf-semester/<semester_id>/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree.session.conf', 'Configuration')
-def conf_session(session_id, semester_id):
+@register_breadcrumb(app, '.tree_session.session.conf_session', 'Configuration')
+def conf_session(session_id, semester_id, type='', id=0):
     return_url = '&url=/session/'+session_id+'/conf-semester/'+semester_id+'/'
-    conf_data = tree_conf_data(semester_id, return_url)
+    collapsibles = get_collapsibles(type, id)
+    conf_data = tree_conf_data(semester_id, return_url, collapsibles)
     return render_template('conf/treant.html', title='Conficuration Tree', data=conf_data)
-
-# @app.route('/conf-mod/<semester_id>/', methods=['GET', 'POST'])
-# def conf_mod(semester_id):
-#     semester = Semester.query.filter_by(id=semester_id).first_or_404()
-#     t_semester = tree_semester(semester)
-
-#     conf_data = '''
-#     {
-#         chart: {
-#             container: "#tree-config",
-#             animateOnInit: true,
-#             node: {
-#               collapsable: true
-#             },
-#             animation: {
-#               nodeAnimation: "easeOutBounce",
-#               nodeSpeed: 700,
-#               connectorsAnimation: "bounce",
-#               connectorsSpeed: 700
-#             }
-#         },
-#         nodeStructure:''' + t_semester + '''
-#     }'''
-
-#     return render_template('conf/treant.html', title='Conficuration Tree', data=conf_data)
 
 
 #######################################
@@ -466,7 +493,7 @@ def duplicate_config(semester_id=0):
 
 #######################################
 #####                             #####
-#####         ***********         #####
+#####        Node Creation        #####
 #####                             #####
 #######################################
 

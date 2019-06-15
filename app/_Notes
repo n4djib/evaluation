@@ -1,58 +1,21 @@
-== ERRORS ==
-------------
-- in create many students
-	wilaya dropdown is not working when i use the keyboard
-- some problem with "leaving the page" notification 
-- 
-- 
 
 == TASKS FOR EVAL TEAM ==
 - 2019-02-21 - to enter the Hours required in every modules
 - 2019-03- - enter students infos
+- check if they corrected the names
+	when you find the name in App you can tell where it it in the Excel
+- check if they saved Students in Excel and Eval
+- shorten longer modules name
+- correct the promos names
+- teachers
 - 
-- 
+
+
 == QUESTIONS ==
 ---------------
-- find an example of people who repeated the year
-- do i have to print Zerbia for the Annual
-	ask Sabah and Sahel about the required Printables
 - Rattrapage printables
 - doublage ????
 - 
-
-== PRINTABLES ==
-----------------
-			- if there is no Cour, how deos the student pass the ratt
-- in result header    on the left is centering
-- in Result and Bultin 
-	be carefull of the source of the data (semester vs ratt)
-- semester Result in fire firefox is skiping the first page
-- Don't forget to Comment 
-	get_semester_result_data in routesSession.py
-- a location to print all Printables
-- you have to show session (normal or ratt) in printables
-	result & bultin
-
-- when printing XPS & PDF
-	name the file with a date
-- print Module list
-	if there is any grades, show new other buttons
-- Annual Result
-- print Annual (sem1 + sem2 + ratt)
-- print Zerbia (Ratt + normal)
-	and show session 1 or 2
-- what about the students who need to pass some modules (avec dette)
-- make check_grid_is_complite() universal in routesSession.py
-	pass grades and check them
-- add diolog box to print Module to choose
-- add the headers and footers for the printables
-- change "name" to "display_name" in printables 
-- annual bultin would not display correctly
-	if the initializition is not updated (rattrapage and normal)
-- in Result Be carful of long Module Names
-- in Result Print Browser the tables print wrong if it jumps to the next Page
-- all Printables in one PDF of a Session | Annual | Promo 
-	for all or for one Student
 
 == Note ==
 ----------------
@@ -70,43 +33,99 @@
 
 ==BREADCRUMBS to finish==
 -------------------------
+- some breadcrumbs got messed up
+	because i moved them
+- some breadcrumbs need to adapt to path
+	like justification in Grade & resultat
+		or just change them to Printables
+
 
 == PRIORITY 1 ==
 ----------------
-			- remove 1% from percentage of Session
-- add delete button to the Tree
+			- in Tree exclude ajax loading except for Promo
+			- if there is no Cour, how deos the student pass the ratt
+			- open Config on a Module
+			- when i close a Session i need to close and duplicate the Semester
+- a mask to Sort the studets of the third year
+		maybe do it with table tree (grouping)
+	1 - create table and fill it with the students (all years according to branch)
+		or give the choice of Licence or master
+	2 - collect data from History
+		give the choice between keeping entered data or crushing it
+		maybe show them both
+	3 - give the ability to add students and remove them
+	4 - 
+	5 -
+- in AnnualGrade add AverageFinal 
 - in Config Tree
 	order the percentages according to grid
-- after saving in config tree
-	the flash is not showin color
-	maybe i have to handel the class of the alert
-- Print Module with average
-- in ratt annual indicate students who passed the rattrapage
+- Print Module with averages
+- print rattrapage
+- annual Ratt print must show only when there is two semesters
+- don't allow session config when session is closed especialy historic
+- add create new branch and school and promo
+	and add url_return to go back to tree after creation
+- in ratt annual indicate students who entered the rattrapage
 	at least one module
 	who is already generated and who is not
 - make a system (configurable) for passage
 	table
 	and configurable
-- in SF if i generate RATT from annual
-	it will show students that should not enter RATT
-	it can happen in ISP if ratt 2
-		you have to take into considiration that the semester is passed
-- i need to implement passage system
+	in SF if i generate RATT from annual
+		it will show students that should not enter RATT
+		it can happen in ISP if ratt 2
+			you have to take into considiration that the semester is passed
 	check every student Annual
 	and take into consideration Branch+Annual
+- in Tree create new Semester
+	when the Options start with S2
+	it defaults to S1
+- in result header    on the left is centering
+- in create many students
+	wilaya dropdown is not working when i use the keyboard
+- some problem with "leaving the page" notification 
+- when you modify Module in Table Base
+	set semester last_update
+- Smester update should be accessed from Config
+	and add return URL
+- Session Config
+	add type to Session Historique
+	when changed to Historique
+		add a new Semester Average and Credit Entering
+	remove Config String
+	remove grades and grade_units
+	when you create before 
+	stop init and Calculate when Historic
+- when i run flask
+	flask-admin echos some warnings about missing fields
+			- add tables to Mysql Workbench
+- test Tunneling from the internet
+- open classement when all the semesters exist
+	or filled or show messages in classement
+- check init_all() and exclude grades ans unit
+- in update many
+	when the table is Empty it still shows the header
+		use it in other Handsontable
+		
+- in Result and Bultin 
+	be carefull of the source of the data (semester vs ratt)
+- semester Result in fire firefox is skiping the first page
+- Don't forget to Comment 
+	get_semester_result_data in routesSession.py
+- a location to print all Printables
+- you have to show session (normal or ratt) in printables
+	result & bultin
 
 - FINISH PRINTABLES
 - classement in resultat
-- a mask to Sort the studets of the third year
 - finish the 3 printables first
 	bultin header + annual + ratt
 	and the choice between the two sessions
 	print From Annual Page
 	and module header
-- in grade by student add button to Bultin and Justification
+
 - annual Obs before and After Ratt
 - add Session Config
-- redirect correctly after saving in Admin
 
 - make Choice(Select) Empty in insert many Students
 	and don't allow submition
@@ -146,8 +165,6 @@
 - Submit Data by CRTL+S in Update many & create many
 - in annual add link to Notes in Grid of the AnnualSession
 
-- in tree - the +/- is reloading 
-	not like clicking the title to expand
 
 - in add/remove Student - Gliphcon Not appearig when internet is Off
 - when i don't fill Rattrapage
@@ -163,11 +180,7 @@
 - lock annual
 - upload PDF automaticaly to Google Drive
 
-
-
-
 - link from Annual to Student Grades
-
 - how to add new nodes in Config Tree
 - pre-populate a table of bultin
 - move annual functions from Semester to Annual
@@ -180,7 +193,6 @@
 - move annual calcul to model "annual grade" and "annual session"
 
 - DANGER: a Promo can be in a Branch and have a Session and Semester in a different Branch
-
 - when creating a new session
 	set starting date based on Promo
 	when changing the start_date in Promo
@@ -251,6 +263,32 @@
 
 
 
+== PRINTABLES ==
+----------------
+	- when printing XPS & PDF
+		name the file with a date
+	- print Module list
+		if there is any grades, show new other buttons
+	- Annual Result
+	- print Annual (sem1 + sem2 + ratt)
+	- print Zerbia (Ratt + normal)
+		and show session 1 or 2
+	- what about the students who need to pass some modules (avec dette)
+	- make check_grid_is_complite() universal in routesSession.py
+		pass grades and check them
+	- add diolog box to print Module to choose
+	- add the headers and footers for the printables
+	- change "name" to "display_name" in printables 
+	- annual bultin would not display correctly
+		if the initializition is not updated (rattrapage and normal)
+	- in Result Be carful of long Module Names
+	- in Result Print Browser the tables print wrong if it jumps to the next Page
+	- all Printables in one PDF of a Session | Annual | Promo 
+		for all or for one Student
+
+
+
+
 ----------------
 == PRIORITY 2 ==
 ----------------
@@ -259,8 +297,6 @@
 	generate from a word file with a merge
 		https://pbpython.com/python-word-template.html
 - Students Access to data should be according to good behaviour
-- to create a new Semester in the Config
-	use Ztree -> Multi-functional -> Right-click Maenu
 - Add a Settings Page
 - costum Settings by user
 - enforce Promo naming
@@ -275,10 +311,10 @@
 - when creating a new session do not transfaire students
 	then when i enter the session present a button
 	or just do it in a cron job
-- add Button: create a new semester
-	duplicate config
-	and when creating a new session take the latest version
-	be carefull of the chaning
+			- add Button: create a new semester
+				duplicate config
+				and when creating a new session take the latest version
+				be carefull of the chaning
 - write the teacher and attandence section
 - set Dirty Flags and show them in Flash() 
 	to indecate the need for Re(calculate) in other Pages
@@ -511,6 +547,17 @@
 				@register_breadcrumb(app, '.basic.semester.view.update', 'Update')
 			- when i save the config
 				the tree redirects to the Semester Tree which shows a bad breadcrumb
+			- remove 1% from percentage of Session
+			- add delete button to the Tree
+			- in grade by student add button to Bultin and Justification
+			- after saving in config tree
+				the flash is not showin color
+				maybe i have to handel the class of the alert
+			- redirect correctly after saving in Admin
+			- in tree - the +/- is reloading 
+				not like clicking the title to expand
+			- in Tree show link to classement
+			- in Tree link to Promo Students list
 
 
 

@@ -96,6 +96,13 @@
       class="btn btn-warning {{'shake-slow shake-constant' if module_session != None and module_session.has_teacher() else ''}}" 
       role="button" style="margin-bottom:2px; margin-right:4px; float:right;"; 
       ><img src='/static/img/config-session.png'></a>
+    {% else %}
+    <a href="{{ url_for('justification', session_id=session.id, student_id=student.id) }}" 
+      class="btn btn-primary" style="margin-bottom:2px; margin-right:4px; float:right;"
+      role="button" target="_blank">Justification</a>
+    <a href="{{ url_for('bultin_semester_print', session_id=session.id, student_id=student.id) }}" 
+      class="btn btn-success" style="margin-bottom:2px; margin-right:4px; float:right;"
+      role="button" target="_blank">Print Bultin</a>
     {% endif %}
 
     
@@ -103,11 +110,14 @@
       <h2> *** the grid is empty *** </h2>
       <h3> ** you have to add students and initialize ** </h3>
     </div>
+
     </br>
     <button id="save" class="btn btn-success btn-lg">Save</button>
        <label><input name="autosave" id="autosave" autocomplete="off" type="checkbox" > Autosave</label>
+
     </br>
     </br>
+    
     <pre id="message" class="console"><h3>*** if you see this: the JavaScript in (_grid.js) is not working ***<h3> </pre>
     </br>
 

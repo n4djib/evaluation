@@ -1,9 +1,10 @@
 from app import app, db
 from flask import render_template, redirect, url_for, flash, request
 from app.forms import StudentFormCreate, StudentFormUpdate, StudentFormUpdateCostum, RegistrationForm, LoginForm
-from app.models import Student, StudentSession, AnnualSession, User, Branch, Session, Wilaya, School, Module
+from app.models import Student, StudentSession, AnnualSession, User, Branch, Promo, Session, Wilaya, School, Module
 from flask_breadcrumbs import register_breadcrumb
 from datetime import datetime
+from app.routesCalculation import init_all
 
 
 
@@ -17,35 +18,40 @@ from datetime import datetime
 #####                             #####
 #######################################
 
-
-# @app.route('/student/')
-# @register_breadcrumb(app, '.basic.student', 'Students')
-# def student_index():
-#     students = Student.query.all()
-#     return render_template('student/index.html', title='Students List', students=students)
+@app.route('/student/promo/<promo_id>')
+@register_breadcrumb(app, '.tree_promo.student_promo', 'Students in Promo')
+def student_by_promo(promo_id=0):
+    return student_list(promo_id)
 
 
 @app.route('/student/')
 @register_breadcrumb(app, '.basic.student', 'Students')
 def student_index():
-    all_students = Student.query.all()
+    return student_list()
+
+def student_list(promo_id=0):
+    students = []
+    if promo_id == 0:
+        students = Student.query.all()
+    else:
+        students = Student.query.join(StudentSession)\
+            .join(Session).filter_by(promo_id=promo_id).all()
 
     renegades = []
-    for student in all_students:
+    for student in students:
         student.empty = False
         sessions = student.get_sessions_ordered()
         if len(sessions) == 0:
             student.empty = True
             renegades.append(student)
 
-    students = renegades
-    for student in all_students:
+    new_students = renegades
+    for student in students:
         if student not in renegades:
-            students.append(student)
+            new_students.append(student)
 
-    return render_template('student/index.html', title='Students List', students=renegades)
-    # return render_template('student/index.html', title='Students List', students=students)
-
+    return render_template('student/index.html', title='Students List', students=new_students)
+#
 
 
 SEPARATOR = '-'
@@ -334,7 +340,7 @@ def update_many_username_ordered(session_id, template=''):
     return redirect(url_for('students_update_many', session_id=session_id))
 
 @app.route('/session/<session_id>/update-many-student/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree.session.update_many', 'Update Many')
+@register_breadcrumb(app, '.tree_session.session.update_many', 'Update Many')
 def students_update_many(session_id):
     student_sessions = StudentSession.query.filter_by(session_id=session_id).all()
 
@@ -439,4 +445,111 @@ def update_many_name_case(session_id, case=''):
     return redirect(url_for('students_update_many', session_id=session_id))
 
 
+
+#######################################
+#             Add/Remove              #
+
+
+def update_student_session(students_from, students_to, session_id):
+    session = Session.query.filter_by(id=session_id).first()
+
+    dirty_add = False
+    # all the students in this current Session
+    students = Student.query.join(StudentSession).filter_by(session_id=session_id).all()
+    for select in students_to:
+        # check if  s  exists in  students
+        s = Student.query.join(StudentSession).filter_by(student_id=select, session_id=session_id).first()
+        if s not in students:
+            student_session = StudentSession(student_id=select, session_id=session_id)
+            db.session.add( student_session )
+            dirty_add = True
+    db.session.commit()
+
+    message_add = 'No One added to Session: ' + str(session_id)
+    if dirty_add == True:
+        message_add = 'added Student(s) to Session: ' + str(session_id)
+
+
+    dirty_remove = False
+    # get new list of Student after adding
+    students_session = StudentSession.query.filter_by(session_id=session_id)\
+        .join(Student).order_by(Student.username).all()
+    for student_session in students_session:
+        if str(student_session.student_id) in students_from:
+            grades = student_session.grades
+            for grade in grades:
+                db.session.delete(grade)
+            grade_units = student_session.grade_units
+            for grade_unit in grade_units:
+                db.session.delete(grade_unit)
+            db.session.delete(student_session)
+            dirty_remove = True
+    db.session.commit()
+
+    message_remove = 'No One Removed from Session: ' + str(session_id)
+    if dirty_remove == True:
+        dirty_remove = 'Removed Student(s) from Session: ' + str(session_id)
+
+    return message_add + '   -   ' + message_remove
+
+def get_students_previous(session):
+    students_previous = Student.query.order_by(Student.username).join(StudentSession)\
+        .join(Session).filter_by(promo_id=session.promo_id).all()
+    return students_previous
+
+def get_students_candidates(session, _all):
+    # I HAVE TO FIND ONLY THE ONES WITHOUT A SESSION
+    # or just take ones from the Promo
+
+    students_previous = get_students_previous(session)
+    students_in_other_promos = Student.query.order_by(Student.username)\
+        .join(StudentSession)\
+        .join(Session).filter(Session.promo_id != session.promo_id).all()
+
+    candidates_list = []
+    for student in students_previous:
+        candidates_list.append(student.id)
+    for student in students_in_other_promos:
+        candidates_list.append(student.id)
+
+    if _all == '':
+        return Student.query.filter_by(branch_id=session.semester.annual.branch_id)\
+            .filter(Student.id.notin_(candidates_list)).all()
+    else:
+        # return Student.query.filter(Student.id.notin_(candidates_list)).all()
+        return Student.query.filter_by(branch_id=session.semester.annual.branch_id).all()
+
+# Note (security): can you change the id (post) and send it to another session ?????
+@app.route('/session/<session_id>/add-student/', methods=['GET', 'POST'])
+@app.route('/session/<session_id>/add-student/<_all>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.tree_session.session.student', 'Add Students')
+def student_session(session_id=0, _all=''):
+    students_from = request.form.getlist('from[]')
+    students_to = request.form.getlist('to[]')
+    session = Session.query.get_or_404(session_id)
+
+    if students_from != [] or students_to != []:
+        msg = update_student_session(students_from, students_to, session_id)
+        flash(msg)
+        # re-initialize
+        if session.type != 'historic' and session.type != 'historique':
+            msg2 = init_all(session)
+        return redirect(url_for('session', session_id=session_id))
+
+
+    students_previous = get_students_previous(session)
+    students_candidates = get_students_candidates(session, _all)
+    students_session = Student.query.order_by(Student.username)\
+        .join(StudentSession).filter_by(session_id=session_id).all()
+
+    return render_template('session/multiselect-add-students.html', 
+        title='Session',
+        students_previous=students_previous,
+        students_candidates=students_candidates,
+        students_session=students_session,
+        session=session,
+        _all=_all)
+
+
+#######################################
 

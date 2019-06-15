@@ -8,7 +8,8 @@ from wtforms.fields.html5 import DateField
 from flask_admin.form import widgets
 # from flask_admin.form import DatePickerWidget
 
-from app.models import Student, User, School, Branch, Annual, Semester, Module, Unit, Wilaya, Promo, Teacher
+from app.models import Student, User, School, Branch, Annual, Semester, Module, Unit,\
+     Wilaya, Promo, Teacher, Session
 from sqlalchemy import and_
 # from datetime import datetime
 
@@ -122,22 +123,17 @@ class SemesterFormBase(FlaskForm):
     display_name = StringField('Display Name')
     semester = IntegerField('Semester')
     # is_closed = BooleanField('Closed')
-    annual_id = SelectField('Annual', coerce=int, render_kw={'disabled':''}, 
+    annual_id = SelectField('Annual', coerce=int, 
         choices = [('-1', '')]+[(a.id, a.name) for a in Annual.query.join(Semester).order_by('name')
-        # choices = [('-1', '')]+[(a.id, a.name) for a in Annual.query.join(Semester).filter_by(semester_id=id).order_by('name')
     ])
 
 class SemesterFormCreate(SemesterFormBase):
     submit = SubmitField('Create')
 
 class SemesterFormUpdate(SemesterFormBase):
-    # annual_id = SelectField('Annual', coerce=int,  
-    #     # choices = [('-1', '')]+[(a.id, a.name) for a in Annual.query.join(Semester).order_by('name')
-    #     choices = [('-1', '')]+[(a.id, a.name) for a in Annual\
-    #         .query.join(Semester)\
-    #         .filter_by(semester_id=self._id)\
-    #         .order_by('name')
-    # ])
+    annual_id = SelectField('Annual', coerce=int, render_kw={'disabled':''}, 
+        choices = [('-1', '')]+[(a.id, a.name) for a in Annual.query.join(Semester).order_by('name')
+    ])
     submit = SubmitField('Update')
     def __init__(self, _id=-1, *args, **kwargs):
         super(SemesterFormUpdate, self).__init__(*args, **kwargs)
@@ -155,16 +151,16 @@ class ModuleFormBase(FlaskForm):
     code = StringField('Code')
     name = StringField('Name', validators=[DataRequired()])
     display_name = StringField('Display Name')
-    coefficient = IntegerField('Coefficient')
-    credit = IntegerField('Credit')
-    time = DecimalField('Time')
-    order = IntegerField('Order')
-    unit_id = SelectField('Unit', coerce=int, validators=[Optional()], render_kw={'disabled':''},  
-        choices = [(-1, '')]+[(u.id, u.name) for u in Unit.query.order_by('name')
-    ])
+    # coefficient = IntegerField('Coefficient')
+    # credit = IntegerField('Credit')
+    # time = DecimalField('Time')
+    # order = IntegerField('Order')
+    # unit_id = SelectField('Unit', coerce=int, validators=[Optional()], render_kw={'disabled':''},  
+    #     choices = [(-1, '')]+[(u.id, u.name) for u in Unit.query.order_by('name')
+    # ])
 
-class ModuleFormCreate(ModuleFormBase):
-    submit = SubmitField('Create')
+# class ModuleFormCreate(ModuleFormBase):
+#     submit = SubmitField('Create')
 
 class ModuleFormUpdate(ModuleFormBase):
     submit = SubmitField('Update')
@@ -183,7 +179,7 @@ class PromoFormBase(FlaskForm):
     # WARNING
     # i have to select branches in this school
     # in the form i need to choose the school and then the branch
-    branch_id = SelectField('Branch', coerce=int,  
+    branch_id = SelectField('Branch', coerce=int, 
         choices = [('-1', '')]+[(b.id, b.get_label()) for b in Branch.query.order_by('name')
     ])
     color = StringField('Color', default="#333333")
@@ -285,7 +281,25 @@ class ModuleSessionForm(FlaskForm):
     def __init__(self, _id=-1, *args, **kwargs):
         super(ModuleSessionForm, self).__init__(*args, **kwargs)
         self._id = _id
-        
+      
+################## Session
+class SessionConfigForm(FlaskForm):
+    name = StringField('name', validators=[Optional()])
+    start_date = DateField('Start Date', validators=[Optional()])
+    finish_date = DateField('Start Date', validators=[Optional()])
+    semester_id = SelectField('Semester', coerce=int, validators=[Optional()], 
+        choices = [(-1, '')] + [(1, '***fill it in session_config***')]
+    )
+    type = SelectField('Type', choices = [('', ''), ('standard', 'Standard'), ('historic', 'Historic')])
+    submit = SubmitField('Update')
+    def __init__(self, _id=-1, *args, **kwargs):
+        super(SessionConfigForm, self).__init__(*args, **kwargs)
+        self._id = _id
+        session = Session.query.get_or_404(_id)
+        branch = session.promo.branch
+        semesters = Semester.query.join(Annual)\
+                .filter_by(branch_id=branch.id).order_by(Annual.annual, Semester.semester)
+        self.semester_id.choices = [(-1, '')]+[(s.id, s.name) for s in semesters]
 
 
 ##################

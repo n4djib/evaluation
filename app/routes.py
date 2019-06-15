@@ -12,7 +12,10 @@ from app.permissions_and_roles import *
 
 
 
-
+# # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # #
 
 @app.route('/code-change-case/')
 def run_code_case():
@@ -34,27 +37,17 @@ def run_code_annual():
     return 'excuted code-fill-annual-id'
 
 
+# # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # 
+
 
 
 
 @app.route('/calendar/')
 def calendar():
     return render_template('calendar.html', title='Welcome Page')
-
-
-@app.route('/student/promos/<id>/')
-def student_promos(id):
-    student = Student.query.get_or_404(id)
-    promos = student.get_promos()
-    return str(promos)
-
-
-
-
-# # # # # # # # # # # # # # # # # # # # # 
-# # # # # # # # # # # # # # # # # # # # # 
-# # # # # # # # # # # # # # # # # # # # # 
-# # # # # # # # # # # # # # # # # # # # #  
 
 
 
@@ -64,6 +57,15 @@ def student_promos(id):
 @register_breadcrumb(app, '.', 'Home')
 def index():
     return render_template('index.html', title='Welcome Page')
+
+
+
+
+
+#######################################
+#######################################
+#######################################
+#######################################
 
 
 @app.route('/slow-redirect/', methods=['GET', 'POST'])
@@ -78,7 +80,9 @@ def slow_redirect():
 
 
 #######################################
-
+#######################################
+#######################################
+#######################################
 
 
 @app.route('/login/', methods=['GET', 'POST'])

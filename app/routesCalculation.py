@@ -28,8 +28,12 @@ def update_session_configuraton(session):
 
 def init_session(session):
     update_session_configuraton(session)
+    for student_session in session.student_sessions:
+        student_session.average = None if student_session.average == 0 else student_session.average
+        student_session.credit = None if student_session.credit == 0 else student_session.credit
     db.session.commit()
     return 'init session'
+    
 
 def init_grade_unit(session):
     # delete all record and fill again
@@ -41,6 +45,10 @@ def init_grade_unit(session):
         for grade_unit in grade_units:
             db.session.delete(grade_unit)
     db.session.commit()
+
+    # delete if Historic
+    if session.type == 'historic' or session.type == 'historique':
+        return "init can't be done when Historic"
 
     for student_session in students_session:
         for unit in units:
@@ -64,6 +72,10 @@ def init_grade(session):
             copied_grades.append( copy.copy(grade) )
             db.session.delete(grade)
     db.session.commit()
+
+    # delete if Historic
+    if session.type == 'historic' or session.type == 'historique':
+        return "init can't be done when Historic"
 
     for student_session in students_session:
         units = session.semester.units
@@ -224,7 +236,7 @@ def get_semester_justification(student_session, conf_dict):
     return  semester
 
 @app.route('/session/<session_id>/justification/<student_id>/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree.session.classement.justification', 'Justification')
+@register_breadcrumb(app, '.tree_session.session.classement.justification', 'Justification')
 def justification(session_id, student_id):
     student_session = StudentSession.query.filter_by(session_id=session_id, student_id=student_id).first()
     grade_units = student_session.grade_units
@@ -242,7 +254,7 @@ def justification(session_id, student_id):
     return render_template('session/justification.html', title='Session', justs=justs)
 
 @app.route('/session/<session_id>/justification/username/<username>/', methods=['GET', 'POST'])
-# @register_breadcrumb(app, '.tree.session.classement.justification', 'Justification')
+# @register_breadcrumb(app, '.tree_session.session.classement.justification', 'Justification')
 def justification_by_username(session_id, username):
     student_session = StudentSession.query.filter_by(session_id=session_id)\
         .join(student).filter_by(username=username).first()
@@ -262,7 +274,7 @@ def justification_by_username(session_id, username):
     
 
 @app.route('/session/<session_id>/classement/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree.session.result.classement', 'Classement')
+@register_breadcrumb(app, '.tree_session.session.result.classement', 'Classement')
 def classement(session_id):
     students_session = StudentSession.query\
         .filter_by(session_id=session_id)\
