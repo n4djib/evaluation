@@ -1,4 +1,4 @@
- 
+﻿ 
 = check if they corrected the names
 	when you find the name in App you can tell where it it in the Excel
 = check if they saved Students in Excel and Eval
@@ -22,7 +22,6 @@
 	
 	LSP S6 ?????
 	
-
 = 
 
 = 
