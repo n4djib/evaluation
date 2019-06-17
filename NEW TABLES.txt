@@ -1,4 +1,4 @@
- 
+﻿ 
 = check if they corrected the names
 	when you find the name in App you can tell where it it in the Excel
 = check if they saved Students in Excel and Eval
@@ -7,7 +7,9 @@
 = teachers
 
 
-= START /B lt-win -p 5000 --subdomain eval 
+= RUN THE SERVER BY
+	flask run --host=0.0.0.0 --port=5000
+	START /B lt-win -p 5000 --subdomain eval
 
 = install drivers on Fatima PC
  
@@ -22,8 +24,9 @@
 	
 	LSP S6 ?????
 	
-
-= 
+= add to "annual_grade" after credit_r
+	average_final	numeric 10 2
+	credit_final	integer
 
 = 
 

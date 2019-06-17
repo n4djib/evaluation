@@ -53,7 +53,7 @@
       <a href="{{url_for('students_rattrapage_annual', annual_session_id=annual_session.id)}}" class="btn btn-primary" role="button" >Show Ratt. List</a>
 
       {% set all_bultin_url = url_for('bultin_annual_print_all', annual_session_id=annual_session.id) %}
-      <a href="{{ url_for('slow_redirect', url=all_bultin_url, message='Collecting...') }}" class="btn btn-primary" role="button" target="_blank" >Print All Bultin</a>
+      <a href="{{ url_for('slow_redirect', url=all_bultin_url, message='Collecting...') }}" class="btn btn-success" role="button" target="_blank" >Print All Bultin</a>
       </div>
 
       </br> </br>
