@@ -1042,7 +1042,7 @@ def create_data_annual_session(annual_session_id):
 @app.route('/annual-session/<annual_session_id>/refrech', methods=['GET', 'POST'])
 def annual_session_refrech(annual_session_id=0):
     init_annual_grade(annual_session_id)
-    calculate_annual(annual_session_id)
+    # calculate_annual(annual_session_id)
     return redirect(url_for('annual_session', annual_session_id=annual_session_id))
 
 
