@@ -1,52 +1,4 @@
-
-= add to table "session"
-	type varchar(20) after is_closed
-
-
-= change table "module_session"
-	CASCADE with session
-	
-= Create tables classement & classement_year *******************
-CREATE TABLE classement (
-    id          INTEGER         PRIMARY KEY NOT NULL,
-    promo_id    INTEGER,
-    student_id  INTEGER,
-    avr_licence NUMERIC (10, 2),
-    avr_master  NUMERIC (10, 2),
-    FOREIGN KEY ( student_id )
-    REFERENCES student (id) ON DELETE CASCADE  ON UPDATE CASCADE,
-    FOREIGN KEY ( promo_id )
-    REFERENCES promo (id) ON DELETE CASCADE  ON UPDATE CASCADE
-);
-
-CREATE TABLE classement_year (
-    id             INTEGER         PRIMARY KEY
-                                   NOT NULL,
-    classement_id  INTEGER,
-    year           INTEGER,
-    average        NUMERIC (10, 2),
-    average_app    NUMERIC (10, 2),
-    R              NUMERIC (10, 2),
-    R_app          NUMERIC (10, 2),
-    S              NUMERIC (10, 2),
-    S_app          NUMERIC (10, 2),
-    avr_classement NUMERIC (10, 2),
-    FOREIGN KEY (
-        classement_id
-    )
-    REFERENCES classement (id) 
-);
-
-
-
-
-= remove Semester 1 & Semester 2 & ratt 1  from SF Promo 2017 (rihab)
-	sessions: 1, 2, 19
-= remove Semester 1 & Semester 2  from ISP Promo 2017
-	sessions: 5 & 6
-	
-	
-
+ 
 = check if they corrected the names
 	when you find the name in App you can tell where it it in the Excel
 = check if they saved Students in Excel and Eval
@@ -55,29 +7,10 @@ CREATE TABLE classement_year (
 = teachers
 
 
-= run http://localhost:5000/code-fill-annual/
-	to fill annual_id
+= START /B lt-win -p 5000 --subdomain eval 
 
-= run http://localhost:5000/code-change-case/
-	to change the case of Names
-
-
-= 
-
-= HYGN Promos
-	2017 / 2020
-	2018 / 2021
-
-= LSP Promos
-	2018 / 2021
-	
-= add to teacher table
-1	T-01	ben dounia	aa
-2	T-02	boukheloua	lllll
-3	T-03	ben Tebba	Sabah
-4	T-04	Sahel	moumoud
-5	T-05	touzeri	mohammed
-
+= install drivers on Fatima PC
+ 
 = fix rattrapable
 	SF S9 Travaux séminaires
 	SF S10 ??????

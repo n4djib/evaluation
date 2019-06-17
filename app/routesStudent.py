@@ -32,10 +32,10 @@ def student_index():
 def student_list(promo_id=0):
     students = []
     if promo_id == 0:
-        students = Student.query.all()
+        students = Student.query.order_by('username').all()
     else:
         students = Student.query.join(StudentSession)\
-            .join(Session).filter_by(promo_id=promo_id).all()
+            .join(Session).filter_by(promo_id=promo_id).order_by('username').all()
 
     renegades = []
     for student in students:
@@ -532,7 +532,7 @@ def student_session(session_id=0, _all=''):
         msg = update_student_session(students_from, students_to, session_id)
         flash(msg)
         # re-initialize
-        if session.type != 'historic' and session.type != 'historique':
+        if not session.is_historic():
             msg2 = init_all(session)
         return redirect(url_for('session', session_id=session_id))
 

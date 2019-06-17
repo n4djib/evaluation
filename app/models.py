@@ -297,7 +297,7 @@ class Session(db.Model):
         progress = int(percentages / nbr_students)
 
         # type = historic
-        if self.type == 'historic' or self.type == 'historique':
+        if self.is_historic():
             return progress
 
         if progress == 100:
@@ -306,6 +306,10 @@ class Session(db.Model):
             if check['CALC'] == True:
                 return progress - 1
         return progress
+    def is_historic(self):
+        if self.type == 'historic' or self.type == 'historique':
+            return True
+        return False
 
 class StudentSession(db.Model):
     __tablename__ = 'student_session'
@@ -416,8 +420,8 @@ class StudentSession(db.Model):
         nbr_filled = 0
         nbr_errs = 0
 
-        # type = historic
-        if self.session.type == 'historic' or self.session.type == 'historique':
+        # type == historic
+        if self.session.is_historic():
             average = 50 if self.average else 0
             credit = 50 if self.credit else 0
             return average + credit

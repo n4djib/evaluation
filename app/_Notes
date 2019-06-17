@@ -46,6 +46,8 @@
 			- if there is no Cour, how deos the student pass the ratt
 			- open Config on a Module
 			- when i close a Session i need to close and duplicate the Semester
+			- Semester Result Header is not repeating
+- finish permissions to allow multi-user-entering of Historic
 - a mask to Sort the studets of the third year
 		maybe do it with table tree (grouping)
 	1 - create table and fill it with the students (all years according to branch)
@@ -54,9 +56,15 @@
 		give the choice between keeping entered data or crushing it
 		maybe show them both
 	3 - give the ability to add students and remove them
-	4 - 
+	4 - Error and format checking
 	5 -
-- in AnnualGrade add AverageFinal 
+- in AnnualGrade add AverageFinal
+- in Session progress icon
+	show progress with more icons
+- Tree - remove hints from links
+- Tree show InitAll & CalcAll buttons or Flash
+	maybe indecate it the need to calculate if the Entries are finished
+- add/remove Student order in Chrome
 - in Config Tree
 	order the percentages according to grid
 - Print Module with averages

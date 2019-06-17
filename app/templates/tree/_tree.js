@@ -28,6 +28,10 @@ var setting = {
     editNameSelectAll: false
   },
   data: {
+    key: {
+      title: "hint"
+      // title: ""
+    },
     simpleData: {
       enable: true
     }

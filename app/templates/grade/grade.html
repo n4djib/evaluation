@@ -69,7 +69,6 @@
 
     <input id="search" name="search" placeholder="Filter ..." type="text" autocomplete="off">
 
-
     {% if type == 'module' %}
       {% if _all == 'all' %}
         {% set href = url_for('grade', session_id=session.id, module_id=module.id) %}

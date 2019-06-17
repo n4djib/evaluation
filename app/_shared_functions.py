@@ -2,7 +2,6 @@ from app import app
 from ast import literal_eval
 
 
-
 def extract_fields(formula):
     fields_list = []
     dictionary = eval(formula)
@@ -54,8 +53,7 @@ def check_session_is_complite(grades, session):
     status = check_grades_status(grades)
     status['CONF'] = CONF
     if (status['nbr_cells'] == 0 
-        and session.type != 'historic' 
-        and session.type != 'historique' 
+        and not session.is_historic() 
         and len(session.student_sessions) > 0):
         status['need_init'] = True
     return status

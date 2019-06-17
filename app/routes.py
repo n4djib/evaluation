@@ -56,7 +56,8 @@ def calendar():
 # @admin_permission.require()
 @register_breadcrumb(app, '.', 'Home')
 def index():
-    return render_template('index.html', title='Welcome Page')
+    return redirect(url_for('tree'))
+    # return render_template('index.html', title='Welcome Page')
 
 
 

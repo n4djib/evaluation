@@ -109,10 +109,10 @@ def session_dlc(*args, **kwargs):
 @register_breadcrumb(app, '.tree_session.session', '***', dynamic_list_constructor=session_dlc)
 def session(session_id=0):
     session = Session.query.get_or_404(session_id)
-    # if session.is_closed==False:
+    # if session.is_closed == False:
     #     get_config_changed_flash(session)
 
-    if session.type == 'historique' or session.type == 'historic':
+    if session.is_historic():
         # test session-historic progress
         data_arr = create_data_session_historic(session)
         return render_template('session/session-historic.html', title='Session Historique', 
@@ -247,7 +247,7 @@ def session_config(session_id=0):
         session.semester_id = form.semester_id.data
         session.type = form.type.data
         db.session.commit()
-        if session.type == 'historic' or session.type == 'historique':
+        if session.is_historic():
             init_all(session)
         flash('Your changes have been saved.', 'alert-success')
         return redirect(url_for('session', session_id=session_id))
@@ -262,10 +262,9 @@ def session_config(session_id=0):
 
 def create_data_session_historic(session):
     data_arr = ''
-    student_sessions = session.student_sessions
-    # return "dddddddd-"+str(session.id)+"-gggggggggg"
-    # return "dddddddd-"+str(session.student_sessions)
-    # for index, student_session in enumerate(student_sessions):
+    student_sessions = StudentSession.query.filter_by(session_id=session.id)\
+            .join(Student).order_by(Student.username).all()
+
     for student_session in student_sessions:
         student = student_session.student
 
@@ -273,36 +272,26 @@ def create_data_session_historic(session):
         name = 'name: "' + student.username+' - '+ student.last_name+' '+student.first_name + '", '
         average = 'average: ' + str(student_session.average) + ', '
         credit = 'credit: ' + str(student_session.credit) + ', '
-        
-        data_arr += '{'+ id + name + average + credit +'}, '
 
-    # if data_arr == '':
-    #     return '[ { id: 0, index: "", name: "", average: '+str(None)+', credit: '+str(None)+' }, ]'
+        data_arr += '{'+ id + name + average + credit +'}, '
 
     return '[ ' + data_arr + ' ]'
 
 @app.route('/session-historic/save/', methods = ['GET', 'POST'])
 def session_historic_save():
     data_arr = request.json
-
-    # return 'session_historic_save'
     
-
     for data in data_arr:
         student_session = StudentSession.query.filter_by(id = int(data['id'])).first()
 
         # check if the student_sessino_id is a Historic
-        type = student_session.session.type
-        if type != 'historic' and type != 'historique':
+        session = student_session.session
+        if not session.is_historic():
             return "returned before finoshing because it's Not Historic"
 
         # saved fields must be according to the Permission
-        #
         student_session.average = data['average']
         student_session.credit = data['credit']
-
-
-        # commected this to not save Null Averages
 
     db.session.commit()
 
@@ -362,7 +351,7 @@ def fill_classement_laureats_data(promo_id):
             .join(Annual).filter_by(annual=year).first()
         if annual_grade != None:
             classement_year.average_app = annual_grade.average
-            # classement_year.average = AnnualGrade.average_r
+            # classement_year.average_app = AnnualGrade.average_r
 
     db.session.commit()
 
@@ -607,7 +596,7 @@ def create_rattrapage_sem(session_id, students):
         if int(student_id) in students_todo_ratt:
             student_session_ratt = transfer_student_session(session_id, ratt_id, student_id)
             # if not historic
-            if session.type != 'historic' and session.type != 'historique':  
+            if not session.is_historic():  
                 transfer_grades(session_id, ratt_id, student_session_ratt.id, student_id)
     db.session.commit()
 

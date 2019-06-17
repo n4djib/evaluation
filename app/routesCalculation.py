@@ -47,7 +47,7 @@ def init_grade_unit(session):
     db.session.commit()
 
     # delete if Historic
-    if session.type == 'historic' or session.type == 'historique':
+    if session.is_historic():
         return "init can't be done when Historic"
 
     for student_session in students_session:
@@ -74,7 +74,7 @@ def init_grade(session):
     db.session.commit()
 
     # delete if Historic
-    if session.type == 'historic' or session.type == 'historique':
+    if session.is_historic():
         return "init can't be done when Historic"
 
     for student_session in students_session:

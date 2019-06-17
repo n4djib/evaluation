@@ -45,14 +45,12 @@ function sortTable(n) {
 
       /*check if the two rows should switch place,
       based on the direction, asc or desc:*/
-      var _x = "0000"+x.innerHTML.toLowerCase();
-      var _y = "0000"+y.innerHTML.toLowerCase();
+      var _x = x.innerHTML.toLowerCase();
+      var _y = y.innerHTML.toLowerCase();
 
-      if(n == 0){
-        _x = "0000"+_x
-        _y = "0000"+_y
-        _x = _x.substring(_x.length-4, _x.length);
-        _y = _y.substring(_y.length-4, _y.length);
+      if (n !== 1 && n !== 2) {
+        _x = parseInt( x.innerHTML.toLowerCase() );
+        _y = parseInt( y.innerHTML.toLowerCase() );
       }
 
       if (dir == "asc") {
