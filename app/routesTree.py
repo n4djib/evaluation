@@ -123,6 +123,11 @@ def get_sessions_tree(promo):
         if session.is_rattrapage == True:
             icon = 'icon22'
 
+        if session.is_historic():
+            icon = 'icon21_ratt_h'
+            if session.is_rattrapage == True:
+                icon = 'icon22_ratt_h'
+
         name = "Semester: "+str(semester)+" "
         if semester < 10:
             name += "  "

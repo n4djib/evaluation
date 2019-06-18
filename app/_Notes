@@ -59,7 +59,12 @@
 	4 - Error and format checking
 	5 -
 - in AnnualGrade add AverageFinal
+- link from Releve-Result to Module Grid
+- show init and calcule Warnings in Releve-Result
+	and in annual
 - can i put two links in a node ???
+- in AnnualSession show a Tree
+- Hidden buttons in Session Historic is not showing until you refrech the page
 - in Session progress icon
 	show progress with more icons
 - Tree - remove hints from links

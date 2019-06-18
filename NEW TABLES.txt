@@ -13,6 +13,32 @@
 
 = install drivers on Fatima PC
  
+	
+= add to "annual_grade" after credit_r
+	average_final	numeric(10, 2)
+	credit_final	integer
+
+
+= in table "annual_grade" change
+	do_ratt to enter_ratt
+
+
+= in table "annual_grade" change Order
+	avr_1  cr_1  avr_2  cr_2   average  credit
+	enter_ratt
+	avr_r_1  cr_r_1  avr_r_2  cr_r_2   average_r  credit_r
+	saving_average  saving_credit
+	average_final  credit_final
+= 
+
+= 
+
+= 
+
+= 
+
+= 
+
 = fix rattrapable
 	SF S9 Travaux séminaires
 	SF S10 ??????
@@ -23,24 +49,7 @@
 	HYGN S6 Elabor
 	
 	LSP S6 ?????
-	
-= add to "annual_grade" after credit_r
-	average_final	numeric 10 2
-	credit_final	integer
 
-= 
-
-= 
-
-= 
-
-= 
-
-= 
-
-= 
-
-= 
 
 
 

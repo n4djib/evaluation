@@ -47,8 +47,11 @@
       </div>
 
       <div style="margin: 3px; float: left">
-      {% set refrech_url = url_for('annual_session_refrech', annual_session_id=annual_session.id) %}
-      <a href="{{url_for('slow_redirect', url=refrech_url) }}" class="btn btn-primary" role="button" >(Re)Calculate Annual Session</a>
+      <a href="{{url_for('_fetch_data_annual_grade', annual_session_id=annual_session.id) }}" 
+        class="btn btn-warning" role="button" >Fetch Data</a>
+
+      {% set refrech_url = url_for('calculate_annual_session', annual_session_id=annual_session.id) %}
+      <a href="{{url_for('slow_redirect', url=refrech_url) }}" class="btn btn-primary" role="button" >(Re)Calculate</a>
 
       <a href="{{url_for('students_rattrapage_annual', annual_session_id=annual_session.id)}}" class="btn btn-primary" role="button" >Show Ratt. List</a>
 
@@ -71,17 +74,20 @@
               {% endif %}
             </th>
             <th colspan="2">
-              {% if annual_dict['R1'] != -1 %}
-                <a href="{{ url_for('session', session_id=annual_dict['R1']) }}" target="_blank" >Ratt. 1</a>
-              {% else %}
-                Ratt. 1
-              {% endif %}
-            </th>
-            <th colspan="2">
               {% if annual_dict['S2'] != -1 %}
                 <a href="{{ url_for('session', session_id=annual_dict['S2']) }}" target="_blank" >Semester 2</a>
               {% else %}
                 Semester 2
+              {% endif %}
+            </th>
+            <th colspan="2">Annual</th>
+            <th rowspan="2">Ratt</th>
+
+            <th colspan="2">
+              {% if annual_dict['R1'] != -1 %}
+                <a href="{{ url_for('session', session_id=annual_dict['R1']) }}" target="_blank" >Ratt. 1</a>
+              {% else %}
+                Ratt. 1
               {% endif %}
             </th>
             <th colspan="2">
@@ -91,9 +97,9 @@
                 Ratt. 2
               {% endif %}
             </th>
-            <th colspan="2">Annual</th>
             <th colspan="2">Annual Ratt</th>
             <th colspan="2">Saving</th>
+            <th colspan="2">Final</th>
             <th colspan="1" rowspan="2">Obs.</th>
             <th colspan="1" rowspan="2">Bultin</th>
           </tr>
@@ -104,7 +110,7 @@
 
             <th>A</th><th>C</th><th>A</th><th>C</th>
 
-            <th>A</th><th>C</th>
+            <th>A</th><th>C</th><th>A</th><th>C</th>
             <!-- <th>Obs.</th> -->
           </tr>
         </thead>
