@@ -48,22 +48,14 @@
 			- when i close a Session i need to close and duplicate the Semester
 			- Semester Result Header is not repeating
 - finish permissions to allow multi-user-entering of Historic
-- a mask to Sort the studets of the third year
-		maybe do it with table tree (grouping)
-	1 - create table and fill it with the students (all years according to branch)
-		or give the choice of Licence or master
-	2 - collect data from History
-		give the choice between keeping entered data or crushing it
-		maybe show them both
-	3 - give the ability to add students and remove them
-	4 - Error and format checking
-	5 -
 - in AnnualGrade add AverageFinal
+classement in annual
 - link from Releve-Result to Module Grid
 - show init and calcule Warnings in Releve-Result
 	and in annual
 - can i put two links in a node ???
 - in AnnualSession show a Tree
+- 
 - Hidden buttons in Session Historic is not showing until you refrech the page
 - in Session progress icon
 	show progress with more icons
@@ -76,6 +68,16 @@
 - Print Module with averages
 - print rattrapage
 - annual Ratt print must show only when there is two semesters
+- a mask to Sort the studets of the third year
+		maybe do it with table tree (grouping)
+	1 - create table and fill it with the students (all years according to branch)
+		or give the choice of Licence or master
+	2 - collect data from History
+		give the choice between keeping entered data or crushing it
+		maybe show them both
+	3 - give the ability to add students and remove them
+	4 - Error and format checking
+	5 -
 - don't allow session config when session is closed especialy historic
 - add create new branch and school and promo
 	and add url_return to go back to tree after creation

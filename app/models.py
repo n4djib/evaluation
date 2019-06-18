@@ -76,6 +76,9 @@ class AnnualSession(db.Model):
         # assuming sessions always exist
         first_session = self.sessions[0]
         return first_session.get_annual_dict()
+    def get_annual_dict_obj(self):
+        first_session = self.sessions[0]
+        return first_session.get_annual_dict_obj()
     def get_normal_sessions(self):
         normal_sessions = []
         for session in self.sessions:
@@ -228,6 +231,14 @@ class Session(db.Model):
         if self.annual_session_id != None:
             _dict['A'] = self.annual_session_id
         return _dict
+    def get_annual_dict_obj(self):
+        annual_dict = self.get_annual_dict()
+        S1 = Session.query.get( annual_dict['S1'] )
+        S2 = Session.query.get( annual_dict['S2'] )
+        R1 = Session.query.get( annual_dict['R1'] )
+        R2 = Session.query.get( annual_dict['R2'] )
+        A = AnnualSession.query.get( annual_dict['A'] )
+        return {'S1': S1, 'S2': S2, 'R1': R1, 'R2': R2, 'A': A}
     # this will return the Ratt for a Normal Session and vice versa
     def get_parallel_session(self):
         sessions = Session.query.filter_by(promo_id=self.promo.id).join(Semester).join(Annual)\
@@ -314,6 +325,14 @@ class Session(db.Model):
     def is_historic(self):
         if self.type == 'historic' or self.type == 'historique':
             return True
+        return False
+    def check_recalculate_needed(self):
+        if self.is_historic():
+            return False
+        grades = Grade.query.join(StudentSession).filter_by(session_id=self.id).all()
+        for grade in grades:
+            if grade.is_dirty == True :
+                return True
         return False
 
 class StudentSession(db.Model):
@@ -403,21 +422,37 @@ class StudentSession(db.Model):
         if self.credit is not None and self.credit >= 30:
             return ''
         modules_list = self.get_ratt_modules_list_semester()
-        html = '<table>'
+        html = '<table class="table-no-border" >'
         # style='border: 1px solid black;'
-        html += '<tr><td colspan=3><i><b>'
+        html += '<tr><td colspan=2><i><b>'
         html += '    Semester ' + str(self.session.semester.get_nbr())
-        html += '</b></i></td></tr>'
+        html += '</b></i></td>  <td align="right"><i><b>Moy</b></i></td></tr>'
         for module_id in modules_list:
             module = Module.query.get_or_404(module_id)
             grade = Grade.query.filter_by(student_session_id=self.id, module_id=module_id).first()
             html += '<tr>'
             html += '<td>' + module.unit.display_name + '</td>'
-            html += '<td class="name">  ' + module.display_name.replace(' ', ' ') + '</td>'
+            html += '<td style=" width: 100%;">  ' + module.display_name.replace(' ', ' ') + '</td>'
             html += '<td>  ' + str(grade.average) + '</td>'
             # html += '<td> ' + str(grade.credit) + '</td>'
             html += '</tr>'
         html += '</table>'
+
+        # html = '<table style="width: 100%; border: 0px;">'
+        # # style='border: 1px solid black;'
+        # html += '<tr style="border: 0px;"><td style="border: 0px;" colspan=3><i><b>'
+        # html += '    Semester ' + str(self.session.semester.get_nbr())
+        # html += '</b></i></td></tr>'
+        # for module_id in modules_list:
+        #     module = Module.query.get_or_404(module_id)
+        #     grade = Grade.query.filter_by(student_session_id=self.id, module_id=module_id).first()
+        #     html += '<tr style="border: 0px;">'
+        #     html += '<td style="border: 0px;">' + module.unit.display_name + '</td>'
+        #     html += '<td style="width: 100%; border: 0px;">  ' + module.display_name.replace(' ', ' ') + '</td>'
+        #     html += '<td style="border: 0px;">  ' + str(grade.average) + '</td>'
+        #     # html += '<td> ' + str(grade.credit) + '</td>'
+        #     html += '</tr>'
+        # html += '</table>'
 
         return html
     def check_progress(self):
@@ -559,7 +594,10 @@ class Grade(db.Model):
         return s.username
     def get_student_name(self):
         s = self.student_session.student
-        return s.last_name + ' - ' + s.first_name
+        return s.last_name + ' ' + s.first_name
+    # def get_student_full_name(self):
+    #     s = self.student_session.student
+    #     return s.username + ' - ' + s.last_name + ' ' + s.first_name
     def get_ratt_bultin(self):
         if self.is_rattrapage == None or self.is_rattrapage == 0:
             return '1'
@@ -909,6 +947,8 @@ class Type(db.Model):
         return '{}'.format(self.type)
         # return '<Type {}>'.format(self.type)
 
+############################## 
+
 class Wilaya(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(10), index=True, unique=True)
@@ -949,6 +989,10 @@ class Student(db.Model):
     # @staticmethod
     def find(id):
         return db.session.query(Student).filter_by(id=id).one()
+    def get_student_name(self):
+        return self.last_name + ' ' + self.first_name
+    def get_student_long_name(self):
+        return self.username + ' - ' + self.last_name + ' ' + self.first_name
     def get_promos(self):
         promos = Promo.query.join(Session).join(StudentSession)\
             .filter_by(student_id=self.id).all()
@@ -1088,6 +1132,11 @@ class ClassementYear(db.Model):
     avr_classement = db.Column(db.Numeric(10,2))
 
 ############################## 
+
+# class Role(db.Model, RoleMixin):
+#     id = db.Column(db.Integer(), primary_key=True)
+#     name = db.Column(db.String(80), unique=True)
+#     description = db.Column(db.String(255))
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)

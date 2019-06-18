@@ -40,8 +40,7 @@
         {% for student in students %}
           <tr>
             <td>{{ loop.index }}</td>
-            {% set s = student.student %}
-            {% set name = s.username + " - " + s.last_name + " - " + s.first_name %}
+            {% set name = student.student.get_student_long_name() %}
             <td>{{ name | replace(' ', ' ') }}</td>
             <td>{{ student.average | replace('None', '') }}</td>
             <td>{{ student.credit | replace('None', '') }}</td>

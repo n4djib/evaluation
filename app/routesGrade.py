@@ -34,13 +34,9 @@ def grade_dlc(*args, **kwargs):
 @app.route('/session/<session_id>/module/<module_id>/', methods=['GET', 'POST'])
 @app.route('/session/<session_id>/student/<student_id>/<_all>/', methods=['GET', 'POST'])
 @app.route('/session/<session_id>/student/<student_id>/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree_session.session.grade', 'Grades by ***** ', dynamic_list_constructor=grade_dlc)
+@register_breadcrumb(app, '.tree_session.session.grade', '*** Grades by ***', dynamic_list_constructor=grade_dlc)
 def grade(session_id=0, module_id=0, student_id=0, _all=''):
     grades = None
-    # if session_id == 0:
-    #     type = 'module'
-    #     grades = Grade.query.all()
-    # else:
     if module_id != 0:
         type = 'module'
         grades = Grade.query.filter_by(module_id=module_id)\
@@ -48,21 +44,15 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
             .all()
     if student_id != 0:
         type = 'student'
-        grades = Grade.query\
-            .join(StudentSession).filter_by(session_id=session_id, student_id=student_id)\
+        grades = Grade.query.join(StudentSession)\
+            .filter_by(session_id=session_id, student_id=student_id)\
             .all()
 
-    ### Initialize the Columns
-    # cols = get_visible_cols(grades, type, _all)
     data = create_data_grid(grades, type)
-
 
     module = Module.query.get(module_id)
     student = Student.query.get(student_id)
     session = Session.query.get_or_404(session_id)
-
-    # return str(module.id) + '-'+ str(student) + '-'+ str(session.id)
-
 
     # 
     # Note: it will return only one Record
@@ -72,7 +62,6 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
     if type == 'module':
         get_hidden_values_flash(grades, session, module)
 
-    # grid_title = F'Module: {module.display_name}'
     grid_title = F'Module: ***********'
     if module_id != 0:
         grid_title = F'Module: {module.code} - {module.display_name}'
