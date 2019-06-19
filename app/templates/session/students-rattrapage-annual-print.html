@@ -1,0 +1,80 @@
+<html>
+<head>
+  <title>{{title}}</title>
+
+  <style type="text/css">
+    table {
+      border-collapse: collapse;
+      margin-left: 0px;
+      margin-right: 0px;
+
+      font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+      font-size: 14px;
+      line-height: 1.42857143;
+      color: #111;
+    }
+
+    th, tr, td {
+      border: 1px solid lightgray;
+      padding: 0px 4px;
+    }
+
+    .table-no-border th, .table-no-border tr, .table-no-border td {
+      border: 0px solid lightgray;
+      padding: 0px 4px;
+    }
+
+    tr {
+      page-break-inside:avoid;
+    }
+
+    /*tbody > tr:nth-child(even) { background-color: #f7f7ff; }
+    tbody > tr:hover { background-color: #f5f5f5; }*/
+
+
+    .name{
+       width: 100%;
+       border: 0px solid lightgray;
+    }
+
+  </style>
+</head>
+
+
+<body>
+
+  <div class="">
+  	<h2>Students Rattrapage Annual</h2>
+    
+      <table id="" class="">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Nom et Prenom</th>
+            <th scope="col">Moy</th>
+            <th scope="col">Credit</th>
+            <th scope="col">Modules</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for student in students %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            {% set name = student.student.get_student_long_name() %}
+            <td>{{ name | replace(' ', ' ') }}</td>
+            <td>{{ student.average | replace('None', '') }}</td>
+            <td>{{ student.credit | replace('None', '') }}</td>
+            <td>
+                {{ student.get_ratt_modules_list_annual_html() | safe }}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+  </div>
+
+
+</body>
+</html>
+
+ 

@@ -49,8 +49,8 @@ function sortTable(n) {
       var _y = y.innerHTML.toLowerCase();
 
       if (n !== 1 && n !== 2) {
-        _x = parseInt( x.innerHTML.toLowerCase() );
-        _y = parseInt( y.innerHTML.toLowerCase() );
+        _x = parseFloat( x.innerHTML.toLowerCase() );
+        _y = parseFloat( y.innerHTML.toLowerCase() );
       }
 
       if (dir == "asc") {

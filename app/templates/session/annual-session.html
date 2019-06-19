@@ -53,11 +53,28 @@
       {% set refrech_url = url_for('calculate_annual_session', annual_session_id=annual_session.id) %}
       <a href="{{url_for('slow_redirect', url=refrech_url) }}" class="btn btn-primary" role="button" >(Re)Calculate</a>
 
-      <a href="{{url_for('students_rattrapage_annual', annual_session_id=annual_session.id)}}" class="btn btn-primary" role="button" >Show Ratt. List</a>
+
+
+
+      {% if annual_session.annual.has_fondamental() != True %}
+      <a href="{{url_for('students_rattrapage_annual', annual_session_id=annual_session.id)}}" class="btn btn-info" role="button" >Show Ratt. List</a>
+      {% else %}
+        {% set S1 = annual_dict_obj['S1'] %}
+        <a href="{{url_for('students_rattrapage_semester', session_id=S1.id)}}"
+         class="btn btn-info" role="button" >Show Ratt. List S1</a>
+        {% set S2 = annual_dict_obj['S2'] %}
+        <a href="{{url_for('students_rattrapage_semester', session_id=S2.id)}}"
+         class="btn btn-info" role="button" >Show Ratt. List S2</a>
+      {% endif %}
+
+
 
       {% set all_bultin_url = url_for('bultin_annual_print_all', annual_session_id=annual_session.id) %}
       <a href="{{ url_for('slow_redirect', url=all_bultin_url, message='Collecting...') }}" class="btn btn-success" role="button" target="_blank" >Print All Bultin</a>
+
+      <a href="" class="btn btn-success disabled" role="button" target="_blank" >Print Annual</a>
       </div>
+
 
       </br> </br>
 
@@ -72,7 +89,8 @@
                 </br>
                 <font size="-2">({{ annual_dict_obj['S1'].check_progress() }}%)</font>
               {% else %}
-                Semester 1
+                Semester 1 </br>
+                <font size="-2"> </font>
               {% endif %}
             </th>
             <th colspan="2">
@@ -82,10 +100,16 @@
                 <font size="-2">({{ annual_dict_obj['S2'].check_progress() }}%)</font>
               {% else %}
                 Semester 2
+                </br>
+                <font size="-2"> </font>
               {% endif %}
             </th>
-            <th colspan="2">Annual</th>
-            <th rowspan="2">Ratt</th>
+            <th colspan="2">Annual
+                </br>
+                <font size="-2"> </font></th>
+            <th rowspan="2">Ratt
+                </br></br>
+                <font size="-2"> </font></th>
 
             <th colspan="2">
               {% if annual_dict_obj['R1'] != None %}
@@ -94,6 +118,8 @@
                 <font size="-2">({{ annual_dict_obj['R1'].check_progress() }}%)</font>
               {% else %}
                 Ratt. 1
+                </br>
+                <font size="-2"> </font>
               {% endif %}
             </th>
             <th colspan="2">
@@ -103,13 +129,30 @@
                 <font size="-2">({{ annual_dict_obj['R2'].check_progress() }}%)</font>
               {% else %}
                 Ratt. 2
+                </br>
+                <font size="-2"> </font>
               {% endif %}
             </th>
-            <th colspan="2">Annual Ratt</th>
-            <th colspan="2">Saving</th>
-            <th colspan="2">Final</th>
-            <th colspan="1" rowspan="2">Obs.</th>
-            <th colspan="1" rowspan="2">Bultin</th>
+            <th colspan="2">Annual Ratt
+                </br>
+                <font size="-2"> </font>
+            </th>
+            <th colspan="2">Saving
+                </br>
+                <font size="-2"> </font>
+            </th>
+            <th colspan="2">Final
+                </br>
+                <font size="-2"> </font>
+            </th>
+            <th colspan="1" rowspan="2">Obs.
+                </br></br>
+                <font size="-2"> </font>
+            </th>
+            <th colspan="2" rowspan="2">Bultin
+                </br></br>
+                <font size="-2"> </font>
+            </th>
           </tr>
           <tr>
             <th>A</th><th>C</th><th>A</th><th>C</th>
@@ -184,6 +227,7 @@
   
     {% include "_filter.js" %} 
 
+    {% include "session/annual-session-sort.js" %}
     
     $('#confirm-delete').on('show.bs.modal', function(e) {
       $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));

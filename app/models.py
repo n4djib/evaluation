@@ -422,21 +422,37 @@ class StudentSession(db.Model):
         if self.credit is not None and self.credit >= 30:
             return ''
         modules_list = self.get_ratt_modules_list_semester()
-        html = '<table>'
+        html = '<table class="table-no-border" >'
         # style='border: 1px solid black;'
-        html += '<tr><td colspan=3><i><b>'
+        html += '<tr><td colspan=2><i><b>'
         html += '    Semester ' + str(self.session.semester.get_nbr())
-        html += '</b></i></td></tr>'
+        html += '</b></i></td>  <td align="right"><i><b>Moy</b></i></td></tr>'
         for module_id in modules_list:
             module = Module.query.get_or_404(module_id)
             grade = Grade.query.filter_by(student_session_id=self.id, module_id=module_id).first()
             html += '<tr>'
             html += '<td>' + module.unit.display_name + '</td>'
-            html += '<td class="name">  ' + module.display_name.replace(' ', ' ') + '</td>'
+            html += '<td style=" width: 100%;">  ' + module.display_name.replace(' ', ' ') + '</td>'
             html += '<td>  ' + str(grade.average) + '</td>'
             # html += '<td> ' + str(grade.credit) + '</td>'
             html += '</tr>'
         html += '</table>'
+
+        # html = '<table style="width: 100%; border: 0px;">'
+        # # style='border: 1px solid black;'
+        # html += '<tr style="border: 0px;"><td style="border: 0px;" colspan=3><i><b>'
+        # html += '    Semester ' + str(self.session.semester.get_nbr())
+        # html += '</b></i></td></tr>'
+        # for module_id in modules_list:
+        #     module = Module.query.get_or_404(module_id)
+        #     grade = Grade.query.filter_by(student_session_id=self.id, module_id=module_id).first()
+        #     html += '<tr style="border: 0px;">'
+        #     html += '<td style="border: 0px;">' + module.unit.display_name + '</td>'
+        #     html += '<td style="width: 100%; border: 0px;">  ' + module.display_name.replace(' ', ' ') + '</td>'
+        #     html += '<td style="border: 0px;">  ' + str(grade.average) + '</td>'
+        #     # html += '<td> ' + str(grade.credit) + '</td>'
+        #     html += '</tr>'
+        # html += '</table>'
 
         return html
     def check_progress(self):
@@ -578,7 +594,10 @@ class Grade(db.Model):
         return s.username
     def get_student_name(self):
         s = self.student_session.student
-        return s.last_name + ' - ' + s.first_name
+        return s.last_name + ' ' + s.first_name
+    # def get_student_full_name(self):
+    #     s = self.student_session.student
+    #     return s.username + ' - ' + s.last_name + ' ' + s.first_name
     def get_ratt_bultin(self):
         if self.is_rattrapage == None or self.is_rattrapage == 0:
             return '1'
@@ -928,6 +947,8 @@ class Type(db.Model):
         return '{}'.format(self.type)
         # return '<Type {}>'.format(self.type)
 
+############################## 
+
 class Wilaya(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(10), index=True, unique=True)
@@ -968,6 +989,10 @@ class Student(db.Model):
     # @staticmethod
     def find(id):
         return db.session.query(Student).filter_by(id=id).one()
+    def get_student_name(self):
+        return self.last_name + ' ' + self.first_name
+    def get_student_long_name(self):
+        return self.username + ' - ' + self.last_name + ' ' + self.first_name
     def get_promos(self):
         promos = Promo.query.join(Session).join(StudentSession)\
             .filter_by(student_id=self.id).all()
@@ -1107,6 +1132,11 @@ class ClassementYear(db.Model):
     avr_classement = db.Column(db.Numeric(10,2))
 
 ############################## 
+
+# class Role(db.Model, RoleMixin):
+#     id = db.Column(db.Integer(), primary_key=True)
+#     name = db.Column(db.String(80), unique=True)
+#     description = db.Column(db.String(255))
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)

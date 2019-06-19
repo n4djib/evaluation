@@ -436,11 +436,11 @@ def create_classement_data_grid(classement_years, years):
 
 ########################################
 #####                              #####
-#####           RRR                #####
-#####           R  RATT            #####
-#####           RRR                #####
-#####           R  R               #####
-#####           R   R              #####
+#####          RRRR                #####
+#####          R   Rattrapage      #####
+#####          RRRR                #####
+#####          R  R                #####
+#####          R   R               #####
 #####                              #####
 ########################################
 
@@ -768,6 +768,11 @@ def students_rattrapage_annual(annual_session_id=0):
     return render_template('session/students-rattrapage-annual.html', 
         title='ratt-annual', students=students, annual_session_id=annual_session_id)
 
+@app.route('/annual-session/<annual_session_id>/rattrapage-print/', methods=['GET', 'POST'])
+def students_rattrapage_annual_print(annual_session_id=0):
+    students = get_students_to_enter_rattrapage_annual(annual_session_id)
+    return render_template('session/students-rattrapage-annual-print.html', 
+        title='ratt-annual-print', students=students, annual_session_id=annual_session_id)
 
 
 def get_student_annual_list(annual_session, annual_dict):
@@ -823,54 +828,6 @@ def init_annual_grade(annual_session):
 
 
 
-
-
-# @app.route('/annual-session/<annual_session_id>/fetch-data', methods=['GET', 'POST'])
-# def _fetch_data_annual_grade(annual_session_id):
-#     annual_session = AnnualSession.query.get_or_404(annual_session_id)
-#     fetch_data_annual_grade(annual_session)
-#     return redirect(url_for('annual_session', annual_session_id=annual_session_id))
-
-def fetch_data_annual_grade(annual_session):
-    annual_dict = annual_session.get_annual_dict()
-    annual_grades = annual_session.annual_grades
-    for an in annual_grades:
-        sess_1 = StudentSession.query.filter_by(
-            session_id=annual_dict['S1'], student_id=an.student_id).first()
-        sess_2 = StudentSession.query.filter_by(
-            session_id=annual_dict['S2'], student_id=an.student_id).first()
-
-        ratt_1 = StudentSession.query.filter_by(
-            session_id=annual_dict['R1'], student_id=an.student_id).first()
-        ratt_2 = StudentSession.query.filter_by(
-            session_id=annual_dict['R2'], student_id=an.student_id).first()
-
-        # Filling the fields from sessions
-        an.avr_1 = sess_1.average if sess_1 != None else None
-        an.cr_1  = sess_1.credit if sess_1 != None else None
-        an.avr_2 = sess_2.average if sess_2 != None else None
-        an.cr_2  = sess_2.credit if sess_1 != None else None
-
-        an.avr_r_1 = ratt_1.average if ratt_1 != None else None
-        an.cr_r_1 = ratt_1.credit if ratt_1 != None else None
-        an.avr_r_2 = ratt_2.average if ratt_2 != None else None
-        an.cr_r_2 = ratt_2.credit if ratt_2 != None else None
-
-        # and Nullify the rest
-        an.average = None
-        an.credit = None
-        an.average_r = None
-        an.credit_r = None
-
-        an.average_final = None
-        an.credit_final = None
-
-        an.enter_ratt = None
-
-    db.session.commit()
-    return "fetch_data_annual_grade"
-
-
 def average(avr_1, avr_2):
     """ the two vals must not be None """
     if avr_1 != None and avr_2 != None:
@@ -897,7 +854,6 @@ def calculate_annual(annual_session):
     annual_grades = annual_session.annual_grades
 
     for an in annual_grades:
-
         is_fondamental = an.annual_session.sessions[0].semester.has_fondamental()
         # 
         # before Ratt
@@ -945,6 +901,9 @@ def calculate_annual(annual_session):
             observation = 'Admis'
             obs_html = '<span class="label label-success">Admis</span>'
 
+            if an.average_final < 10 and an.credit_final < 30:
+                observation = 'Ajournée'
+                obs_html = '<span class="label label-danger">Ajournée</span>'
 
         if an.average_r != None:
             if an.average_final < 10 and an.credit_final >= 30:
@@ -955,10 +914,6 @@ def calculate_annual(annual_session):
                 observation = 'Ajournée'
                 obs_html = '<span class="label label-danger">Ajournée</span>'
 
-
-
-
-
         an.observation = observation
         an.obs_html = obs_html
 
@@ -967,13 +922,53 @@ def calculate_annual(annual_session):
     return 'calculate_annual'
 
 
+def fetch_data_annual_grade(annual_session):
+    annual_dict = annual_session.get_annual_dict()
+    annual_grades = annual_session.annual_grades
+    for an in annual_grades:
+        sess_1 = StudentSession.query.filter_by(
+            session_id=annual_dict['S1'], student_id=an.student_id).first()
+        sess_2 = StudentSession.query.filter_by(
+            session_id=annual_dict['S2'], student_id=an.student_id).first()
+
+        ratt_1 = StudentSession.query.filter_by(
+            session_id=annual_dict['R1'], student_id=an.student_id).first()
+        ratt_2 = StudentSession.query.filter_by(
+            session_id=annual_dict['R2'], student_id=an.student_id).first()
+
+        # Filling the fields from sessions
+        an.avr_1 = sess_1.average if sess_1 != None else None
+        an.cr_1  = sess_1.credit if sess_1 != None else None
+        an.avr_2 = sess_2.average if sess_2 != None else None
+        an.cr_2  = sess_2.credit if sess_1 != None else None
+
+        an.avr_r_1 = ratt_1.average if ratt_1 != None else None
+        an.cr_r_1 = ratt_1.credit if ratt_1 != None else None
+        an.avr_r_2 = ratt_2.average if ratt_2 != None else None
+        an.cr_r_2 = ratt_2.credit if ratt_2 != None else None
+
+        # and Nullify the rest
+        an.average = None
+        an.credit = None
+        an.average_r = None
+        an.credit_r = None
+
+        an.average_final = None
+        an.credit_final = None
+
+        an.enter_ratt = None
+
+    db.session.commit()
+    return "fetch_data_annual_grade"
+
+
 @app.route('/annual-session/<annual_session_id>/refrech', methods=['GET', 'POST'])
 def annual_session_refrech(annual_session_id=0):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
 
     init_annual_grade(annual_session)
     fetch_data_annual_grade(annual_session)
-    # calculate_annual(annual_session)
+    calculate_annual(annual_session)
 
     return redirect(url_for('annual_session', annual_session_id=annual_session_id))
 
@@ -985,12 +980,15 @@ def annual_session_refrech(annual_session_id=0):
 def create_data_annual_session(annual_session):
     annual_dict = annual_session.get_annual_dict()
     student_ids = get_student_annual_list(annual_session, annual_dict)
+
     annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id).all()
+    # annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id)\
+    #     .order_by(AnnualGrade.average_final.desc()).all()
 
     array_data = []
     for index, an in enumerate(annual_grades):
         student = an.student
-        name = student.username+' - '+student.last_name+' '+student.first_name
+        name = student.get_student_long_name()
 
         cross_s1 = ''
         cross_s2 = ''
@@ -1059,6 +1057,7 @@ def annual_session_dlc(*args, **kwargs):
     return [{'text': '' + name, 
         'url': url_for('annual_session', annual_session_id=annual_session_id) }]
 
+# @app.route('/annual-session/<annual_session_id>/sort/asc/', methods=['GET', 'POST'])
 @app.route('/annual-session/<annual_session_id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree_annual.annual', '***', dynamic_list_constructor=annual_session_dlc)
 def annual_session(annual_session_id=0):
@@ -1070,6 +1069,31 @@ def annual_session(annual_session_id=0):
         title='Annual Session', annual_session=annual_session, 
         array_data=array_data, annual_dict_obj=annual_dict_obj)
 
+def flash_check_annual_session(annual_dict_obj):
+    S1 = annual_dict_obj['S1']
+    S2 = annual_dict_obj['S2']
+    R1 = annual_dict_obj['R1']
+    R2 = annual_dict_obj['R2']
+    if S1 != None:
+        if S1.is_config_changed():
+            flash("Semester 1 init needed", 'alert-warning')
+        if S1.check_recalculate_needed():
+            flash("Semester 1 recalculate needed", 'alert-warning')
+    if S2 != None:
+        if S2.is_config_changed():
+            flash("Semester 2 init needed", 'alert-warning')
+        if S2.check_recalculate_needed():
+            flash("Semester 2 recalculate needed", 'alert-warning')
+    if R1 != None:
+        if R1.is_config_changed():
+            flash("Ratt. 1 init needed", 'alert-warning')
+        if R1.check_recalculate_needed():
+            flash("Ratt. 1 recalculate needed", 'alert-warning')
+    if R2 != None:
+        if R2.is_config_changed():
+            flash("Ratt. 2 init needed", 'alert-warning')
+        if R2.check_recalculate_needed():
+            flash("Ratt. 2 recalculate needed", 'alert-warning')
 
 def flash_check_annual_session(annual_dict_obj):
     S1 = annual_dict_obj['S1']
