@@ -47,6 +47,7 @@
 			- open Config on a Module
 			- when i close a Session i need to close and duplicate the Semester
 			- Semester Result Header is not repeating
+- in Grid move the cursure by the Arrow jump the line at the end of the 
 - finish permissions to allow multi-user-entering of Historic
 - a mask to Sort the studets of the third year
 		maybe do it with table tree (grouping)
@@ -58,18 +59,18 @@
 	3 - give the ability to add students and remove them
 	4 - Error and format checking
 	5 -
-- in AnnualGrade add AverageFinal
+			- in AnnualGrade add AverageFinal
 - link from Releve-Result to Module Grid
 - show init and calcule Warnings in Releve-Result
 	and in annual
 - can i put two links in a node ???
-- in AnnualSession show a Tree
+- in annual_session show a Tree
 - Hidden buttons in Session Historic is not showing until you refrech the page
 - in Session progress icon
 	show progress with more icons
-- Tree - remove hints from links
-- Tree show InitAll & CalcAll buttons or Flash
-	maybe indecate it the need to calculate if the Entries are finished
+			- Tree - remove hints from links
+			- Tree show InitAll & CalcAll buttons or Flash
+-maybe indecate the need to calculate in Tree if the Entries are finished
 - add/remove Student order in Chrome
 - in Config Tree
 	order the percentages according to grid
@@ -77,6 +78,10 @@
 - print rattrapage
 - annual Ratt print must show only when there is two semesters
 - don't allow session config when session is closed especialy historic
+- in Student Grid
+	show final Average and Credit
+	in real time
+	 when you save show the result
 - add create new branch and school and promo
 	and add url_return to go back to tree after creation
 - in ratt annual indicate students who entered the rattrapage

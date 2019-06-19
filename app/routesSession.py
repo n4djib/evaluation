@@ -434,13 +434,15 @@ def create_classement_data_grid(classement_years, years):
     return '[ ' + data_arr + ' ]'
 
 
-#######################################
-#####                             #####
-#####                             #####
-#####             RATT            #####
-#####                             #####
-#####                             #####
-#######################################
+########################################
+#####                              #####
+#####           RRR                #####
+#####           R  RATT            #####
+#####           RRR                #####
+#####           R  R               #####
+#####           R   R              #####
+#####                              #####
+########################################
 
 def create_rattrapage(session_id):
     session = Session.query.get_or_404(session_id)
@@ -723,13 +725,14 @@ def students_rattrapage_semester(session_id=0):
 
 
 
-#######################################
-#####                             #####
-#####                             #####
-#####            Annual           #####
-#####                             #####
-#####                             #####
-#######################################
+#################################################################
+#####                                                       #####
+#####          A     N   N  N   N  U   U    A    L          #####
+#####         A A    N N N  N N N  U   U   A A   L          #####
+#####        A = A   N  NN  N  NN  U   U  A = A  L          #####
+#####       A     A  N   N  N   N   UUU  A     A LLLLL      #####
+#####                                                       #####
+#################################################################
 
 @app.route('/annual-session/<annual_session_id>/create-rattrapage/', methods=['GET', 'POST'])
 def create_rattrapage_annual(annual_session_id=0):
@@ -822,11 +825,11 @@ def init_annual_grade(annual_session):
 
 
 
-@app.route('/annual-session/<annual_session_id>/fetch-data', methods=['GET', 'POST'])
-def _fetch_data_annual_grade(annual_session_id):
-    annual_session = AnnualSession.query.get_or_404(annual_session_id)
-    fetch_data_annual_grade(annual_session)
-    return redirect(url_for('annual_session', annual_session_id=annual_session_id))
+# @app.route('/annual-session/<annual_session_id>/fetch-data', methods=['GET', 'POST'])
+# def _fetch_data_annual_grade(annual_session_id):
+#     annual_session = AnnualSession.query.get_or_404(annual_session_id)
+#     fetch_data_annual_grade(annual_session)
+#     return redirect(url_for('annual_session', annual_session_id=annual_session_id))
 
 def fetch_data_annual_grade(annual_session):
     annual_dict = annual_session.get_annual_dict()
@@ -868,9 +871,6 @@ def fetch_data_annual_grade(annual_session):
     return "fetch_data_annual_grade"
 
 
-# def ifNone(val):
-#     return val if val != None else 0
-
 def average(avr_1, avr_2):
     """ the two vals must not be None """
     if avr_1 != None and avr_2 != None:
@@ -884,16 +884,11 @@ def credit(cr_1, cr_2, is_fondamental, average):
         return 60
     return  cr_1 + cr_2
 
-
-# def average_r(avr_1, avr_2, avr_1_r, avr_1_r):
-#     if avr_1_r == None and avr_1_r == None:
-#         return None
-#     if 
-
-
 @app.route('/annual-session/<annual_session_id>/calculate', methods=['GET', 'POST'])
 def calculate_annual_session(annual_session_id=0):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
+    init_annual_grade(annual_session)
+    fetch_data_annual_grade(annual_session)
     calculate_annual(annual_session)
     return redirect(url_for('annual_session', annual_session_id=annual_session_id))
 
@@ -938,37 +933,38 @@ def calculate_annual(annual_session):
         cr_s = an.saving_credit
         cr_r = an.credit_r
         an.credit_final = cr_s if cr_s != None else cr_r if cr_r != None else an.credit
+
+
+
+        # don't fill Observation when the mudules are not filled
+
+        observation = 'Rattrapage'
+        obs_html = '<span class="label label-warning">Rattrapage</span>'
+
+        if an.credit_final == 60: 
+            observation = 'Admis'
+            obs_html = '<span class="label label-success">Admis</span>'
+
+
+        if an.average_r != None:
+            if an.average_final < 10 and an.credit_final >= 30:
+                observation = 'Admis avec dettes'
+                obs_html = '<span class="label label-warning">Admis avec dettes</span>'
+
+            if an.average_final < 10 and an.credit_final < 30:
+                observation = 'Ajournée'
+                obs_html = '<span class="label label-danger">Ajournée</span>'
+
+
+
+
+
+        an.observation = observation
+        an.obs_html = obs_html
+
         
     db.session.commit()
     return 'calculate_annual'
-
-
-
-    # don't fill Observation when the mudules are not filled
-
-    # observation = 'Rattrapage'
-    # obs_html = '<span class="label label-warning">Rattrapage</span>'
-    # if an.credit != None:
-    #     if an.credit is not None and an.credit >= 60:
-    #         observation = 'Admis'
-    #         obs_html = '<span class="label label-success">Admis</span>'
-    # if an.credit_r != None:
-    #     if an.credit_r < 60:
-    #         observation = 'Admis avec dettes'
-    #         obs_html = '<span class="label label-danger">Admis avec dettes</span>'
-    #     if an.credit_r >= 60:
-    #         observation = 'Admis Apres Ratt.'
-    #         obs_html = '<span class="label label-info">Admis Apres Ratt.</span>'
-
-    # an.observation = observation
-    # an.obs_html = obs_html
-
-
-
-
-
-
-
 
 
 @app.route('/annual-session/<annual_session_id>/refrech', methods=['GET', 'POST'])
@@ -976,7 +972,7 @@ def annual_session_refrech(annual_session_id=0):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
 
     init_annual_grade(annual_session)
-    # fetch_data_annual_grade(annual_session)
+    fetch_data_annual_grade(annual_session)
     # calculate_annual(annual_session)
 
     return redirect(url_for('annual_session', annual_session_id=annual_session_id))
@@ -1016,9 +1012,14 @@ def create_data_annual_session(annual_session):
         bultin_ratt = '''<a href ="''' +  url_ratt + '''" class="btn btn-primary btn-xs"
             target="_blank" role="button"> Bultin Ratt </a>'''
 
+        ratt = ''
+        if an.enter_ratt == True:
+            ratt = '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>'
+
+
         array_data.append([
             '<td class="center">' + str(index+1) + '</td>', 
-            '<td>' + name.replace(' ', ' ') + '</td>', 
+            '<td style="white-space: nowrap;">' + name + '</td>', 
 
             '<td class="right '+cross_s1+'">'  + str(an.avr_1) + '</td>', 
             '<td class="center '+cross_s1+'">' + str(an.cr_1) + '</td>', 
@@ -1026,7 +1027,8 @@ def create_data_annual_session(annual_session):
             '<td class="center '+cross_s2+'">' + str(an.cr_2) + '</td>', 
             '<td class="right '+cross_average+'">'  + str(an.average) + '</td>', 
             '<td class="center '+cross_average+'">' + str(an.credit) + '</td>', 
-            '<td class="center">' + str(an.enter_ratt).replace('False', '') + '</td>', 
+
+            '<td class="center">' + ratt + '</td>', 
 
             '<td class="right">'  + str(an.avr_r_1) + '</td>', 
             '<td class="center">' + str(an.cr_r_1) + '</td>',
@@ -1062,11 +1064,38 @@ def annual_session_dlc(*args, **kwargs):
 def annual_session(annual_session_id=0):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
     array_data = create_data_annual_session(annual_session)
-    annual_dict = annual_session.get_annual_dict()
+    annual_dict_obj = annual_session.get_annual_dict_obj()
+    flash_check_annual_session(annual_dict_obj)
     return render_template('session/annual-session.html', 
         title='Annual Session', annual_session=annual_session, 
-        array_data=array_data, annual_dict=annual_dict)
+        array_data=array_data, annual_dict_obj=annual_dict_obj)
 
+
+def flash_check_annual_session(annual_dict_obj):
+    S1 = annual_dict_obj['S1']
+    S2 = annual_dict_obj['S2']
+    R1 = annual_dict_obj['R1']
+    R2 = annual_dict_obj['R2']
+    if S1 != None:
+        if S1.is_config_changed():
+            flash("Semester 1 init needed", 'alert-warning')
+        if S1.check_recalculate_needed():
+            flash("Semester 1 recalculate needed", 'alert-warning')
+    if S2 != None:
+        if S2.is_config_changed():
+            flash("Semester 2 init needed", 'alert-warning')
+        if S2.check_recalculate_needed():
+            flash("Semester 2 recalculate needed", 'alert-warning')
+    if R1 != None:
+        if R1.is_config_changed():
+            flash("Ratt. 1 init needed", 'alert-warning')
+        if R1.check_recalculate_needed():
+            flash("Ratt. 1 recalculate needed", 'alert-warning')
+    if R2 != None:
+        if R2.is_config_changed():
+            flash("Ratt. 2 init needed", 'alert-warning')
+        if R2.check_recalculate_needed():
+            flash("Ratt. 2 recalculate needed", 'alert-warning')
 
 
 
@@ -1167,13 +1196,16 @@ def delete_annual_session(annual_session_id):
     return redirect(url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo.id))
     
 
-#######################################
-#####                             #####
-#####                             #####
-#####           Bultin            #####
-#####                             #####
-#####                             #####
-#######################################
+##############################################
+#####                                    #####
+#####            BBBB                    #####
+#####            B   Bultin              #####
+#####            BBBBB                   #####
+#####            B    B                  #####
+#####            B    B                  #####
+#####            BBBBB                   #####
+#####                                    #####
+##############################################
 
 def get_thead_bultin_semester():
     header = '<tr class="head">'

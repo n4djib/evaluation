@@ -76,6 +76,9 @@ class AnnualSession(db.Model):
         # assuming sessions always exist
         first_session = self.sessions[0]
         return first_session.get_annual_dict()
+    def get_annual_dict_obj(self):
+        first_session = self.sessions[0]
+        return first_session.get_annual_dict_obj()
     def get_normal_sessions(self):
         normal_sessions = []
         for session in self.sessions:
@@ -228,6 +231,14 @@ class Session(db.Model):
         if self.annual_session_id != None:
             _dict['A'] = self.annual_session_id
         return _dict
+    def get_annual_dict_obj(self):
+        annual_dict = self.get_annual_dict()
+        S1 = Session.query.get( annual_dict['S1'] )
+        S2 = Session.query.get( annual_dict['S2'] )
+        R1 = Session.query.get( annual_dict['R1'] )
+        R2 = Session.query.get( annual_dict['R2'] )
+        A = AnnualSession.query.get( annual_dict['A'] )
+        return {'S1': S1, 'S2': S2, 'R1': R1, 'R2': R2, 'A': A}
     # this will return the Ratt for a Normal Session and vice versa
     def get_parallel_session(self):
         sessions = Session.query.filter_by(promo_id=self.promo.id).join(Semester).join(Annual)\
@@ -314,6 +325,14 @@ class Session(db.Model):
     def is_historic(self):
         if self.type == 'historic' or self.type == 'historique':
             return True
+        return False
+    def check_recalculate_needed(self):
+        if self.is_historic():
+            return False
+        grades = Grade.query.join(StudentSession).filter_by(session_id=self.id).all()
+        for grade in grades:
+            if grade.is_dirty == True :
+                return True
         return False
 
 class StudentSession(db.Model):

@@ -316,12 +316,23 @@ def tree_annual(annual_session_id=0):
 def tree(school_id=0, branch_id=0, promo_id=-1):
     options_arr = get_options()
     nbr_reinit_needed = check_reinit_needed()
+    nbr_recalculate_needed = check_recalculate_needed()
+
+    # return "i: "+str(nbr_reinit_needed)+" - c: "+str(nbr_recalculate_needed)
+
     # nbr_reinit_needed = 1
     if nbr_reinit_needed > 0:
         reinit_url = url_for('tree_reinit_all')
         slow_redirect_url = url_for('slow_redirect', url=reinit_url, message='(Re)initializing ' + str(nbr_reinit_needed) + ' sessions')
-        btn = '<a id="re-init-all" class="btn btn-warning" href="'+slow_redirect_url+'" >(Re)init all</a>'
+        btn = '<a id="re-init-all" class="btn btn-warning" href="'+slow_redirect_url+'" >(Re)initialize All</a>'
         msg = str(nbr_reinit_needed) + ' Sessions needs to be (Re)initialized    ' + btn
+        flash(msg, 'alert-warning')
+
+    if nbr_recalculate_needed > 0:
+        recalculate_url = url_for('tree_recalc_all')
+        slow_redirect_url = url_for('slow_redirect', url=recalculate_url, message='(Re)calculating' + str(nbr_recalculate_needed) + ' sessions')
+        btn = '<a id="re-calc-all" class="btn btn-warning" href="'+slow_redirect_url+'" >(Re)Calculate All</a>'
+        msg = str(nbr_recalculate_needed) + ' Sessions needs to be (Re)calculate    ' + btn
         flash(msg, 'alert-warning')
 
     _tree_ = get_schools_tree(int(school_id), int(branch_id), int(promo_id))
@@ -365,7 +376,6 @@ def get_options_by_promo(promo):
         options += '<option value='+val+' '+selected+'>'+opt+'</option>'
     return options
 
-
 def get_options():
     array = []
     promos = Promo.query.all()
@@ -389,16 +399,48 @@ def check_reinit_needed():
 @app.route('/tree/re-init/school/<school_id>', methods=['GET'])
 @app.route('/tree/re-init/', methods=['GET'])
 def tree_reinit_all(school_id=0):
-    nbr_reinit = check_reinit_needed()
+    # nbr_reinit = check_reinit_needed()
     sessions = Session.query.filter_by(is_closed=False).all()
     nbr_init = 0
     for session in sessions:
         if session.is_config_changed():
             init_all(session)
-            calculate_all(session)
+            # calculate_all(session)
             nbr_init += 1
     flash( str(nbr_init) + " reinitialized")
 
     return redirect( url_for('tree') )
 
+#
+#
+#
+
+def check_recalculate_needed():
+    # sessions = Session.query.filter_by(is_closed=False)\
+    #     .filter(Session.type!='historic').all()
+    sessions = Session.query.filter_by(is_closed=False).all()
+    count = 0
+    for session in sessions:
+        if session.check_recalculate_needed():
+            count += 1
+    return count
+
+@app.route('/tree/re-calc/school/<school_id>', methods=['GET'])
+@app.route('/tree/re-calc/', methods=['GET'])
+def tree_recalc_all(school_id=0):
+    # sessions = Session.query.filter_by(is_closed=False)\
+    #     .filter(Session.type!='historic').all()
+    sessions = Session.query.filter_by(is_closed=False).all()
+    nbr_calc = 0
+    for session in sessions:
+        if session.check_recalculate_needed():
+            calculate_all(session)
+            nbr_calc += 1
+    flash( str(nbr_calc) + " reinitialized")
+
+    return redirect( url_for('tree') )
+
+
+#
+#
 #
