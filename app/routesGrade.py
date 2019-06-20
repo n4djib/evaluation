@@ -163,9 +163,14 @@ def grade_going_to_change(grade, data):
 
     return False
 
+@app.route('/grade/save/type/<type>', methods = ['GET', 'POST'])
 @app.route('/grade/save/', methods = ['GET', 'POST'])
-def grade_save():
+def grade_save(type=''):
     data_arr = request.json
+
+    student_id = None
+    if type == 'student':
+        student_id = int(data_arr[0]['id'])
 
     for i, data in enumerate(data_arr, start=0):
         grade = Grade.query.filter_by(id = int(data['id'])).first()
@@ -182,13 +187,24 @@ def grade_save():
         grade.stage = data['stage']
 
 
-        # commected this to not save Null Averages
+        ## commented this to not save Null Averages
         # grade.average = data['average']
         # grade.credit = data['credit']
 
         db.session.commit()
 
-    return 'data saved'
+    # if type is student return : Annual and Semestre Average and Credit
+    if type == 'student':
+        grade_id = int(data_arr[0]['id'])
+        grade = Grade.query.get(grade_id)
+        if grade == None:
+            return 'type student but Grade not found'
+        student_session = grade.student_session
+
+        return 'Annual and Semestre Average and Credit'
+
+
+    return 'data saved hhhhhhh'
 
 
 ##########################
@@ -252,18 +268,21 @@ def get_module_cols(module):
         cols.append(type.grade_table_field)
     return cols
 
-def get_module_columns(module):
+def get_module_columns(module, show_avr):
     percentages = module.percentages
-    headers = ['#', 'Matricule', 'Nom', 'Prenom']
+    headers = ['#', 'Matricule', 'Nom et Prenom']
 
     for percentage in percentages:
         type_id = percentage.type_id
         type = Type.query.get_or_404(type_id)
         headers.append(type.type + ' ('+str(int(percentage.percentage*100))+'%)')
         # headers.append(type.type + ' ('+  +'%)')
+    if show_avr == 'yes':
+        headers.append('average')
+        headers.append('credit')
     return headers
 
-def create_data_for_module(grades, cols, empty=''):
+def collect_data_for_module(grades, cols, empty=''):
     data = []
     for index, grade in enumerate(grades, start=1):
         record = []
@@ -271,9 +290,10 @@ def create_data_for_module(grades, cols, empty=''):
 
         record.append(index)
         record.append(student.username)
-        record.append(student.last_name)
-        record.append(student.first_name)
+        record.append(student.last_name + ' ' + student.first_name)
+        # record.append(student.first_name)
         if empty == 'yes':
+            #cour
             record.append('')
             if 'td' in cols:
                 record.append('')
@@ -283,7 +303,12 @@ def create_data_for_module(grades, cols, empty=''):
                 record.append('')
             if 'stage' in cols:
                 record.append('')
+            if 'average' in cols:
+                record.append('')
+            if 'credit' in cols:
+                record.append('')
         else:
+            #cour
             record.append(grade.cour)
             # WARNING: this one shoold be Dynamic
             if 'td' in cols:
@@ -294,6 +319,10 @@ def create_data_for_module(grades, cols, empty=''):
                 record.append(grade.t_pers)
             if 'stage' in cols:
                 record.append(grade.stage)
+            if 'average' in cols:
+                record.append(grade.average)
+            if 'credit' in cols:
+                record.append(grade.credit)
 
         data.append(record)
     return data
@@ -301,10 +330,10 @@ def create_data_for_module(grades, cols, empty=''):
 # print empty
 # with grades
 # with averages
-# by order
-def get_module_print_table(session, module, empty='', order='username'):
+# sort
+def create_module_print_table(session, module, empty, sort, show_avr):
     grades = None
-    if order == 'username':
+    if sort == 'username':
         grades = Grade.query.filter_by(module_id=module.id)\
             .join(StudentSession).filter_by(session_id=session.id)\
             .join(Student).order_by(Student.username)\
@@ -316,8 +345,11 @@ def get_module_print_table(session, module, empty='', order='username'):
             .all()
 
     cols = get_module_cols(module)
-    columns = get_module_columns(module)
-    data_arr = create_data_for_module(grades, cols, empty)
+    if show_avr == 'yes':
+        cols.append('average')
+        cols.append('credit')
+    columns = get_module_columns(module, show_avr)
+    data_arr = collect_data_for_module(grades, cols, empty)
 
 
     table = '<table class="table table-condensed ">'
@@ -392,19 +424,19 @@ def get_module_print_header(session, module):
     """
     return header
 
-@app.route('/session/<session_id>/module/<module_id>/print/order/<order>/empty/<empty>/', methods=['GET', 'POST'])
-@app.route('/session/<session_id>/module/<module_id>/print/empty/<empty>/order/<order>/', methods=['GET', 'POST'])
-@app.route('/session/<session_id>/module/<module_id>/print/order/<order>/', methods=['GET', 'POST'])
-@app.route('/session/<session_id>/module/<module_id>/print/empty/<empty>/', methods=['GET', 'POST'])
 @app.route('/session/<session_id>/module/<module_id>/print/', methods=['GET', 'POST'])
-def module_print(session_id=0, module_id=0, empty='', order='username'):
+def module_print(session_id=0, module_id=0):
     session = Session.query.get_or_404(session_id)
     module = Module.query.get_or_404(module_id)
+
+    empty = request.args.get('empty', default='', type=str)
+    sort = request.args.get('sort', default='username', type=str)
+    show_avr = request.args.get('show', default='yes', type=str)
 
     # return "module_print: " + str(module.name)
 
     print_header = get_module_print_header(session, module)
-    table = get_module_print_table(session, module, empty, order)
+    table = create_module_print_table(session, module, empty, sort, show_avr)
     
     branch = session.promo.branch.name
     semester = session.semester.get_nbr()

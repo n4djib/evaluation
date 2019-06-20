@@ -42,6 +42,7 @@
 
 == PRIORITY 1 ==
 ----------------
+			- annual should show semester number
 			- in Tree exclude ajax loading except for Promo
 			- if there is no Cour, how deos the student pass the ratt
 			- open Config on a Module
@@ -49,24 +50,31 @@
 			- Semester Result Header is not repeating
 			- Tree - remove hints from links
 			- Tree show InitAll & CalcAll buttons or Flash
-- in Grid move the cursure by the Arrow jump the line at the end of the 
-- finish permissions to allow multi-user-entering of Historic
-- in AnnualGrade add AverageFinal
-- classement in annual
-- link from Releve-Result to Module Grid
-
-- show Semester Average & Annual Average
-- the Option to activate Live calcule
-	do it in a background job
-- last cell is not sorting
+			- last cell is not sorting
+- module + averages
+- in Grades grid its not sorting empty cells
 - make the navigation easier
+	show Semester Average & Annual Average
 	between semesters
 	from semester result to Module Grid
 	from annual to grids
 	and from ratt
 	and the notion of URL_RETURN
 		you can add a flash of url_return
-- in Grades grid its not sorting empty cells
+
+- when you transfaire students to the next year
+	they have to qualify
+	transfaire from annual, not from semester
+- show if fondamental in Session
+	but show only if SF
+- in Grid move the cursure by the Arrow jump the line at the end of the 
+- finish permissions to allow multi-user-entering of Historic
+- in AnnualGrade add AverageFinal
+- classement in annual
+- link from Releve-Result to Module Grid
+
+- the Option to activate Live calcule
+	do it in a background job
 - Semester Result add the option to close module width
 - show Session in Semester Result
 - after sorting Semester Result 

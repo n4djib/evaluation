@@ -90,9 +90,7 @@ function fill_cols() {
 }
 
 var save = document.getElementById("save");
-var autosave = document.getElementById("autosave");
 var message = document.getElementById("message");
-var autosaveNotification;
 
 hotElement.innerHTML = '';
 
@@ -180,10 +178,16 @@ if (cols['formula']['visible'] === true)
     renderer: formulaRenderer
   });
 
-/***************/
-/***************/
-/***************/
 
+
+
+
+/*************************/
+/*************************/
+/******* autosave ********/
+
+var autosave = document.getElementById("autosave");
+var autosaveNotification;
 var is_dirty = false;
 var msg_autosaved = 'Changes will not be autosaved';
 
@@ -209,15 +213,11 @@ function shake_message(){
   message.innerHTML = msg;
 }
 
-// Handsontable.dom.addEvent(save, 'click', function() {
-//   if (autosave.checked){
-//     msg_autosaved = 'Changes will be autosaved';
-//     shake_message();
-//   } else {
-//     msg_autosaved = 'Changes will not be autosaved';
-//     shake_message();
-//   }
-// });
+
+/*************************/
+/*************************/
+
+
 
 //order by Student if type is module
 var columnSorting = {};
@@ -381,7 +381,7 @@ $("#save").click(function(){
   if (!autosave.checked)
     autosaveNotification = setTimeout(function() {
       shake_message();
-    }, 1000);
+    }, 2000);
 });
 
 function Save(){
@@ -395,10 +395,12 @@ function Save(){
     dataType: 'text',
     async: true,
     success: function(msg) {
-      shake_message();
+      shake_message(msg);
+
+      // alert("YOUR SUCCESS MESSAGE HERE");
       
       is_dirty = false;
-      console.log('---' + msg + '---');
+      console.log('--fff-' + msg + '-fff--');
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       alert("some error");
@@ -561,17 +563,8 @@ function autoSave(change, source) {
 
   autosaveNotification = setTimeout(function() {
     shake_message(msg_autosaved);
-  }, 1000);
+  }, 2000);
 
-  // $.ajax('/grade/save/', 
-  //   'POST', 
-  //   JSON.stringify({data: change}), function(data){
-  //     message.innerText = 'Autosaved (' + 
-  //       change.length + ' ' + 'cell' + (change.length > 1 ? 's' : '') + ')';
-      // autosaveNotification = setTimeout(function() {
-      //   message.innerText = msg_autosaved;
-      // }, 2000);
-  //   });
 }
 
 function calculateAverage(record, formula) {

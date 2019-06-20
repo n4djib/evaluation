@@ -125,28 +125,34 @@
       target="_blank" class="btn btn-primary" role="button">Print PDF</a> -->
     <!-- <a href ="{ {url_for('print_module_students_empty', session_id=session.id, module_id=module.id, empty='yes')}}" target="_blank" class="btn btn-primary" role="button">Print PDF Empty</a> -->
 
-    <a href ="{{url_for('module_print', session_id=session.id, module_id=module.id) }}"
+    <input id="checkbox-empty" type="checkbox" name="selected"
+     value="empty" class="products"> Empty<br>
+    <input id="checkbox-sort" type="checkbox" checked name="selected"
+     value="sort" class="products"> Sort by Name<br>
+    <input id="checkbox-show" type="checkbox" checked name="selected"
+     value="show" class="products"> Show Average & Credit<br>
+
+    <a id='link' href ="{{ url_for('module_print', session_id=session.id, module_id=module.id) }}"
       target="_blank" class="btn btn-primary" role="button">Print</a>
-    <a href ="{{url_for('module_print', session_id=session.id, module_id=module.id, empty='yes')}}" 
+    <!-- <a href ="{{url_for('module_print', session_id=session.id, module_id=module.id, empty='yes')}}" 
       target="_blank" class="btn btn-primary" role="button">Print Empty</a>
 
     <a href ="{{url_for('module_print', session_id=session.id, module_id=module.id, order='name')}}"
       target="_blank" class="btn btn-primary" role="button">Print ordered</a>
     <a href ="{{url_for('module_print', session_id=session.id, module_id=module.id, empty='yes', order='name') }}"
-      target="_blank" class="btn btn-primary" role="button">Print Empty ordered</a>
+      target="_blank" class="btn btn-primary" role="button">Print Empty ordered</a> -->
     {% endif %}
 
     </br></br>
+    </br></br>
 
   </div>
-  - don't save if not valide</br>
-       fix the messages</br>
   - show an error message</br>
   - if autosave is false set DIRTY</br>
   - i need to check that the Modules are up to date with the configuration</br>
        maybe i shoold add the Messing Modules in gray and Flag the Extras</br>
   - color cells according to value</br>
-  - Add a Free Grade insertion for teachers like a Draft maybe in the table percentage</br>  
+  - Add a Free Grade insertion for teachers like a Draft</br>  
   - Download Excel
   </br>
   </br>
@@ -168,6 +174,42 @@
     //     return 'You have unsaved changes! ********';
     //   }
     // }
+
+    function make_print_url(){
+
+      var original_url = "{{ url_for('module_print', session_id=session.id, module_id=module.id) }}";
+
+      var elem_empty = $("#checkbox-empty");
+      var elem_sort = $("#checkbox-sort");
+      var elem_show = $("#checkbox-show");
+
+      var url = original_url;
+      if( elem_empty.is(":checked") )
+        url += '?empty=yes';
+      else
+        url += '?empty=no';
+
+      if( elem_sort.is(":checked") )
+        url += '&sort=name';
+      else
+        url += '&sort=username';
+
+      if( elem_show.is(":checked") )
+        url += '&show=yes';
+      else
+        url += '&show=no';
+      
+      console.log(url);
+
+      document.getElementById("link").setAttribute("href", url);
+
+    }
+
+    make_print_url();
+
+    $("input[type=checkbox]").on("change", function(){
+      make_print_url();
+    })
 
   </script>
 {% endblock %}

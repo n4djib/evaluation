@@ -1191,15 +1191,15 @@ def collect_data_annual_session_print(annual_session, sort=''):
 
         moyen1 = an.avr_r_1 if an.avr_r_1 != None else an.avr_1
         credit1 = an.cr_r_1 if an.cr_r_1 != None else an.cr_1
-        session1 = '' if an.cr_r_1 == None else 'R'
+        session1 = '1' if an.cr_r_1 == None else '2'
 
         moyen2 = an.avr_r_2 if an.avr_r_2 != None else an.avr_2
         credit2 = an.cr_r_2 if an.cr_r_2 != None else an.cr_2
-        session2 = '' if an.cr_r_2 == None else 'R'
+        session2 = '1' if an.cr_r_2 == None else '2'
 
         moyen_f = an.average_final
         credit_f = an.credit_final
-        session_f = '' if an.cr_r_1 == None and an.cr_r_2 == None else 'R'
+        session_f = '1' if an.cr_r_1 == None and an.cr_r_2 == None else '2'
         observation = an.observation
 
         array_data.append([
@@ -1211,16 +1211,16 @@ def collect_data_annual_session_print(annual_session, sort=''):
         ])
     return array_data
 
-
 @app.route('/annual-session/<annual_session_id>/print/<sort>/', methods=['GET', 'POST'])
 @app.route('/annual-session/<annual_session_id>/print/', methods=['GET', 'POST'])
 def annual_session_print(annual_session_id=0, sort=''):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
     array_data = collect_data_annual_session_print(annual_session, sort)
     header = make_annual_print_header(annual_session, 'Resultat Annual')
+    annual_dict_obj = annual_session.get_annual_dict_obj()
     return render_template('session/annual-session-print.html', 
         title='Annual Session Print', 
-        array_data=array_data, header=header)
+        array_data=array_data, header=header, annual_dict_obj=annual_dict_obj)
 
 
 
@@ -1231,34 +1231,37 @@ def flash_check_annual_session(annual_dict_obj):
     R1 = annual_dict_obj['R1']
     R2 = annual_dict_obj['R2']
     if S1 != None:
+        nbr = str(annual_dict_obj['S1'].semester.get_nbr())
         if S1.is_config_changed():
             btn = make_button_session_reinit(S1)
-            flash("Semester 1 init needed "+btn, 'alert-warning')
+            flash("Semester ("+nbr+") init needed", 'alert-warning')
         if S1.check_recalculate_needed():
             btn = make_button_session_recalc(S1)
-            flash("Semester 1 recalculate needed "+btn, 'alert-warning')
+            flash("Semester ("+nbr+") recalculate needed", 'alert-warning')
     if S2 != None:
+        nbr = str(annual_dict_obj['S2'].semester.get_nbr())
         if S2.is_config_changed():
             btn = make_button_session_reinit(S2)
-            flash("Semester 2 init needed "+btn, 'alert-warning')
+            flash("Semester ("+nbr+") init needed", 'alert-warning')
         if S2.check_recalculate_needed():
             btn = make_button_session_recalc(S2)
-            flash("Semester 2 recalculate needed "+btn, 'alert-warning')
+            flash("Semester ("+nbr+") recalculate needed", 'alert-warning')
     if R1 != None:
+        nbr = str(annual_dict_obj['R1'].semester.get_nbr())
         if R1.is_config_changed():
             btn = make_button_session_reinit(R1)
-            flash("Ratt. 1 init needed "+btn, 'alert-warning')
+            flash("Ratt. ("+nbr+") init needed", 'alert-warning')
         if R1.check_recalculate_needed():
             btn = make_button_session_recalc(R1)
-            flash("Ratt. 1 recalculate needed "+btn, 'alert-warning')
+            flash("Ratt. ("+nbr+") recalculate needed", 'alert-warning')
     if R2 != None:
+        nbr = str(annual_dict_obj['R2'].semester.get_nbr())
         if R2.is_config_changed():
             btn = make_button_session_reinit(R2)
-            flash("Ratt. 2 init needed "+btn, 'alert-warning')
+            flash("Ratt. ("+nbr+") init needed", 'alert-warning')
         if R2.check_recalculate_needed():
             btn = make_button_session_recalc(R2)
-            flash("Ratt. 2 recalculate needed "+btn, 'alert-warning')
-
+            flash("Ratt. ("+nbr+") recalculate needed", 'alert-warning')
 
 def make_button_session_reinit(session):
     session_id = session.id

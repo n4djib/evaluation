@@ -425,7 +425,7 @@ class StudentSession(db.Model):
         html = '<table class="table-no-border" >'
         # style='border: 1px solid black;'
         html += '<tr><td colspan=2><i><b>'
-        html += '    Semester ' + str(self.session.semester.get_nbr())
+        html += '    Semestre ' + str(self.session.semester.get_nbr())
         html += '</b></i></td>  <td align="right"><i><b>Moy</b></i></td></tr>'
         for module_id in modules_list:
             module = Module.query.get_or_404(module_id)
