@@ -47,11 +47,36 @@
 			- open Config on a Module
 			- when i close a Session i need to close and duplicate the Semester
 			- Semester Result Header is not repeating
+			- Tree - remove hints from links
+			- Tree show InitAll & CalcAll buttons or Flash
 - in Grid move the cursure by the Arrow jump the line at the end of the 
 - finish permissions to allow multi-user-entering of Historic
 - in AnnualGrade add AverageFinal
 - classement in annual
 - link from Releve-Result to Module Grid
+
+- show Semester Average & Annual Average
+- the Option to activate Live calcule
+	do it in a background job
+- last cell is not sorting
+- make the navigation easier
+	between semesters
+	from semester result to Module Grid
+	from annual to grids
+	and from ratt
+	and the notion of URL_RETURN
+		you can add a flash of url_return
+- in Grades grid its not sorting empty cells
+- Semester Result add the option to close module width
+- show Session in Semester Result
+- after sorting Semester Result 
+	keep the index ordered
+- after filter keep the index ordered
+- don't close the Grid before Saing
+- show messages automaticaly through Ajax
+	init and calcul
+- show there is errors Grid in the Tree
+
 - show init and calcule Warnings in Releve-Result
 	and in annual
 - can i put two links in a node ???
@@ -60,8 +85,6 @@
 - Hidden buttons in Session Historic is not showing until you refrech the page
 - in Session progress icon
 	show progress with more icons
-			- Tree - remove hints from links
-			- Tree show InitAll & CalcAll buttons or Flash
 -maybe indecate the need to calculate in Tree if the Entries are finished
 - add/remove Student order in Chrome
 - in Config Tree

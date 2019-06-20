@@ -1,6 +1,7 @@
 from app import app, db
 from flask import render_template, redirect, url_for, flash, request
 from app.models import Student, AnnualSession, User
+from app.forms import LoginForm
 # from werkzeug.urls import url_parse
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_breadcrumbs import register_breadcrumb
@@ -71,13 +72,14 @@ def index():
 
 @app.route('/slow-redirect/', methods=['GET', 'POST'])
 def slow_redirect():
-    url = request.args.get('url', default='**', type=str)
+    url = request.args.get('url', default='', type=str)
     message = request.args.get('message', default='', type=str)
     gif = request.args.get('gif', default='Preloader_8_2', type=str)
     if message != None and message != '':
         flash(message)
 
-    return render_template('slow-redirect.html', title='Redirect Page', url=url, message=message, gif=gif)
+    return render_template('slow-redirect.html', title='Redirect Page', 
+        url=url, message=message, gif=gif)
 
 
 #######################################

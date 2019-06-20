@@ -1,5 +1,5 @@
 from app import app, db
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, url_for, flash, request
 from app.models import Session, StudentSession, Grade, GradeUnit, Semester, Type, Module
 # from decimal import *
 import copy
@@ -165,17 +165,22 @@ def calculate_all(session):
 @app.route('/session/<session_id>/reinitialize-session/', methods=['GET', 'POST'])
 def reinitialize_session(session_id=0):
     session = Session.query.get_or_404(session_id)
+    url_return = request.args.get('url_return', default='', type=str)
     message = init_all(session)
     message += "</br>" + calculate_all(session)
     flash(message)
+    if url_return != '':
+        return redirect(url_return)
     return redirect(url_for('session', session_id=session_id))
 
 @app.route('/session/<session_id>/calculate-session/', methods=['GET', 'POST'])
 def calculate_session(session_id):
     session = Session.query.get_or_404(session_id)
+    url_return = request.args.get('url_return', default='', type=str)
     message = calculate_all(session)
     flash(message)
-
+    if url_return != '':
+        return redirect(url_return)
     return redirect(url_for('session', session_id=session_id))
 
 

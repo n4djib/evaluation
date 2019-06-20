@@ -771,8 +771,63 @@ def students_rattrapage_annual(annual_session_id=0):
 @app.route('/annual-session/<annual_session_id>/rattrapage-print/', methods=['GET', 'POST'])
 def students_rattrapage_annual_print(annual_session_id=0):
     students = get_students_to_enter_rattrapage_annual(annual_session_id)
+    annual_session = AnnualSession.query.get_or_404(annual_session_id)
+    header = make_annual_print_header(annual_session, 'Rattrapage Annual')
     return render_template('session/students-rattrapage-annual-print.html', 
-        title='ratt-annual-print', students=students, annual_session_id=annual_session_id)
+        title='ratt-annual-print', students=students, header=header, annual_session_id=annual_session_id)
+
+
+# headers #
+def make_annual_print_header(annual_session, label="**label**"):
+    school = annual_session.annual.branch.school.description
+    branch = annual_session.annual.branch.description
+
+    annual = annual_session.annual.get_string_literal()
+    promo = annual_session.promo.name
+    annual_pedagogique = annual_session.sessions[0].get_annual_pedagogique()
+
+    header = F"""
+      <div class="container" style="display: flex;">
+        <div style="flex-grow: 1;">
+            {school}<br/>
+            Sous Direction des Affaires Pèdagogiques<br/>
+            Département d'evaluation
+        </div>
+        <div style="flex-grow: 1;" align="center">
+            Promo {promo}<br/>
+            Année {annual_pedagogique}<br/>
+            <b><font size="+2">{label}</font></b>
+        </div>
+        <div style="flex-grow: 1;" align="right">
+            {annual}<br/>
+            {branch}
+        </div>
+      </div>
+    """
+    return header
+
+
+def make_semester_print_header(session, label="**label**"):
+    return label
+
+def make_annual_print_title(annual_session, label="**label**"):
+    return label
+
+
+
+def make_semester_print_title(session, label="**label**"):
+    # branch = session.promo.branch.name
+    semester = str(session.semester.get_nbr())
+    annual = str(session.semester.annual.annual)
+    promo = session.promo.name
+    ann_pedagog = session.get_annual_pedagogique()
+    # annual = session.semester.annual.get_string_literal()
+    dt = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    title = label +' - S;'+semester+' A;'+annual+' ['+promo+' - '+ann_pedagog+'] ('+str(dt)+')'
+    return title
+
+
+
 
 
 def get_student_annual_list(annual_session, annual_dict):
@@ -967,8 +1022,8 @@ def annual_session_refrech(annual_session_id=0):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
 
     init_annual_grade(annual_session)
-    fetch_data_annual_grade(annual_session)
-    calculate_annual(annual_session)
+    # fetch_data_annual_grade(annual_session)
+    # calculate_annual(annual_session)
 
     return redirect(url_for('annual_session', annual_session_id=annual_session_id))
 
@@ -977,7 +1032,7 @@ def annual_session_refrech(annual_session_id=0):
 
 
 
-def create_data_annual_session(annual_session):
+def collect_data_annual_session(annual_session):
     annual_dict = annual_session.get_annual_dict()
     student_ids = get_student_annual_list(annual_session, annual_dict)
 
@@ -1062,13 +1117,61 @@ def annual_session_dlc(*args, **kwargs):
 @register_breadcrumb(app, '.tree_annual.annual', '***', dynamic_list_constructor=annual_session_dlc)
 def annual_session(annual_session_id=0):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
-    array_data = create_data_annual_session(annual_session)
+    array_data = collect_data_annual_session(annual_session)
     annual_dict_obj = annual_session.get_annual_dict_obj()
     flash_check_annual_session(annual_dict_obj)
     return render_template('session/annual-session.html', 
         title='Annual Session', annual_session=annual_session, 
         array_data=array_data, annual_dict_obj=annual_dict_obj)
 
+
+def collect_data_annual_session_print(annual_session):
+    annual_dict = annual_session.get_annual_dict()
+    student_ids = get_student_annual_list(annual_session, annual_dict)
+
+    annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id).all()
+    # annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id)\
+    #     .order_by(AnnualGrade.average_final.desc()).all()
+
+    array_data = []
+    for index, an in enumerate(annual_grades):
+        name = an.student.get_student_long_name()
+
+        moyen1 = an.avr_r_1 if an.avr_r_1 != None else an.avr_1
+        credit1 = an.cr_r_1 if an.cr_r_1 != None else an.cr_1
+        session1 = '' if an.cr_r_1 == None else 'R'
+
+        moyen2 = an.avr_r_2 if an.avr_r_2 != None else an.avr_2
+        credit2 = an.cr_r_2 if an.cr_r_2 != None else an.cr_2
+        session2 = '' if an.cr_r_2 == None else 'R'
+
+        moyen_f = an.average_final
+        credit_f = an.credit_final
+        session_f = '' if an.cr_r_1 == None and an.cr_r_2 == None else 'R'
+        observation = an.observation
+
+        array_data.append([
+            index, name,
+            moyen1, credit1, session1, 
+            moyen2, credit2, session2, 
+            moyen_f, credit_f, session_f, 
+            observation
+        ])
+    return array_data
+
+
+@app.route('/annual-session/<annual_session_id>/print/', methods=['GET', 'POST'])
+def annual_session_print(annual_session_id=0):
+    annual_session = AnnualSession.query.get_or_404(annual_session_id)
+    array_data = collect_data_annual_session_print(annual_session)
+    header = make_annual_print_header(annual_session, 'Resultat Annual')
+    return render_template('session/annual-session-print.html', 
+        title='Annual Session Print', 
+        array_data=array_data, header=header)
+
+
+
+
 def flash_check_annual_session(annual_dict_obj):
     S1 = annual_dict_obj['S1']
     S2 = annual_dict_obj['S2']
@@ -1076,54 +1179,54 @@ def flash_check_annual_session(annual_dict_obj):
     R2 = annual_dict_obj['R2']
     if S1 != None:
         if S1.is_config_changed():
-            flash("Semester 1 init needed", 'alert-warning')
+            btn = make_button_session_reinit(S1)
+            flash("Semester 1 init needed "+btn, 'alert-warning')
         if S1.check_recalculate_needed():
-            flash("Semester 1 recalculate needed", 'alert-warning')
+            btn = make_button_session_recalc(S1)
+            flash("Semester 1 recalculate needed "+btn, 'alert-warning')
     if S2 != None:
         if S2.is_config_changed():
-            flash("Semester 2 init needed", 'alert-warning')
+            btn = make_button_session_reinit(S2)
+            flash("Semester 2 init needed "+btn, 'alert-warning')
         if S2.check_recalculate_needed():
-            flash("Semester 2 recalculate needed", 'alert-warning')
+            btn = make_button_session_recalc(S2)
+            flash("Semester 2 recalculate needed "+btn, 'alert-warning')
     if R1 != None:
         if R1.is_config_changed():
-            flash("Ratt. 1 init needed", 'alert-warning')
+            btn = make_button_session_reinit(R1)
+            flash("Ratt. 1 init needed "+btn, 'alert-warning')
         if R1.check_recalculate_needed():
-            flash("Ratt. 1 recalculate needed", 'alert-warning')
+            btn = make_button_session_recalc(R1)
+            flash("Ratt. 1 recalculate needed "+btn, 'alert-warning')
     if R2 != None:
         if R2.is_config_changed():
-            flash("Ratt. 2 init needed", 'alert-warning')
+            btn = make_button_session_reinit(R2)
+            flash("Ratt. 2 init needed "+btn, 'alert-warning')
         if R2.check_recalculate_needed():
-            flash("Ratt. 2 recalculate needed", 'alert-warning')
-
-def flash_check_annual_session(annual_dict_obj):
-    S1 = annual_dict_obj['S1']
-    S2 = annual_dict_obj['S2']
-    R1 = annual_dict_obj['R1']
-    R2 = annual_dict_obj['R2']
-    if S1 != None:
-        if S1.is_config_changed():
-            flash("Semester 1 init needed", 'alert-warning')
-        if S1.check_recalculate_needed():
-            flash("Semester 1 recalculate needed", 'alert-warning')
-    if S2 != None:
-        if S2.is_config_changed():
-            flash("Semester 2 init needed", 'alert-warning')
-        if S2.check_recalculate_needed():
-            flash("Semester 2 recalculate needed", 'alert-warning')
-    if R1 != None:
-        if R1.is_config_changed():
-            flash("Ratt. 1 init needed", 'alert-warning')
-        if R1.check_recalculate_needed():
-            flash("Ratt. 1 recalculate needed", 'alert-warning')
-    if R2 != None:
-        if R2.is_config_changed():
-            flash("Ratt. 2 init needed", 'alert-warning')
-        if R2.check_recalculate_needed():
-            flash("Ratt. 2 recalculate needed", 'alert-warning')
+            btn = make_button_session_recalc(R2)
+            flash("Ratt. 2 recalculate needed "+btn, 'alert-warning')
 
 
-
-
+def make_button_session_reinit(session):
+    session_id = session.id
+    annual_session_id = session.annual_session.id
+    url_return = url_for('annual_session', annual_session_id=annual_session_id)
+    reinit_url = url_for('reinitialize_session', session_id=session_id, url_return=url_return)
+    slow_redirect_url = url_for('slow_redirect', url=reinit_url, message='(Re)initializing')
+    btn = '<a id="re-init-"'+str(session_id)+' class="btn btn-warning"'
+    btn += ' href="'+slow_redirect_url+'" >(Re)initialize '+reinit_url+'</a>'
+    return btn
+   
+def make_button_session_recalc(session):
+    session_id = session.id
+    annual_session_id = session.annual_session.id
+    url_return = url_for('annual_session', annual_session_id=annual_session_id)
+    recalc_url = url_for('calculate_session', session_id=session_id, url_return=url_return)
+    slow_redirect_url = url_for('slow_redirect', url=recalc_url, message='(Re)recalculating')
+    btn = '<a id="re-calc-"'+str(session_id)+' class="btn btn-warning"'
+    btn += ' href="'+slow_redirect_url+'" >(Re)calculate '+recalc_url+'</a>'
+    return btn
+   
 
 
 
@@ -1588,14 +1691,6 @@ def get_bultin_annual(annual_grade):
         bultin += get_semester_modules_html(student_session)
 
     return bultin
-
-
-# @app.route('/annual-session/<annual_session_id>/student/<student_id>/bultin/', methods=['GET', 'POST'])
-# # @register_breadcrumb(app, '.tree_session.session.classement.bultin', 'Bultin')
-# def bultin_annual(annual_session_id, student_id):
-#     bultin = get_bultin_annual(annual_session_id, student_id)
-#     return render_template('student/bultin-annual.html',
-#         title='Bultin-Annual', table=bultin, annual_session_id=annual_session_id, student_id=student_id)
 
 @app.route('/annual-session/<annual_session_id>/student/<student_id>/bultin-print/', methods=['GET', 'POST'])
 # @register_breadcrumb(app, '.tree_session.session.classement.bultin', 'Bultin')

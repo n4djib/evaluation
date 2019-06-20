@@ -72,7 +72,8 @@
       {% set all_bultin_url = url_for('bultin_annual_print_all', annual_session_id=annual_session.id) %}
       <a href="{{ url_for('slow_redirect', url=all_bultin_url, message='Collecting...') }}" class="btn btn-success" role="button" target="_blank" >Print All Bultin</a>
 
-      <a href="" class="btn btn-success disabled" role="button" target="_blank" >Print Annual</a>
+      <a href="{{url_for('annual_session_print', annual_session_id=annual_session.id)}}"
+       class="btn btn-success" role="button" target="_blank" >Print Annual</a>
       </div>
 
 
@@ -227,7 +228,7 @@
   
     {% include "_filter.js" %} 
 
-    {% include "session/annual-session-sort.js" %}
+    // { % include "session/annual-session-sort.js" %}
     
     $('#confirm-delete').on('show.bs.modal', function(e) {
       $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
