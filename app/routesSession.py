@@ -724,6 +724,28 @@ def students_rattrapage_semester(session_id=0):
         title='ratt-semester', students=students, session_id=session_id)
 
 
+@app.route('/session/<session_id>/rattrapage-print/', methods=['GET', 'POST'])
+def students_rattrapage_semester_print(session_id=0):
+    students = get_students_to_enter_rattrapage_semester(session_id)
+    session = Session.query.get_or_404(session_id)
+    header = make_semester_print_header(session, 'Rattrapage Semestre '+str(session.semester.semester))
+    return render_template('session/students-rattrapage-semester-print.html', 
+        title='ratt-semester-print', students=students, header=header, session_id=session_id)
+
+
+
+
+
+# @app.route('/annual-session/<annual_session_id>/rattrapage-print/', methods=['GET', 'POST'])
+# def students_rattrapage_annual_print(annual_session_id=0):
+#     students = get_students_to_enter_rattrapage_annual(annual_session_id)
+#     annual_session = AnnualSession.query.get_or_404(annual_session_id)
+#     header = make_annual_print_header(annual_session, 'Rattrapage Annual')
+#     return render_template('session/students-rattrapage-annual-print.html', 
+#         title='ratt-annual-print', students=students, header=header, annual_session_id=annual_session_id)
+
+
+
 
 #################################################################
 #####                                                       #####
@@ -774,7 +796,8 @@ def students_rattrapage_annual_print(annual_session_id=0):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
     header = make_annual_print_header(annual_session, 'Rattrapage Annual')
     return render_template('session/students-rattrapage-annual-print.html', 
-        title='ratt-annual-print', students=students, header=header, annual_session_id=annual_session_id)
+        title='ratt-annual-print', students=students, header=header, 
+        annual_session_id=annual_session_id)
 
 
 # headers #
@@ -808,7 +831,33 @@ def make_annual_print_header(annual_session, label="**label**"):
 
 
 def make_semester_print_header(session, label="**label**"):
-    return label
+    school = session.promo.branch.school.description
+    branch = session.promo.branch.description
+
+    annual = session.semester.annual.get_string_literal()
+    promo = session.promo.name
+    annual_pedagogique = session.get_annual_pedagogique()
+
+    header = F"""
+      <div class="container" style="display: flex;">
+        <div style="flex-grow: 1;">
+            {school}<br/>
+            Sous Direction des Affaires Pèdagogiques<br/>
+            Département d'evaluation
+        </div>
+        <div style="flex-grow: 1;" align="center">
+            Promo {promo}<br/>
+            Année {annual_pedagogique}<br/>
+            <b><font size="+2">{label}</font></b>
+        </div>
+        <div style="flex-grow: 1;" align="right">
+            {annual}<br/>
+            {branch}
+        </div>
+      </div>
+    """
+    return header
+
 
 def make_annual_print_title(annual_session, label="**label**"):
     return label
@@ -1036,9 +1085,9 @@ def collect_data_annual_session(annual_session):
     annual_dict = annual_session.get_annual_dict()
     student_ids = get_student_annual_list(annual_session, annual_dict)
 
-    annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id).all()
     # annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id)\
     #     .order_by(AnnualGrade.average_final.desc()).all()
+    annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id).all()
 
     array_data = []
     for index, an in enumerate(annual_grades):
@@ -1112,10 +1161,9 @@ def annual_session_dlc(*args, **kwargs):
     return [{'text': '' + name, 
         'url': url_for('annual_session', annual_session_id=annual_session_id) }]
 
-# @app.route('/annual-session/<annual_session_id>/sort/asc/', methods=['GET', 'POST'])
 @app.route('/annual-session/<annual_session_id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree_annual.annual', '***', dynamic_list_constructor=annual_session_dlc)
-def annual_session(annual_session_id=0):
+def annual_session(annual_session_id=0, sort=''):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
     array_data = collect_data_annual_session(annual_session)
     annual_dict_obj = annual_session.get_annual_dict_obj()
@@ -1125,13 +1173,17 @@ def annual_session(annual_session_id=0):
         array_data=array_data, annual_dict_obj=annual_dict_obj)
 
 
-def collect_data_annual_session_print(annual_session):
+def collect_data_annual_session_print(annual_session, sort=''):
     annual_dict = annual_session.get_annual_dict()
     student_ids = get_student_annual_list(annual_session, annual_dict)
 
-    annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id).all()
-    # annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id)\
-    #     .order_by(AnnualGrade.average_final.desc()).all()
+    annual_grades = []
+    if sort == 'desc':
+        annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id)\
+            .order_by(AnnualGrade.average_final.desc()).all()
+    else:
+        annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id).all()
+
 
     array_data = []
     for index, an in enumerate(annual_grades):
@@ -1151,7 +1203,7 @@ def collect_data_annual_session_print(annual_session):
         observation = an.observation
 
         array_data.append([
-            index, name,
+            index+1, name,
             moyen1, credit1, session1, 
             moyen2, credit2, session2, 
             moyen_f, credit_f, session_f, 
@@ -1160,10 +1212,11 @@ def collect_data_annual_session_print(annual_session):
     return array_data
 
 
+@app.route('/annual-session/<annual_session_id>/print/<sort>/', methods=['GET', 'POST'])
 @app.route('/annual-session/<annual_session_id>/print/', methods=['GET', 'POST'])
-def annual_session_print(annual_session_id=0):
+def annual_session_print(annual_session_id=0, sort=''):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
-    array_data = collect_data_annual_session_print(annual_session)
+    array_data = collect_data_annual_session_print(annual_session, sort)
     header = make_annual_print_header(annual_session, 'Resultat Annual')
     return render_template('session/annual-session-print.html', 
         title='Annual Session Print', 

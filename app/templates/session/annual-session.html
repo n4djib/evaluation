@@ -57,23 +57,27 @@
 
 
       {% if annual_session.annual.has_fondamental() != True %}
-      <a href="{{url_for('students_rattrapage_annual', annual_session_id=annual_session.id)}}" class="btn btn-info" role="button" >Show Ratt. List</a>
+      <a href="{{url_for('students_rattrapage_annual', annual_session_id=annual_session.id)}}" class="btn btn-info" role="button" >Ratt. List</a>
       {% else %}
         {% set S1 = annual_dict_obj['S1'] %}
         <a href="{{url_for('students_rattrapage_semester', session_id=S1.id)}}"
-         class="btn btn-info" role="button" >Show Ratt. List S1</a>
+         class="btn btn-info" role="button" >Ratt. List S1</a>
         {% set S2 = annual_dict_obj['S2'] %}
         <a href="{{url_for('students_rattrapage_semester', session_id=S2.id)}}"
-         class="btn btn-info" role="button" >Show Ratt. List S2</a>
+         class="btn btn-info" role="button" >Ratt. List S2</a>
       {% endif %}
 
 
-
-      {% set all_bultin_url = url_for('bultin_annual_print_all', annual_session_id=annual_session.id) %}
-      <a href="{{ url_for('slow_redirect', url=all_bultin_url, message='Collecting...') }}" class="btn btn-success" role="button" target="_blank" >Print All Bultin</a>
-
       <a href="{{url_for('annual_session_print', annual_session_id=annual_session.id)}}"
-       class="btn btn-success" role="button" target="_blank" >Print Annual</a>
+       class="btn btn-success" role="button" target="_blank" >Print</a>
+      <a href="{{url_for('annual_session_print', annual_session_id=annual_session.id, sort='desc')}}"
+       class="btn btn-success" role="button" target="_blank" >Print ordered</a>
+
+      </div>
+
+      <div style="margin: 3px; float:right">
+      {% set all_bultin_url = url_for('bultin_annual_print_all', annual_session_id=annual_session.id) %} <a href="{{ url_for('slow_redirect', url=all_bultin_url, message='Collecting...') }}"
+       class="btn btn-success"  role="button" target="_blank" >Print All Bultin</a>
       </div>
 
 

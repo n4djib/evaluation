@@ -29,6 +29,26 @@
     }
 
 
+    .name {
+      /*width: 100%;*/
+      padding-left: 8px;
+      white-space: nowrap; 
+    }
+    .right {
+      text-align: right;
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+    .moyen {
+      text-align: right;
+      padding-left: 15px;
+      padding-right: 8px;
+    }
+    .credit {
+      text-align: center;
+    }
+
+
   </style>
 </head>
 
@@ -46,7 +66,7 @@
           <tr>
             <th scope="col">#</th>
             <th scope="col">Nom et Prenom</th>
-            <th scope="col">Moy</th>
+            <th scope="col">Moyen</th>
             <th scope="col">Credit</th>
             <th scope="col">Modules</th>
           </tr>
@@ -54,12 +74,12 @@
         <tbody>
         {% for student in students %}
           <tr>
-            <td>{{ loop.index }}</td>
+            <td class="right">{{ loop.index }}</td>
             {% set name = student.student.get_student_long_name() %}
-            <td>{{ name | replace(' ', ' ') }}</td>
-            <td>{{ student.average | replace('None', '') }}</td>
-            <td>{{ student.credit | replace('None', '') }}</td>
-            <td>
+            <td  style="width: 50%;" class="name">{{ name | replace(' ', ' ') }}</td>
+            <td class="moyen">{{ student.average | replace('None', '') }}</td>
+            <td class="credit">{{ student.credit | replace('None', '') }}</td>
+            <td style="width: 50%;">
                 {{ student.get_ratt_modules_list_annual_html() | safe }}
             </td>
           </tr>
@@ -71,9 +91,9 @@
   </div>
 
 
- <!--  <script type="text/javascript">
-    { % include "_print.js" %}
-  </script>  -->
+  <script type="text/javascript">
+    {% include "_print.js" %}
+  </script> 
 
 </body>
 </html>

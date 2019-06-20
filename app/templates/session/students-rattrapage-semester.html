@@ -22,6 +22,11 @@
 
   <div class="">
   	<h2>Students Rattrapage Semester</h2>
+    
+    <div style="margin-bottom: 3px;">
+      <a class="btn btn-primary" href="{{url_for('students_rattrapage_semester_print', session_id=session_id)}}" target="_blank">Print</a>
+    </div>
+
     <form action="{{ url_for('create_rattrapage_semester', session_id=session_id) }}"
           method="post" class="form" role="form">
     <!-- -------------------------------------------------- -->
@@ -53,7 +58,6 @@
         </tbody>
       </table>
       <input type="submit" class="btn btn-primary" value="Create Rattrapage">
-      <a class="btn btn-primary" >Print</a>
     </form>
   </div>
 

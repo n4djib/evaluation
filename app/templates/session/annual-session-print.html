@@ -24,8 +24,8 @@
 
 
     @page {
-      size: portrait;
-      /*margin-top: 20;
+      /*size: portrait;
+      margin-top: 20;
       margin-bottom: 1cm;
       margin-left: 20;
       margin-right: 20;*/
@@ -36,6 +36,7 @@
 
     .name {
       width: 100%;
+      padding-left: 8px;
       white-space: nowrap; 
     }
     .right {
@@ -43,7 +44,7 @@
       padding-left: 8px;
       padding-right: 8px;
     }
-    .moy {
+    .moyen {
       text-align: right;
       padding-left: 15px;
       padding-right: 8px;
@@ -101,15 +102,15 @@
             <td class="right">{{ data[0] | replace('None', '') }}</td>
             <td class="name">{{ data[1] | replace('None', '') }}</td>
 
-            <td class="moy">{{ data[2] | replace('None', '') }}</td>
+            <td class="moyen">{{ data[2] | replace('None', '') }}</td>
             <td class="credit">{{ data[3] | replace('None', '') }}</td>
             <td class="session">{{ data[4] | replace('None', '') }}</td>
 
-            <td class="moy">{{ data[5] | replace('None', '') }}</td>
+            <td class="moyen">{{ data[5] | replace('None', '') }}</td>
             <td class="credit">{{ data[6] | replace('None', '') }}</td>
             <td class="session">{{ data[7] | replace('None', '') }}</td>
 
-            <td class="moy">{{ data[8] | replace('None', '') }}</td>
+            <td class="moyen">{{ data[8] | replace('None', '') }}</td>
             <td class="credit">{{ data[9] | replace('None', '') }}</td>
             <td class="session">{{ data[10] | replace('None', '') }}</td>
 
@@ -123,9 +124,9 @@
   </div>
 
 
- <!--  <script type="text/javascript">
-    { % include "_print.js" %}
-  </script>  -->
+  <script type="text/javascript">
+    {% include "_print.js" %}
+  </script> 
 
 </body>
 </html>

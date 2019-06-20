@@ -73,6 +73,7 @@
 	keep the index ordered
 - after filter keep the index ordered
 - don't close the Grid before Saing
+- in ratt list add check all
 - show messages automaticaly through Ajax
 	init and calcul
 - show there is errors Grid in the Tree
