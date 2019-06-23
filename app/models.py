@@ -88,6 +88,12 @@ class AnnualSession(db.Model):
     def get_annual_pedagogique(self):
         session = self.sessions[0]
         return session.get_annual_pedagogique()
+    def calculate(self):
+        annual_grades = self.annual_grades
+        for annual_grade in annual_grades:
+            annual_grade.calculate()
+        return 'AnnualSession calculated'
+
 
 class AnnualGrade(db.Model):
     __tablename__ = 'annual_grade'

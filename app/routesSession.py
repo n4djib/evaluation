@@ -940,18 +940,20 @@ def calculate_annual_session(annual_session_id=0):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
     init_annual_grade(annual_session)
     fetch_data_annual_grade(annual_session)
-    calculate_annual(annual_session)
+    # calculate_annual(annual_session)
+    annual_session.calculate()
+    db.session.commit()
     return redirect(url_for('annual_session', annual_session_id=annual_session_id))
 
 
-def calculate_annual(annual_session):
-    annual_dict = annual_session.get_annual_dict()
-    annual_grades = annual_session.annual_grades
-    for annual_grade in annual_grades:
-        annual_grade.calculate()
+# def calculate_annual(annual_session):
+#     # annual_dict = annual_session.get_annual_dict()
+#     annual_grades = annual_session.annual_grades
+#     for annual_grade in annual_grades:
+#         annual_grade.calculate()
 
-    db.session.commit()
-    return 'calculate_annual'
+#     db.session.commit()
+#     return 'calculate_annual'
 
 def fetch_data_annual_grade(annual_session):
     annual_dict = annual_session.get_annual_dict()
@@ -1448,15 +1450,9 @@ def bultin_semester_print(session_id, student_id):
     header = get_header_bultin_semester(student_session)
     footer = get_footer_bultin_semester(student_session)
 
-    # session = Session.query.get_or_404(session_id)
-    # branch = session.promo.branch.name
-    # semester = session.semester.get_nbr()
-    # promo = session.promo.name
-    # s = student_session.student
-    # student = s.username+' '+s.last_name+' '+s.first_name
-    # dt = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-    # title = 'Bultin - '+branch+' S'+str(semester) + ' ['+promo+'] {'+student+'} ('+str(dt)+')' 
-    title = make_semester_print_title_by_student(session, s, 'Bultin - ')
+    session = Session.query.get_or_404(session_id)
+    student = student_session.student
+    title = make_semester_print_title_by_student(session, student, 'Bultin - ')
 
     # return table
     return render_template('student/bultin-semester-print.html', 
@@ -1477,7 +1473,7 @@ def bultin_semester_print_all(session_id):
 
         bultins.append( header + bultin + footer )
 
-    # session = Session.query.get_or_404(session_id)
+    session = Session.query.get_or_404(session_id)
     # branch = session.promo.branch.name
     # semester = session.semester.get_nbr()
     # promo = session.promo.name

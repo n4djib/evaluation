@@ -469,39 +469,31 @@ $("#save").click(function(){
     }, 2000);
 });
 
-// function Save(){
-//   $.ajax({
-//     // url: '/grade/save/',
-//     url: '{{ url_for("grade_save", type=type) if type == "student" else url_for("grade_save") }}', 
-//     type: 'POST',
-//     data: JSON.stringify( nullifyData(data_arr) ),
-//     // data: JSON.stringify(data_arr),
-//     contentType: 'application/json; charset=utf-8',
-//     dataType: 'text',
-//     async: true,
-//     success: function(msg) {
-//       shake_message(msg);
-
-//       // alert("YOUR SUCCESS MESSAGE HERE");
-      
-//       is_dirty = false;
-//       console.log('--fff-' + msg + '-fff--');
-//     },
-//     error: function(XMLHttpRequest, textStatus, errorThrown) {
-//       alert("some error");
-//     }
-//   });
-// }
 
 $(document).on('keydown', function(e){
+    // if (e.which == 37) { 
+    //    alert("left pressed");
+    //    return false;
+    // }
+
+    console.log( event.type + ": " +  event.which );
+
     if(e.ctrlKey && e.which === 83){ 
       // Check for the Ctrl key being pressed, and if the key = [S] (83)
-      console.log('Ctrl+S!');
+      console.log('Ctrl+S!!!!!!!!!');
       // $("#save").click();
       save.click();
       e.preventDefault();
       return false;
     }
+
+    // if(e.which === 39){ 
+    //   console.log('->');
+    //   // return move_cursor_in_grid();
+    //   return move_cursor_in_grid();
+    //   e.preventDefault();
+    //   return false;
+    // }
 });
 
 // window.onbeforeunload = function (e) {

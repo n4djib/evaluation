@@ -188,8 +188,7 @@ def calculate_student(session, student):
         db.session.commit()
 
     if ss != None:
-        calc = 'Semester Average: ' + str(ss.average)
-        calc += ' - Semester Credit: ' + str(ss.credit)
+        calc = 'Semester (Moy: '+str(ss.average)+' - Credit: '+str(ss.credit)+')'
 
         annual_session =  ss.session.annual_session
         if annual_session != None:
@@ -199,8 +198,7 @@ def calculate_student(session, student):
                 .first()
             ag.calculate()
             db.session.commit()
-            calc += '       </br>Annual Average: ' + str(ag.average_final)
-            calc += ' - Annual Credit: ' + str(ag.credit)
+            calc += '  Annual (Moy: '+str(ag.average_final)+' - Credit: ' + str(ag.credit)+')'
 
         return calc
     return 'calculate_student grades'

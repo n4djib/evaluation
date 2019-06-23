@@ -42,47 +42,53 @@
 
 == PRIORITY 1 ==
 ----------------
-			- annual should show semester number
-			- in Tree exclude ajax loading except for Promo
-			- if there is no Cour, how deos the student pass the ratt
-			- open Config on a Module
-			- when i close a Session i need to close and duplicate the Semester
-			- Semester Result Header is not repeating
-			- Tree - remove hints from links
-			- Tree show InitAll & CalcAll buttons or Flash
-			- last cell is not sorting
-			- module + averages
-			- in Grades grid its not sorting empty cells
-			- in Grid move the cursure by the Arrow jump the line at the end of the line
-				http://jsfiddle.net/qtfam5v1/
-			- remove license from Grid
-			- shrink seperator
-				make seperators unselectable
-			- activate print in semester result
-			- after sorting Semester Result 
-				keep the index ordered
-			- after filter keep the index ordered
-			- add Soting on Semester result to the url
-			- show filter in Url Semester result
-			- add tables to Mysql Workbench
-			- in AnnualGrade add AverageFinal
-			- Print Module with averages
-			- show for every student his promos and sessions and Grades
-				and printables
+			- add Session Config
+			- maybe i should not create RATT from annual when SF
+			- check the Observation (SF)
+			- how to add new nodes in Config Tree
+			- make a warrning in Annual of not filled fields
+			- why i can't delete rattrapage in SF
+			- move annual calcul to model "annual grade" and "annual session"
+
 - in Student Grid
 	show final Average and Credit
 	in real time
 	 when you save show the result
-			- in JS grid by student some errors are happining
 	because lack of element
-- show annual in students View
-- show session in resultat Semester
+	show annual in students View
 - add sort to annual
 - add sorter in UEF unit
-- semester Result Ratt must show Session
+- indecate the need to calculate in Annual
 
-- remove session from Annual
-- make the navigation easier
+
+
+
+- when i don't fill Rattrapage
+	and then calculate annual - some inconsistencies appear
+- in get_annual_chain_students_to_enter_rattrapage_annual
+	students list must return from before rattraage
+- lock annual
+
+
+
+= Session
+	- show session in resultat Semester
+	- semester Result Ratt must show Session
+	- in Result and Bultin 
+		be carefull of the source of the data (semester vs ratt)
+	- remove session from Annual
+
+== FINISH PRINTABLES
+	- classement in resultat
+	- finish the 3 printables first
+		bultin header + annual + ratt
+		and the choice between the two sessions
+		print From Annual Page
+		and module header
+	- Bultin Semester Header
+	- Bultin Average & credit & session
+
+== make the navigation easier
 	show Semester Average & Annual Average
 	between semesters
 	from semester result to Module Grid
@@ -91,22 +97,34 @@
 	and the notion of URL_RETURN
 		you can add a flash of url_return
 
-- when you transfaire students to the next year
-	they have to qualify
-	transfaire from annual, not from semester
-	Only Admit & Admit avec dette
-- show if fondamental in Session
-	but show only if SF
+== Refactoring
+	- move annual functions from Semester to Annual
+		like get_annual_chain
+	- in FORM SelectField should filter 
+	- when you transfer students to the next year
+		they have to qualify
+		transfaire from annual, not from semester
+		Only Admit & Admit avec dette
+
+
+
+
+
+
+			- show if fondamental in Session
+				but show only if SF
+			- link from Releve-Result to Module Grid
 - finish permissions to allow multi-user-entering of Historic
 - classement in annual
-- link from Releve-Result to Module Grid
 
 - the Option to activate Live calcule
 	do it in a background job
 - Semester Result add the option to close module width
+	??????????
+- in ratt list add check all
+	??????????
 
 - don't close the Grid before Saving
-- in ratt list add check all
 - show messages automaticaly through Ajax
 	init and calcul
 - show there is errors Grid in the Tree
@@ -182,41 +200,30 @@
 	when the table is Empty it still shows the header
 		use it in other Handsontable
 		
-- in Result and Bultin 
-	be carefull of the source of the data (semester vs ratt)
-- semester Result in fire firefox is skiping the first page
 - Don't forget to Comment 
 	get_semester_result_data in routesSession.py
 - a location to print all Printables
 - you have to show session (normal or ratt) in printables
 	result & bultin
 
-- FINISH PRINTABLES
-- classement in resultat
-- finish the 3 printables first
-	bultin header + annual + ratt
-	and the choice between the two sessions
-	print From Annual Page
-	and module header
 
 - annual Obs before and After Ratt
-- add Session Config
+
+
+
+
 
 - make Choice(Select) Empty in insert many Students
 	and don't allow submition
-- in module print
-	construct title
-	close page automaticaly after printing
-	and change the header
 - make the filter in Handsontale like the one in in _filter.js
 - make grid Save And Fetch Data from Server at the same time
 	to allow parrallel editing
 - open ratt with  Normal 
 - add create annual link to tree
 - use Python to retrive data from google forms
-- in module session
+- NOTE : in module session
 	it only allow one teacher
-- finish Progrission Etat
+- PRINT : finish Progrission Etat
 - add a place to run checkups on everything by buttons
 	* use ajax
 	like naming errors
@@ -226,43 +233,32 @@
 	order by group
 	teacher by group
 - in ratt check the data - FLASHES
-	is the grades Consistent
+	is the grades are Consistent
 	is the grade hiegher
 - MSG - do you want to create Ratt before finishing the filling
+	-- i chose to disable the button
 - close session before generating rattrapage
 	maybe no need
 	because we want to allow starting Ratt before coplite
-- Etat de Progrission de Saisie
-- a button to calculate all Open Sessions
+			- a button to calculate all Open Sessions
 - a place to run code on DATA
 - download Lists as Excel
 - i add/remove multi select flag the studet who has Grades Entered
 - Submit Data by CRTL+S in Update many & create many
 - in annual add link to Notes in Grid of the AnnualSession
-
-
-- in add/remove Student - Gliphcon Not appearig when internet is Off
-- when i don't fill Rattrapage
-	and then calculate annual - some inconsistencies appear
-- make a warrning in Annual of not filled fields
-
-- why i can't delete rattrapage in SF
-- in get_annual_chain_students_to_enter_rattrapage_annual
-	students list must return from before rattraage
-- maybe i should not create RATT from annual when SF
-
-- check the Observation (SF)
-- lock annual
-- upload PDF automaticaly to Google Drive
-
 - link from Annual to Student Grades
-- how to add new nodes in Config Tree
+- in add/remove Student - Gliphcon Not appearig when internet is Off
+- upload PDF automaticaly to Google Drive
 - pre-populate a table of bultin
-- move annual functions from Semester to Annual
-	like get_annual_chain
-- in FORM SelectField should filter 
+
+
+
+
+
+
+
+
 - add a button to navigate between a session(semester) and its ratt
-- move annual calcul to model "annual grade" and "annual session"
 
 - DANGER: a Promo can be in a Branch and have a Session and Semester in a different Branch
 - when creating a new session
@@ -625,6 +621,34 @@
 				not like clicking the title to expand
 			- in Tree show link to classement
 			- in Tree link to Promo Students list
+			- annual should show semester number
+			- in Tree exclude ajax loading except for Promo
+			- if there is no Cour, how deos the student pass the ratt
+			- open Config on a Module
+			- when i close a Session i need to close and duplicate the Semester
+			- Semester Result Header is not repeating
+			- Tree - remove hints from links
+			- Tree show InitAll & CalcAll buttons or Flash
+			- last cell is not sorting
+			- module + averages
+			- in Grades grid its not sorting empty cells
+			- in Grid move the cursure by the Arrow jump the line at the end of the line
+				http://jsfiddle.net/qtfam5v1/
+			- remove license from Grid
+			- shrink seperator
+				make seperators unselectable
+			- activate print in semester result
+			- after sorting Semester Result 
+				keep the index ordered
+			- after filter keep the index ordered
+			- add Soting on Semester result to the url
+			- show filter in Url Semester result
+			- add tables to Mysql Workbench
+			- in AnnualGrade add AverageFinal
+			- Print Module with averages
+			- show for every student his promos and sessions and Grades
+				and printables
+			- in JS grid by student some errors are happining
 
 
 
