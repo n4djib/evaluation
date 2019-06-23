@@ -4,6 +4,7 @@ from app.models import StudentSession, Grade, Module, Session, Student, Type, Mo
 from app.forms import ModuleSessionForm
 from flask_breadcrumbs import register_breadcrumb
 from datetime import datetime
+from app.routesCalculation import calculate_student
 
 
 
@@ -171,7 +172,7 @@ def grade_going_to_change(grade, data):
 
     return False
 
-@app.route('/grade/save/type/<type>', methods = ['GET', 'POST'])
+@app.route('/grade/save/type/<type>/', methods = ['GET', 'POST'])
 @app.route('/grade/save/', methods = ['GET', 'POST'])
 def grade_save(type=''):
     data_arr = request.json
@@ -194,7 +195,6 @@ def grade_save(type=''):
         grade.t_pers = data['t_pers']
         grade.stage = data['stage']
 
-
         ## commented this to not save Null Averages
         # grade.average = data['average']
         # grade.credit = data['credit']
@@ -209,6 +209,8 @@ def grade_save(type=''):
             return 'type student but Grade not found'
         student_session = grade.student_session
 
+        # return str(student_session.session.id) + ' - ' + str(student_session.student.id)
+        return calculate_student(student_session.session, student_session.student)
         return 'Annual and Semestre Average and Credit'
 
 

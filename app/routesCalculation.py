@@ -1,6 +1,6 @@
 from app import app, db
 from flask import render_template, redirect, url_for, flash, request
-from app.models import Session, StudentSession, Grade, GradeUnit, Semester, Type, Module
+from app.models import Session, StudentSession, AnnualGrade, Grade, GradeUnit, Semester, Type, Module
 # from decimal import *
 import copy
 from ast import literal_eval
@@ -160,6 +160,54 @@ def calculate_all(session):
     db.session.commit()
 
     return 'calculate_all'
+
+
+
+
+def calculate_student(session, student):
+    grades = Grade.query.join(StudentSession)\
+        .filter_by(session_id=session.id, student_id=student.id).all()
+
+    for grade in grades:
+        grade.calculate()
+    db.session.commit()
+
+    grade_units = GradeUnit.query.join(StudentSession)\
+        .filter_by(session_id=session.id, student_id=student.id).all()
+    for grade_unit in grade_units:
+        grade_unit.calculate()
+    db.session.commit()
+
+    # get only first
+    ss = None
+    students_session = StudentSession.query\
+        .filter_by(session_id=session.id, student_id=student.id).all()
+    for student_session in students_session:
+        ss = student_session
+        student_session.calculate()
+        db.session.commit()
+
+    if ss != None:
+        calc = 'Semester Average: ' + str(ss.average)
+        calc += ' - Semester Credit: ' + str(ss.credit)
+
+        annual_session =  ss.session.annual_session
+        if annual_session != None:
+            # calculate
+            ag = AnnualGrade.query\
+                .filter_by(annual_session_id=annual_session.id, student_id=student.id)\
+                .first()
+            ag.calculate()
+            db.session.commit()
+            calc += '       </br>Annual Average: ' + str(ag.average_final)
+            calc += ' - Annual Credit: ' + str(ag.credit)
+
+        return calc
+    return 'calculate_student grades'
+
+
+# @app.route('/session/<session_id>/reinitialize-session/', methods=['GET', 'POST'])
+# def calculate_student_____(session, student):
 
 
 @app.route('/session/<session_id>/reinitialize-session/', methods=['GET', 'POST'])

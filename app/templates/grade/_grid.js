@@ -1,4 +1,4 @@
-var data_arr = {{ data | safe | replace('None', 'null') }};
+
 var type = '{{ type | safe }}';
 
 var session_is_rattrapage = {{ session.is_rattrapage | safe | replace('T', 't') | replace('F', 'f') }};
@@ -7,6 +7,35 @@ var maxRows = data_arr.length;
 
 
 var hotElement = document.querySelector('#hot');
+
+
+
+function Save(){
+  $.ajax({
+    // url: '/grade/save/',
+    url: '{{ url_for("grade_save", type=type) if type == "student" else url_for("grade_save") }}', 
+    type: 'POST',
+    data: JSON.stringify( nullifyData(data_arr) ),
+    // data: JSON.stringify(data_arr),
+    contentType: 'application/json; charset=utf-8',
+    dataType: 'text',
+    async: true,
+    success: function(msg) {
+      shake_message(msg);
+
+      // alert("YOUR SUCCESS MESSAGE HERE");
+      
+      // is_dirty = false;
+      console.log('calculate_student: ' + msg);
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      alert("some error");
+    }
+  });
+}
+
+
+
 
 
 function get_fields_list(formula){
@@ -440,29 +469,29 @@ $("#save").click(function(){
     }, 2000);
 });
 
-function Save(){
-  $.ajax({
-    // url: '/grade/save/',
-    url: '{{ url_for("grade_save") }}', 
-    type: 'POST',
-    data: JSON.stringify( nullifyData(data_arr) ),
-    // data: JSON.stringify(data_arr),
-    contentType: 'application/json; charset=utf-8',
-    dataType: 'text',
-    async: true,
-    success: function(msg) {
-      shake_message(msg);
+// function Save(){
+//   $.ajax({
+//     // url: '/grade/save/',
+//     url: '{{ url_for("grade_save", type=type) if type == "student" else url_for("grade_save") }}', 
+//     type: 'POST',
+//     data: JSON.stringify( nullifyData(data_arr) ),
+//     // data: JSON.stringify(data_arr),
+//     contentType: 'application/json; charset=utf-8',
+//     dataType: 'text',
+//     async: true,
+//     success: function(msg) {
+//       shake_message(msg);
 
-      // alert("YOUR SUCCESS MESSAGE HERE");
+//       // alert("YOUR SUCCESS MESSAGE HERE");
       
-      is_dirty = false;
-      console.log('--fff-' + msg + '-fff--');
-    },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
-      alert("some error");
-    }
-  });
-}
+//       is_dirty = false;
+//       console.log('--fff-' + msg + '-fff--');
+//     },
+//     error: function(XMLHttpRequest, textStatus, errorThrown) {
+//       alert("some error");
+//     }
+//   });
+// }
 
 $(document).on('keydown', function(e){
     if(e.ctrlKey && e.which === 83){ 

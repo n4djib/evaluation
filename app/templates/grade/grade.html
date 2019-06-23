@@ -167,7 +167,13 @@
 {% block scripts %}
   {{ super() }}
   <script type="text/javascript">
-  
+
+    var data_arr = {{ data | safe | replace('None', 'null') }};
+
+  </script>
+
+  <script type="text/javascript">
+
     {% include "grade/_grid.js" %}
 
     // // messages are not working
@@ -207,7 +213,9 @@
       
       console.log(url);
 
-      document.getElementById("link").setAttribute("href", url);
+      var link = document.getElementById("link");
+      if(link !== null)
+        link.setAttribute("href", url);
 
     }
 

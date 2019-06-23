@@ -935,20 +935,6 @@ def init_annual_grade(annual_session):
 
 
 
-
-def average(avr_1, avr_2):
-    """ the two vals must not be None """
-    if avr_1 != None and avr_2 != None:
-        return (avr_1 + avr_2) / 2
-    return None
-
-def credit(cr_1, cr_2, is_fondamental, average):
-    if cr_1 == None or cr_2 == None:
-        return None
-    if is_fondamental == False and average >= 10:
-        return 60
-    return  cr_1 + cr_2
-
 @app.route('/annual-session/<annual_session_id>/calculate', methods=['GET', 'POST'])
 def calculate_annual_session(annual_session_id=0):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
@@ -957,78 +943,15 @@ def calculate_annual_session(annual_session_id=0):
     calculate_annual(annual_session)
     return redirect(url_for('annual_session', annual_session_id=annual_session_id))
 
+
 def calculate_annual(annual_session):
     annual_dict = annual_session.get_annual_dict()
     annual_grades = annual_session.annual_grades
+    for annual_grade in annual_grades:
+        annual_grade.calculate()
 
-    for an in annual_grades:
-        is_fondamental = an.annual_session.sessions[0].semester.has_fondamental()
-        # 
-        # before Ratt
-        an.average = average(an.avr_1, an.avr_2)
-        an.credit = credit(an.cr_1, an.cr_2, is_fondamental, an.average)
-
-        an.enter_ratt = False
-        if an.credit < 60:
-            an.enter_ratt = True
-
-        # 
-        # after Ratt
-        an.average_r = None
-        if an.avr_r_1 != None or an.avr_r_2 != None:
-            avr_r_1 = an.avr_r_1 if an.avr_r_1 != None else an.avr_1
-            avr_r_2 = an.avr_r_2 if an.avr_r_2 != None else an.avr_2
-            an.average_r = average(avr_r_1, avr_r_2)
-
-        an.credit_r = None
-        if an.cr_r_1 != None or an.cr_r_2 != None:
-            cr_r_1 = an.cr_r_1 if an.cr_r_1 != None else an.cr_1
-            cr_r_2 = an.cr_r_2 if an.cr_r_2 != None else an.cr_2
-            an.credit_r = credit(cr_r_1, cr_r_2, is_fondamental, an.average_r)
-        
-
-        # saving_average
-        # saving_credit
-
-        avr_s = an.saving_average
-        avr_r = an.average_r
-        an.average_final = avr_s if avr_s != None else avr_r if avr_r != None else an.average
-
-        cr_s = an.saving_credit
-        cr_r = an.credit_r
-        an.credit_final = cr_s if cr_s != None else cr_r if cr_r != None else an.credit
-
-
-
-        # don't fill Observation when the mudules are not filled
-
-        observation = 'Rattrapage'
-        obs_html = '<span class="label label-warning">Rattrapage</span>'
-
-        if an.credit_final == 60: 
-            observation = 'Admis'
-            obs_html = '<span class="label label-success">Admis</span>'
-
-            if an.average_final < 10 and an.credit_final < 30:
-                observation = 'Ajournée'
-                obs_html = '<span class="label label-danger">Ajournée</span>'
-
-        if an.average_r != None:
-            if an.average_final < 10 and an.credit_final >= 30:
-                observation = 'Admis avec dettes'
-                obs_html = '<span class="label label-warning">Admis avec dettes</span>'
-
-            if an.average_final < 10 and an.credit_final < 30:
-                observation = 'Ajournée'
-                obs_html = '<span class="label label-danger">Ajournée</span>'
-
-        an.observation = observation
-        an.obs_html = obs_html
-
-        
     db.session.commit()
     return 'calculate_annual'
-
 
 def fetch_data_annual_grade(annual_session):
     annual_dict = annual_session.get_annual_dict()

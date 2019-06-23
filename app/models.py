@@ -117,6 +117,7 @@ class AnnualGrade(db.Model):
     annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
     annual_session = db.relationship("AnnualSession", back_populates="annual_grades")
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+    # student
     def get_ratt_modules_list_annual_html(self):
         annual_dict = self.annual_session.get_annual_dict()
         student_session_1 = StudentSession.query\
@@ -138,6 +139,90 @@ class AnnualGrade(db.Model):
             _br = '</br>'
             
         return mudules_list_1 + _br + mudules_list_2
+
+
+    def calculate(self):
+        def average(avr_1, avr_2):
+            """ the two vals must not be None """
+            if avr_1 != None and avr_2 != None:
+                return (avr_1 + avr_2) / 2
+            return None
+
+        def credit(cr_1, cr_2, is_fondamental, average):
+            if cr_1 == None or cr_2 == None:
+                return None
+            if is_fondamental == False and average >= 10:
+                return 60
+            return  cr_1 + cr_2
+
+        ag = self
+
+        # is_fondamental = ag.annual_session.sessions[0].semester.has_fondamental()
+        is_fondamental = ag.annual_session.annual.has_fondamental()
+
+        # 
+        # before Ratt
+        ag.average = average(ag.avr_1, ag.avr_2)
+        ag.credit = credit(ag.cr_1, ag.cr_2, is_fondamental, ag.average)
+
+        ag.enter_ratt = False
+        if ag.credit < 60:
+            ag.enter_ratt = True
+
+        # 
+        # after Ratt
+        ag.average_r = None
+        if ag.avr_r_1 != None or ag.avr_r_2 != None:
+            avr_r_1 = ag.avr_r_1 if ag.avr_r_1 != None else ag.avr_1
+            avr_r_2 = ag.avr_r_2 if ag.avr_r_2 != None else ag.avr_2
+            ag.average_r = average(avr_r_1, avr_r_2)
+
+        ag.credit_r = None
+        if ag.cr_r_1 != None or ag.cr_r_2 != None:
+            cr_r_1 = ag.cr_r_1 if ag.cr_r_1 != None else ag.cr_1
+            cr_r_2 = ag.cr_r_2 if ag.cr_r_2 != None else ag.cr_2
+            ag.credit_r = credit(cr_r_1, cr_r_2, is_fondamental, ag.average_r)
+        
+
+        # saving_average
+        # saving_credit
+
+        avr_s = ag.saving_average
+        avr_r = ag.average_r
+        ag.average_final = avr_s if avr_s != None else avr_r if avr_r != None else ag.average
+
+        cr_s = ag.saving_credit
+        cr_r = ag.credit_r
+        ag.credit_final = cr_s if cr_s != None else cr_r if cr_r != None else ag.credit
+
+
+        # don't fill Observation when the mudules are not filled
+
+        observation = 'Rattrapage'
+        obs_html = '<span class="label label-warning">Rattrapage</span>'
+
+        if ag.credit_final == 60: 
+            observation = 'Admis'
+            obs_html = '<span class="label label-success">Admis</span>'
+
+            if ag.average_final < 10 and ag.credit_final < 30:
+                observation = 'Ajournée'
+                obs_html = '<span class="label label-danger">Ajournée</span>'
+
+        if ag.average_r != None:
+            if ag.average_final < 10 and ag.credit_final >= 30:
+                observation = 'Admis avec dettes'
+                obs_html = '<span class="label label-warning">Admis avec dettes</span>'
+
+            if ag.average_final < 10 and ag.credit_final < 30:
+                observation = 'Ajournée'
+                obs_html = '<span class="label label-danger">Ajournée</span>'
+
+        ag.observation = observation
+        ag.obs_html = obs_html
+
+        return 'AnnualGrade calculated'
+
 
 class Session(db.Model):
     id = db.Column(db.Integer, primary_key=True)

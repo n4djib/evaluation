@@ -73,6 +73,8 @@
 	show final Average and Credit
 	in real time
 	 when you save show the result
+			- in JS grid by student some errors are happining
+	because lack of element
 - show annual in students View
 - show session in resultat Semester
 - add sort to annual
