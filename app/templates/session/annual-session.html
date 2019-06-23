@@ -7,7 +7,7 @@
 
   <style type="text/css">
     th {
-     /* border: 1px solid lightgray;
+      /* border: 1px solid lightgray;
       padding: 0px 4px;*/
       text-align: center;
       /*vertical-align: middle;*/
@@ -54,18 +54,42 @@
       <a href="{{url_for('slow_redirect', url=refrech_url) }}" class="btn btn-primary" role="button" >(Re)Calculate</a>
 
 
+      {% set S1 = annual_dict_obj['S1'] %}
+      {% set S1_nbr = S1.semester.get_nbr() %}
+      {% set S2 = annual_dict_obj['S2'] %}
+      {% set S2_nbr = S2.semester.get_nbr() %}
 
+      {% set R1 = annual_dict_obj['R1'] %}
+      {% if R1 != None %}
+        {% set R1_nbr = R1.semester.get_nbr() %}
+      {% elif S1 != None %}
+        {% set R1_nbr = S1_nbr %}
+      {% endif %}
+
+      {% set R2 = annual_dict_obj['R2'] %}
+      {% if R2 != None %}
+        {% set R2_nbr = R2.semester.get_nbr() %}
+      {% elif S2 != None %}
+        {% set R2_nbr = S2_nbr %}
+      {% endif %}
+
+      {% if S1 == None and R1 != None %}
+        {% set S1_nbr = R1_nbr %}
+      {% endif %}
+
+      {% if S2 == None and R2 != None %}
+        {% set S2_nbr = R2_nbr %}
+      {% endif %}
+      
 
       {% if annual_session.annual.has_fondamental() != True %}
       <a href="{{url_for('students_rattrapage_annual', annual_session_id=annual_session.id)}}" class="btn btn-info" role="button" >Ratt. List</a>
       {% else %}
         <a href="{{url_for('students_rattrapage_annual', annual_session_id=annual_session.id)}}" class="btn btn-info" role="button" >Ratt. List</a>
-        {% set S1 = annual_dict_obj['S1'] %}
         <a href="{{url_for('students_rattrapage_semester', session_id=S1.id)}}"
-         class="btn btn-info" role="button" >Ratt. S ({{ annual_dict_obj['S1'].semester.get_nbr() }})</a>
-        {% set S2 = annual_dict_obj['S2'] %}
+         class="btn btn-info" role="button" >Ratt. S ({{S1_nbr}})</a>
         <a href="{{url_for('students_rattrapage_semester', session_id=S2.id)}}"
-         class="btn btn-info" role="button" >Ratt. S ({{ annual_dict_obj['S2'].semester.get_nbr() }})</a>
+         class="btn btn-info" role="button" >Ratt. S ({{S2_nbr}})</a>
       {% endif %}
 
 
@@ -90,20 +114,20 @@
             <th rowspan="2">#</th>
             <th rowspan="2"><center>Name</center></th>
             <th colspan="2">
-              {% if annual_dict_obj['S1'] != None %}
-                <a href="{{ url_for('session', session_id=annual_dict_obj['S1'].id) }}" target="_blank" >Semester ({{ annual_dict_obj['S1'].semester.get_nbr() }})</a>
+              {% if S1 != None %}
+                <a href="{{ url_for('session', session_id=S1.id) }}" target="_blank" >Semester ({{S1_nbr}})</a>
                 </br>
-                <font size="-2">({{ annual_dict_obj['S1'].check_progress() }}%)</font>
+                <font size="-2">({{ S1.check_progress() }}%)</font>
               {% else %}
                 Semester () </br>
                 <font size="-2"> </font>
               {% endif %}
             </th>
             <th colspan="2">
-              {% if annual_dict_obj['S2'] != None %}
-                <a href="{{ url_for('session', session_id=annual_dict_obj['S2'].id) }}" target="_blank" >Semester ({{ annual_dict_obj['S2'].semester.get_nbr() }})</a>
+              {% if S2 != None %}
+                <a href="{{ url_for('session', session_id=S2.id) }}" target="_blank" >Semester ({{S2_nbr}})</a>
                 </br>
-                <font size="-2">({{ annual_dict_obj['S2'].check_progress() }}%)</font>
+                <font size="-2">({{ S2.check_progress() }}%)</font>
               {% else %}
                 Semester ()
                 </br>
@@ -118,23 +142,31 @@
                 <font size="-2"> </font></th>
 
             <th colspan="2">
-              {% if annual_dict_obj['R1'] != None %}
-                <a href="{{ url_for('session', session_id=annual_dict_obj['R1'].id) }}" target="_blank" >Ratt. ({{ annual_dict_obj['R1'].semester.get_nbr() }})</a>
+              {% if R1 != None %}
+                <a href="{{ url_for('session', session_id=R1.id) }}" target="_blank" >Ratt. ({{R1_nbr}})</a>
                 </br>
-                <font size="-2">({{ annual_dict_obj['R1'].check_progress() }}%)</font>
+                <font size="-2">(R1.check_progress()%)</font>
               {% else %}
-                Ratt. ()
+                {% if R1_nbr != None %}
+                 Ratt. ({{R1_nbr}})
+                {% else %}
+                 Ratt. ()
+                {% endif %}
                 </br>
                 <font size="-2"> </font>
               {% endif %}
             </th>
             <th colspan="2">
-              {% if annual_dict_obj['R2'] != None %}
-                <a href="{{ url_for('session', session_id=annual_dict_obj['R2'].id) }}" target="_blank" >Ratt. ({{ annual_dict_obj['R2'].semester.get_nbr() }})</a>
+              {% if R2 != None %}
+                <a href="{{ url_for('session', session_id=R2.id) }}" target="_blank" >Ratt. ({{R2_nbr}})</a>
                 </br>
-                <font size="-2">({{ annual_dict_obj['R2'].check_progress() }}%)</font>
+                <font size="-2">({{ R2.check_progress() }}%)</font>
               {% else %}
-                Ratt. ()
+                {% if R2_nbr != None %}
+                 Ratt. ({{R2_nbr}})
+                {% else %}
+                 Ratt. ()
+                {% endif %}
                 </br>
                 <font size="-2"> </font>
               {% endif %}

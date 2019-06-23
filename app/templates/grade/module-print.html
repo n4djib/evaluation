@@ -1,20 +1,29 @@
 <html>
 <head>
   <title>{{ title }}</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap4/bootstrap.min.css') }}" >
+
+<!-- <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap4/bootstrap.min.css') }}" > -->
+
   <style type="text/css">
     
     table {
- /*     border-collapse: collapse;
+      border-collapse: collapse;
       margin-left: 0px;
-      margin-right: 30px;
-      display:inline-block;*/
-      border-color: black;
+      margin-right: 0px;
+      margin-top: 10px;
+
+      font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+      font-size: 14px;
+      line-height: 1.42857143;
+      color: #111;
     }
-    th, td {
+
+    thead {
+      background-color: #e5e5e5; 
+    }
+    th, td, tr {
       border: 1px solid lightgray;
-      padding: 5 !important;
-      margin: 2 !important;
+      padding: 0px 4px;
     }
 
   </style>
@@ -38,8 +47,6 @@
         Signature : . . . . . . . . . . . . . . . . .        
       </div>
   </div>
-
-  </br></br>
 
 
   <script type="text/javascript">

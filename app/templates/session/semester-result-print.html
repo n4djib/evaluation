@@ -2,6 +2,7 @@
 <head>
   <title>{{title}}</title>
 
+
   <style type="text/css">
     table {
       border-collapse: collapse;
@@ -52,6 +53,14 @@
 
 
 <body>
+
+
+  <div style="display: none; margin: 2px; float: left" class="input-group filter_w"> 
+    <span class="input-group-addon">Filter</span>
+    <input id="filter" type="text" class="form-control" value="{{ params['filter_word'] }}"
+     placeholder="Type here...">
+  </div>
+
   {{ header | safe }}
   </br>
 
@@ -60,7 +69,7 @@
 
       <table class="">
         <thead>{{ t_head | replace('None', '') | replace('((img))', '') | safe }}</thead>
-        <tbody>
+        <tbody id="sort_tbody" class="searchable">
           {% for data in data_arr %}
             <tr>{{ data | safe | replace('None', '') }}</tr>
           {% endfor %}
@@ -71,9 +80,23 @@
 
   </div>
 
+  
+
+
+  <script src="{{ url_for('static', filename='js/jquery.min.js') }}" ></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script> -->
 
   <script type="text/javascript">
+
     {% include "_print.js" %}
+  
+    //print is used in 
+    // 1 - to disable init_icons()
+    // 2 - to avoid changing the url in print
+    {% set print = True %}
+    {% include "session/semester-result.js" %}
+
+
   </script> 
 
 

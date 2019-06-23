@@ -865,19 +865,23 @@ def make_annual_print_title(annual_session, label="**label**"):
 
 
 def make_semester_print_title(session, label="**label**"):
-    # branch = session.promo.branch.name
     semester = str(session.semester.get_nbr())
     annual = str(session.semester.annual.annual)
     promo = session.promo.name
     ann_pedagog = session.get_annual_pedagogique()
-    # annual = session.semester.annual.get_string_literal()
     dt = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-    title = label +' - S;'+semester+' A;'+annual+' ['+promo+' - '+ann_pedagog+'] ('+str(dt)+')'
+    title = label +' S('+semester+') A('+annual+') ['+promo+' - '+ann_pedagog+'] {'+str(dt)+'}'
     return title
 
-
-
-
+def make_semester_print_title_by_student(session, student, label="**label**"):
+    semester = str(session.semester.get_nbr())
+    annual = str(session.semester.annual.annual)
+    promo = session.promo.name
+    ann_pedagog = session.get_annual_pedagogique()
+    dt = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    name = student.username+' - '+student.last_name+' '+student.first_name
+    title = label +' S('+semester+') A('+annual+') '+name+' ['+promo+' - '+ann_pedagog+'] {'+str(dt)+'}'
+    return title
 
 def get_student_annual_list(annual_session, annual_dict):
     session_1 = annual_dict['S1']
@@ -1521,14 +1525,15 @@ def bultin_semester_print(session_id, student_id):
     header = get_header_bultin_semester(student_session)
     footer = get_footer_bultin_semester(student_session)
 
-    session = Session.query.get_or_404(session_id)
-    branch = session.promo.branch.name
-    semester = session.semester.get_nbr()
-    promo = session.promo.name
-    s = student_session.student
-    student = s.username+' '+s.last_name+' '+s.first_name
-    dt = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-    title = 'Bultin - '+branch+' S'+str(semester) + ' ['+promo+'] {'+student+'} ('+str(dt)+')' 
+    # session = Session.query.get_or_404(session_id)
+    # branch = session.promo.branch.name
+    # semester = session.semester.get_nbr()
+    # promo = session.promo.name
+    # s = student_session.student
+    # student = s.username+' '+s.last_name+' '+s.first_name
+    # dt = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    # title = 'Bultin - '+branch+' S'+str(semester) + ' ['+promo+'] {'+student+'} ('+str(dt)+')' 
+    title = make_semester_print_title_by_student(session, s, 'Bultin - ')
 
     # return table
     return render_template('student/bultin-semester-print.html', 
@@ -1549,12 +1554,13 @@ def bultin_semester_print_all(session_id):
 
         bultins.append( header + bultin + footer )
 
-    session = Session.query.get_or_404(session_id)
-    branch = session.promo.branch.name
-    semester = session.semester.get_nbr()
-    promo = session.promo.name
-    dt = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-    title = 'Bultin All - '+branch+' S'+str(semester) + ' ['+promo+'] ('+str(dt)+')' 
+    # session = Session.query.get_or_404(session_id)
+    # branch = session.promo.branch.name
+    # semester = session.semester.get_nbr()
+    # promo = session.promo.name
+    # dt = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    # title = 'Bultin All - '+branch+' S'+str(semester) + ' ['+promo+'] ('+str(dt)+')'
+    title = make_semester_print_title(session, 'Bultin All - ')
 
     return render_template('student/bultin-semester-print-all.html', 
             title=title, bultins=bultins, session_id=session_id)
@@ -1828,8 +1834,8 @@ def semester_averages(session_id=0):
 
 # Note: the Data is taken from the Config String
 
-def get_th_1(configuration, cols_per_module):
-    conf_dict = literal_eval(configuration)
+def get_th_1(session, cols_per_module):
+    conf_dict = literal_eval(session.configuration)
     header = '<th class="left">Unit</th>'
     for unit in conf_dict['units']:
         display_name = unit["display_name"]
@@ -1842,20 +1848,31 @@ def get_th_1(configuration, cols_per_module):
     display_name = conf_dict["display_name"]
     return header + F'<th class="semester center" rowspan=4 colspan={cols_per_module}>{display_name}</th>'
 
-def get_th_2(configuration, cols_per_module):
-    conf_dict = literal_eval(configuration)
+URL_PRINT = False
+
+def get_th_2(session, cols_per_module):
+    conf_dict = literal_eval(session.configuration)
     header = '<th class="left">Module</th>'
     for unit in conf_dict['units']:
         for module in unit['modules']:
             module_name = module["code"] + ' ' + module["display_name"]
-            # module_name = module["display_name"]
-            header += F'<th style="word-wrap: break-word" colspan={cols_per_module}><font size="-1"><center>{module_name}</center></font></th>'
+            url = url_for('grade', session_id=session.id, module_id=module['m_id'])
+            link = F'<a style="text-decoration: none; color:#111;" href="{url}">{module_name}</a>'
+            global URL_PRINT
+            if URL_PRINT == False:
+                link = module_name
+            header += F'''
+                <th style="word-wrap: break-word" colspan={cols_per_module}>
+                    <font size="-1"><center>
+                      {link}
+                    </center></font>
+                </th>'''
         name = 'Resultat de ' + unit["display_name"] 
         header += F'<th style="word-wrap: break-word" class="unit center" rowspan=3 colspan={cols_per_module}>{name}</th>'
     return header
 
-def get_th_3(configuration, cols_per_module):
-    conf_dict = literal_eval(configuration)
+def get_th_3(session, cols_per_module):
+    conf_dict = literal_eval(session.configuration)
     header = '<th class="left">Required Credit</th>'
     for unit in conf_dict['units']:
         for module in unit['modules']:
@@ -1863,8 +1880,8 @@ def get_th_3(configuration, cols_per_module):
             header += F'<th colspan={cols_per_module}><center>{credit}</center></th>'
     return header
 
-def get_th_4(configuration, cols_per_module):
-    conf_dict = literal_eval(configuration)
+def get_th_4(session, cols_per_module):
+    conf_dict = literal_eval(session.configuration)
     header = '<th class="left">Coefficient</th>'
     for unit in conf_dict['units']:
         for module in unit['modules']:
@@ -1877,18 +1894,25 @@ def get_cols_ths(index, label, class_name, cols_per_module):
     label_a = label['a']
     label_c = label['c']
     label_s = label['s']
-    th = F'<th {onclick} class="{class_name} center sorter">{label_a}<img id="sort-{index}" class="sort-icon" ((img))></th>'
-    if cols_per_module >= 2:
-        th += F'<th class="{class_name} center">{label_c}</th>'
+
+    index_c = index + 1
+    th = ''
+    if cols_per_module == 1 or cols_per_module == 2 or cols_per_module == 3:
+        th += F'<th {onclick} class="{class_name} center sorter no-wrap">{label_a}<img id="sort-{index}" class="sort-icon" ((img))></th>'
+    if cols_per_module == 2 or cols_per_module == 3:
+        if class_name == 'semester':
+            th += F'<th onclick="sortTable({index_c})" class="{class_name} center sorter no-wrap">{label_c}<img id="sort-{index_c}" class="sort-icon" ((img))></th>'
+        else:
+            th += F'<th class="{class_name} center no-wrap">{label_c}</th>'
     if cols_per_module == 3:
-        th += F'<th class="{class_name} center">{label_s}</th>'
+        th += F'<th class="{class_name} center no-wrap">{label_s}</th>'
     return th
 
-def get_th_5(configuration, cols_per_module):
-    conf_dict = literal_eval(configuration)
+def get_th_5(session, cols_per_module):
+    conf_dict = literal_eval(session.configuration)
     cls = 'class="module center sorter no-wrap"'
     # header =  '<th onclick="sortTable(0)" '+cls+'>N°<img id="sort-0" class="sort-icon" ((img))></th>'
-    header =  '<th onclick="sortTable(0)" '+cls+'>N°<img id="sort-0" class="sort-icon" src="/static/img/sort-icons-asc.png"></th>'
+    header =  '<th class="module">N°</th>'
     header += '<th onclick="sortTable(1)" '+cls+'>Matricule<img id="sort-1" class="sort-icon" ((img))></th>'
     header += '<th onclick="sortTable(2)" '+cls+'>Nom<img id="sort-2" class="sort-icon" ((img))></th>'
 
@@ -1905,12 +1929,12 @@ def get_th_5(configuration, cols_per_module):
     header += get_cols_ths(index, label, 'semester', cols_per_module)
     return header
 
-def get_thead(configuration, cols_per_module=2):
-    th_1 = get_th_1(configuration, cols_per_module)
-    th_2 = get_th_2(configuration, cols_per_module)
-    th_3 = get_th_3(configuration, cols_per_module)
-    th_4 = get_th_4(configuration, cols_per_module)
-    th_5 = get_th_5(configuration, cols_per_module)
+def get_thead(session, cols_per_module=2):
+    th_1 = get_th_1(session, cols_per_module)
+    th_2 = get_th_2(session, cols_per_module)
+    th_3 = get_th_3(session, cols_per_module)
+    th_4 = get_th_4(session, cols_per_module)
+    th_5 = get_th_5(session, cols_per_module)
 
     return F'''
         <tr>     <th style='border: 0;' colspan=2 rowspan=4></th>     {th_1}     </tr>
@@ -1962,9 +1986,9 @@ def get_row_semester(student_session, cols_per_module=2):
         row += F'<td class="semester center td {yellow}">{student_session.session_id}</td>'
     return row
 
-def get_semester_result_data(session_id, cols_per_module=2):
+def get_semester_result_data(session, cols_per_module=2):
     data_arr = []
-    students_session = StudentSession.query.filter_by(session_id=session_id)\
+    students_session = StudentSession.query.filter_by(session_id=session.id)\
         .join(Student).order_by(Student.username).all()
 
     for index, student_session in enumerate(students_session, start=1):
@@ -1989,9 +2013,9 @@ def make_link_button(route, label, session_id, student_id, target='popup', size=
     bultin += '>'+label+'</a>'
     return bultin
 
-def get_semester_result_data__plus_buttons(session_id, cols_per_module=2):
+def get_semester_result_data__plus_buttons(session, cols_per_module=2):
     data_arr = []
-    students_session = StudentSession.query.filter_by(session_id=session_id)\
+    students_session = StudentSession.query.filter_by(session_id=session.id)\
         .join(Student).order_by(Student.username).all()
 
     for index, student_session in enumerate(students_session, start=1):
@@ -2000,7 +2024,7 @@ def get_semester_result_data__plus_buttons(session_id, cols_per_module=2):
         btn_grades = '<td>'+ make_link_button(
             'grade', 
             'Notes', 
-            session_id, 
+            session.id, 
             student.id, 
             '_target', 
             size='btn-xs',
@@ -2008,7 +2032,7 @@ def get_semester_result_data__plus_buttons(session_id, cols_per_module=2):
 
         btn_bultin = '<td>'+ make_link_button(
             'bultin_semester_print', 'Bultin', 
-            session_id, 
+            session.id, 
             student.id, 
             '_target', 
             size='btn-xs',
@@ -2016,7 +2040,7 @@ def get_semester_result_data__plus_buttons(session_id, cols_per_module=2):
         btn_just = '<td>'+ make_link_button(
             'justification', 
             'Justification', 
-            session_id, 
+            session.id, 
             student.id, 
             '_target', 
             size='btn-xs') +'</td>'
@@ -2038,14 +2062,40 @@ def get_semester_result_data__plus_buttons(session_id, cols_per_module=2):
 @app.route('/session/<session_id>/semester-result/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree_session.session.result', 'Relevé Resultat')
 def semester_result(session_id=0):
-    session = Session.query.filter_by(id=session_id).first_or_404()
+    session = Session.query.get_or_404(session_id)
+
+    filter_word = request.args.get('filter_word', default='', type=str)
+    sort = request.args.get('sort', default=0, type=int)
+    order = request.args.get('order', default='desc', type=str)
+    cols = request.args.get('cols', default=2, type=int)
+
     cols_per_module = 2
-    t_head = get_thead(session.configuration, cols_per_module)
-    data_arr = get_semester_result_data__plus_buttons(session_id, cols_per_module)
+    if cols == 2 or cols == 3:
+        cols_per_module = cols
+
+    params = {
+        'filter_word': filter_word, 
+        'sort': sort, 
+        'order': order, 
+        'cols': cols,
+        'URL': url_for('semester_result', session_id=session_id),
+        'URL_PRINT': url_for('semester_result_print', session_id=session_id)
+    }
+
+
+    global URL_PRINT
+    URL_PRINT = True
+
+    t_head = get_thead(session, cols_per_module)
+    data_arr = get_semester_result_data__plus_buttons(session, cols_per_module)
+
+    # 1 - change URL in browser
+    # 2 - change href in print button
+    
 
     return render_template('session/semester-result.html',
         title='Semester ' + str(session.semester.semester) + ' Result', 
-        t_head=t_head, data_arr=data_arr, session=session)
+        t_head=t_head, data_arr=data_arr, session=session, params=params)
 
 
 def get_semester_result_print_header(session):
@@ -2079,18 +2129,35 @@ def get_semester_result_print_header(session):
 @app.route('/session/<session_id>/semester-result-print/', methods=['GET', 'POST'])
 def semester_result_print(session_id=0):
     session = Session.query.filter_by(id=session_id).first_or_404()
-    cols_per_module = 2
-    t_head = get_thead(session.configuration, cols_per_module)
-    data_arr = get_semester_result_data(session_id, cols_per_module)
-    header = get_semester_result_print_header(session)
 
-    branch = session.promo.branch.name
-    semester = session.semester.get_nbr()
-    dt = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-    title = 'Releve ' + branch + ' S'+str(semester) + ' [' + session.promo.name + '] ('+str(dt)+')'
+    filter_word = request.args.get('filter_word', default='', type=str)
+    sort = request.args.get('sort', default=0, type=int)
+    order = request.args.get('order', default='desc', type=str)
+    cols = request.args.get('cols', default=2, type=int)
+
+    cols_per_module = 2
+    if cols == 2 or cols == 3:
+        cols_per_module = cols
+
+    params = {
+        'filter_word': filter_word, 
+        'sort': sort, 
+        'order': order, 
+        'cols': cols,
+        'URL': url_for('semester_result', session_id=session_id),
+        'URL_PRINT': url_for('semester_result_print', session_id=session_id)}
+
+    global URL_PRINT
+    URL_PRINT = False
+
+    t_head = get_thead(session, cols_per_module)
+    data_arr = get_semester_result_data(session, cols_per_module)
+
+    header = get_semester_result_print_header(session)
+    title = make_semester_print_title(session, 'Releve')
 
     return render_template('session/semester-result-print.html',
-        title=title, header=header, t_head=t_head, data_arr=data_arr, session=session)
+        title=title, header=header, t_head=t_head, data_arr=data_arr, session=session, params=params)
 
 
 #######################################

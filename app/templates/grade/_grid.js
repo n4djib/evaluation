@@ -221,8 +221,13 @@ function shake_message(){
 
 //order by Student if type is module
 var columnSorting = {};
+
 if('module'=='{{type}}') {
-  columnSorting = {column: 0, sortOrder: true};
+  columnSorting = {
+    column: 0, 
+    sortOrder: true,
+    sortEmptyCells: true,
+  };
 }
 
 var _first_after_change = 0;
@@ -234,7 +239,7 @@ var hot = new Handsontable(hotElement, {
   data: data_arr,
   rowHeaders: true,
   colHeaders: true,
-  // columnSorting: true,
+  columnSorting: columnSorting,
   sortIndicator: true,
   manualColumnResize: true,
 
@@ -253,7 +258,6 @@ var hot = new Handsontable(hotElement, {
 
   colHeaders: colHeaders,
   columns: columns,
-  columnSorting: columnSorting,
   // beforeChange: function (changes, source) {},
   afterChange: function (change, source) {
     if(_first_after_change != 0){
@@ -339,7 +343,11 @@ function get_ratt_field(formula){
   return 'cour';
 }
 
-hot.updateSettings({ cells: function(row, col, prop, td){
+
+
+hot.updateSettings({ 
+
+  cells: function(row, col, prop, td){
     var cell = hot.getCell(row, col);
     if(cell === undefined || cell === null)
       return cell;
@@ -359,8 +367,56 @@ hot.updateSettings({ cells: function(row, col, prop, td){
       cell.readOnly = 'true';
 
     return cell;
-  }
+  },
+
+
+  enterMoves: function(event) {
+    return move_cursor_in_grid();
+  },
+
+  tabMoves: function(event) {
+    return move_cursor_in_grid();
+  },
+
 });
+
+
+function move_cursor_in_grid(){
+    var selected = hot.getSelected();
+    var count = hot.countCols();
+    // var row = selected[0][0];
+    var col = selected[0][1];
+    var nbr_cols = count-6;
+
+    if (type == 'module') {
+      //skip 3 start cells
+      if (col == 0)  return {row: 0, col: 3};
+      if (col == 1)  return {row: 0, col: 2};
+      if (col == 2)  return {row: 0, col: 1};
+      //skip 3 end cells
+      if (col == count-4)  return {row: 1, col: -(nbr_cols-1)-0};
+      if (col == count-3)  return {row: 1, col: -(nbr_cols-1)-1};
+      if (col == count-2)  return {row: 1, col: -(nbr_cols-1)-2};
+      if (col == count-1)  return {row: 1, col: -(nbr_cols-1)-3};
+      // // skip right
+      return {row: 0, col: 1};
+    } else {
+      // skip the first & the seperator
+      if(col === 0)
+        return {row: 0, col: 2};
+      // skip last 3
+      if (col === count-4)
+        return {row: 1, col: -(nbr_cols)};
+      if (col === count-3)
+        return {row: 1, col: -(nbr_cols)-1};
+      if (col === count-2)
+        return {row: 1, col: -(nbr_cols)-2};
+      if (col === count-1)
+        return {row: 1, col: -(nbr_cols)-3};
+      // skip right
+      return {row: 0, col: 1};
+    }
+}
 
 /********************/
 /********************/

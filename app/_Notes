@@ -51,8 +51,35 @@
 			- Tree - remove hints from links
 			- Tree show InitAll & CalcAll buttons or Flash
 			- last cell is not sorting
-- module + averages
-- in Grades grid its not sorting empty cells
+			- module + averages
+			- in Grades grid its not sorting empty cells
+			- in Grid move the cursure by the Arrow jump the line at the end of the line
+				http://jsfiddle.net/qtfam5v1/
+			- remove license from Grid
+			- shrink seperator
+				make seperators unselectable
+			- activate print in semester result
+			- after sorting Semester Result 
+				keep the index ordered
+			- after filter keep the index ordered
+			- add Soting on Semester result to the url
+			- show filter in Url Semester result
+			- add tables to Mysql Workbench
+			- in AnnualGrade add AverageFinal
+			- Print Module with averages
+			- show for every student his promos and sessions and Grades
+				and printables
+- in Student Grid
+	show final Average and Credit
+	in real time
+	 when you save show the result
+- show annual in students View
+- show session in resultat Semester
+- add sort to annual
+- add sorter in UEF unit
+- semester Result Ratt must show Session
+
+- remove session from Annual
 - make the navigation easier
 	show Semester Average & Annual Average
 	between semesters
@@ -65,22 +92,18 @@
 - when you transfaire students to the next year
 	they have to qualify
 	transfaire from annual, not from semester
+	Only Admit & Admit avec dette
 - show if fondamental in Session
 	but show only if SF
-- in Grid move the cursure by the Arrow jump the line at the end of the 
 - finish permissions to allow multi-user-entering of Historic
-- in AnnualGrade add AverageFinal
 - classement in annual
 - link from Releve-Result to Module Grid
 
 - the Option to activate Live calcule
 	do it in a background job
 - Semester Result add the option to close module width
-- show Session in Semester Result
-- after sorting Semester Result 
-	keep the index ordered
-- after filter keep the index ordered
-- don't close the Grid before Saing
+
+- don't close the Grid before Saving
 - in ratt list add check all
 - show messages automaticaly through Ajax
 	init and calcul
@@ -94,11 +117,10 @@
 - Hidden buttons in Session Historic is not showing until you refrech the page
 - in Session progress icon
 	show progress with more icons
--maybe indecate the need to calculate in Tree if the Entries are finished
+- maybe indecate the need to calculate in Tree if the Entries are finished
 - add/remove Student order in Chrome
 - in Config Tree
 	order the percentages according to grid
-- Print Module with averages
 - print rattrapage
 - annual Ratt print must show only when there is two semesters
 - a mask to Sort the studets of the third year
@@ -112,10 +134,9 @@
 	4 - Error and format checking
 	5 -
 - don't allow session config when session is closed especialy historic
-- in Student Grid
-	show final Average and Credit
-	in real time
-	 when you save show the result
+
+- warning of leaving the grid without save
+- autosave Grid by user
 - add create new branch and school and promo
 	and add url_return to go back to tree after creation
 - in ratt annual indicate students who entered the rattrapage
@@ -151,7 +172,6 @@
 	stop init and Calculate when Historic
 - when i run flask
 	flask-admin echos some warnings about missing fields
-			- add tables to Mysql Workbench
 - test Tunneling from the internet
 - open classement when all the semesters exist
 	or filled or show messages in classement
@@ -239,9 +259,6 @@
 - move annual functions from Semester to Annual
 	like get_annual_chain
 - in FORM SelectField should filter 
-    annual_id = SelectField('Annual', coerce=int,  
-        choices = [('-1', '')] + [(a.id, a.name) for a in Annual.query.order_by('name')])
-    shoud filter by branch_id
 - add a button to navigate between a session(semester) and its ratt
 - move annual calcul to model "annual grade" and "annual session"
 
@@ -264,10 +281,7 @@
 	    unless there is A duplication
 	*/
 - massive students delete Or Branch change
-	apply a thing a mass of students
-- change Matricule Massivaly
-	maybe a Function that rename everyone based on there Order
-	https://handsontable.com/docs/6.2.1/demo-moving.html
+	apply a thing a mass of students	
 
 - New Inserted students should be given username="*****"
 	then you change them with massive Edit
@@ -288,7 +302,7 @@
 - make the Interface Uniform
 	like the filters input box
 
-- show errors in Promo form
+- show errors in Promo Form
 - in Basic Table Promos group by School/Branch
 - in Basic Table Branches group by Branch
 - Order Promos in Tree by name only
@@ -304,10 +318,12 @@
 	the modules do not show
 - maybe don't allow session deletion until you remove all students
 	delete_session
-			- show for every student his promos and sessions and Grades
-				and printables
 - CHECK THE Tables Data in the database and decide what you should fill from the APP
 - Note: i am grabing Semester Result Informations from the Config String
+
+- change Matricule Massivaly
+	maybe a Function that rename everyone based on there Order
+	https://handsontable.com/docs/6.2.1/demo-moving.html
 - 
 - 
 - 
@@ -356,9 +372,10 @@
 - add a place to put notes shared between Evaluation team
 - in SemesterTree
 	show promos that use this semester
-- make arrows work in Grades grid
-- wornning of leaving the grid without save
-- autosave Grid by user
+
+
+
+	
 - add a link in the Tree to create a New Promo
 - show list of associated record in view of Basic tables
 - when creating a new session do not transfaire students
@@ -369,13 +386,8 @@
 				and when creating a new session take the latest version
 				be carefull of the chaning
 - write the teacher and attandence section
-- set Dirty Flags and show them in Flash() 
-	to indecate the need for Re(calculate) in other Pages
 - Calendar
 - make names into CamelCase
-- add Scrolling for grids
-	per user
-	https://handsontable.com/docs/6.2.2/demo-scrolling.html
 - table (grid) group by
 	http://jsfiddle.net/byv2pk24/89/
 - change table names

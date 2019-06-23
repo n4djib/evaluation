@@ -9,6 +9,12 @@ from datetime import datetime
 
 
 
+def create_module_session(session_id, module_id):
+    module_session = ModuleSession(session_id=session_id, module_id=module_id)
+    db.session.add(module_session)
+    db.session.commit()
+    return module_session
+
 def grade_dlc(*args, **kwargs):
     session_id = request.view_args['session_id']
     
@@ -58,6 +64,8 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
     # Note: it will return only one Record
     module_session = ModuleSession.query.\
         filter_by(session_id=session_id, module_id=module_id).first()
+    if module_session == None:
+        module_session = create_module_session(session_id, module_id)
 
     if type == 'module':
         get_hidden_values_flash(grades, session, module)
@@ -218,20 +226,21 @@ def grade_save(type=''):
 @app.route('/session/<session_id>/module/<module_id>/module-session/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree_session.session.grade.module_session', 'Module Session')
 def module_session_update(session_id, module_id):
-    module_sessions = ModuleSession.query.\
-        filter_by(session_id=session_id, module_id=module_id)\
-        .all()
+    # module_sessions = ModuleSession.query.\
+    #     filter_by(session_id=session_id, module_id=module_id)\
+    #     .all()
 
-    if len(module_sessions) == 0:
-        #create new module_session
-        module_session = ModuleSession(
-            session_id=session_id, 
-            module_id=module_id
-        )
-        db.session.add(module_session)
-        db.session.commit()
-    else:
-        module_session = module_sessions[0]
+    # if len(module_sessions) == 0:
+    #     #create new module_session
+    #     module_session = ModuleSession(
+    #         session_id=session_id, 
+    #         module_id=module_id
+    #     )
+    #     db.session.add(module_session)
+    #     db.session.commit()
+    # else:
+    #     module_session = module_sessions[0]
+    module_session = ModuleSession.query.filter_by(session_id=session_id, module_id=module_id).first()
 
     form = ModuleSessionForm(module_session.id)
     if form.validate_on_submit():    
@@ -278,8 +287,8 @@ def get_module_columns(module, show_avr):
         headers.append(type.type + ' ('+str(int(percentage.percentage*100))+'%)')
         # headers.append(type.type + ' ('+  +'%)')
     if show_avr == 'yes':
-        headers.append('average')
-        headers.append('credit')
+        headers.append('<u>Moyen</u>')
+        headers.append('<u>Credit</u>')
     return headers
 
 def collect_data_for_module(grades, cols, empty=''):
@@ -352,14 +361,14 @@ def create_module_print_table(session, module, empty, sort, show_avr):
     data_arr = collect_data_for_module(grades, cols, empty)
 
 
-    table = '<table class="table table-condensed ">'
-    table += '<thead>'
-    table += '<tr style="background-color: lightgrey;">'
+    table = '<table style="width: 100%;">'
+    table += '<thead><tr>'
     for column in columns:
         table += '<th>' + column + '</th>'
-    table += '</thead> </tr>'
+    table += ' </tr></thead>'
 
     table += '<tbody>'
+
     for data in data_arr:
         table += '<tr>'
         # table += '<td>'+str(data)+'</td>'
@@ -415,7 +424,7 @@ def get_module_print_header(session, module):
       </div>
       
       <div class="container" >
-        <h4><b>Module: </b>{module.code} <b>-</b> {module.display_name}</h4>
+        </br><font size="+2"><b>Module: </b>{module.code} <b>-</b> {module.display_name}</font></br>
         <b>Coefficient: </b>{module.coefficient} <b>-</b> 
         <b>Credit: </b>{module.credit} <b>-</b> 
         <b>VHS: </b>{time} <b>-</b> 

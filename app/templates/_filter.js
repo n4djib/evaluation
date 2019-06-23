@@ -1,25 +1,27 @@
 
-$(document).ready(function () {
-  (function ($) {
-    $('#filter').keyup(function () {
-        $('.searchable tr').hide();
+function search () {
+  $('.searchable tr').hide();
 
-        var vals = $(this).val().split(",");
-        // console.log("1 -- " + vals);
-        vals = vals.filter(item => item.trim() !== "");
-        // console.log("2 -- " + vals);
+  var vals = $('#filter').val().split(",");
+  vals = vals.filter(item => item.trim() !== "");
 
-        // to not return emty list when filter keyword is null
-        if(vals == "")
-          $('.searchable tr').filter(function () { return true; }).show();
-          
-        for(let i=0; i<vals.length; i++){
-          $('.searchable tr').filter(function () {
-            var rex = new RegExp( vals[i].trim() , 'i');
-            return rex.test( $(this).text() );
-          }).show();
-        }
-    })
-  }(jQuery));
-});
+  // to not return emty list when filter keyword is null
+  if(vals == "")
+    $('.searchable tr').filter(function () { return true; }).show();
+    
+  // var index = 1;
+  for(let i=0; i<vals.length; i++){
+    $('.searchable tr').filter(function () {
+      var rex = new RegExp( vals[i].trim() , 'i');
+      var t = rex.test( $(this).text() );
+      return t;
+    }).show();
+  }
+
+}
+
+
+$('#filter').keyup(
+  function () { search () }
+)
 

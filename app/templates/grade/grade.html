@@ -6,9 +6,12 @@
   {{super()}}
   <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/sheetclip.0.3.js') }}"></script>
-  <link rel="stylesheet" type="text/css" 
+<!--   <link rel="stylesheet" type="text/css" 
         href="{{ url_for('static', filename='handsontable/handsontable.full.2.0.0.min.css') }}">
-  <script src="{{ url_for('static', filename='handsontable/handsontable.full.2.0.0.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='handsontable/handsontable.full.2.0.0.min.js') }}"></script> -->
+  <script src="{{ url_for('static', filename='handsontable/handsontable.full.7.0.3.min.js') }}"></script>
+  <link rel="stylesheet" type="text/css" 
+        href="{{ url_for('static', filename='handsontable/handsontable.full.7.0.3.min.css') }}">
   
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/csshake.min.css') }}">
 
@@ -174,6 +177,9 @@
     //     return 'You have unsaved changes! ********';
     //   }
     // }
+
+    
+    document.getElementById('hot-display-license-info').remove();
 
     function make_print_url(){
 

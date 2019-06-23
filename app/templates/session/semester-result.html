@@ -19,7 +19,6 @@
     th {
       border: 1px solid lightgray;
       padding: 0px 4px;
-
     }
     .td {
       border: 1px solid lightgray;
@@ -70,11 +69,13 @@
 
       <div style="margin: 2px; float: left" class="input-group filter_w"> 
         <span class="input-group-addon">Filter</span>
-        <input id="filter" type="text" class="form-control" placeholder="Type here...">
+        <input id="filter" type="text" class="form-control" value="{{ params['filter_word'] }}"
+         placeholder="Type here...">
       </div>
       <div style="margin: 2px; float: left">
-        <a href ="{{ url_for('semester_result_print', session_id=session.id) }}"
-           target="_blank" class="input-group btn btn-warning" role="button">Print Resultat</a>
+        <a id="print-semester-result" class="input-group btn btn-warning"
+           href ="{{ url_for('semester_result_print', session_id=session.id) }}"
+           target="_blank" role="button">Print Resultat</a>
       </div>
       <div style="margin: 2px; float: left">
         <a href ="{{ url_for('bultin_semester_print_all', session_id=session.id) }}"
@@ -121,12 +122,17 @@
   {{ super() }}
   <!-- <script src=""></script> -->
 
-
   <script type="text/javascript">
   
-     {% include "_filter.js" %}
 
-     {% include "session/semester-result-sort.js" %}
+
+    {% include "session/semester-result.js" %}
+
+
+    
+
+    
+
 
   </script>
 {% endblock %}

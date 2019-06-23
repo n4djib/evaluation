@@ -87,6 +87,7 @@
             <tr>
               <th scope="col">#</th>
               <th scope="col">Module</th>
+              <th scope="col"></th>
               <th scope="col">Coeff</th>
               <th scope="col">Credit</th>
               <th scope="col"></th>
@@ -97,6 +98,7 @@
             <tr>
               <td>{{loop.index}}</td>
               <td><a href="{{url_for('grade', session_id=session.id, module_id=module.id)}}">{{ module.display_name }}</a></td>
+              <td>{{ 'f' if module.unit.is_fondamental == True }}</td>
               <td>{{ module.coefficient }}</td>
               <td>{{ module.credit }}</td>
               <td> <img src="{{ url_for('static', filename='img/' + icons_module[loop.index-1] ) }}"
