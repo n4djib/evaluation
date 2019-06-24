@@ -34,11 +34,13 @@
   {{ print_header | safe }}
   
 
-  <div class="container" style="border-width:0px; border-style:solid; border-color:black; margin-top: 3px;">
+  <div class="container"
+   style="border-width:0px; border-style:solid; border-color:black; margin-top: 3px;">
     {{ table | safe | replace('None', '') }}
     
   </div>
 
+  {% if empty == 'yes' %}
   <div class="container" style="display: flex;">
       <div style="flex-grow: 1;">
         Date de Correction : . . . . . . . . . . . . . . . . .
@@ -47,6 +49,7 @@
         Signature : . . . . . . . . . . . . . . . . .        
       </div>
   </div>
+  {% endif %}
 
 
   <script type="text/javascript">

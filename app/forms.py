@@ -147,26 +147,26 @@ class SemesterFormSpecialUpdate(FlaskForm):
         self._id = _id
 
 ################## Module
-class ModuleFormBase(FlaskForm):
-    code = StringField('Code')
-    name = StringField('Name', validators=[DataRequired()])
-    display_name = StringField('Display Name')
-    # coefficient = IntegerField('Coefficient')
-    # credit = IntegerField('Credit')
-    # time = DecimalField('Time')
-    # order = IntegerField('Order')
-    # unit_id = SelectField('Unit', coerce=int, validators=[Optional()], render_kw={'disabled':''},  
-    #     choices = [(-1, '')]+[(u.id, u.name) for u in Unit.query.order_by('name')
-    # ])
+# class ModuleFormBase(FlaskForm):
+#     code = StringField('Code')
+#     name = StringField('Name', validators=[DataRequired()])
+#     display_name = StringField('Display Name')
+#     # coefficient = IntegerField('Coefficient')
+#     # credit = IntegerField('Credit')
+#     # time = DecimalField('Time')
+#     # order = IntegerField('Order')
+#     # unit_id = SelectField('Unit', coerce=int, validators=[Optional()], render_kw={'disabled':''},  
+#     #     choices = [(-1, '')]+[(u.id, u.name) for u in Unit.query.order_by('name')
+#     # ])
 
 # class ModuleFormCreate(ModuleFormBase):
 #     submit = SubmitField('Create')
 
-class ModuleFormUpdate(ModuleFormBase):
-    submit = SubmitField('Update')
-    def __init__(self, _id=-1, *args, **kwargs):
-        super(ModuleFormUpdate, self).__init__(*args, **kwargs)
-        self._id = _id
+# class ModuleFormUpdate(ModuleFormBase):
+#     submit = SubmitField('Update')
+#     def __init__(self, _id=-1, *args, **kwargs):
+#         super(ModuleFormUpdate, self).__init__(*args, **kwargs)
+#         self._id = _id
 
 ################## Promo
 class PromoFormBase(FlaskForm):

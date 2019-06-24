@@ -454,7 +454,8 @@ def module_print(session_id=0, module_id=0):
     dt = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     title = 'Releve de Notes '+branch+' S'+str(semester) + ' {'+module.get_label()+'}' + ' ['+session.promo.name+'] ('+str(dt)+')'
 
-    return render_template('grade/module-print.html', title=title, table=table, print_header=print_header)
+    return render_template('grade/module-print.html', 
+        title=title, table=table, print_header=print_header, empty=empty)
 
 
 

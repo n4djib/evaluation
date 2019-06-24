@@ -33,7 +33,7 @@ def make_button(model, action, _type, label, btn='btn-success'):
 	return button
 
 class S(ModelView):
-	form_excluded_columns = ['next_semester', 'units', 'sessions', 'branch']
+	form_excluded_columns = ['units', 'sessions', 'branch']
 	can_create = False
 	can_delete = False
 	def __init__(self, model, session, **kwargs):
@@ -43,6 +43,7 @@ class S(ModelView):
 		self.form_edit_rules = (
 		    "name", 
 		    "display_name", 
+		    "semester", 
 		    rules.HTML( new_button  ),
 		)
 		super(S, self).__init__(model, session, **kwargs)

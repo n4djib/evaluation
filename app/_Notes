@@ -49,20 +49,25 @@
 			- make a warrning in Annual of not filled fields
 			- why i can't delete rattrapage in SF
 			- move annual calcul to model "annual grade" and "annual session"
-
+- one PDF contains all Semester
+- one PDF contains all Annual
 - in Student Grid
 	show final Average and Credit
 	in real time
-	 when you save show the result
-	because lack of element
+	when you save show the result
 	show annual in students View
 - add sort to annual
 - add sorter in UEF unit
 - indecate the need to calculate in Annual
+- when i duplicate the Semester
+	is the Modules duplicated too ??????
+		yes modules are duplicated
+		and this causes problems
+			i have to treet Config as a String
+- duplicate Semester from FlaskAdmin
 
 
-
-
+- upload files to a free Static website
 - when i don't fill Rattrapage
 	and then calculate annual - some inconsistencies appear
 - in get_annual_chain_students_to_enter_rattrapage_annual

@@ -1,19 +1,13 @@
 from app import app, db
 from flask import render_template, redirect, url_for, flash, request
 from app.models import Session, StudentSession, AnnualGrade, Grade, GradeUnit, Semester, Type, Module
-# from decimal import *
 import copy
 from ast import literal_eval
 from flask_breadcrumbs import register_breadcrumb
 
 
 
-# def config_to_dict(semester_id):
-#     semester = Semester.query.filter_by(id=semester_id).first()
-#     if semester == None:
-#         return F'Semester with id: {semester_id} Not Found'
-#     dict_semester = semester.config_dict()
-#     return dict_semester
+
 
 def update_session_configuraton(session):
     if session != None:
@@ -161,9 +155,6 @@ def calculate_all(session):
 
     return 'calculate_all'
 
-
-
-
 def calculate_student(session, student):
     grades = Grade.query.join(StudentSession)\
         .filter_by(session_id=session.id, student_id=student.id).all()
@@ -202,11 +193,6 @@ def calculate_student(session, student):
 
         return calc
     return 'calculate_student grades'
-
-
-# @app.route('/session/<session_id>/reinitialize-session/', methods=['GET', 'POST'])
-# def calculate_student_____(session, student):
-
 
 @app.route('/session/<session_id>/reinitialize-session/', methods=['GET', 'POST'])
 def reinitialize_session(session_id=0):
@@ -270,13 +256,6 @@ def get_unit_justification(grade_unit, conf_dict):
     justification += [grade_unit.average]
     justification += [grade_unit.credit]
     return justification
-
-# def get_semester_name(student_session, conf_dict):
-#     # for unit in conf_dict['units']:
-#     #     if unit['u_id'] == unit_id:
-#     #         return unit['display_name']
-#     return student_session.session.semester.display_name
-#     return '** get_semester_name **'
 
 def get_semester_justification(student_session, conf_dict):
     name = student_session.session.semester.display_name

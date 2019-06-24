@@ -916,6 +916,7 @@ class Semester(db.Model):
             for module in unit.modules:
                 nbr += 1
         return nbr
+    # @hybrid_method
     def is_locked(self):
         if self.is_closed == True:
             return True
@@ -1008,6 +1009,19 @@ class Module(db.Model):
     def get_sessions(self):
         semester = self.unit.semester
         sessions = semester.sessions
+        return sessions
+    def get_sessions_all_in_parallel_semesters(self):
+        _semester = self.unit.semester
+        _annual = _semester.annual
+        _branch = _annual.branch
+        semesters = Semester.query.filter_by(semester=_semester.semester)\
+            .join(Annual).filter_by(annual=_annual.annual)\
+            .join(Branch).filter_by(id=_branch.id)\
+            .join(School).filter_by(id=_branch.school_id)\
+            .all()
+        sessions = []
+        for semester in semesters:
+            sessions += semester.sessions
         return sessions
     def get_label(self):
         return str(self.code)+' - '+self.display_name
