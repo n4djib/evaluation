@@ -82,8 +82,10 @@
            target="_blank" class="input-group btn btn-success" role="button">Print All Bultins</a>
       </div>
       <div style="margin: 2px; float: left">
-        <a href ="{{url_for('classement', session_id=session.id)}}"
-           target="_blank" class="input-group btn btn-primary" role="button">***** Classement</a>
+        <!-- <a href ="{{url_for('classement', session_id=session.id)}}"
+           target="_blank" class="input-group btn btn-primary" role="button">Classement</a> -->
+        <a href ="{{ url_for('classement_print', session_id=session.id) }}"
+           class="btn btn-primary" target="_blank" role="button">Print Classement</a>
       </div>
 
       </br>

@@ -120,14 +120,19 @@
     </br>
     </br>
     
+
     <pre id="message" class="console"><h3>*** if you see this: the JavaScript in (_grid.js) is not working ***<h3> </pre>
+
+
+
+
+    <pre id="calcul" style="display: block; color: green;" class=""><b>Save to get Results</b></pre>
+
+
+
     </br>
 
     {% if type == 'module' %}
-    <!-- <a href="{ {url_for('print_module_students_empty', session_id=session.id, module_id=module.id)}}"
-      target="_blank" class="btn btn-primary" role="button">Print PDF</a> -->
-    <!-- <a href ="{ {url_for('print_module_students_empty', session_id=session.id, module_id=module.id, empty='yes')}}" target="_blank" class="btn btn-primary" role="button">Print PDF Empty</a> -->
-
     <input id="checkbox-empty" type="checkbox" name="selected"
      value="empty" class="products"> Empty<br>
     <input id="checkbox-sort" type="checkbox" checked name="selected"
@@ -135,15 +140,7 @@
     <input id="checkbox-show" type="checkbox" checked name="selected"
      value="show" class="products"> Show Average & Credit<br>
 
-    <a id='link' href ="{{ url_for('module_print', session_id=session.id, module_id=module.id) }}"
-      target="_blank" class="btn btn-primary" role="button">Print</a>
-    <!-- <a href ="{{url_for('module_print', session_id=session.id, module_id=module.id, empty='yes')}}" 
-      target="_blank" class="btn btn-primary" role="button">Print Empty</a>
-
-    <a href ="{{url_for('module_print', session_id=session.id, module_id=module.id, order='name')}}"
-      target="_blank" class="btn btn-primary" role="button">Print ordered</a>
-    <a href ="{{url_for('module_print', session_id=session.id, module_id=module.id, empty='yes', order='name') }}"
-      target="_blank" class="btn btn-primary" role="button">Print Empty ordered</a> -->
+    <a id='link' href ="{{ url_for('module_print', session_id=session.id, module_id=module.id) }}" target="_blank" class="btn btn-primary" role="button">Print</a>
     {% endif %}
 
     </br></br>

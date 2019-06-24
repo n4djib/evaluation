@@ -145,8 +145,41 @@ class AnnualGrade(db.Model):
             _br = '</br>'
             
         return mudules_list_1 + _br + mudules_list_2
+    def fetch_data(self):
+        annual_dict = self.annual_session.get_annual_dict()
+        sess_1 = StudentSession.query.filter_by(
+            session_id=annual_dict['S1'], student_id=self.student_id).first()
+        sess_2 = StudentSession.query.filter_by(
+            session_id=annual_dict['S2'], student_id=self.student_id).first()
 
+        ratt_1 = StudentSession.query.filter_by(
+            session_id=annual_dict['R1'], student_id=self.student_id).first()
+        ratt_2 = StudentSession.query.filter_by(
+            session_id=annual_dict['R2'], student_id=self.student_id).first()
 
+        # Filling the fields from sessions
+        self.avr_1 = sess_1.average if sess_1 != None else None
+        self.cr_1  = sess_1.credit if sess_1 != None else None
+        self.avr_2 = sess_2.average if sess_2 != None else None
+        self.cr_2  = sess_2.credit if sess_1 != None else None
+
+        self.avr_r_1 = ratt_1.average if ratt_1 != None else None
+        self.cr_r_1 = ratt_1.credit if ratt_1 != None else None
+        self.avr_r_2 = ratt_2.average if ratt_2 != None else None
+        self.cr_r_2 = ratt_2.credit if ratt_2 != None else None
+
+        # and Nullify the rest
+        self.average = None
+        self.credit = None
+        self.average_r = None
+        self.credit_r = None
+
+        self.average_final = None
+        self.credit_final = None
+
+        self.enter_ratt = None
+
+        return 'fetch_data_annual_grade'
     def calculate(self):
         def average(avr_1, avr_2):
             """ the two vals must not be None """

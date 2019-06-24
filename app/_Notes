@@ -49,6 +49,9 @@
 			- make a warrning in Annual of not filled fields
 			- why i can't delete rattrapage in SF
 			- move annual calcul to model "annual grade" and "annual session"
+- after removing a student it remove all calcule
+			- print of classement (annual and semestrielle)
+- print bultin is showing None in birth date
 - one PDF contains all Semester
 - one PDF contains all Annual
 - in Student Grid

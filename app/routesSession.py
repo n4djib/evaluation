@@ -838,6 +838,8 @@ def make_semester_print_header(session, label="**label**"):
     promo = session.promo.name
     annual_pedagogique = session.get_annual_pedagogique()
 
+    label = label.replace(' ', ' ')
+
     header = F"""
       <div class="container" style="display: flex;">
         <div style="flex-grow: 1;">
@@ -939,60 +941,59 @@ def init_annual_grade(annual_session):
 def calculate_annual_session(annual_session_id=0):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
     init_annual_grade(annual_session)
-    fetch_data_annual_grade(annual_session)
+    fetch_data_annual_session(annual_session)
     # calculate_annual(annual_session)
     annual_session.calculate()
     db.session.commit()
     return redirect(url_for('annual_session', annual_session_id=annual_session_id))
 
 
-# def calculate_annual(annual_session):
-#     # annual_dict = annual_session.get_annual_dict()
-#     annual_grades = annual_session.annual_grades
-#     for annual_grade in annual_grades:
-#         annual_grade.calculate()
 
-#     db.session.commit()
-#     return 'calculate_annual'
+# def fetch_data_annual_grade(annual_grade):
+#     sess_1 = StudentSession.query.filter_by(
+#         session_id=annual_dict['S1'], student_id=annual_grade.student_id).first()
+#     sess_2 = StudentSession.query.filter_by(
+#         session_id=annual_dict['S2'], student_id=annual_grade.student_id).first()
 
-def fetch_data_annual_grade(annual_session):
-    annual_dict = annual_session.get_annual_dict()
+#     ratt_1 = StudentSession.query.filter_by(
+#         session_id=annual_dict['R1'], student_id=annual_grade.student_id).first()
+#     ratt_2 = StudentSession.query.filter_by(
+#         session_id=annual_dict['R2'], student_id=annual_grade.student_id).first()
+
+#     # Filling the fields from sessions
+#     annual_grade.avr_1 = sess_1.average if sess_1 != None else None
+#     annual_grade.cr_1  = sess_1.credit if sess_1 != None else None
+#     annual_grade.avr_2 = sess_2.average if sess_2 != None else None
+#     annual_grade.cr_2  = sess_2.credit if sess_1 != None else None
+
+#     annual_grade.avr_r_1 = ratt_1.average if ratt_1 != None else None
+#     annual_grade.cr_r_1 = ratt_1.credit if ratt_1 != None else None
+#     annual_grade.avr_r_2 = ratt_2.average if ratt_2 != None else None
+#     annual_grade.cr_r_2 = ratt_2.credit if ratt_2 != None else None
+
+#     # and Nullify the rest
+#     annual_grade.average = None
+#     annual_grade.credit = None
+#     annual_grade.average_r = None
+#     annual_grade.credit_r = None
+
+#     annual_grade.average_final = None
+#     annual_grade.credit_final = None
+
+#     annual_grade.enter_ratt = None
+
+#     return 'fetch_data_annual_grade'
+
+
+def fetch_data_annual_session(annual_session):
+    # annual_dict = annual_session.get_annual_dict()
     annual_grades = annual_session.annual_grades
-    for an in annual_grades:
-        sess_1 = StudentSession.query.filter_by(
-            session_id=annual_dict['S1'], student_id=an.student_id).first()
-        sess_2 = StudentSession.query.filter_by(
-            session_id=annual_dict['S2'], student_id=an.student_id).first()
-
-        ratt_1 = StudentSession.query.filter_by(
-            session_id=annual_dict['R1'], student_id=an.student_id).first()
-        ratt_2 = StudentSession.query.filter_by(
-            session_id=annual_dict['R2'], student_id=an.student_id).first()
-
-        # Filling the fields from sessions
-        an.avr_1 = sess_1.average if sess_1 != None else None
-        an.cr_1  = sess_1.credit if sess_1 != None else None
-        an.avr_2 = sess_2.average if sess_2 != None else None
-        an.cr_2  = sess_2.credit if sess_1 != None else None
-
-        an.avr_r_1 = ratt_1.average if ratt_1 != None else None
-        an.cr_r_1 = ratt_1.credit if ratt_1 != None else None
-        an.avr_r_2 = ratt_2.average if ratt_2 != None else None
-        an.cr_r_2 = ratt_2.credit if ratt_2 != None else None
-
-        # and Nullify the rest
-        an.average = None
-        an.credit = None
-        an.average_r = None
-        an.credit_r = None
-
-        an.average_final = None
-        an.credit_final = None
-
-        an.enter_ratt = None
+    for ag in annual_grades:
+        # fetch_data_annual_grade(ag)
+        ag.fetch_data()
 
     db.session.commit()
-    return "fetch_data_annual_grade"
+    return "fetch_data_annual_session"
 
 
 @app.route('/annual-session/<annual_session_id>/refrech', methods=['GET', 'POST'])
@@ -1000,7 +1001,7 @@ def annual_session_refrech(annual_session_id=0):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
 
     init_annual_grade(annual_session)
-    # fetch_data_annual_grade(annual_session)
+    # fetch_data_annual_session(annual_session)
     # calculate_annual(annual_session)
 
     return redirect(url_for('annual_session', annual_session_id=annual_session_id))
@@ -1145,7 +1146,7 @@ def collect_data_annual_session_print(annual_session, sort=''):
 def annual_session_print(annual_session_id=0, sort=''):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
     array_data = collect_data_annual_session_print(annual_session, sort)
-    header = make_annual_print_header(annual_session, 'Resultat Annual')
+    header = make_annual_print_header(annual_session, 'Resultat Annuelle')
     annual_dict_obj = annual_session.get_annual_dict_obj()
     return render_template('session/annual-session-print.html', 
         title='Annual Session Print', 
@@ -2078,6 +2079,35 @@ def semester_result_print(session_id=0):
     return render_template('session/semester-result-print.html',
         title=title, header=header, t_head=t_head, data_arr=data_arr, session=session, params=params)
 
+
+
+#######################################
+#####                             #####
+#####                             #####
+#####                             #####
+#######################################
+
+@app.route('/session/<session_id>/classement/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.tree_session.session.result.classement', 'Classement')
+def classement(session_id):
+    student_sessions = StudentSession.query\
+        .filter_by(session_id=session_id)\
+        .order_by(StudentSession.average.desc()).all()
+    session = Session.query.get_or_404(session_id)
+    title = 'classement'
+    return render_template('session/classement.html',
+         title=title, session=session, student_sessions=student_sessions)
+
+@app.route('/session/<session_id>/classement-print/', methods=['GET', 'POST'])
+def classement_print(session_id):
+    student_sessions = StudentSession.query\
+        .filter_by(session_id=session_id)\
+        .order_by(StudentSession.average.desc()).all()
+    session = Session.query.get_or_404(session_id)
+    title = 'classement_print'
+    header = make_semester_print_header(session, 'Classement S ('+str(session.semester.semester)+')' )
+    return render_template('session/classement-print.html',
+         title=title, session=session, header=header, student_sessions=student_sessions)
 
 #######################################
 #####                             #####

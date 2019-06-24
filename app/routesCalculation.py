@@ -4,6 +4,7 @@ from app.models import Session, StudentSession, AnnualGrade, Grade, GradeUnit, S
 import copy
 from ast import literal_eval
 from flask_breadcrumbs import register_breadcrumb
+# from app.routesSession import fetch_data_annual_grade
 
 
 
@@ -183,10 +184,15 @@ def calculate_student(session, student):
 
         annual_session =  ss.session.annual_session
         if annual_session != None:
-            # calculate
             ag = AnnualGrade.query\
                 .filter_by(annual_session_id=annual_session.id, student_id=student.id)\
                 .first()
+
+            # i have to fetch the data first
+            ag.fetch_data()
+            db.session.commit()
+
+            # calculate
             ag.calculate()
             db.session.commit()
             calc += '  Annual (Moy: '+str(ag.average_final)+' - Credit: ' + str(ag.credit)+')'
@@ -302,11 +308,3 @@ def justification_by_username(session_id, username):
     justs.append( get_semester_justification(student_session, conf_dict) )
     return render_template('session/justification.html', title='Session', justs=justs)
     
-
-@app.route('/session/<session_id>/classement/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree_session.session.result.classement', 'Classement')
-def classement(session_id):
-    students_session = StudentSession.query\
-        .filter_by(session_id=session_id)\
-        .order_by(StudentSession.average.desc()).all()
-    return render_template('session/classement.html', title='Session', session_id=session_id, students_session=students_session)

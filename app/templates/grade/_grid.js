@@ -25,10 +25,14 @@ function Save(){
 
       // alert("YOUR SUCCESS MESSAGE HERE");
       
-      // is_dirty = false;
+      is_dirty = false;
       console.log('calculate_student: ' + msg);
+      var calcul = document.getElementById("calcul");
+      calcul.style.display = "block";
+      calcul.innerHTML = "<b>"+msg+"</b>";
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.log('some error');
       alert("some error");
     }
   });
