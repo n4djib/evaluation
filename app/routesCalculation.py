@@ -149,9 +149,15 @@ def calculate_all(session):
         grade_unit.calculate()
     db.session.commit()
 
-    students_session = StudentSession.query.filter_by(session_id=session.id).all()
-    for student_session in students_session:
+    student_sessions = StudentSession.query.filter_by(session_id=session.id).all()
+    for student_session in student_sessions:
         student_session.calculate()
+    db.session.commit()
+
+    # just to not forget recalculating annual
+    annual_grades = AnnualGrade.query.filter_by(annual_session_id=session.annual_session_id).all()
+    for annual_grade in annual_grades:
+        annual_grade.calculate()
     db.session.commit()
 
     return 'calculate_all'
@@ -180,7 +186,28 @@ def calculate_student(session, student):
         db.session.commit()
 
     if ss != None:
-        calc = 'Semester (Moy: '+str(ss.average)+' - Credit: '+str(ss.credit)+')'
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        # REMOVE
+        #
+        aquired = str(ss.units_fond_aquired()) + ' - '
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        #
+        calc = aquired + 'Semester (Moy: '+str(ss.average)+' - Credit: '+str(ss.credit)+')'
 
         annual_session =  ss.session.annual_session
         if annual_session != None:
@@ -193,7 +220,18 @@ def calculate_student(session, student):
             db.session.commit()
 
             # calculate
-            ag.calculate()
+            #
+            #
+            #
+            #
+            #
+            #
+            # ag.calculate()
+            #
+            #
+            #
+            #
+            #
             db.session.commit()
             calc += '  Annual (Moy: '+str(ag.average_final)+' - Credit: ' + str(ag.credit)+')'
 

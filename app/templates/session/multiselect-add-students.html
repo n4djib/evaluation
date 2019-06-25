@@ -69,7 +69,7 @@
           <select name="to[]" id="select_to" class="form-control" size="15" multiple="multiple">
             {% for student in students_session %}
             <option value="{{ student.id }}">
-              {{ student.username }} - {{ student.first_name }} - {{ student.last_name }}
+              {{ student.username }} - {{ student.last_name }} - {{ student.first_name }}
             </option>
             {% endfor %}
           </select>

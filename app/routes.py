@@ -18,24 +18,31 @@ from app.permissions_and_roles import *
 # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # #
 
-@app.route('/code-change-case/')
-def run_code_case():
-    students = Student.query.all()
-    for student in students:
-        student.last_name = student.last_name.upper().strip()
-        student.first_name = student.first_name.capitalize().strip()
+from app.models import Session, Promo
+from app.routesCalculation import init_all, calculate_all
+
+@app.route('/code-recalculate/')
+def run_code_recalculate():
+    sessions = Session.query.join(Promo).filter_by(branch_id=1).all()
+    # return str(sessions)
+    for session in sessions:
+        init_all(session)
     db.session.commit()
-    return 'excuted code-change-case'
+
+    for session in sessions:
+        calculate_all(session)
+    db.session.commit()
+    return 'excuted run_code_recalculate'
 
 
-@app.route('/code-fill-annual/')
-def run_code_annual():
-    annual_sessions = AnnualSession.query.all()
-    for annual_session in annual_sessions:
-        if annual_session.annual_id == None:
-            annual_session.annual_id = annual_session.sessions[0].semester.annual.annual
-    db.session.commit()
-    return 'excuted code-fill-annual-id'
+# @app.route('/code-fill-annual/')
+# def run_code_annual():
+#     annual_sessions = AnnualSession.query.all()
+#     for annual_session in annual_sessions:
+#         if annual_session.annual_id == None:
+#             annual_session.annual_id = annual_session.sessions[0].semester.annual.annual
+#     db.session.commit()
+#     return 'excuted code-fill-annual-id'
 
 
 # # # # # # # # # # # # # # # # # # # # # 

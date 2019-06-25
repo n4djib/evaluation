@@ -1,10 +1,10 @@
 from app import app, db
 from flask import render_template, redirect, url_for, flash, request
 from app.forms import StudentFormCreate, StudentFormUpdate, StudentFormUpdateCostum, RegistrationForm, LoginForm
-from app.models import Student, StudentSession, AnnualSession, User, Branch, Promo, Session, Wilaya, School, Module
+from app.models import Student, StudentSession, AnnualSession, AnnualGrade, User, Branch, Promo, Session, Wilaya, School, Module
 from flask_breadcrumbs import register_breadcrumb
 from datetime import datetime
-from app.routesCalculation import init_all
+from app.routesCalculation import init_all, calculate_all
 
 
 
@@ -472,17 +472,28 @@ def update_student_session(students_from, students_to, session_id):
 
     dirty_remove = False
     # get new list of Student after adding
-    students_session = StudentSession.query.filter_by(session_id=session_id)\
+    student_sessions = StudentSession.query.filter_by(session_id=session_id)\
         .join(Student).order_by(Student.username).all()
-    for student_session in students_session:
+    for student_session in student_sessions:
         if str(student_session.student_id) in students_from:
             grades = student_session.grades
             for grade in grades:
                 db.session.delete(grade)
+
             grade_units = student_session.grade_units
             for grade_unit in grade_units:
                 db.session.delete(grade_unit)
+
             db.session.delete(student_session)
+
+            an_id = student_session.session.annual_session_id
+            std_id = student_session.student_id
+
+            annual_grade = AnnualGrade.query\
+                .filter_by(annual_session_id=an_id, student_id=std_id).first()
+            if annual_grade != None:
+                db.session.delete(annual_grade)
+
             dirty_remove = True
     db.session.commit()
 
@@ -534,6 +545,8 @@ def student_session(session_id=0, _all=''):
         # re-initialize
         if not session.is_historic():
             msg2 = init_all(session)
+            msg3 = calculate_all(session)
+
         return redirect(url_for('session', session_id=session_id))
 
 

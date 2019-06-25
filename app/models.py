@@ -32,6 +32,9 @@ class Promo(db.Model):
     def get_next_semester(self):
         sessions = Session.query.filter_by(promo_id=self.id, is_rattrapage=False).join(Semester).join(Annual)\
             .order_by(Annual.annual, Semester.semester).all()
+        if len(sessions) == 0:
+            return None
+            # raise Exception ('promo get_next_semester no sessions')
         last_session = sessions[-1]
         next_semester = last_session.semester.get_next()
         return next_semester
@@ -102,6 +105,7 @@ class AnnualGrade(db.Model):
     cr_1 = db.Column(db.Integer)
     avr_2 = db.Column(db.Numeric(10,2))
     cr_2 = db.Column(db.Integer)
+    units_fond_aquired = db.Column(db.Boolean, default=False)
     average = db.Column(db.Numeric(10,2))
     credit = db.Column(db.Integer)
     enter_ratt = db.Column(db.Boolean, default=False)
@@ -110,6 +114,7 @@ class AnnualGrade(db.Model):
     cr_r_1 = db.Column(db.Integer)
     avr_r_2 = db.Column(db.Numeric(10,2))
     cr_r_2 = db.Column(db.Integer)
+    units_r_fond_aquired = db.Column(db.Boolean, default=False)
     average_r = db.Column(db.Numeric(10,2))
     credit_r = db.Column(db.Integer)
 
@@ -157,16 +162,42 @@ class AnnualGrade(db.Model):
         ratt_2 = StudentSession.query.filter_by(
             session_id=annual_dict['R2'], student_id=self.student_id).first()
 
+        if sess_1 == None or sess_2 == None:
+            return
+
         # Filling the fields from sessions
         self.avr_1 = sess_1.average if sess_1 != None else None
         self.cr_1  = sess_1.credit if sess_1 != None else None
         self.avr_2 = sess_2.average if sess_2 != None else None
         self.cr_2  = sess_2.credit if sess_1 != None else None
 
+        # units_fond_aquired
+        self.units_fond_aquired = None
+        if sess_1 != None and sess_2 != None:
+            # if self.cr_1 != 30 or self.cr_2 != 30:
+            u_f_aqui_1 = sess_1.units_fond_aquired()
+            u_f_aqui_2 = sess_2.units_fond_aquired()
+            self.units_fond_aquired = u_f_aqui_1 and u_f_aqui_2
+            # self.units_fond_aquired = u_f_aqui_2
+
+
         self.avr_r_1 = ratt_1.average if ratt_1 != None else None
         self.cr_r_1 = ratt_1.credit if ratt_1 != None else None
         self.avr_r_2 = ratt_2.average if ratt_2 != None else None
         self.cr_r_2 = ratt_2.credit if ratt_2 != None else None
+
+        # # units_r_fond_aquired
+        # self.units_r_fond_aquired = None
+        # if ratt_1 != None or ratt_2 != None:
+        #         u_f_aqui_1 = sess_1.units_fond_aquired()
+        #         u_f_aqui_2 = sess_2.units_fond_aquired()
+
+
+        # u_r_f_aqui_1 = u_r_f_aqui_2 = True
+        # if self.cr_r_1 != 30: u_r_f_aqui_1 = ratt_1.units_fond_aquired()
+        # if self.cr_r_2 != 30: u_r_f_aqui_2 = ratt_1.units_fond_aquired()
+        # self.units_r_fond_aquired = u_r_f_aqui_1 and u_r_f_aqui_2
+
 
         # and Nullify the rest
         self.average = None
@@ -186,23 +217,25 @@ class AnnualGrade(db.Model):
             if avr_1 != None and avr_2 != None:
                 return (avr_1 + avr_2) / 2
             return None
-
-        def credit(cr_1, cr_2, is_fondamental, average):
+        def credit(cr_1, cr_2, average, is_fondamental, units_fond_aquired):
             if cr_1 == None or cr_2 == None:
                 return None
             if is_fondamental == False and average >= 10:
                 return 60
+            if is_fondamental == True and average >= 10 and units_fond_aquired == True:
+                return 60
             return  cr_1 + cr_2
 
         ag = self
+        if ag.avr_1 == None or ag.avr_2 == None or ag.cr_1 == None or ag.cr_2 == None:
+            return 'student is missing from one of the semesters'
 
-        # is_fondamental = ag.annual_session.sessions[0].semester.has_fondamental()
         is_fondamental = ag.annual_session.annual.has_fondamental()
 
         # 
         # before Ratt
         ag.average = average(ag.avr_1, ag.avr_2)
-        ag.credit = credit(ag.cr_1, ag.cr_2, is_fondamental, ag.average)
+        ag.credit = credit(ag.cr_1, ag.cr_2, ag.average, is_fondamental, ag.units_fond_aquired)
 
         ag.enter_ratt = False
         if ag.credit < 60:
@@ -222,7 +255,6 @@ class AnnualGrade(db.Model):
             cr_r_2 = ag.cr_r_2 if ag.cr_r_2 != None else ag.cr_2
             ag.credit_r = credit(cr_r_1, cr_r_2, is_fondamental, ag.average_r)
         
-
         # saving_average
         # saving_credit
 
@@ -472,6 +504,15 @@ class StudentSession(db.Model):
     session = db.relationship('Session', back_populates='student_sessions')
     grades = db.relationship('Grade', back_populates='student_session')
     grade_units = db.relationship('GradeUnit', back_populates='student_session')
+    def units_fond_aquired(self):
+        for grade_unit in self.grade_units:
+            if grade_unit.unit.is_fondamental == True:
+                if grade_unit.credit != grade_unit.unit.get_unit_cumul_credit():
+                    credit = grade_unit.credit
+                    unit_cumul_credit = grade_unit.unit.get_unit_cumul_credit()
+                    # raise Exception('units_fond_aquired: '+str(credit)+' '+str(unit_cumul_credit))
+                    return False
+        return True
     def calculate(self, grade_units=None):
         if grade_units is None:
             grade_units = self.grade_units
@@ -497,7 +538,6 @@ class StudentSession(db.Model):
             credit += grade_unit.credit
             calculation += str(grade_unit.average) + ' * ' + str(unit_coefficient) + ' + '
         # end for
-
 
         if average == None:
             self.average = None

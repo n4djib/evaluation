@@ -942,54 +942,14 @@ def calculate_annual_session(annual_session_id=0):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
     init_annual_grade(annual_session)
     fetch_data_annual_session(annual_session)
-    # calculate_annual(annual_session)
     annual_session.calculate()
     db.session.commit()
     return redirect(url_for('annual_session', annual_session_id=annual_session_id))
 
 
-
-# def fetch_data_annual_grade(annual_grade):
-#     sess_1 = StudentSession.query.filter_by(
-#         session_id=annual_dict['S1'], student_id=annual_grade.student_id).first()
-#     sess_2 = StudentSession.query.filter_by(
-#         session_id=annual_dict['S2'], student_id=annual_grade.student_id).first()
-
-#     ratt_1 = StudentSession.query.filter_by(
-#         session_id=annual_dict['R1'], student_id=annual_grade.student_id).first()
-#     ratt_2 = StudentSession.query.filter_by(
-#         session_id=annual_dict['R2'], student_id=annual_grade.student_id).first()
-
-#     # Filling the fields from sessions
-#     annual_grade.avr_1 = sess_1.average if sess_1 != None else None
-#     annual_grade.cr_1  = sess_1.credit if sess_1 != None else None
-#     annual_grade.avr_2 = sess_2.average if sess_2 != None else None
-#     annual_grade.cr_2  = sess_2.credit if sess_1 != None else None
-
-#     annual_grade.avr_r_1 = ratt_1.average if ratt_1 != None else None
-#     annual_grade.cr_r_1 = ratt_1.credit if ratt_1 != None else None
-#     annual_grade.avr_r_2 = ratt_2.average if ratt_2 != None else None
-#     annual_grade.cr_r_2 = ratt_2.credit if ratt_2 != None else None
-
-#     # and Nullify the rest
-#     annual_grade.average = None
-#     annual_grade.credit = None
-#     annual_grade.average_r = None
-#     annual_grade.credit_r = None
-
-#     annual_grade.average_final = None
-#     annual_grade.credit_final = None
-
-#     annual_grade.enter_ratt = None
-
-#     return 'fetch_data_annual_grade'
-
-
 def fetch_data_annual_session(annual_session):
-    # annual_dict = annual_session.get_annual_dict()
     annual_grades = annual_session.annual_grades
     for ag in annual_grades:
-        # fetch_data_annual_grade(ag)
         ag.fetch_data()
 
     db.session.commit()
@@ -1060,10 +1020,11 @@ def collect_data_annual_session(annual_session):
             '<td class="right '+cross_average+'">'  + str(an.average) + '</td>', 
             '<td class="center '+cross_average+'">' + str(an.credit) + '</td>', 
 
+            # '<td class="center">' + ratt + ' - ' + str(an.units_fond_aquired) + '</td>', 
             '<td class="center">' + ratt + '</td>', 
 
             '<td class="right">'  + str(an.avr_r_1) + '</td>', 
-            '<td class="center">' + str(an.cr_r_1) + '</td>',
+            '<td class="center">' + str(an.cr_r_1) + '</td>', 
             '<td class="right">'  + str(an.avr_r_2) + '</td>', 
             '<td class="center">' + str(an.cr_r_2) + '</td>', 
             '<td class="right">'  + str(an.average_r) + '</td>', 
