@@ -51,9 +51,17 @@
 			- move annual calcul to model "annual grade" and "annual session"
 			- after removing a student it remove all calcule
 			- print of classement (annual and semestrielle)
+- flask static
+	and upload automaticaly to github
+	try to include the javascript
+- add printing time to printables
 - SF-2017-10 boukhani lalla  2eme annee
 	give her 60
-	finish     units_fond_aquired
+	finish     units_fond_aquired for ratt
+- in show rattrapage Button show how many Student 
+- maybe when i reintialize the ids change
+- in reinitialize_session
+	uncomment calculate all
 - in GradeUnit what is the purpose of unit_coefficient
 	used in init_grade_unit --- grade_unit.unit_coefficient = unit.unit_coefficient
 	& is_fondamental

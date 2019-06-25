@@ -2066,7 +2066,7 @@ def classement_print(session_id):
         .order_by(StudentSession.average.desc()).all()
     session = Session.query.get_or_404(session_id)
     title = 'classement_print'
-    header = make_semester_print_header(session, 'Classement S ('+str(session.semester.semester)+')' )
+    header = make_semester_print_header(session, 'Classement S ('+str(session.semester.get_nbr())+')' )
     return render_template('session/classement-print.html',
          title=title, session=session, header=header, student_sessions=student_sessions)
 

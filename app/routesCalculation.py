@@ -88,7 +88,8 @@ def init_grade(session):
 
                     grade.is_rattrapage = copied_grade.is_rattrapage
                     # dirty is set in calculate grade
-                    grade.is_dirty = copied_grade.is_dirty
+                    # grade.is_dirty = copied_grade.is_dirty
+                    grade.is_dirty = True
                     grade.calculation = copied_grade.calculation
 
                 grade.formula = get_formula(module.id)
@@ -196,7 +197,7 @@ def calculate_student(session, student):
         #
         # REMOVE
         #
-        aquired = str(ss.units_fond_aquired()) + ' - '
+        # aquired = str(ss.units_fond_aquired()) + ' - '
         #
         #
         #
@@ -207,7 +208,8 @@ def calculate_student(session, student):
         #
         #
         #
-        calc = aquired + 'Semester (Moy: '+str(ss.average)+' - Credit: '+str(ss.credit)+')'
+        # calc = aquired + 'Semester (Moy: '+str(ss.average)+' - Credit: '+str(ss.credit)+')'
+        calc = 'Semester (Moy: '+str(ss.average)+' - Credit: '+str(ss.credit)+')'
 
         annual_session =  ss.session.annual_session
         if annual_session != None:

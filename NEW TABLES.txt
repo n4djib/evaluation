@@ -13,12 +13,6 @@
 
 = install drivers on Fatima PC
  
-= add to annual_grade
-	units_fond_aquired boolean
-	units_r_fond_aquired boolean
-
-= Calculate Semester 5 6
-	http://localhost:5000/code-recalculate/
 
 = 
 
