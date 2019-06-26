@@ -1,71 +1,32 @@
-
 == TASKS FOR EVAL TEAM ==
 - 2019-02-21 - to enter the Hours required in every modules
 - 2019-03- - enter students infos
-- check if they corrected the names
-	when you find the name in App you can tell where it it in the Excel
 - check if they saved Students in Excel and Eval
 - shorten longer modules name
-- correct the promos names
 - teachers
-- 
-
-
-== QUESTIONS ==
----------------
-- Rattrapage printables
-- doublage ????
 - 
 
 == Note ==
 ----------------
-	when you program
+	- when you program
 		make the function with a good name then start to implement it
 		like: check if configuration_changed(session_id):
-
-	write good tests like the ones in the configuration which show errors
-
-	watch how people use the application
+	- write good tests like the ones in the configuration which show errors
+	- watch how people use the application
        to find out how you can make the application UX better
-
-	Write things you Note missing in the App
-
-
-==BREADCRUMBS to finish==
--------------------------
-- some breadcrumbs got messed up
-	because i moved them
-- some breadcrumbs need to adapt to path
-	like justification in Grade & resultat
-		or just change them to Printables
+	- Write things you Note missing in the App
 
 
 == PRIORITY 1 ==
 ----------------
-			- add Session Config
-			- maybe i should not create RATT from annual when SF
-			- check the Observation (SF)
-			- how to add new nodes in Config Tree
-			- make a warrning in Annual of not filled fields
-			- why i can't delete rattrapage in SF
-			- move annual calcul to model "annual grade" and "annual session"
-			- after removing a student it remove all calcule
-			- print of classement (annual and semestrielle)
 - flask static
 	and upload automaticaly to github
 	try to include the javascript
 - deactivate a student rather than deleting him
 - in printables Title and header 
 	be carfull of Semester|ratt
-- add printing time to printables
 - indicate that a semestral ratt is passing in annual for SF
-- SF-2017-10 boukhani lalla  2eme annee
-	give her 60
-	finish     units_fond_aquired for ratt
-- in show rattrapage Button show how many Student 
 - maybe when i reintialize the ids change
-- in reinitialize_session
-	uncomment calculate all
 - in GradeUnit what is the purpose of unit_coefficient
 	used in init_grade_unit --- grade_unit.unit_coefficient = unit.unit_coefficient
 	& is_fondamental
@@ -81,13 +42,7 @@
 - add sort to annual
 - add sorter in UEF unit
 - indecate the need to calculate in Annual
-- when i duplicate the Semester
-	is the Modules duplicated too ??????
-		yes modules are duplicated
-		and this causes problems
-			i have to treet Config as a String
 - duplicate Semester from FlaskAdmin
-
 
 - upload files to a free Static website
 - when i don't fill Rattrapage
@@ -97,15 +52,14 @@
 - lock annual
 
 
-
-= Session
+-- Session
 	- show session in resultat Semester
 	- semester Result Ratt must show Session
 	- in Result and Bultin 
 		be carefull of the source of the data (semester vs ratt)
 	- remove session from Annual
 
-== FINISH PRINTABLES
+-- FINISH PRINTABLES
 	- classement in resultat
 	- finish the 3 printables first
 		bultin header + annual + ratt
@@ -114,8 +68,9 @@
 		and module header
 	- Bultin Semester Header
 	- Bultin Average & credit & session
+	- Rattrapage printables
 
-== make the navigation easier
+-- make the navigation easier
 	show Semester Average & Annual Average
 	between semesters
 	from semester result to Module Grid
@@ -124,7 +79,7 @@
 	and the notion of URL_RETURN
 		you can add a flash of url_return
 
-== Refactoring
+-- Refactoring
 	- move annual functions from Semester to Annual
 		like get_annual_chain
 	- in FORM SelectField should filter 
@@ -135,12 +90,17 @@
 
 
 
+-- Potencial Bugs ==
+	- 
+	- 
+
+- when i duplicate the Semester
+	is the Modules duplicated too ??????
+		yes modules are duplicated
+		and this causes problems
+			i have to treet Config as a String
 
 
-
-			- show if fondamental in Session
-				but show only if SF
-			- link from Releve-Result to Module Grid
 - finish permissions to allow multi-user-entering of Historic
 - classement in annual
 
@@ -357,6 +317,15 @@
 
 
 
+==BREADCRUMBS to finish==
+-------------------------
+- some breadcrumbs got messed up
+	because i moved them
+- some breadcrumbs need to adapt to path
+	like justification in Grade & resultat
+		or just change them to Printables
+
+
 == PRINTABLES ==
 ----------------
 	- when printing XPS & PDF
@@ -393,10 +362,10 @@
 - Students Access to data should be according to good behaviour
 - Add a Settings Page
 - costum Settings by user
-- enforce Promo naming
 - add a place to put notes shared between Evaluation team
 - in SemesterTree
 	show promos that use this semester
+- enforce Promo naming
 
 
 
@@ -430,39 +399,26 @@
 ----------------
 == PRIORITY 3 ==
 ----------------
-- show a progress bar like a WiFi in Tree
+			- show a progress bar like a WiFi in Tree
 - teachers rating
 	only his students can rate him
 - Authorization
 - Mysql
-- raise an exception when a Session or a Semester has more than one Next
 - upload Photos
 - convert Table(configuration in guide) to Treant
 	and from Treant to Table(print)
-- as a security mesure you shoold check the username of the windows who is trying to edit
+- as a security mesure you should check the username of the Windows who is trying to edit
 - make ztree bigger
 - 
 - 
-- put the data in a warehouse & empty the History & Calculation tables
 - remove database links if you can insure it by the application !!!!
+	for speed
 - always check the correctness of the Data  before calculating
+	raise an exception
 - Audits
 - Authentication
 	https://www.google.com/search?q=flask+authorization&ie=utf-8&oe=utf-8&client=firefox-b-ab
 	http://flask-user.readthedocs.io/en/latest/authorization.html
-
-- mysql
-
-
-- 
-- 
-
-== Potencial Bugs ==
---------------------
-- in ratt session in add remove students
-	show all students in the branch - shows them all
-- 
-- 
 - 
 - 
 
@@ -676,8 +632,30 @@
 			- show for every student his promos and sessions and Grades
 				and printables
 			- in JS grid by student some errors are happining
+			- add Session Config
+			- maybe i should not create RATT from annual when SF
+			- check the Observation (SF)
+			- how to add new nodes in Config Tree
+			- make a warrning in Annual of not filled fields
+			- why i can't delete rattrapage in SF
+			- move annual calcul to model "annual grade" and "annual session"
+			- after removing a student it remove all calcule
+			- print of classement (annual and semestrielle)
+			- add printing time to printables
+			- SF-2017-10 boukhani lalla  2eme annee
+				give her 60
+				finish     units_fond_aquired for ratt
+			- in show rattrapage Button show how many Student 
+			- in reinitialize_session
+				uncomment calculate all
+			- show if fondamental in Session
+				but show only if SF
+			- link from Releve-Result to Module Grid
 
 
 
 
-.
+
+
+
+..................

@@ -23,10 +23,10 @@
   	<h2>Students Rattrapage Annual</h2>
 
     <div style="margin-bottom: 3px;">
-      <a class="btn btn-primary" href="{{url_for('students_rattrapage_annual_print', annual_session_id=annual_session_id)}}" target="_blank" >Print</a>
+      <a class="btn btn-primary" href="{{url_for('students_rattrapage_annual_print', annual_session_id=annual_session.id)}}" target="_blank" >Print</a>
     </div>
       
-    <form action="{{ url_for('create_rattrapage_annual', annual_session_id=annual_session_id) }}"
+    <form action="{{ url_for('create_rattrapage_annual', annual_session_id=annual_session.id) }}"
           method="post" class="form" role="form">
     <!-- -------------------------------------------------- -->
       <table id="" class="table table-striped table-bordered">
@@ -87,6 +87,7 @@
   {{ super() }}
 
   <script type="text/javascript">
+  
   </script>
 
 {% endblock %}

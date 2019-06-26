@@ -130,7 +130,7 @@
       {% if session.is_rattrapage != True and session.semester.has_fondamental() == True %}
       <a href ="{{url_for('students_rattrapage_semester', session_id=session.id)}}"
          class="btn btn-primary {{'disabled' if check['CALC'] or check['ERRS'] or check['EMPTY'] else ''}}" role="button"
-         >Show Ratt (R:{{ session.semester.get_nbr() }})</a>
+         >Show Ratt. [{{ session.get_students_to_enter_rattrapage() | length }}]</a>
       {% endif %}
       
       <hr>

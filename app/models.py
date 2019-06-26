@@ -5,6 +5,7 @@ from flask_login import UserMixin
 from app import login
 from sqlalchemy.event import listen
 from decimal import *
+from sqlalchemy import or_
 from app._shared_functions import extract_fields, check_grades_status
 
 # FIX:  = db.Column(db.String(64), index=True, unique=True)
@@ -96,6 +97,12 @@ class AnnualSession(db.Model):
         for annual_grade in annual_grades:
             annual_grade.calculate()
         return 'AnnualSession calculated'
+    def get_students_to_enter_rattrapage(self):
+        students = AnnualGrade.query\
+            .filter_by(annual_session_id=self.id)\
+            .filter( AnnualGrade.enter_ratt == True )\
+            .join(Student).order_by(Student.username).all()
+        return students
 
 
 class AnnualGrade(db.Model):
@@ -490,6 +497,22 @@ class Session(db.Model):
             if grade.is_dirty == True :
                 return True
         return False
+    def get_students_to_enter_rattrapage(self):
+        students = StudentSession.query\
+            .filter_by(session_id=self.id)\
+            .filter( or_(StudentSession.credit < 30, StudentSession.credit == None) )\
+            .join(Student).order_by(Student.username).all()
+        # 
+        # 
+        # 
+        # 
+        # remove students who passed by the Annual
+        #   show only students you can find in Annual
+        #       
+        # 
+        # 
+        # 
+        return students
 
 class StudentSession(db.Model):
     __tablename__ = 'student_session'

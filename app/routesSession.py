@@ -7,7 +7,7 @@ from app.forms import SessionConfigForm
 from flask_breadcrumbs import register_breadcrumb
 from decimal import *
 from ast import literal_eval
-from sqlalchemy import or_
+# from sqlalchemy import or_
 from datetime import datetime
 from app.routesCalculation import init_all, reinitialize_session, update_session_configuraton
 from app._shared_functions import extract_fields, check_session_is_complite
@@ -703,34 +703,32 @@ def create_session(promo_id=0, semester_id=0):
 ######################
 ### NEW RATTRAPAGE ###
 
-# grab them from Session
-def get_students_to_enter_rattrapage_semester(session_id):
-    # session = Session.query.get_or_404(session_id)
-    # if ()
-    #     
-    #     return students
-
-    students = StudentSession.query\
-        .filter_by(session_id=session_id)\
-        .filter( or_(StudentSession.credit < 30, StudentSession.credit == None) )\
-        .join(Student).order_by(Student.username).all()
-    return students
+# # grab them from Session
+# def get_students_to_enter_rattrapage_semester(session_id):
+#     students = StudentSession.query\
+#         .filter_by(session_id=session_id)\
+#         .filter( or_(StudentSession.credit < 30, StudentSession.credit == None) )\
+#         .join(Student).order_by(Student.username).all()
+#     return students
 
 @app.route('/session/<session_id>/rattrapage/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree_session.session.rattrapage', 'Rattrapage')
 def students_rattrapage_semester(session_id=0):
-    students = get_students_to_enter_rattrapage_semester(session_id)
+    # students = get_students_to_enter_rattrapage_semester(session_id)
+    session = Session.query.get_or_404(session_id)
+    students = session.get_students_to_enter_rattrapage()
     return render_template('session/students-rattrapage-semester.html', 
-        title='ratt-semester', students=students, session_id=session_id)
-
+        title='ratt-semester', students=students, session=session)
 
 @app.route('/session/<session_id>/rattrapage-print/', methods=['GET', 'POST'])
 def students_rattrapage_semester_print(session_id=0):
-    students = get_students_to_enter_rattrapage_semester(session_id)
+    # students = get_students_to_enter_rattrapage_semester(session_id)
     session = Session.query.get_or_404(session_id)
-    header = make_semester_print_header(session, 'Rattrapage Semestre '+str(session.semester.semester))
+    students = session.get_students_to_enter_rattrapage()
+
+    header = make_semester_print_header(session, 'Rattrapage '+str(session.semester.semester))
     return render_template('session/students-rattrapage-semester-print.html', 
-        title='ratt-semester-print', students=students, header=header, session_id=session_id)
+        title='ratt-semester-print', students=students, header=header)
 
 
 
@@ -774,30 +772,34 @@ def create_rattrapage_annual(annual_session_id=0):
     return redirect(url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id))
 
 
-# grab them from AnnualSession
-def get_students_to_enter_rattrapage_annual(annual_session_id):
-    # check if they have fondamental
-    students = AnnualGrade.query\
-        .filter_by(annual_session_id=annual_session_id)\
-        .filter( AnnualGrade.enter_ratt == True )\
-        .join(Student).order_by(Student.username).all()
-    return students
+# # grab them from AnnualSession
+# def get_students_to_enter_rattrapage_annual(annual_session_id):
+#     # check if they have fondamental
+#     students = AnnualGrade.query\
+#         .filter_by(annual_session_id=annual_session_id)\
+#         .filter( AnnualGrade.enter_ratt == True )\
+#         .join(Student).order_by(Student.username).all()
+#     return students
 
 @app.route('/annual-session/<annual_session_id>/rattrapage/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree_annual.annual.rattrapage', 'Annual Rattrapage')
 def students_rattrapage_annual(annual_session_id=0):
-    students = get_students_to_enter_rattrapage_annual(annual_session_id)
+    # students = get_students_to_enter_rattrapage_annual(annual_session_id)
+    annual_session = AnnualSession.query.get_or_404(annual_session_id)
+    students = annual_session.get_students_to_enter_rattrapage()
+
     return render_template('session/students-rattrapage-annual.html', 
-        title='ratt-annual', students=students, annual_session_id=annual_session_id)
+        title='ratt-annual', students=students, annual_session=annual_session)
 
 @app.route('/annual-session/<annual_session_id>/rattrapage-print/', methods=['GET', 'POST'])
 def students_rattrapage_annual_print(annual_session_id=0):
-    students = get_students_to_enter_rattrapage_annual(annual_session_id)
+    # students = get_students_to_enter_rattrapage_annual(annual_session_id)
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
+    students = annual_session.get_students_to_enter_rattrapage()
+
     header = make_annual_print_header(annual_session, 'Rattrapage Annual')
     return render_template('session/students-rattrapage-annual-print.html', 
-        title='ratt-annual-print', students=students, header=header, 
-        annual_session_id=annual_session_id)
+        title='ratt-annual-print', students=students, header=header)
 
 
 # headers #
