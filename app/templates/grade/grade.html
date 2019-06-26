@@ -126,7 +126,7 @@
 
 
 
-    <pre id="calcul" style="display: block; color: green;" class=""><b>Save to get Results</b></pre>
+    <pre id="calcul" style="display: none; color: green;" class=""><b>Save to get Results</b></pre>
 
 
 
@@ -180,6 +180,36 @@
     //     return 'You have unsaved changes! ********';
     //   }
     // }
+ 
+// // Warning before leaving the page (back button, or outgoinglink)
+// window.onbeforeunload = function() {
+//    return "Do you really want to leave our brilliant application?";
+//    //if we return nothing here (just calling return;) then there will be no pop-up question at all
+//    //return;
+// }; 
+
+// window.addEventListener("beforeunload", function (e) {
+//     var confirmationMessage
+//      = 'It looks like you have been editing something. '
+//       + 'If you leave before saving, your changes will be lost.';
+
+//     (e || window.event).returnValue
+//      = confirmationMessage; //Gecko + IE
+//     return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
+// });
+
+
+
+
+ // window.onbeforeunload = function() {
+ //                   var Ans = confirm("Are you sure you want change page!");
+ //                   if(Ans==true)
+ //                       return true;
+ //                   else
+ //                       return false;
+ //               };
+
+
 
     
     document.getElementById('hot-display-license-info').remove();

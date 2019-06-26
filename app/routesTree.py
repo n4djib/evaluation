@@ -3,7 +3,8 @@ from flask import render_template, url_for, redirect, request, flash
 from app.models import School, Session, Annual, Semester, Promo, AnnualSession
 from flask_breadcrumbs import register_breadcrumb
 from datetime import datetime
-from app.routesCalculation import init_all, calculate_all
+# from app.routesCalculation import init_all, calculate_all
+from app.routesCalculation import init_all
 
 
 

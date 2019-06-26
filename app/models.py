@@ -328,7 +328,7 @@ class Session(db.Model):
         label += '(' + str(self.semester.get_nbr()) + ') - ' + self.promo.get_label() 
         return label
     def get_name(self):
-        label = 'Rattrapage ' if self.is_rattrapage else 'Semester '
+        label = 'Rattrapage ' if self.is_rattrapage else 'Semestre '
         label += '(' + str(self.semester.get_nbr()) + ')'
         return label
     def student_nbr(self):
@@ -435,6 +435,8 @@ class Session(db.Model):
 
         return True
     def is_config_changed(self):
+        if self.is_closed == True:
+            return False
         configuration = str(self.semester.config_dict())
         if configuration != self.configuration:
             return True
@@ -513,6 +515,51 @@ class Session(db.Model):
         # 
         # 
         return students
+    def calculate(self):
+        student_sessions = self.student_sessions
+        for student_session in student_sessions:
+            grade_units = student_session.grade_units
+            for grade_unit in grade_units:
+                #
+                #
+                #
+                #
+                #
+                #
+                #
+                #
+                #
+                # grades = grade_unit.grades
+                grades = Grade.query.filter_by(
+                    student_session_id=grade_unit.student_session_id
+                    ).all()
+                #
+                # fetch only grades in Unit
+                #
+                #
+                #
+                #
+                for grade in grades:
+                    grade.calculate()
+                #
+                #
+                # without commitig
+                db.session.commit()
+                #
+                #
+                # i shoul pass grades
+                # grade_unit.calculate(grades)
+                #
+                #
+                grade_unit.calculate()
+            # end for grade_units
+            db.session.commit()
+            student_session.calculate()
+        # end for student_sessions
+        db.session.commit()
+        return 'Session calculated'
+
+
 
 class StudentSession(db.Model):
     __tablename__ = 'student_session'
@@ -536,6 +583,18 @@ class StudentSession(db.Model):
                     # raise Exception('units_fond_aquired: '+str(credit)+' '+str(unit_cumul_credit))
                     return False
         return True
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    # i pass grade_units to avoid commiting them then fetching again
+    #
     def calculate(self, grade_units=None):
         if grade_units is None:
             grade_units = self.grade_units
@@ -708,6 +767,18 @@ class GradeUnit(db.Model):
             if grade.get_ratt_bultin() == '2' and grade.module.unit_id == self.unit_id:
                 return '2'
         return '1'
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    # i pass grades to avoid commiting them then fetching again
+    #
     def calculate(self, grades=None):
         # grades in a one grade_unit
         if grades is None:

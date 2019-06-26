@@ -4,9 +4,8 @@ from app.forms import StudentFormCreate, StudentFormUpdate, StudentFormUpdateCos
 from app.models import Student, StudentSession, AnnualSession, AnnualGrade, User, Branch, Promo, Session, Wilaya, School, Module
 from flask_breadcrumbs import register_breadcrumb
 from datetime import datetime
-from app.routesCalculation import init_all, calculate_all
-
-
+# from app.routesCalculation import init_all, calculate_all
+from app.routesCalculation import init_all
 
 
 

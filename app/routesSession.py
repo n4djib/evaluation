@@ -726,7 +726,7 @@ def students_rattrapage_semester_print(session_id=0):
     session = Session.query.get_or_404(session_id)
     students = session.get_students_to_enter_rattrapage()
 
-    header = make_semester_print_header(session, 'Rattrapage '+str(session.semester.semester))
+    header = make_semester_print_header(session, 'Rattrapage ('+str(session.semester.semester)+')')
     return render_template('session/students-rattrapage-semester-print.html', 
         title='ratt-semester-print', students=students, header=header)
 
@@ -797,7 +797,7 @@ def students_rattrapage_annual_print(annual_session_id=0):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
     students = annual_session.get_students_to_enter_rattrapage()
 
-    header = make_annual_print_header(annual_session, 'Rattrapage Annual')
+    header = make_annual_print_header(annual_session, 'Rattrapage Annuelle')
     return render_template('session/students-rattrapage-annual-print.html', 
         title='ratt-annual-print', students=students, header=header)
 
@@ -1123,38 +1123,52 @@ def flash_check_annual_session(annual_dict_obj):
     S2 = annual_dict_obj['S2']
     R1 = annual_dict_obj['R1']
     R2 = annual_dict_obj['R2']
+    need_init_recalc = False
+    alert_reinit = 'alert-warning'
+    alert_recalc = 'alert-danger'
     if S1 != None:
         nbr = str(annual_dict_obj['S1'].semester.get_nbr())
         if S1.is_config_changed():
+            need_init_recalc = True
             btn = make_button_session_reinit(S1)
-            flash("Semester ("+nbr+") init needed", 'alert-warning')
+            flash("Semester ("+nbr+") init needed "+btn, alert_reinit)
         if S1.check_recalculate_needed():
+            need_init_recalc = True
             btn = make_button_session_recalc(S1)
-            flash("Semester ("+nbr+") recalculate needed", 'alert-warning')
+            flash("Semester ("+nbr+") recalculate needed "+btn, alert_recalc)
     if S2 != None:
         nbr = str(annual_dict_obj['S2'].semester.get_nbr())
         if S2.is_config_changed():
+            need_init_recalc = True
             btn = make_button_session_reinit(S2)
-            flash("Semester ("+nbr+") init needed", 'alert-warning')
+            flash("Semester ("+nbr+") init needed "+btn, alert_reinit)
         if S2.check_recalculate_needed():
+            need_init_recalc = True
             btn = make_button_session_recalc(S2)
-            flash("Semester ("+nbr+") recalculate needed", 'alert-warning')
+            flash("Semester ("+nbr+") recalculate needed "+btn, alert_recalc)
     if R1 != None:
         nbr = str(annual_dict_obj['R1'].semester.get_nbr())
         if R1.is_config_changed():
+            need_init_recalc = True
             btn = make_button_session_reinit(R1)
-            flash("Ratt. ("+nbr+") init needed", 'alert-warning')
+            flash("Ratt. ("+nbr+") init needed "+btn, alert_reinit)
         if R1.check_recalculate_needed():
+            need_init_recalc = True
             btn = make_button_session_recalc(R1)
-            flash("Ratt. ("+nbr+") recalculate needed", 'alert-warning')
+            flash("Ratt. ("+nbr+") recalculate needed "+btn, alert_recalc)
     if R2 != None:
         nbr = str(annual_dict_obj['R2'].semester.get_nbr())
         if R2.is_config_changed():
+            need_init_recalc = True
             btn = make_button_session_reinit(R2)
-            flash("Ratt. ("+nbr+") init needed", 'alert-warning')
+            flash("Ratt. ("+nbr+") init needed "+btn, alert_reinit)
         if R2.check_recalculate_needed():
+            need_init_recalc = True
             btn = make_button_session_recalc(R2)
-            flash("Ratt. ("+nbr+") recalculate needed", 'alert-warning')
+            flash("Ratt. ("+nbr+") recalculate needed "+btn, alert_recalc)
+
+    return need_init_recalc
+
 
 def make_button_session_reinit(session):
     session_id = session.id
@@ -1163,7 +1177,7 @@ def make_button_session_reinit(session):
     reinit_url = url_for('reinitialize_session', session_id=session_id, url_return=url_return)
     slow_redirect_url = url_for('slow_redirect', url=reinit_url, message='(Re)initializing')
     btn = '<a id="re-init-"'+str(session_id)+' class="btn btn-warning"'
-    btn += ' href="'+slow_redirect_url+'" >(Re)initialize '+reinit_url+'</a>'
+    btn += ' href="'+slow_redirect_url+'" >(Re)initialize</a>'
     return btn
    
 def make_button_session_recalc(session):
@@ -1173,7 +1187,7 @@ def make_button_session_recalc(session):
     recalc_url = url_for('calculate_session', session_id=session_id, url_return=url_return)
     slow_redirect_url = url_for('slow_redirect', url=recalc_url, message='(Re)recalculating')
     btn = '<a id="re-calc-"'+str(session_id)+' class="btn btn-warning"'
-    btn += ' href="'+slow_redirect_url+'" >(Re)calculate '+recalc_url+'</a>'
+    btn += ' href="'+slow_redirect_url+'" >(Re)calculate</a>'
     return btn
    
 
@@ -2068,7 +2082,7 @@ def classement_print(session_id):
         .order_by(StudentSession.average.desc()).all()
     session = Session.query.get_or_404(session_id)
     title = 'classement_print'
-    header = make_semester_print_header(session, 'Classement S ('+str(session.semester.get_nbr())+')' )
+    header = make_semester_print_header(session, 'Classement Semestre ('+str(session.semester.get_nbr())+')' )
     return render_template('session/classement-print.html',
          title=title, session=session, header=header, student_sessions=student_sessions)
 

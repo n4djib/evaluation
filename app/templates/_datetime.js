@@ -11,7 +11,7 @@ if (dt_elem !== null)
 function get_current_datetime() {
 	var d = new Date(),
 	    minutes = d.getMinutes().toString().length == 1 ? '0'+d.getMinutes() : d.getMinutes(),
-	    hours = d.getHours().toString().length == 1 ? '0'+d.getHours() : d.getHours(),
+	    hours = (d.getHours()-1).toString().length == 1 ? '0'+(d.getHours()-1) : (d.getHours()-1),
 	    ampm = d.getHours() >= 12 ? 'pm' : 'am',
 	    // months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
 	    // months = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Dec'],
@@ -21,10 +21,10 @@ function get_current_datetime() {
 	    // days = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],
 	    days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
 
-	    day_str = d.getDate().toString().length == 1 ? '0'+d.getDate() : d.getDate(),
-	    month_str = d.getMonth().toString().length == 1 ? '0'+d.getMonth() : d.getMonth();
+	    day_str = d.getDate().toString().length == 1 ? '0'+(d.getDate()) : (d.getDate()),
+	    month_str = (d.getMonth()+1).toString().length == 1 ? '0'+(d.getMonth()+1) : (d.getMonth()+1);
 
-	var msg = 'Imprimer a: '
+	var msg = 'Imprimer : '
 	return msg + days[d.getDay()]
 		// +' '+months[d.getMonth()]
 		+' '+day_str+'/'+month_str+'/'+d.getFullYear()

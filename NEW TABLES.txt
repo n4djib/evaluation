@@ -14,6 +14,22 @@
 = install drivers on Fatima PC
  
 
+= add to "annual_grade"
+	is_dirty boolean
+		after saving credit
+
+= in "annual_grade"
+	put student_id after credit_final
+= 
+
+= 
+
+= 
+
+= 
+
+= 
+
 = 
 
 = 

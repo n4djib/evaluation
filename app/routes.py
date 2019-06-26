@@ -18,21 +18,21 @@ from app.permissions_and_roles import *
 # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # #
 
-from app.models import Session, Promo
-from app.routesCalculation import init_all, calculate_all
+# from app.models import Session, Promo
+# from app.routesCalculation import init_all, calculate_all
 
-@app.route('/code-recalculate/')
-def run_code_recalculate():
-    sessions = Session.query.join(Promo).filter_by(branch_id=1).all()
-    # return str(sessions)
-    for session in sessions:
-        init_all(session)
-    db.session.commit()
+# @app.route('/code-recalculate/')
+# def run_code_recalculate():
+#     sessions = Session.query.join(Promo).filter_by(branch_id=1).all()
+#     # return str(sessions)
+#     for session in sessions:
+#         init_all(session)
+#     db.session.commit()
 
-    for session in sessions:
-        calculate_all(session)
-    db.session.commit()
-    return 'excuted run_code_recalculate'
+#     for session in sessions:
+#         calculate_all(session)
+#     db.session.commit()
+#     return 'excuted run_code_recalculate'
 
 
 # @app.route('/code-fill-annual/')

@@ -139,29 +139,29 @@ def init_all(session):
     message3 = init_grade(session)
     return F'init all : {message1} - {message2} - {message3}'
 
-def calculate_all(session):
-    grades = Grade.query.join(StudentSession).filter_by(session_id=session.id).all()
-    for grade in grades:
-        grade.calculate()
-    db.session.commit()
+# def calculate_all(session):
+#     grades = Grade.query.join(StudentSession).filter_by(session_id=session.id).all()
+#     for grade in grades:
+#         grade.calculate()
+#     db.session.commit()
 
-    grade_units = GradeUnit.query.join(StudentSession).filter_by(session_id=session.id).all()
-    for grade_unit in grade_units:
-        grade_unit.calculate()
-    db.session.commit()
+#     grade_units = GradeUnit.query.join(StudentSession).filter_by(session_id=session.id).all()
+#     for grade_unit in grade_units:
+#         grade_unit.calculate()
+#     db.session.commit()
 
-    student_sessions = StudentSession.query.filter_by(session_id=session.id).all()
-    for student_session in student_sessions:
-        student_session.calculate()
-    db.session.commit()
+#     student_sessions = StudentSession.query.filter_by(session_id=session.id).all()
+#     for student_session in student_sessions:
+#         student_session.calculate()
+#     db.session.commit()
 
-    # just to not forget recalculating annual
-    annual_grades = AnnualGrade.query.filter_by(annual_session_id=session.annual_session_id).all()
-    for annual_grade in annual_grades:
-        annual_grade.calculate()
-    db.session.commit()
+#     # just to not forget recalculating annual
+#     annual_grades = AnnualGrade.query.filter_by(annual_session_id=session.annual_session_id).all()
+#     for annual_grade in annual_grades:
+#         annual_grade.calculate()
+#     db.session.commit()
 
-    return 'calculate_all'
+#     return 'calculate_all'
 
 def calculate_student(session, student):
     grades = Grade.query.join(StudentSession)\
@@ -245,7 +245,8 @@ def reinitialize_session(session_id=0):
     session = Session.query.get_or_404(session_id)
     url_return = request.args.get('url_return', default='', type=str)
     message = init_all(session)
-    message += "</br>" + calculate_all(session)
+    # message += "</br>" + calculate_all(session)
+    message += "</br>" + session.calculate()
     flash(message)
     if url_return != '':
         return redirect(url_return)
@@ -255,7 +256,8 @@ def reinitialize_session(session_id=0):
 def calculate_session(session_id):
     session = Session.query.get_or_404(session_id)
     url_return = request.args.get('url_return', default='', type=str)
-    message = calculate_all(session)
+    # message = calculate_all(session)
+    message = session.calculate()
     flash(message)
     if url_return != '':
         return redirect(url_return)

@@ -19,6 +19,53 @@
 
 == PRIORITY 1 ==
 ----------------
+			- add button to check needed****** in annual session
+				and url return
+
+---------  
+	stopped at fixing the Annual alert
+
+- don't leave page
+
+    // // messages are not working
+    // window.onbeforeunload = function(e) {
+    //   // e = e || window.event;
+    //   if (is_dirty) {
+    //     return 'You have unsaved changes! ********';
+    //   }
+    // }
+ 
+	// Warning before leaving the page (back button, or outgoinglink)
+	window.onbeforeunload = function() {
+	   return "Do you really want to leave our brilliant application?";
+	   //if we return nothing here (just calling return;) then there will be no pop-up question at all
+	   //return;
+	}; 
+
+	// window.addEventListener("beforeunload", function (e) {
+	//     var confirmationMessage
+	//      = 'It looks like you have been editing something. '
+	//       + 'If you leave before saving, your changes will be lost.';
+
+	//     (e || window.event).returnValue
+	//      = confirmationMessage; //Gecko + IE
+	//     return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
+	// });
+
+check in routesCalculation
+	calculate_all(session):
+	calculate_student(session, student):
+	same for init
+
+- Note: in session calculate check
+	
+                # grades = grade_unit.grades
+                grades = Grade.query.filter_by(
+                    student_session_id=grade_unit.student_session_id
+                    ).all()
+
+- add saving notion at every level
+	grade(module) + student_session(semester) + annual_grade(annual)
 - flask static
 	and upload automaticaly to github
 	try to include the javascript
