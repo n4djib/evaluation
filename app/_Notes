@@ -54,6 +54,9 @@
 - flask static
 	and upload automaticaly to github
 	try to include the javascript
+- deactivate a student rather than deleting him
+- in printables Title and header 
+	be carfull of Semester|ratt
 - add printing time to printables
 - indicate that a semestral ratt is passing in annual for SF
 - SF-2017-10 boukhani lalla  2eme annee

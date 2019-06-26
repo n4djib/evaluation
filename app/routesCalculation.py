@@ -320,24 +320,14 @@ def justification(session_id, student_id):
     session = student_session.session
     conf_dict = literal_eval( session.configuration )
 
-    justs = []
-    for grade_unit in grade_units:
-        for grade in grades:
-            if grade_unit.unit_id == grade.module.unit_id:
-                justs.append( get_module_justification(grade, conf_dict) )
-        justs.append( get_unit_justification(grade_unit, conf_dict) )
-    justs.append( get_semester_justification(student_session, conf_dict) )
-    return render_template('session/justification.html', title='Session', justs=justs)
-
-@app.route('/session/<session_id>/justification/username/<username>/', methods=['GET', 'POST'])
-# @register_breadcrumb(app, '.tree_session.session.classement.justification', 'Justification')
-def justification_by_username(session_id, username):
-    student_session = StudentSession.query.filter_by(session_id=session_id)\
-        .join(student).filter_by(username=username).first()
-    grade_units = student_session.grade_units
-    grades = student_session.grades
-    session = student_session.session
-    conf_dict = literal_eval( session.configuration )
+    std = student_session.student
+    name = std.username+' - '+std.last_name + ' ' + std.first_name
+    sem_nbr = str(session.semester.get_nbr())
+    type = 'Rattrapage' if session.is_rattrapage == True else 'Semestre'
+    semester = type + ' ('+sem_nbr+')'
+    header = '<h2><center>Justificatiion de calcule </center></h2>'
+    header += '<h3><center>'+semester+'</center></h3>'
+    header += 'Nom: '+name+ ''
 
     justs = []
     for grade_unit in grade_units:
@@ -346,5 +336,25 @@ def justification_by_username(session_id, username):
                 justs.append( get_module_justification(grade, conf_dict) )
         justs.append( get_unit_justification(grade_unit, conf_dict) )
     justs.append( get_semester_justification(student_session, conf_dict) )
-    return render_template('session/justification.html', title='Session', justs=justs)
+    return render_template('session/justification-print.html',
+         title='Session', justs=justs, header=header)
+
+# @app.route('/session/<session_id>/justification/username/<username>/', methods=['GET', 'POST'])
+# # @register_breadcrumb(app, '.tree_session.session.classement.justification', 'Justification')
+# def justification_by_username(session_id, username):
+#     student_session = StudentSession.query.filter_by(session_id=session_id)\
+#         .join(student).filter_by(username=username).first()
+#     grade_units = student_session.grade_units
+#     grades = student_session.grades
+#     session = student_session.session
+#     conf_dict = literal_eval( session.configuration )
+
+#     justs = []
+#     for grade_unit in grade_units:
+#         for grade in grades:
+#             if grade_unit.unit_id == grade.module.unit_id:
+#                 justs.append( get_module_justification(grade, conf_dict) )
+#         justs.append( get_unit_justification(grade_unit, conf_dict) )
+#     justs.append( get_semester_justification(student_session, conf_dict) )
+#     return render_template('session/justification-print.html', title='Session', justs=justs)
     

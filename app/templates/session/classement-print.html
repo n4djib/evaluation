@@ -93,13 +93,16 @@
       {% endfor %}
       </tbody>
     </table>
+    
+    <p><span id="datetime"></span></p>
   </div>
 
 
 
 
   <script type="text/javascript">
-    // { % include "_print.js" %}
+    {% include "_print.js" %}
+    {% include "_datetime.js" %}
   </script> 
 
 </body>

@@ -29,6 +29,8 @@ container.innerHTML = "";
 hot = new Handsontable(container, {
   data: data_arr,
   rowHeaders: false,
+  columnSorting: true,
+  sortIndicator: true,
   manualColumnResize: true,
   // colHeaders: true,
   //saisir

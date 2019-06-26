@@ -67,61 +67,61 @@
 
 
   <div class="container">
-    <center>
-      <table id="" class="" style="width: 100%;">
-        <thead>
-          <tr>
-            <th rowspan="2">#</th>
-            <th rowspan="2">Nom et Prenom</th>
-            <th colspan="3">Semestre ({{ annual_dict_obj['S1'].semester.get_nbr() }})</th>
-            <th colspan="3">Semestre ({{ annual_dict_obj['S2'].semester.get_nbr() }})</th>
-            <th colspan="3">Resultat Annual</th>
-            <th rowspan="2">Observation</th>
-          </tr>
+    <table id="" class="" style="width: 100%;">
+      <thead>
+        <tr>
+          <th rowspan="2">#</th>
+          <th rowspan="2">Nom et Prenom</th>
+          <th colspan="3">Semestre ({{ annual_dict_obj['S1'].semester.get_nbr() }})</th>
+          <th colspan="3">Semestre ({{ annual_dict_obj['S2'].semester.get_nbr() }})</th>
+          <th colspan="3">Resultat Annual</th>
+          <th rowspan="2">Observation</th>
+        </tr>
 
-          <tr>
-            <th><font size="-1">Moyen</font></th>
-            <th><font size="-1">Credit</font></th>
-            <th><font size="-1">Session</font></th>
-            <th><font size="-1">Moyen</font></th>
-            <th><font size="-1">Credit</font></th>
-            <th><font size="-1">Session</font></th>
-            <th><font size="-1">Moyen</font></th>
-            <th><font size="-1">Credit</font></th>
-            <th><font size="-1">Session</font></th>
-          </tr>
+        <tr>
+          <th><font size="-1">Moyen</font></th>
+          <th><font size="-1">Credit</font></th>
+          <th><font size="-1">Session</font></th>
+          <th><font size="-1">Moyen</font></th>
+          <th><font size="-1">Credit</font></th>
+          <th><font size="-1">Session</font></th>
+          <th><font size="-1">Moyen</font></th>
+          <th><font size="-1">Credit</font></th>
+          <th><font size="-1">Session</font></th>
+        </tr>
 
-        </thead>
-        <tbody>
-        {% for data in array_data %}
-          <tr>
-            <td class="right">{{ data[0] | replace('None', '') }}</td>
-            <td class="name">{{ data[1] | replace('None', '') }}</td>
+      </thead>
+      <tbody>
+      {% for data in array_data %}
+        <tr>
+          <td class="right">{{ data[0] | replace('None', '') }}</td>
+          <td class="name">{{ data[1] | replace('None', '') }}</td>
 
-            <td class="moyen">{{ data[2] | replace('None', '') }}</td>
-            <td class="credit">{{ data[3] | replace('None', '') }}</td>
-            <td class="session">{{ data[4] | replace('None', '') }}</td>
+          <td class="moyen">{{ data[2] | replace('None', '') }}</td>
+          <td class="credit">{{ data[3] | replace('None', '') }}</td>
+          <td class="session">{{ data[4] | replace('None', '') }}</td>
 
-            <td class="moyen">{{ data[5] | replace('None', '') }}</td>
-            <td class="credit">{{ data[6] | replace('None', '') }}</td>
-            <td class="session">{{ data[7] | replace('None', '') }}</td>
+          <td class="moyen">{{ data[5] | replace('None', '') }}</td>
+          <td class="credit">{{ data[6] | replace('None', '') }}</td>
+          <td class="session">{{ data[7] | replace('None', '') }}</td>
 
-            <td class="moyen">{{ data[8] | replace('None', '') }}</td>
-            <td class="credit">{{ data[9] | replace('None', '') }}</td>
-            <td class="session">{{ data[10] | replace('None', '') }}</td>
+          <td class="moyen">{{ data[8] | replace('None', '') }}</td>
+          <td class="credit">{{ data[9] | replace('None', '') }}</td>
+          <td class="session">{{ data[10] | replace('None', '') }}</td>
 
-            <td>{{ data[11] | replace('None', '') }}</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
+          <td>{{ data[11] | replace('None', '') }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
 
-  </center>
+    <p><span id="datetime"></span></p>
   </div>
 
 
   <script type="text/javascript">
     {% include "_print.js" %}
+    {% include "_datetime.js" %}
   </script> 
 
 </body>
