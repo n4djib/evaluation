@@ -247,8 +247,8 @@ def session_config(session_id=0):
         session.semester_id = form.semester_id.data
         session.type = form.type.data
         db.session.commit()
-        if session.is_historic():
-            init_all(session)
+        # if session.is_historic():
+        #     init_all(session)
         flash('Your changes have been saved.', 'alert-success')
         return redirect(url_for('session', session_id=session_id))
     elif request.method == 'GET':
@@ -298,11 +298,24 @@ def session_historic_save():
     return 'data saved'
 
 
-#######################################
-#####                             #####
-#####     classement-laureats     #####
-#####                             #####
-#######################################
+
+
+#####################################################################################
+#####                                                                           #####
+#####    ######  ##          ###     ######   ######  ######## ##     ##        #####
+#####   ##    ## ##         ## ##   ##    ## ##    ## ##       ###   ###        #####
+#####   ##       ##        ##   ##  ##       ##       ##       #### ####        #####
+#####   ##       ##       ##     ##  ######   ######  ######   ## ### ##        #####
+#####   ##       ##       #########       ##       ## ##       ##     ##        #####
+#####   ##    ## ##       ##     ## ##    ## ##    ## ##       ##     ## ###    #####
+#####    ######  ######## ##     ##  ######   ######  ######## ##     ## ###    #####
+#####                                                                           #####
+#####################################################################################
+                                                                      
+
+                                                                                                
+
+
 
 def init_classement_laureats(promo_id):
     students = Student.query.join(StudentSession).join(Session).filter_by(promo_id=promo_id).all()
@@ -434,15 +447,48 @@ def create_classement_data_grid(classement_years, years):
     return '[ ' + data_arr + ' ]'
 
 
-########################################
-#####                              #####
-#####          RRRR                #####
-#####          R   Rattrapage      #####
-#####          RRRR                #####
-#####          R  R                #####
-#####          R   R               #####
-#####                              #####
-########################################
+#######################################
+#####                             #####
+#####                             #####
+#####                             #####
+#######################################
+
+@app.route('/session/<session_id>/classement/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.tree_session.session.result.classement', 'Classement')
+def classement(session_id):
+    student_sessions = StudentSession.query\
+        .filter_by(session_id=session_id)\
+        .order_by(StudentSession.average.desc()).all()
+    session = Session.query.get_or_404(session_id)
+    title = 'classement'
+    return render_template('session/classement.html',
+         title=title, session=session, student_sessions=student_sessions)
+
+@app.route('/session/<session_id>/classement-print/', methods=['GET', 'POST'])
+def classement_print(session_id):
+    student_sessions = StudentSession.query\
+        .filter_by(session_id=session_id)\
+        .order_by(StudentSession.average.desc()).all()
+    session = Session.query.get_or_404(session_id)
+    title = 'classement_print'
+    header = make_semester_print_header(session, 'Classement Semestre ('+str(session.semester.get_nbr())+')' )
+    return render_template('session/classement-print.html',
+         title=title, session=session, header=header, student_sessions=student_sessions)
+
+
+
+
+######################################################
+#####                                            #####
+#####   ########     ###    ######## ########    #####
+#####   ##     ##   ## ##      ##       ##       #####
+#####   ##     ##  ##   ##     ##       ##       #####
+#####   ########  ##     ##    ##       ##       #####
+#####   ##   ##   #########    ##       ##       #####
+#####   ##    ##  ##     ##    ##       ##       #####
+#####   ##     ## ##     ##    ##       ##       #####
+#####                                            #####
+######################################################
 
 def create_rattrapage(session_id):
     session = Session.query.get_or_404(session_id)
@@ -734,25 +780,18 @@ def students_rattrapage_semester_print(session_id=0):
 
 
 
-# @app.route('/annual-session/<annual_session_id>/rattrapage-print/', methods=['GET', 'POST'])
-# def students_rattrapage_annual_print(annual_session_id=0):
-#     students = get_students_to_enter_rattrapage_annual(annual_session_id)
-#     annual_session = AnnualSession.query.get_or_404(annual_session_id)
-#     header = make_annual_print_header(annual_session, 'Rattrapage Annual')
-#     return render_template('session/students-rattrapage-annual-print.html', 
-#         title='ratt-annual-print', students=students, header=header, annual_session_id=annual_session_id)
+#########################################################################
+#####                                                               #####
+#####       ###    ##    ## ##    ## ##     ##    ###    ##         #####
+#####      ## ##   ###   ## ###   ## ##     ##   ## ##   ##         #####
+#####     ##   ##  ####  ## ####  ## ##     ##  ##   ##  ##         #####
+#####    ##     ## ## ## ## ## ## ## ##     ## ##     ## ##         #####
+#####    ######### ##  #### ##  #### ##     ## ######### ##         #####
+#####    ##     ## ##   ### ##   ### ##     ## ##     ## ##         #####
+#####    ##     ## ##    ## ##    ##  #######  ##     ## ########   #####
+#####                                                               #####
+#########################################################################
 
-
-
-
-#################################################################
-#####                                                       #####
-#####          A     N   N  N   N  U   U    A    L          #####
-#####         A A    N N N  N N N  U   U   A A   L          #####
-#####        A = A   N  NN  N  NN  U   U  A = A  L          #####
-#####       A     A  N   N  N   N   UUU  A     A LLLLL      #####
-#####                                                       #####
-#################################################################
 
 @app.route('/annual-session/<annual_session_id>/create-rattrapage/', methods=['GET', 'POST'])
 def create_rattrapage_annual(annual_session_id=0):
@@ -771,15 +810,6 @@ def create_rattrapage_annual(annual_session_id=0):
     flash("All Rattrapages were created", 'alert-success')
     return redirect(url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id))
 
-
-# # grab them from AnnualSession
-# def get_students_to_enter_rattrapage_annual(annual_session_id):
-#     # check if they have fondamental
-#     students = AnnualGrade.query\
-#         .filter_by(annual_session_id=annual_session_id)\
-#         .filter( AnnualGrade.enter_ratt == True )\
-#         .join(Student).order_by(Student.username).all()
-#     return students
 
 @app.route('/annual-session/<annual_session_id>/rattrapage/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree_annual.annual.rattrapage', 'Annual Rattrapage')
@@ -831,7 +861,6 @@ def make_annual_print_header(annual_session, label="**label**"):
     """
     return header
 
-
 def make_semester_print_header(session, label="**label**"):
     school = session.promo.branch.school.description
     branch = session.promo.branch.description
@@ -862,11 +891,8 @@ def make_semester_print_header(session, label="**label**"):
     """
     return header
 
-
 def make_annual_print_title(annual_session, label="**label**"):
     return label
-
-
 
 def make_semester_print_title(session, label="**label**"):
     semester = str(session.semester.get_nbr())
@@ -936,9 +962,6 @@ def init_annual_grade(annual_session):
 
     return 'init_annual_grade'
 
-
-
-
 @app.route('/annual-session/<annual_session_id>/calculate', methods=['GET', 'POST'])
 def calculate_annual_session(annual_session_id=0):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
@@ -948,7 +971,6 @@ def calculate_annual_session(annual_session_id=0):
     db.session.commit()
     return redirect(url_for('annual_session', annual_session_id=annual_session_id))
 
-
 def fetch_data_annual_session(annual_session):
     annual_grades = annual_session.annual_grades
     for ag in annual_grades:
@@ -956,7 +978,6 @@ def fetch_data_annual_session(annual_session):
 
     db.session.commit()
     return "fetch_data_annual_session"
-
 
 @app.route('/annual-session/<annual_session_id>/refrech', methods=['GET', 'POST'])
 def annual_session_refrech(annual_session_id=0):
@@ -984,45 +1005,53 @@ def collect_data_annual_session(annual_session):
     array_data = []
     for index, an in enumerate(annual_grades):
         student = an.student
-        name = student.get_student_long_name()
+        
+        cross_s1 = 'line-through' if an.avr_r_1 != None else ''
+        cross_s2 = 'line-through' if an.avr_r_2 != None else ''
+        cross_average = 'line-through' if an.avr_r_1 != None or an.avr_r_2 != None else ''
 
-        cross_s1 = ''
-        cross_s2 = ''
-        cross_average = ''
-        if an.avr_r_1 != None:
-            cross_s1 = 'line-through'
-        if an.avr_r_2 != None:
-            cross_s2 = 'line-through'
-        if an.avr_r_1 != None or an.avr_r_2 != None:
-            cross_average = 'line-through'
 
-        url = url_for('bultin_annual_print', 
-            annual_session_id=annual_session.id, student_id=student.id)
-        bultin = '''<a href ="''' +  url + '''" class="btn btn-primary btn-xs"
-            target="_blank" role="button"> Bultin </a>'''
 
-        url_ratt = url_for('bultin_annual_print', 
-            annual_session_id=annual_session.id, student_id=student.id)
-        bultin_ratt = '''<a href ="''' +  url_ratt + '''" class="btn btn-primary btn-xs"
-            target="_blank" role="button"> Bultin Ratt </a>'''
 
-        ratt = ''
-        if an.enter_ratt == True:
-            ratt = '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>'
+        bg_s1 = 'bg-yellow' if an.cr_1 != None and an.cr_1 < 30 else ''
+        bg_s2 = 'bg-yellow' if an.cr_2 != None and an.cr_2 < 30 else ''
+        bg_ann = 'bg-yellow-annual' if an.credit != None and an.credit < 60 else ''
 
+        bg_s1_r = 'bg-yellow' if an.cr_r_1 != None and an.cr_r_1 < 30 else ''
+        bg_s2_r = 'bg-yellow' if an.cr_r_2 != None and an.cr_r_2 < 30 else ''
+        bg_ann_r = 'bg-yellow-annual' if an.credit_r != None and an.credit_r < 60 else ''
+
+
+
+        bg_final = ''
+        if an.credit_final != None and an.credit_final >= 30 and an.credit_final < 60:
+            bg_final = 'bg-yellow-annual'
+
+        if an.credit_final != None and an.credit_final < 30:
+            bg_final = 'bg-red'
+            
+
+
+        url = url_for('bultin_annual_print', annual_session_id=annual_session.id, student_id=student.id)
+        bultin = '''<a href ="''' +  url + '''" class="btn btn-primary btn-xs" target="_blank" role="button"> Bultin </a>'''
+
+        url_ratt = url_for('bultin_annual_print', annual_session_id=annual_session.id, student_id=student.id)
+        bultin_ratt = '''<a href ="''' +  url_ratt + '''" class="btn btn-primary btn-xs" target="_blank" role="button"> Bultin Ratt </a>'''
+
+        ratt = '' if an.enter_ratt == False else '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>'
 
         array_data.append([
             '<td class="center">' + str(index+1) + '</td>', 
-            '<td style="white-space: nowrap;">' + name + '</td>', 
+            '<td class="username">' + student.username + '</td>', 
+            '<td class="name">' + student.get_student_name() + '</td>', 
 
-            '<td class="right '+cross_s1+'">'  + str(an.avr_1) + '</td>', 
-            '<td class="center '+cross_s1+'">' + str(an.cr_1) + '</td>', 
-            '<td class="right '+cross_s2+'">'  + str(an.avr_2) + '</td>', 
-            '<td class="center '+cross_s2+'">' + str(an.cr_2) + '</td>', 
-            '<td class="right '+cross_average+'">'  + str(an.average) + '</td>', 
-            '<td class="center '+cross_average+'">' + str(an.credit) + '</td>', 
+            '<td class="right '+cross_s1+' '+bg_s1+'">'  + str(an.avr_1) + '</td>', 
+            '<td class="center '+cross_s1+' '+bg_s1+'">' + str(an.cr_1) + '</td>', 
+            '<td class="right '+cross_s2+' '+bg_s2+'">'  + str(an.avr_2) + '</td>', 
+            '<td class="center '+cross_s2+' '+bg_s2+'">' + str(an.cr_2) + '</td>', 
+            '<td class="right '+cross_average+' '+bg_ann+'">'  + str(an.average) + '</td>', 
+            '<td class="center '+cross_average+' '+bg_ann+'">' + str(an.credit) + '</td>', 
 
-            # '<td class="center">' + ratt + ' - ' + str(an.units_fond_aquired) + '</td>', 
             '<td class="center">' + ratt + '</td>', 
 
             '<td class="right">'  + str(an.avr_r_1) + '</td>', 
@@ -1035,13 +1064,53 @@ def collect_data_annual_session(annual_session):
             '<td class="right">'  + str(an.saving_average) + '</td>', 
             '<td class="center">' + str(an.saving_credit) + '</td>',
 
-            '<td class="right">'  + str(an.average_final) + '</td>', 
-            '<td class="center">' + str(an.credit_final) + '</td>',  
+            '<td class="right '+bg_final+'">'  + str(an.average_final) + '</td>', 
+            '<td class="center '+bg_final+'">' + str(an.credit_final) + '</td>',  
             '<td>' + str(an.obs_html).replace('None', '') + '</td>',
             '<td>' + bultin  + '</td>'
             '<td>' + bultin_ratt  + '</td>'
         ])
 
+    return array_data
+
+def collect_data_annual_session_print(annual_session, sort=''):
+    annual_dict = annual_session.get_annual_dict()
+    student_ids = get_student_annual_list(annual_session, annual_dict)
+
+    annual_grades = []
+    if sort == 'desc':
+        annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id)\
+            .order_by(AnnualGrade.average_final.desc()).all()
+    else:
+        annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id).all()
+
+
+    array_data = []
+    for index, an in enumerate(annual_grades):
+        # name = an.student.get_student_long_name()
+        username = an.student.username
+        name = an.student.get_student_name()
+
+        moyen1 = an.avr_r_1 if an.avr_r_1 != None else an.avr_1
+        credit1 = an.cr_r_1 if an.cr_r_1 != None else an.cr_1
+        session1 = '1' if an.cr_r_1 == None else '2'
+
+        moyen2 = an.avr_r_2 if an.avr_r_2 != None else an.avr_2
+        credit2 = an.cr_r_2 if an.cr_r_2 != None else an.cr_2
+        session2 = '1' if an.cr_r_2 == None else '2'
+
+        moyen_f = an.average_final
+        credit_f = an.credit_final
+        session_f = '1' if an.cr_r_1 == None and an.cr_r_2 == None else '2'
+        observation = an.observation
+
+        array_data.append([
+            index+1, username, name,
+            moyen1, credit1, session1, 
+            moyen2, credit2, session2, 
+            moyen_f, credit_f, session_f, 
+            observation
+        ])
     return array_data
 
 def annual_session_dlc(*args, **kwargs):
@@ -1060,49 +1129,10 @@ def annual_session(annual_session_id=0, sort=''):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
     array_data = collect_data_annual_session(annual_session)
     annual_dict_obj = annual_session.get_annual_dict_obj()
-    flash_check_annual_session(annual_dict_obj)
+    check_ann = flash_check_annual_session(annual_dict_obj)
     return render_template('session/annual-session.html', 
         title='Annual Session', annual_session=annual_session, 
-        array_data=array_data, annual_dict_obj=annual_dict_obj)
-
-
-def collect_data_annual_session_print(annual_session, sort=''):
-    annual_dict = annual_session.get_annual_dict()
-    student_ids = get_student_annual_list(annual_session, annual_dict)
-
-    annual_grades = []
-    if sort == 'desc':
-        annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id)\
-            .order_by(AnnualGrade.average_final.desc()).all()
-    else:
-        annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id).all()
-
-
-    array_data = []
-    for index, an in enumerate(annual_grades):
-        name = an.student.get_student_long_name()
-
-        moyen1 = an.avr_r_1 if an.avr_r_1 != None else an.avr_1
-        credit1 = an.cr_r_1 if an.cr_r_1 != None else an.cr_1
-        session1 = '1' if an.cr_r_1 == None else '2'
-
-        moyen2 = an.avr_r_2 if an.avr_r_2 != None else an.avr_2
-        credit2 = an.cr_r_2 if an.cr_r_2 != None else an.cr_2
-        session2 = '1' if an.cr_r_2 == None else '2'
-
-        moyen_f = an.average_final
-        credit_f = an.credit_final
-        session_f = '1' if an.cr_r_1 == None and an.cr_r_2 == None else '2'
-        observation = an.observation
-
-        array_data.append([
-            index+1, name,
-            moyen1, credit1, session1, 
-            moyen2, credit2, session2, 
-            moyen_f, credit_f, session_f, 
-            observation
-        ])
-    return array_data
+        array_data=array_data, annual_dict_obj=annual_dict_obj, check_ann=check_ann)
 
 @app.route('/annual-session/<annual_session_id>/print/<sort>/', methods=['GET', 'POST'])
 @app.route('/annual-session/<annual_session_id>/print/', methods=['GET', 'POST'])
@@ -1114,8 +1144,6 @@ def annual_session_print(annual_session_id=0, sort=''):
     return render_template('session/annual-session-print.html', 
         title='Annual Session Print', 
         array_data=array_data, header=header, annual_dict_obj=annual_dict_obj)
-
-
 
 
 def flash_check_annual_session(annual_dict_obj):
@@ -1286,16 +1314,19 @@ def delete_annual_session(annual_session_id):
     return redirect(url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo.id))
     
 
-##############################################
-#####                                    #####
-#####            BBBB                    #####
-#####            B   Bultin              #####
-#####            BBBBB                   #####
-#####            B    B                  #####
-#####            B    B                  #####
-#####            BBBBB                   #####
-#####                                    #####
-##############################################
+
+
+####################################################################
+#####                                                          #####
+#####    ########  ##     ## ##      ######## #### ##    ##    #####
+#####    ##     ## ##     ## ##         ##     ##  ###   ##    #####
+#####    ##     ## ##     ## ##         ##     ##  ####  ##    #####
+#####    ########  ##     ## ##         ##     ##  ## ## ##    #####
+#####    ##     ## ##     ## ##         ##     ##  ##  ####    #####
+#####    ##     ## ##     ## ##         ##     ##  ##   ###    #####
+#####    ########   #######  ########   ##    #### ##    ##    #####
+#####                                                          #####
+####################################################################
 
 def get_thead_bultin_semester():
     header = '<tr class="head">'
@@ -1688,13 +1719,17 @@ def bultin_annual_print_all(annual_session_id):
 
 
 
-#######################################
-#####                             #####
-#####                             #####
-#####            Result           #####
-#####                             #####
-#####                             #####
-#######################################
+#########################################################################
+#####                                                               #####
+#####    ########  ########  ######  ##     ## ##       ########    #####
+#####    ##     ## ##       ##    ## ##     ## ##          ##       #####
+#####    ##     ## ##       ##       ##     ## ##          ##       #####
+#####    ########  ######    ######  ##     ## ##          ##       #####
+#####    ##   ##   ##             ## ##     ## ##          ##       #####
+#####    ##    ##  ##       ##    ## ##     ## ##          ##       #####
+#####    ##     ## ########  ######   #######  ########    ##       #####
+#####                                                               #####
+#########################################################################
 
 
 @app.route('/session/<session_id>/averages/', methods=['GET', 'POST'])
@@ -2056,35 +2091,6 @@ def semester_result_print(session_id=0):
     return render_template('session/semester-result-print.html',
         title=title, header=header, t_head=t_head, data_arr=data_arr, session=session, params=params)
 
-
-
-#######################################
-#####                             #####
-#####                             #####
-#####                             #####
-#######################################
-
-@app.route('/session/<session_id>/classement/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree_session.session.result.classement', 'Classement')
-def classement(session_id):
-    student_sessions = StudentSession.query\
-        .filter_by(session_id=session_id)\
-        .order_by(StudentSession.average.desc()).all()
-    session = Session.query.get_or_404(session_id)
-    title = 'classement'
-    return render_template('session/classement.html',
-         title=title, session=session, student_sessions=student_sessions)
-
-@app.route('/session/<session_id>/classement-print/', methods=['GET', 'POST'])
-def classement_print(session_id):
-    student_sessions = StudentSession.query\
-        .filter_by(session_id=session_id)\
-        .order_by(StudentSession.average.desc()).all()
-    session = Session.query.get_or_404(session_id)
-    title = 'classement_print'
-    header = make_semester_print_header(session, 'Classement Semestre ('+str(session.semester.get_nbr())+')' )
-    return render_template('session/classement-print.html',
-         title=title, session=session, header=header, student_sessions=student_sessions)
 
 #######################################
 #####                             #####

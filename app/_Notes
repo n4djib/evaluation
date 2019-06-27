@@ -21,71 +21,53 @@
 ----------------
 			- add button to check needed****** in annual session
 				and url return
+			- stopped at fixing the Annual alert
+			- in Student Grid
+				show final Average and Credit
+				in real time
+				when you save show the result
+				show annual in students View
 
----------  
-	stopped at fixing the Annual alert
 
-- don't leave page
 
-    // // messages are not working
-    // window.onbeforeunload = function(e) {
-    //   // e = e || window.event;
-    //   if (is_dirty) {
-    //     return 'You have unsaved changes! ********';
-    //   }
-    // }
- 
-	// Warning before leaving the page (back button, or outgoinglink)
-	window.onbeforeunload = function() {
-	   return "Do you really want to leave our brilliant application?";
-	   //if we return nothing here (just calling return;) then there will be no pop-up question at all
-	   //return;
-	}; 
 
-	// window.addEventListener("beforeunload", function (e) {
-	//     var confirmationMessage
-	//      = 'It looks like you have been editing something. '
-	//       + 'If you leave before saving, your changes will be lost.';
+				
 
-	//     (e || window.event).returnValue
-	//      = confirmationMessage; //Gecko + IE
-	//     return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
-	// });
+- saving_grade in grade
+	click show all fields to edit it
+		and indicate by color in average and credit
+- add saving notion at every level
+	grade(module) + student_session(semester) + annual_grade(annual)
 
-check in routesCalculation
+
+
+
+
+
+- don't leave page in Grade grid
+
+- check in routesCalculation
 	calculate_all(session):
 	calculate_student(session, student):
 	same for init
 
 - Note: in session calculate check
-	
-                # grades = grade_unit.grades
-                grades = Grade.query.filter_by(
-                    student_session_id=grade_unit.student_session_id
-                    ).all()
+    # grades = grade_unit.grades
+    grades = Grade.query.filter_by(
+        student_session_id=grade_unit.student_session_id
+        ).all()
 
-- add saving notion at every level
-	grade(module) + student_session(semester) + annual_grade(annual)
 - flask static
 	and upload automaticaly to github
 	try to include the javascript
 - deactivate a student rather than deleting him
-- in printables Title and header 
-	be carfull of Semester|ratt
 - indicate that a semestral ratt is passing in annual for SF
 - maybe when i reintialize the ids change
+	when removing a student
 - in GradeUnit what is the purpose of unit_coefficient
 	used in init_grade_unit --- grade_unit.unit_coefficient = unit.unit_coefficient
 	& is_fondamental
 		i think i added them for Historic Config
-- print bultin is showing None in birth date
-- one PDF contains all Semester
-- one PDF contains all Annual
-- in Student Grid
-	show final Average and Credit
-	in real time
-	when you save show the result
-	show annual in students View
 - add sort to annual
 - add sorter in UEF unit
 - indecate the need to calculate in Annual
@@ -97,7 +79,14 @@ check in routesCalculation
 - in get_annual_chain_students_to_enter_rattrapage_annual
 	students list must return from before rattraage
 - lock annual
+	maybe no need because you calculate all the time
+	and maybe lock it to not allow recalculating 
+- 
 
+
+- IDEA: in grade grid
+	when you change set to dirty and send only dirty fields
+		this will allow parallel editing
 
 -- Session
 	- show session in resultat Semester
@@ -107,6 +96,11 @@ check in routesCalculation
 	- remove session from Annual
 
 -- FINISH PRINTABLES
+	- in printables Title and header 
+		be carfull of Semester|ratt
+	- print bultin is showing None in birth date
+	- one PDF contains all Semester
+	- one PDF contains all Annual
 	- classement in resultat
 	- finish the 3 printables first
 		bultin header + annual + ratt

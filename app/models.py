@@ -103,7 +103,11 @@ class AnnualSession(db.Model):
             .filter( AnnualGrade.enter_ratt == True )\
             .join(Student).order_by(Student.username).all()
         return students
-
+    def check_need_calculate(self):
+        for annual_grade in self.annual_grades:
+            if annual_grade.is_dirty == True:
+                return True
+        return False
 
 class AnnualGrade(db.Model):
     __tablename__ = 'annual_grade'
@@ -129,13 +133,14 @@ class AnnualGrade(db.Model):
     credit_final = db.Column(db.Integer)
     saving_average = db.Column(db.Numeric(10,2))
     saving_credit = db.Column(db.Integer)
+
+    is_dirty = db.Column(db.Boolean, default=False)
     
     observation = db.Column(db.String(50))
     obs_html = db.Column(db.String(150))
     annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
     annual_session = db.relationship("AnnualSession", back_populates="annual_grades")
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
-    # student
     def get_ratt_modules_list_annual_html(self):
         annual_dict = self.annual_session.get_annual_dict()
         student_session_1 = StudentSession.query\
@@ -237,6 +242,12 @@ class AnnualGrade(db.Model):
         if ag.avr_1 == None or ag.avr_2 == None or ag.cr_1 == None or ag.cr_2 == None:
             return 'student is missing from one of the semesters'
 
+
+
+        # set is_dirty to False
+        self.is_dirty = False
+
+        # does the Annual has a fondamental
         is_fondamental = ag.annual_session.annual.has_fondamental()
 
         # 
@@ -275,32 +286,32 @@ class AnnualGrade(db.Model):
 
 
         # don't fill Observation when the mudules are not filled
+        observation = ''
+        obs_html = ''
 
-        observation = 'Rattrapage'
-        obs_html = '<span class="label label-warning">Rattrapage</span>'
+        if ag.average != None:
+            if ag.credit_final < 60:
+                observation = 'Rattrapage'
+                obs_html = '<span class="label label-warning">Rattrapage</span>'
+
+        if ag.average_r != None:
+            if ag.credit_final < 60 and ag.credit_final >= 30:
+                observation = 'Admis avec dettes'
+                obs_html = '<span class="label label-warning">Admis avec dettes</span>'
+
+        if ag.average_r != None:
+            if ag.credit_final < 30:
+                observation = 'Ajournée'
+                obs_html = '<span class="label label-danger">Ajournée</span>'
 
         if ag.credit_final == 60: 
             observation = 'Admis'
             obs_html = '<span class="label label-success">Admis</span>'
 
-            if ag.average_final < 10 and ag.credit_final < 30:
-                observation = 'Ajournée'
-                obs_html = '<span class="label label-danger">Ajournée</span>'
-
-        if ag.average_r != None:
-            if ag.average_final < 10 and ag.credit_final >= 30:
-                observation = 'Admis avec dettes'
-                obs_html = '<span class="label label-warning">Admis avec dettes</span>'
-
-            if ag.average_final < 10 and ag.credit_final < 30:
-                observation = 'Ajournée'
-                obs_html = '<span class="label label-danger">Ajournée</span>'
-
         ag.observation = observation
         ag.obs_html = obs_html
 
         return 'AnnualGrade calculated'
-
 
 class Session(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -559,8 +570,6 @@ class Session(db.Model):
         db.session.commit()
         return 'Session calculated'
 
-
-
 class StudentSession(db.Model):
     __tablename__ = 'student_session'
     id = db.Column(db.Integer, primary_key=True)
@@ -598,6 +607,18 @@ class StudentSession(db.Model):
     def calculate(self, grade_units=None):
         if grade_units is None:
             grade_units = self.grade_units
+
+
+        # find annual_grade to set it dirty
+        annual_session = self.session.annual_session
+        annual_grade = AnnualGrade.query.filter_by(
+            annual_session_id=annual_session.id, student_id=self.student_id).first()
+        
+        if annual_grade != None:
+            # set is_dirty to True
+            annual_grade.is_dirty = True
+            db.session.commit()
+
 
         cumul_semester_coeff = self.session.semester.get_semester_cumul_coeff()
         cumul_semester_credit = self.session.semester.get_semester_cumul_credit()
@@ -834,6 +855,15 @@ class Grade(db.Model):
     tp = db.Column(db.Numeric(10,2))
     t_pers = db.Column(db.Numeric(10,2))
     stage = db.Column(db.Numeric(10,2))
+    #
+    #
+    #
+    #
+    saving_grade = db.Column(db.Numeric(10,2))
+    #
+    #
+    #
+    #
     average = db.Column(db.Numeric(10,2))
     credit = db.Column(db.Integer)
     formula = db.Column(db.String(200))
@@ -1381,7 +1411,6 @@ class TeacherAttendance(db.Model):
 
 class Classement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    # connect to promo & student
     promo_id = db.Column(db.Integer, db.ForeignKey('promo.id'))
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
     avr_licence = db.Column(db.Numeric(10,2))

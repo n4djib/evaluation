@@ -10,6 +10,7 @@ from app.routesCalculation import init_all
 
 
 def get_classement_link(promo, separate=True):
+    # promo = promo.
     id = 'classement_' + str(promo.id)
     pId = 'promo_' + str(promo.id)
     name = 'Classement'
@@ -150,9 +151,9 @@ def get_sessions_tree(promo):
 
         name += " <span style='font-size: 0.1px;'>" + session.promo.get_label() + "</span>"
 
-        # Configuration change
-        if session.is_config_changed() and session.is_closed==False:
-            name += "<span style='color: orange;''>        Configuration has changed, you need to Re(initialized)</span>"
+        # # Configuration change
+        # if session.is_config_changed() and session.is_closed==False:
+        #     name += "<span style='color: orange;''>        Configuration has changed, you need to Re(initialized)</span>"
 
         p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", hint:"'+hint+'", open:true, url: "'+url+'", target:"_self", iconSkin:"'+icon+'" },'
 

@@ -30,6 +30,15 @@
 
     /*.no-wrap { white-space: nowrap; }*/
 
+    .bg-yellow { background-color: #FFFF66; }
+    .bg-yellow-annual { background-color: #FFFF99; }
+    .bg-red { background-color: #ffb3b3; }
+    .username {
+      white-space: nowrap; 
+      text-align: center;
+      padding-left: 8px;
+      padding-right: 8px;
+    }
     .name {
       width: 100%;
       padding-left: 8px;
@@ -71,6 +80,7 @@
       <thead>
         <tr>
           <th rowspan="2">#</th>
+          <th rowspan="2">Matricule</th>
           <th rowspan="2">Nom et Prenom</th>
           <th colspan="3">Semestre ({{ annual_dict_obj['S1'].semester.get_nbr() }})</th>
           <th colspan="3">Semestre ({{ annual_dict_obj['S2'].semester.get_nbr() }})</th>
@@ -95,21 +105,47 @@
       {% for data in array_data %}
         <tr>
           <td class="right">{{ data[0] | replace('None', '') }}</td>
-          <td class="name">{{ data[1] | replace('None', '') }}</td>
+          <td class="username">{{ data[1] | replace('None', '') }}</td>
+          <td class="name">{{ data[2] | replace('None', '') }}</td>
 
-          <td class="moyen">{{ data[2] | replace('None', '') }}</td>
-          <td class="credit">{{ data[3] | replace('None', '') }}</td>
-          <td class="session">{{ data[4] | replace('None', '') }}</td>
+          {% if data[4] == 30 %}
+          <td class="moyen">{{ data[3] | replace('None', '') }}</td>
+          <td class="credit">{{ data[4] | replace('None', '') }}</td>
+          <td class="session">{{ data[5] | replace('None', '') }}</td>
+          {% else %}
+          <td class="moyen bg-yellow">{{ data[3] | replace('None', '') }}</td>
+          <td class="credit bg-yellow">{{ data[4] | replace('None', '') }}</td>
+          <td class="session bg-yellow">{{ data[5] | replace('None', '') }}</td>
+          {% endif %}
 
-          <td class="moyen">{{ data[5] | replace('None', '') }}</td>
-          <td class="credit">{{ data[6] | replace('None', '') }}</td>
-          <td class="session">{{ data[7] | replace('None', '') }}</td>
+          {% if data[7] == 30 %}
+          <td class="moyen">{{ data[6] | replace('None', '') }}</td>
+          <td class="credit">{{ data[7] | replace('None', '') }}</td>
+          <td class="session">{{ data[8] | replace('None', '') }}</td>
+          {% else %}
+          <td class="moyen bg-yellow">{{ data[6] | replace('None', '') }}</td>
+          <td class="credit bg-yellow">{{ data[7] | replace('None', '') }}</td>
+          <td class="session bg-yellow">{{ data[8] | replace('None', '') }}</td>
+          {% endif %}
 
-          <td class="moyen">{{ data[8] | replace('None', '') }}</td>
-          <td class="credit">{{ data[9] | replace('None', '') }}</td>
-          <td class="session">{{ data[10] | replace('None', '') }}</td>
 
-          <td>{{ data[11] | replace('None', '') }}</td>
+          {% if data[12] == 'Admis' or data[12] == '' %}
+          <td class="moyen">{{ data[9] | replace('None', '') }}</td>
+          <td class="credit">{{ data[10] | replace('None', '') }}</td>
+          <td class="session">{{ data[11] | replace('None', '') }}</td>
+          {% endif %}
+          {% if data[12] == 'Rattrapage' or data[12] == 'Admis avec dettes' %}
+            <td class="moyen bg-yellow-annual">{{ data[9] | replace('None', '') }}</td>
+            <td class="credit bg-yellow-annual">{{ data[10] | replace('None', '') }}</td>
+            <td class="session bg-yellow-annual">{{ data[11] | replace('None', '') }}</td>
+          {% endif %}
+          {% if data[12] == 'Ajournée' %}
+            <td class="moyen bg-red">{{ data[9] | replace('None', '') }}</td>
+            <td class="credit bg-red">{{ data[10] | replace('None', '') }}</td>
+            <td class="session bg-red">{{ data[11] | replace('None', '') }}</td>
+          {% endif %}
+
+          <td>{{ data[12] | replace('None', '') }}</td>
         </tr>
       {% endfor %}
       </tbody>

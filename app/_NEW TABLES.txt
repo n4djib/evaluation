@@ -20,7 +20,10 @@
 
 = in "annual_grade"
 	put student_id after credit_final
-= 
+
+= add to "grade"
+	saving_grade NUMERIC(10, 2)
+		after stage
 
 = 
 
