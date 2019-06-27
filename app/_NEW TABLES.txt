@@ -19,7 +19,7 @@
 		after saving credit
 
 = in "annual_grade"
-	put student_id after credit_final
+	put student_id after annual_session_id
 
 = add to "grade"
 	saving_grade NUMERIC(10, 2)

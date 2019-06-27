@@ -187,28 +187,6 @@ def calculate_student(session, student):
         db.session.commit()
 
     if ss != None:
-        #
-        #
-        #
-        #
-        #
-        #
-        #
-        #
-        # REMOVE
-        #
-        # aquired = str(ss.units_fond_aquired()) + ' - '
-        #
-        #
-        #
-        #
-        #
-        #
-        #
-        #
-        #
-        #
-        # calc = aquired + 'Semester (Moy: '+str(ss.average)+' - Credit: '+str(ss.credit)+')'
         calc = 'Semester (Moy: '+str(ss.average)+' - Credit: '+str(ss.credit)+')'
 
         annual_session =  ss.session.annual_session
@@ -222,18 +200,7 @@ def calculate_student(session, student):
             db.session.commit()
 
             # calculate
-            #
-            #
-            #
-            #
-            #
-            #
-            # ag.calculate()
-            #
-            #
-            #
-            #
-            #
+            ag.calculate()
             db.session.commit()
             calc += '  Annual (Moy: '+str(ag.average_final)+' - Credit: ' + str(ag.credit)+')'
 
@@ -245,7 +212,6 @@ def reinitialize_session(session_id=0):
     session = Session.query.get_or_404(session_id)
     url_return = request.args.get('url_return', default='', type=str)
     message = init_all(session)
-    # message += "</br>" + calculate_all(session)
     message += "</br>" + session.calculate()
     flash(message)
     if url_return != '':
@@ -256,7 +222,6 @@ def reinitialize_session(session_id=0):
 def calculate_session(session_id):
     session = Session.query.get_or_404(session_id)
     url_return = request.args.get('url_return', default='', type=str)
-    # message = calculate_all(session)
     message = session.calculate()
     flash(message)
     if url_return != '':

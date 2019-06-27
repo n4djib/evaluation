@@ -624,7 +624,8 @@ def transfer_student_session(session_from, session_to, student_id):
     return student_session
 
 def get_student_id_todo_rattrapage_semester(session_id):
-    student_sessions = get_students_to_enter_rattrapage_semester(session_id)
+    session = Session.query.get_or_404(session_id)
+    student_sessions = session.get_students_to_enter_rattrapage()
     student_ids = []
     for student_session in student_sessions:
         student_ids.append(student_session.student.id)
@@ -749,18 +750,9 @@ def create_session(promo_id=0, semester_id=0):
 ######################
 ### NEW RATTRAPAGE ###
 
-# # grab them from Session
-# def get_students_to_enter_rattrapage_semester(session_id):
-#     students = StudentSession.query\
-#         .filter_by(session_id=session_id)\
-#         .filter( or_(StudentSession.credit < 30, StudentSession.credit == None) )\
-#         .join(Student).order_by(Student.username).all()
-#     return students
-
 @app.route('/session/<session_id>/rattrapage/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree_session.session.rattrapage', 'Rattrapage')
 def students_rattrapage_semester(session_id=0):
-    # students = get_students_to_enter_rattrapage_semester(session_id)
     session = Session.query.get_or_404(session_id)
     students = session.get_students_to_enter_rattrapage()
     return render_template('session/students-rattrapage-semester.html', 
@@ -768,7 +760,6 @@ def students_rattrapage_semester(session_id=0):
 
 @app.route('/session/<session_id>/rattrapage-print/', methods=['GET', 'POST'])
 def students_rattrapage_semester_print(session_id=0):
-    # students = get_students_to_enter_rattrapage_semester(session_id)
     session = Session.query.get_or_404(session_id)
     students = session.get_students_to_enter_rattrapage()
 

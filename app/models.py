@@ -529,44 +529,16 @@ class Session(db.Model):
     def calculate(self):
         student_sessions = self.student_sessions
         for student_session in student_sessions:
-            grade_units = student_session.grade_units
-            for grade_unit in grade_units:
-                #
-                #
-                #
-                #
-                #
-                #
-                #
-                #
-                #
-                # grades = grade_unit.grades
-                grades = Grade.query.filter_by(
-                    student_session_id=grade_unit.student_session_id
-                    ).all()
-                #
-                # fetch only grades in Unit
-                #
-                #
-                #
-                #
-                for grade in grades:
-                    grade.calculate()
-                #
-                #
-                # without commitig
-                db.session.commit()
-                #
-                #
-                # i shoul pass grades
-                # grade_unit.calculate(grades)
-                #
-                #
-                grade_unit.calculate()
-            # end for grade_units
+            for grade in student_session.grades:
+                grade.calculate()
             db.session.commit()
+
+            for grade_unit in student_session.grade_units:
+                grade_unit.calculate()
+            db.session.commit()
+
             student_session.calculate()
-        # end for student_sessions
+
         db.session.commit()
         return 'Session calculated'
 
@@ -611,13 +583,14 @@ class StudentSession(db.Model):
 
         # find annual_grade to set it dirty
         annual_session = self.session.annual_session
-        annual_grade = AnnualGrade.query.filter_by(
-            annual_session_id=annual_session.id, student_id=self.student_id).first()
-        
-        if annual_grade != None:
-            # set is_dirty to True
-            annual_grade.is_dirty = True
-            db.session.commit()
+        if annual_session != None:
+            annual_grade = AnnualGrade.query.filter_by(
+                annual_session_id=annual_session.id, 
+                student_id=self.student_id).first()
+            if annual_grade != None:
+                # set is_dirty to True
+                annual_grade.is_dirty = True
+                db.session.commit()
 
 
         cumul_semester_coeff = self.session.semester.get_semester_cumul_coeff()

@@ -11,6 +11,8 @@ var hotElement = document.querySelector('#hot');
 
 
 function Save(){
+  // console.log(data_arr);
+
   $.ajax({
     // url: '/grade/save/',
     url: '{{ url_for("grade_save", type=type) if type == "student" else url_for("grade_save") }}', 
@@ -37,6 +39,7 @@ function Save(){
       alert("some error");
     }
   });
+
 }
 
 
@@ -65,6 +68,7 @@ function fill_cols() {
     fields_list = fields_list.concat( get_fields_list(data_arr[i]['formula']) );
 
   var cour = td = tp = t_pers = stage = false;
+  var saving_grade = false;
   var formula = false;
 
   if(fields_list.includes('cour'))   
@@ -80,6 +84,7 @@ function fill_cols() {
 
   if('{{_all}}' == 'all'){
     cour = td = tp = t_pers = stage = true;
+    saving_grade = true;
     formula = true;
   }
 
@@ -94,6 +99,7 @@ function fill_cols() {
     'tp':      {visible: tp, name: "TP"},
     't_pers':  {visible: t_pers, name: "T.Pers"},
     'stage':   {visible: stage, name: "Stage"},
+    'saving_grade':   {visible: saving_grade, name: "Saving Grade"},
     'average': {visible: true, name: "(Average)"},
     'credit':  {visible: true, name: "(Credit)"},
     'formula': {visible: formula, name: "(Formula)"},
@@ -114,6 +120,7 @@ function fill_cols() {
       'tp':       {visible: tp, name: "TP / " + get_field_percentage(_formula, 'tp') },
       't_pers':   {visible: t_pers, name: "T.Pers / " + get_field_percentage(_formula, 't_pers') },
       'stage':    {visible: stage, name: "Stage / " + get_field_percentage(_formula, 'stage') },
+      'saving_grade':  {visible: saving_grade, name: "(saving_grade 100%)"},
       'average':  {visible: true, name: "(Average)"},
       'credit':   {visible: true, name: "(Credit)"},
       'formula':  {visible: formula, name: "(Formula)"},
@@ -191,6 +198,16 @@ colHeaders.push(''),
 columns.push({
   data: '__seperator2__', width: 1, readOnly: true, renderer: creditRenderer
 });
+
+if (cols['saving_grade']['visible'] === true)
+  colHeaders.push(cols['saving_grade']['name']),
+  columns.push({
+    data: 'saving_grade', 
+    className: 'htRight', 
+    type: 'numeric', 
+    validator: rangeValidator, 
+    renderer: gradeRenderer
+  });
 
 if (cols['average']['visible'] === true)
   colHeaders.push(cols['average']['name']),
@@ -394,14 +411,19 @@ hot.updateSettings({
       cell.readOnly = 'true';
 
     var ratt_field = get_ratt_field( data_arr[row]['formula'] );
-    if( session_is_rattrapage && !(is_rattrapage && current_field==ratt_field) )
+    if( session_is_rattrapage && !(is_rattrapage && current_field == ratt_field) )
       cell.readOnly = 'true';
+
+    // to open saving_grade
+    if(current_field === 'saving_grade')
+      cell.readOnly = 'false';
 
     if(session_is_closed)
       cell.readOnly = 'true';
 
     return cell;
   },
+
 
 
   enterMoves: function(event) {
@@ -525,7 +547,7 @@ function nullifyData(data_arr) {
   var row, r_len;
   for (row = 0, r_len = data_arr.length; row < r_len; row++) {
     for(var key in data_arr[row]){
-      cols = ['cour', 'td', 'tp', 't_pers', 'stage'];
+      cols = ['cour', 'td', 'tp', 't_pers', 'stage', 'saving_grade'];
       if (cols.includes(key)){
         data = data_arr[row][key];
         if(data === '' || isNaN(data))
@@ -573,6 +595,21 @@ function nameRenderer(instance, td) {
   return td;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function gradeRenderer(instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);
 
@@ -597,9 +634,27 @@ function gradeRenderer(instance, td, row, col, prop, value, cellProperties) {
       td.innerHTML = '<div title="Avant Ratt.   '+original_grade+'">' + td.innerHTML + '</div>';
   }
 
-
   return td;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function averageRenderer(instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);

@@ -30,7 +30,7 @@
 
 
 
-
+************* STOPPED AT GRID SAVING_GRADE *************
 				
 
 - saving_grade in grade
@@ -38,11 +38,22 @@
 		and indicate by color in average and credit
 - add saving notion at every level
 	grade(module) + student_session(semester) + annual_grade(annual)
+- check the two grids
+- check module printables
+- show if saving_grade is filled
+	SEPERATE IT FROM hiddent values Flash
+- add last_modification to printables
+	it 
+- calculate average from Saving
+- in classement-laurieate
+	give the option to consider saved students as rattrapage
+
+- fix cursor when it is open
 
 
+- lock historic grid
 
-
-
+- make Home Page a todo List
 
 - don't leave page in Grade grid
 
@@ -87,6 +98,8 @@
 - IDEA: in grade grid
 	when you change set to dirty and send only dirty fields
 		this will allow parallel editing
+
+- add double saisier notion
 
 -- Session
 	- show session in resultat Semester
@@ -396,6 +409,8 @@
 ----------------
 == PRIORITY 2 ==
 ----------------
+- Best Vue.js Rich-Text Editor Ever tiptap
+	it has a built in todo list
 - gestion des fiches de stage
 	fill a modifieble grid with columns names
 	generate from a word file with a merge

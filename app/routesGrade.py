@@ -55,7 +55,7 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
             .filter_by(session_id=session_id, student_id=student_id)\
             .all()
 
-    data = create_data_grid(grades, type)
+    data = collect_data_grid(grades, type)
 
     module = Module.query.get(module_id)
     student = Student.query.get(student_id)
@@ -85,7 +85,7 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
 
 def get_hidden_values_flash(grades, session, module):
     cols = get_module_cols(module)
-    fields = ['cour', 'td', 'tp', 't_pers', 'stage']
+    fields = ['cour', 'td', 'tp', 't_pers', 'stage', 'saving_grade']
     hidden_cols = []
     for field in fields:
         if field not in cols: 
@@ -109,6 +109,9 @@ def get_hidden_values_flash(grades, session, module):
         if 'stage' in hidden_cols:
             if grade.stage!=None and grade.stage!='':
                 hidden_value = True
+        if 'saving_grade' in hidden_cols:
+            if grade.saving_grade!=None and grade.saving_grade!='':
+                hidden_value = True
 
     if hidden_value == True:
         url = url_for('grade', session_id=session.id, module_id=module.id, _all='all')
@@ -128,7 +131,7 @@ def get_original_grade(grade):
         original_grade = getattr(original, field)
     return original_grade
 
-def create_data_grid(grades, type='module'):
+def collect_data_grid(grades, type='module'):
     data = ''
     for grade in grades:
         grade_id = 'id: ' + str(grade.id) + ', '
@@ -143,6 +146,8 @@ def create_data_grid(grades, type='module'):
         t_pers = 't_pers: ' + str(grade.t_pers) + ', '
         stage = 'stage: ' + str(grade.stage) + ', '
 
+        saving_grade = 'saving_grade: ' + str(grade.saving_grade) + ', '
+
         average = 'average: ' + str(grade.average) + ', '
         credit = 'credit: ' + str(grade.credit) + ', '
         formula = 'formula: ' + str(grade.formula).replace("None", "") + ', '
@@ -153,10 +158,14 @@ def create_data_grid(grades, type='module'):
             is_rattrapage = 'is_rattrapage: true, '
             original_grade = 'original_grade: '+str( get_original_grade(grade) )+' '
 
-        data += '{' + username + grade_id + name + cour + td + tp + t_pers + stage \
-             + average + credit + formula + is_rattrapage + original_grade +'}, '
+        data += '{' + username + grade_id + name \
+             + cour + td + tp + t_pers + stage \
+             + saving_grade + average + credit \
+             + formula + is_rattrapage + original_grade +'}, '
  
     return '[ ' + data + ' ]'
+    
+
 
 def grade_going_to_change(grade, data):
     if grade.cour != data['cour']:
@@ -168,6 +177,8 @@ def grade_going_to_change(grade, data):
     if grade.t_pers != data['t_pers']:
         return True
     if grade.stage != data['stage']:
+        return True
+    if grade.saving_grade != data['saving_grade']:
         return True
 
     return False
@@ -195,6 +206,8 @@ def grade_save(type=''):
         grade.t_pers = data['t_pers']
         grade.stage = data['stage']
 
+        grade.saving_grade = data['saving_grade']
+
         ## commented this to not save Null Averages
         # grade.average = data['average']
         # grade.credit = data['credit']
@@ -217,8 +230,24 @@ def grade_save(type=''):
     return 'data saved hhhhhhh'
 
 
-##########################
-##########################
+
+
+
+
+
+
+
+######################################################################################
+######################################################################################
+####                        _       _                            _                ####
+####                       | |     | |                          (_)               ####
+####    _ __ ___   ___   __| |_   _| | ___     ___  ___  ___ ___ _  ___  _ __     ####
+####   | '_ ` _ \ / _ \ / _` | | | | |/ _ \   / __|/ _ \/ __/ __| |/ _ \| '_ \    ####
+####   | | | | | | (_) | (_| | |_| | |  __/   \__ \  __/\__ \__ \ | (_) | | | |   ####
+####   |_| |_| |_|\___/ \__,_|\__,_|_|\___|   |___/\___||___/___/_|\___/|_| |_|   ####
+####                                                                              ####
+######################################################################################
+######################################################################################
 
 
 
@@ -314,6 +343,8 @@ def collect_data_for_module(grades, cols, empty=''):
                 record.append('')
             if 'stage' in cols:
                 record.append('')
+            if 'saving_grade' in cols:
+                record.append('')
             if 'average' in cols:
                 record.append('')
             if 'credit' in cols:
@@ -330,6 +361,8 @@ def collect_data_for_module(grades, cols, empty=''):
                 record.append(grade.t_pers)
             if 'stage' in cols:
                 record.append(grade.stage)
+            if 'saving_grade' in cols:
+                record.append(grade.saving_grade)
             if 'average' in cols:
                 record.append(grade.average)
             if 'credit' in cols:
