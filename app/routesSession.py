@@ -244,7 +244,7 @@ def session_config(session_id=0):
         session.name = form.name.data
         session.start_date = form.start_date.data
         session.finish_date = form.finish_date.data
-        session.semester_id = form.semester_id.data
+        # session.semester_id = form.semester_id.data
         session.type = form.type.data
         db.session.commit()
         # if session.is_historic():
@@ -255,7 +255,7 @@ def session_config(session_id=0):
         form.name.data = session.name
         form.start_date.data = session.start_date
         form.finish_date.data = session.finish_date
-        form.semester_id.data = session.semester_id
+        # form.semester_id.data = session.semester_id
         form.type.data = session.type
     return render_template('session/session-config.html', 
         title='Session Config', form=form)
@@ -520,53 +520,53 @@ def create_rattrapage(session_id):
     # # if Rattrapage exist -> it is next
     return session
 
-def init_grades_rattrapage(session, rattrapage):
-    # # travers students in Rattrapage and Init from Session
-    students_session = StudentSession.query.filter_by(session_id=session.id).all()
+# def init_grades_rattrapage(session, rattrapage):
+#     # # travers students in Rattrapage and Init from Session
+#     students_session = StudentSession.query.filter_by(session_id=session.id).all()
 
-    for student_sess in students_session:
-        student_ratt = StudentSession.query\
-            .filter_by(session_id=rattrapage.id, student_id=student_sess.student_id)\
-            .first()
-        # init_grades_modules(student_sess.id, student_ratt.id, student_ratt.student_id)
-        init_grades_modules(student_sess.id, student_ratt.id)
-    db.session.commit()
+#     for student_sess in students_session:
+#         student_ratt = StudentSession.query\
+#             .filter_by(session_id=rattrapage.id, student_id=student_sess.student_id)\
+#             .first()
+#         # init_grades_modules(student_sess.id, student_ratt.id, student_ratt.student_id)
+#         init_grades_modules(student_sess.id, student_ratt.id)
+#     db.session.commit()
 
-def init_grades_modules(student_session_id, student_rattrapage_id):
-    grades = Grade.query.filter_by(student_session_id=student_session_id).all()
-    for grade_sess in grades:
-        grade_ratt = Grade.query.filter_by(
-            student_session_id=student_rattrapage_id, 
-            module_id=grade_sess.module_id
-            ).first()
+# def init_grades_modules(student_session_id, student_rattrapage_id):
+#     grades = Grade.query.filter_by(student_session_id=student_session_id).all()
+#     for grade_sess in grades:
+#         grade_ratt = Grade.query.filter_by(
+#             student_session_id=student_rattrapage_id, 
+#             module_id=grade_sess.module_id
+#             ).first()
 
-        # get "cour" according to 
-        cour = None
-        #if 
+#         # get "cour" according to 
+#         cour = None
+#         #if 
 
-        # if grade_ratt does not exist -> create it
-        # if grade_ratt exist -> update it
-        if grade_ratt is None:
-            grade_ratt = Grade(
-                cour=cour,
-                td=grade_sess.td,
-                tp=grade_sess.tp,
-                t_pers=grade_sess.t_pers,
-                stage=grade_sess.stage,
-                formula=grade_sess.formula,
-                student_session_id=student_rattrapage_id,
-                module_id=grade_sess.module_id
-                )
-            db.session.add(grade_ratt)
-        else:
-            grade_ratt.cour = cour
-            grade_ratt.td = grade_sess.td
-            grade_ratt.tp = grade_sess.tp
-            grade_ratt.t_pers = grade_sess.t_pers
-            grade_ratt.stage = grade_sess.stage
-            grade_ratt.formula = grade_sess.formula
-        #
-    #
+#         # if grade_ratt does not exist -> create it
+#         # if grade_ratt exist -> update it
+#         if grade_ratt is None:
+#             grade_ratt = Grade(
+#                 cour=cour,
+#                 td=grade_sess.td,
+#                 tp=grade_sess.tp,
+#                 t_pers=grade_sess.t_pers,
+#                 stage=grade_sess.stage,
+#                 formula=grade_sess.formula,
+#                 student_session_id=student_rattrapage_id,
+#                 module_id=grade_sess.module_id
+#                 )
+#             db.session.add(grade_ratt)
+#         else:
+#             grade_ratt.cour = cour
+#             grade_ratt.td = grade_sess.td
+#             grade_ratt.tp = grade_sess.tp
+#             grade_ratt.t_pers = grade_sess.t_pers
+#             grade_ratt.stage = grade_sess.stage
+#             grade_ratt.formula = grade_sess.formula
+#         #
+#     #
 
 def transfer_grades(session_id, ratt_id, student_session_ratt_id, student_id):
     grades = Grade.query.join(StudentSession)\
@@ -611,7 +611,7 @@ def transfer_grades(session_id, ratt_id, student_session_ratt_id, student_id):
             is_rattrapage=is_rattrapage)
         db.session.add(new_grade)
 
-    return 1
+    return 'transfer_grades'
 
 def transfer_student_session(session_from, session_to, student_id):
     student_session = StudentSession.query\
@@ -655,6 +655,8 @@ def create_rattrapage_sem(session_id, students):
 
     # initialize 
     init_all(session_rattrapage)
+    # calculate_all(session_rattrapage)
+    session_rattrapage.calculate()
     
     return session_rattrapage
 
@@ -1834,10 +1836,16 @@ def get_cols_ths(index, label, class_name, cols_per_module):
 def get_th_5(session, cols_per_module):
     conf_dict = literal_eval(session.configuration)
     cls = 'class="module center sorter no-wrap"'
-    # header =  '<th onclick="sortTable(0)" '+cls+'>N°<img id="sort-0" class="sort-icon" ((img))></th>'
-    header =  '<th class="module">N°</th>'
-    header += '<th onclick="sortTable(1)" '+cls+'>Matricule<img id="sort-1" class="sort-icon" ((img))></th>'
-    header += '<th onclick="sortTable(2)" '+cls+'>Nom<img id="sort-2" class="sort-icon" ((img))></th>'
+
+    # header =  '<th class="module">N°</th>'
+    # header += '<th onclick="sortTable(1)" '+cls+'>Matricule<img id="sort-1" class="sort-icon" ((img))></th>'
+    # header += '<th onclick="sortTable(2)" '+cls+'>Nom<img id="sort-2" class="sort-icon" ((img))></th>'
+    
+    header = F'''
+        <th class="module">N°</th>
+        <th onclick="sortTable(1, 'asc')" {cls}>Matricule<img id="sort-1" class="sort-icon" ((img))></th>'
+        <th onclick="sortTable(2, 'asc')" {cls}>Nom<img id="sort-2" class="sort-icon" ((img))></th>
+    '''
 
     label = {'a':'M', 'c':'C', 's':'S'}
     index = 3
@@ -1909,7 +1917,8 @@ def get_row_semester(student_session, cols_per_module=2):
         row += F'<td class="semester center td {yellow}">{student_session.session_id}</td>'
     return row
 
-def get_semester_result_data(session, cols_per_module=2):
+
+def collect_semester_result_data(session, cols_per_module=2):
     data_arr = []
     students_session = StudentSession.query.filter_by(session_id=session.id)\
         .join(Student).order_by(Student.username).all()
@@ -1920,12 +1929,11 @@ def get_semester_result_data(session, cols_per_module=2):
         # name = name.replace(' ', ' ')
         _std = '<td class="center td">' + str(index) + '</td>'
         _std += '<td class="no-wrap td">' + student.username + '</td>'
-        _std += '<td class="no-wrap td">' + name + '</td>'
+        _std += '<td class="no-wrap td name">' + name + '</td>'
         row = _std + get_row_semester(student_session, cols_per_module)
         data_arr.append(row)
 
     return data_arr
-
 
 def make_link_button(route, label, session_id, student_id, target='popup', size='', btn='btn-primary'):
     href = url_for(route, session_id=session_id, student_id=student_id)
@@ -1936,7 +1944,7 @@ def make_link_button(route, label, session_id, student_id, target='popup', size=
     bultin += '>'+label+'</a>'
     return bultin
 
-def get_semester_result_data__plus_buttons(session, cols_per_module=2):
+def collect_semester_result_data__plus_buttons(session, cols_per_module=2):
     data_arr = []
     students_session = StudentSession.query.filter_by(session_id=session.id)\
         .join(Student).order_by(Student.username).all()
@@ -2010,7 +2018,7 @@ def semester_result(session_id=0):
     URL_PRINT = True
 
     t_head = get_thead(session, cols_per_module)
-    data_arr = get_semester_result_data__plus_buttons(session, cols_per_module)
+    data_arr = collect_semester_result_data__plus_buttons(session, cols_per_module)
 
     # 1 - change URL in browser
     # 2 - change href in print button
@@ -2074,7 +2082,7 @@ def semester_result_print(session_id=0):
     URL_PRINT = False
 
     t_head = get_thead(session, cols_per_module)
-    data_arr = get_semester_result_data(session, cols_per_module)
+    data_arr = collect_semester_result_data(session, cols_per_module)
 
     header = get_semester_result_print_header(session)
     title = make_semester_print_title(session, 'Releve')

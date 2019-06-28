@@ -25,7 +25,8 @@
 	saving_grade NUMERIC(10, 2)
 		after stage
 
-= 
+= add to "module_session"
+	saving_enabled boolean
 
 = 
 

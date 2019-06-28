@@ -30,9 +30,22 @@
 
 
 
-************* STOPPED AT GRID SAVING_GRADE *************
-				
+			- in module config 
+				enable_saving
+				read only accorig to it
+				and show saving_grade and calcuate it if enabled
 
+- when you create rattrapage
+	create module_session
+	transfaire module save bme
+	
+- don't forget to fix the cursor for grid by student
+- classement lauriat
+	remove the tables and use annualSession and Student Session
+		by adding classement_average
+	you only need Classement table
+- session config - add datepicker
+- module config - add datepicker - and Tag exam surviyors
 - saving_grade in grade
 	click show all fields to edit it
 		and indicate by color in average and credit
@@ -47,12 +60,12 @@
 - calculate average from Saving
 - in classement-laurieate
 	give the option to consider saved students as rattrapage
-
+- cloase when not allowed in rattrapage
 - fix cursor when it is open
 
 
 - lock historic grid
-
+- use letters to navigate the grid rather than arrows
 - make Home Page a todo List
 
 - don't leave page in Grade grid
@@ -67,7 +80,8 @@
     grades = Grade.query.filter_by(
         student_session_id=grade_unit.student_session_id
         ).all()
-
+- promo year should be got from promo start_year and current
+	and indecate errors
 - flask static
 	and upload automaticaly to github
 	try to include the javascript
@@ -92,7 +106,14 @@
 - lock annual
 	maybe no need because you calculate all the time
 	and maybe lock it to not allow recalculating 
+- in Module_Session Config 
+	make Exam Surveyors with Tagging
+	https://bootstrap-tagsinput.github.io/bootstrap-tagsinput/examples/
+	https://select2.org/selections
 - 
+- 
+
+
 
 
 - IDEA: in grade grid
@@ -100,6 +121,8 @@
 		this will allow parallel editing
 
 - add double saisier notion
+	meaning two agents enter data twice to make sure everything is correct
+	maybe no need for it if the student can check by himself
 
 -- Session
 	- show session in resultat Semester
@@ -141,12 +164,16 @@
 		they have to qualify
 		transfaire from annual, not from semester
 		Only Admit & Admit avec dette
-
+	- use Count() in sqlalchemy
+	- 
+	- 
 
 
 -- Potencial Bugs ==
 	- 
 	- 
+
+
 
 - when i duplicate the Semester
 	is the Modules duplicated too ??????
@@ -478,6 +505,50 @@
 - 
 - 
 
+
+
+-- PLUGINs
+	- Fire Fox printing
+		if firefox use the plugin
+		https://www.jqueryscript.net/demo/Print-Preview-Popup-Plugin-jQuery/
+	- Message-Toaster-For-jQuery
+		https://www.jqueryscript.net/other/Message-Toaster-For-jQuery.html
+	- jQuery & Bootstrap Based Toast Notification Plugin - toaster
+		https://www.jqueryscript.net/other/jQuery-Bootstrap-Based-Toast-Notification-Plugin-toaster.html
+	- Emoji-Rating-Plugin-jQuery-Emotion-Ratings
+		https://www.jqueryscript.net/other/Emoji-Rating-Plugin-jQuery-Emotion-Ratings.html
+	- Export Html Table To Excel Spreadsheet using jQuery - table2excel
+		https://www.jqueryscript.net/table/Export-Html-Table-To-Excel-Spreadsheet-using-jQuery-table2excel.html
+	- jQuery Bootstrap Multiselect Examples
+		https://www.jqueryscript.net/form/jQuery-Multiple-Select-Plugin-For-Bootstrap-Bootstrap-Multiselect.html
+	- Beautiful-jQuery-File-Upload-Plugin
+		https://www.jqueryscript.net/form/Beautiful-jQuery-File-Upload-Plugin.html
+	- Drag & Drop File Upload Dialog with jQuery and Bootstrap
+		https://www.jqueryscript.net/form/Drag-Drop-File-Upload-Dialog-with-jQuery-Bootstrap.html
+	- Resize/Rotate/Crop Images With jQuery - Cropzee
+		https://www.jqueryscript.net/other/cropzee-image-cropper.html
+	- Simple jQuery Plugin For Opening A Popup Window On Page load
+		https://www.jqueryscript.net/lightbox/Simple-jQuery-Plugin-For-Opening-A-Popup-Window-On-Page-load.html
+	- Powerful Form Validation Plugin For jQuery and Bootstrap 3
+		https://www.jqueryscript.net/form/Powerful-Form-Validation-Plugin-For-jQuery-Bootstrap-3.html
+	- Robust Modular HTML5 Form Validation Plugin - Form Validator
+		https://www.jqueryscript.net/form/Robust-Modular-HTML5-Form-Validation-Plugin-Form-Validator.html
+		https://www.jqueryscript.net/tags.php?/form%20validation/
+	- Creating A Live Editable Table with jQuery - Tabledit
+		https://www.jqueryscript.net/table/Creating-A-Live-Editable-Table-with-jQuery-Tabledit.html
+	- jQuery Multi-Step Form Example
+		https://www.jqueryscript.net/form/Creating-A-Modern-Multi-Step-Form-with-jQuery-CSS3.html
+	- Export Html To Word Document With Images Using jQuery Word Export Plugin
+		https://www.jqueryscript.net/other/Export-Html-To-Word-Document-With-Images-Using-jQuery-Word-Export-Plugin.html
+	- jQuery Spinner Examples
+		https://www.jqueryscript.net/form/Input-Number-Spinner-with-jQuery-Bootstrap-Spinner.html
+	- Pretty Bootstrap-style Datetime Picker Plugin - Perfect-DateTimePicker
+		https://www.jqueryscript.net/time-clock/Bootstrap-style-Datetime-Picker-Plugin.html
+	- 
+	- 
+	- 
+	- 
+	- 
 
 
 

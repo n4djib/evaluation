@@ -5,10 +5,17 @@
 {% block styles %}
   {{super()}}
   <link rel="stylesheet" href="{{ url_for('static', filename='multiselect/prettify.css') }}" />
-  <script type="text/javascript" src="{{ url_for('static', filename='multiselect/prettify.min.js') }}"></script>
+  <script type="text/javascript"
+   src="{{ url_for('static', filename='multiselect/prettify.min.js') }}"></script>
 
   <style>
-    .github.ribbon { position: fixed; display: block; top: 40px; right: 0; border: 0; z-index: 1001; }
+    .github.ribbon { 
+      position: fixed; 
+      display: block; 
+      top: 40px; right: 0; 
+      border: 0; 
+      -index: 1001; 
+    }
     .prettyprint { padding: 10px!important; }
     #wrap { padding-top: 20px; }
     #home h1 { margin-bottom: 30px; }

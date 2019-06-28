@@ -94,7 +94,7 @@
       href="{{ href }}" >{{ label }}</a>
 
     {% if type == 'module' %}
-    <a href="{{ url_for('module_session_update', session_id=session.id, module_id=module.id) }}" 
+    <a href="{{ url_for('module_session_config', session_id=session.id, module_id=module.id) }}" 
       class="btn btn-warning {{'shake-slow shake-constant' if module_session != None and module_session.has_teacher() else ''}}" 
       role="button" style="margin-bottom:2px; margin-right:4px; float:right;"; 
       ><img src='/static/img/config-session.png'></a>

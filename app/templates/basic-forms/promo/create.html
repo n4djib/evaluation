@@ -35,13 +35,14 @@
 
 {% block scripts %}
   {{ super() }}
+
   <script src="{{ url_for('static', filename='dtpicker/moment-with-locales.js') }}"></script>
   <script src="{{ url_for('static', filename='dtpicker/bootstrap-datetimepicker.js') }}"></script>
-
   <script type="text/javascript">
     $(function () {
       $('#start_date').datetimepicker({format: 'YYYY-MM'});
       $('#finish_date').datetimepicker({format: 'YYYY-MM'});
     });
   </script>
+
 {% endblock %}

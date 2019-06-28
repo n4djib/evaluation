@@ -37,11 +37,14 @@ function change_url_params() {
   if(filter_word == "" && sort != 0 && cols == 2)
     _params = '?cols='+cols;
 
-  if(sort === 0)
-    _params = '?filter_word='+filter_word+'&cols='+cols;
+  if(sort === 0 && filter_word == "" && cols == 2)
+    _params = ''
   else
-     _params = '?filter_word='+filter_word+'&cols='+cols+'&sort='+sort+'&order='+order;
-      
+    if(sort === 0)
+      _params = '?filter_word='+filter_word+'&cols='+cols;
+    else
+       _params = '?filter_word='+filter_word+'&cols='+cols+'&sort='+sort+'&order='+order;
+        
 
   // change url params
   window.history.pushState('*', '***', URL + _params);
@@ -81,7 +84,7 @@ function change_icons(n, dir) {
 
 
 
-function sortTable(n, dir = "asc") {
+function sortTable(n, dir = "desc") {
   if (n === 0)
     return;
 
@@ -148,10 +151,16 @@ function sortTable(n, dir = "asc") {
     } else {
       /*If no switching has been done AND the direction is "asc",
       set the direction to "desc" and run the while loop again.*/
-      if (switchcount == 0 && dir == "asc") {
-        dir = "desc";
+      // if (switchcount == 0 && dir == "asc") {
+      //   dir = "desc";
+      //   switching = true;
+      // }
+
+      if (switchcount == 0 && dir == "desc") {
+        dir = "asc";
         switching = true;
       }
+
     }
 
   }

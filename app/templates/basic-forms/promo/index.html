@@ -16,6 +16,7 @@
           <th scope="col">Name</th>
           <th scope="col">Display Name</th>
           <th scope="col">Starting Date</th>
+          <th scope="col">Finishing Date</th>
           <th scope="col">Branch</th>
           <th scope="col">Color</th>
         </tr>
@@ -27,6 +28,7 @@
           <td><a href="{{ url_for('promo_view', id=promo.id) }}">{{ promo.name }}</a></td>
           <td>{{ promo.display_name | replace("None", "") }}</td>
           <td>{{ promo.start_date | replace("None", "") }}</td>
+          <td>{{ promo.finish_date | replace("None", "") }}</td>
           <td>{{ promo.branch.name | replace("None", "") }}</td>
           <td><span style="background-color: {{ promo.get_color() }};"
               >               </span>  {{ promo.get_color() }}

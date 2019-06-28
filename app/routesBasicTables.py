@@ -37,23 +37,15 @@ def promo_index():
 def promo_create():
     form = PromoFormCreate()
     
-    if request.method == 'POST':
-        start_date_request = request.form.get('start_date_str')
-        if start_date_request != None and start_date_request != '':
-            start_date_string = str(start_date_request)+'-01'
-            form.start_date.data = datetime.strptime(start_date_string, '%Y-%m-%d')
-        finish_date_request = request.form.get('finish_date_str')
-        if finish_date_request != None and finish_date_request != '':
-            finish_date_string = str(finish_date_request)+'-28'
-            form.finish_date.data = datetime.strptime(finish_date_string, '%Y-%m-%d')
-    
     if form.validate_on_submit():
         promo = Promo(
             name=form.name.data, 
             display_name=form.display_name.data, 
             branch_id=form.branch_id.data, 
-            start_date=form.start_date.data, 
-            finish_date=form.finish_date.data, 
+            # start_date=form.start_date.data, 
+            start_date=convert_dtstr_to_dt('start_date_str', extention='-01'), 
+            # finish_date=form.finish_date.data, 
+            finish_date=convert_dtstr_to_dt('finish_date_str', extention='-28'), 
             color=form.color.data
         )
         db.session.add(promo)
@@ -62,29 +54,40 @@ def promo_create():
         return redirect(url_for('promo_view', id=promo.id))
     return render_template('basic-forms/promo/create.html', title='Promo Create', form=form)
 
+
+
+def convert_dtstr_to_dt(dt_name, in_format='%Y-%m-%d', out_format='%Y-%m-%d', extention='-01'):
+    dt = None
+    if request.method == 'POST':
+        dt_request = request.form.get(dt_name)
+        if dt_request != None and dt_request != '':
+            # 
+            # case : in_format
+            dt_string = str(dt_request)+extention
+            # 
+            # 
+            # 
+            # 
+            dt = datetime.strptime(dt_string, out_format)
+    return dt
+
+
+
 @app.route('/promo/update/<int:id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.basic.promo.view.update', 'Update')
 def promo_update(id):
     promo = Promo.query.get_or_404(id)
     form = PromoFormUpdate(promo.id)
-
-    if request.method == 'POST':
-        # start_date_request = request.form.get('start_date')
-        start_date_request = request.form.get('start_date_str')
-        if start_date_request != None and start_date_request != '':
-            start_date_string = str(start_date_request)+'-01'
-            form.start_date.data = datetime.strptime(start_date_string, '%Y-%m-%d')
-        finish_date_request = request.form.get('finish_date_str')
-        if finish_date_request != None and finish_date_request != '':
-            finish_date_string = str(finish_date_request)+'-28'
-            form.finish_date.data = datetime.strptime(finish_date_string, '%Y-%m-%d')
     
-    if form.validate_on_submit():    
+    if form.validate_on_submit():
         promo.name = form.name.data
         promo.display_name = form.display_name.data
         # promo.branch_id = form.branch_id.data
-        promo.start_date = form.start_date.data
-        promo.finish_date = form.finish_date.data
+        # promo.start_date = form.start_date.data
+        promo.start_date = convert_dtstr_to_dt('start_date_str', extention='-01')
+        # promo.finish_date = form.finish_date.data
+        promo.finish_date = convert_dtstr_to_dt('finish_date_str', extention='-28')
+
         promo.color = form.color.data
         db.session.commit()
         flash('Your changes have been saved.', 'alert-success')

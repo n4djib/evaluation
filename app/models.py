@@ -828,15 +828,7 @@ class Grade(db.Model):
     tp = db.Column(db.Numeric(10,2))
     t_pers = db.Column(db.Numeric(10,2))
     stage = db.Column(db.Numeric(10,2))
-    #
-    #
-    #
-    #
     saving_grade = db.Column(db.Numeric(10,2))
-    #
-    #
-    #
-    #
     average = db.Column(db.Numeric(10,2))
     credit = db.Column(db.Integer)
     formula = db.Column(db.String(200))
@@ -867,20 +859,45 @@ class Grade(db.Model):
         average = 0
         calculation = ''
         dictionary = eval(self.formula)
-        for field in dictionary:
-            if field in ['cour', 'td', 'tp', 't_pers', 'stage']:
-                val = getattr(self, field)
-                percentage = dictionary[field]
-                getcontext().prec = 4
-                if val != None:
-                    average += round( val * Decimal(percentage) , 2)
 
-                if val == None:
-                    val = '???'
-                calculation += '('+ str(field) + ': ' + str(val) + ' * ' + str(percentage) + ')' + ' + '
-        # end for
+        # find out if is savable
+        is_savable = False
+        module_saving_enabled = False
+        if self.saving_grade != None:
+            module_session = ModuleSession.query.filter_by(
+                session_id=self.student_session.session_id, 
+                module_id=self.module_id).first()
+            if module_session != None:
+                module_saving_enabled = module_session.saving_enabled
 
-        calculation = calculation[:-3]
+                # is_savable = True
+                if module_saving_enabled == True:
+                    if module_session.session.is_rattrapage == True:
+                        if self.is_rattrapage == True:
+                            average = self.saving_grade
+                            is_savable = True
+                            calculation += '(saving_grade: '+str(average)+')'
+                    else:
+                        average = self.saving_grade
+                        is_savable = True
+                        calculation += '(saving_grade: '+str(average)+')'
+
+        if is_savable == False:
+            for field in dictionary:
+                if field in ['cour', 'td', 'tp', 't_pers', 'stage']:
+                    val = getattr(self, field)
+                    percentage = dictionary[field]
+                    getcontext().prec = 4
+                    if val != None:
+                        average += round( val * Decimal(percentage) , 2)
+                    if val == None:
+                        val = '???'
+                    calculation += '('+ str(field) + ': ' + str(val) + ' * ' + str(percentage) + ')' + ' + '
+            # end for
+            calculation = calculation[:-3]
+
+
+
 
         # credit
         credit = 0
@@ -1354,6 +1371,7 @@ class ModuleSession(db.Model):
     exam_date = db.Column(db.Date)
     results_delivered_date = db.Column(db.Date)
     exam_surveyors = db.Column(db.Text)
+    saving_enabled = db.Column(db.Boolean, default=False)
     def has_teacher(self):
         if self.teacher_id == None:
             return True

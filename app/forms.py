@@ -277,6 +277,7 @@ class ModuleSessionForm(FlaskForm):
     exam_date = DateField('Exam Date', validators=[Optional()])
     results_delivered_date = DateField('Results Delivered Date', validators=[Optional()])
     exam_surveyors = TextAreaField('Exam Surveyors', validators=[Optional()])
+    saving_enabled = BooleanField('Saving Enabled')
     submit = SubmitField('Update')
     def __init__(self, _id=-1, *args, **kwargs):
         super(ModuleSessionForm, self).__init__(*args, **kwargs)
@@ -287,19 +288,19 @@ class SessionConfigForm(FlaskForm):
     name = StringField('name', validators=[Optional()])
     start_date = DateField('Start Date', validators=[Optional()])
     finish_date = DateField('Start Date', validators=[Optional()])
-    semester_id = SelectField('Semester', coerce=int, validators=[Optional()], 
-        choices = [(-1, '')] + [(1, '***fill it in session_config***')]
-    )
+    # semester_id = SelectField('Semester', coerce=int, validators=[Optional()], 
+    #     choices = [(-1, '')] + [(1, '***fill it in session_config***')]
+    # )
     type = SelectField('Type', choices = [('', ''), ('standard', 'Standard'), ('historic', 'Historic')])
     submit = SubmitField('Update')
     def __init__(self, _id=-1, *args, **kwargs):
         super(SessionConfigForm, self).__init__(*args, **kwargs)
         self._id = _id
-        session = Session.query.get_or_404(_id)
-        branch = session.promo.branch
-        semesters = Semester.query.join(Annual)\
-                .filter_by(branch_id=branch.id).order_by(Annual.annual, Semester.semester)
-        self.semester_id.choices = [(-1, '')]+[(s.id, s.name) for s in semesters]
+        # session = Session.query.get_or_404(_id)
+        # branch = session.promo.branch
+        # semesters = Semester.query.join(Annual)\
+        #         .filter_by(branch_id=branch.id).order_by(Annual.annual, Semester.semester)
+        # self.semester_id.choices = [(-1, '')]+[(s.id, s.name) for s in semesters]
 
 
 ##################
