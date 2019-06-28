@@ -91,7 +91,8 @@ def collect_module_data_grid(grades, module_session):
     for grade in grades:
         grade_id = 'id: ' + str(grade.id) + ', '
         username = 'username: "' + grade.get_username() + '", '
-        name = 'name: "' + grade.get_student_name() + '", '
+        student_name = 'student_name: "' + grade.get_student_name() + '", '
+        module_name = 'module_name: "' + grade.module.get_label() + '", '
 
         cour = 'cour: ' + str(grade.cour) + ', '
         td = 'td: ' + str(grade.td) + ', '
@@ -102,8 +103,10 @@ def collect_module_data_grid(grades, module_session):
         average = 'average: ' + str(grade.average) + ', '
         credit = 'credit: ' + str(grade.credit) + ', '
         formula = 'formula: ' + str(grade.formula).replace("None", "") + ', '
-
         is_savable = 'is_savable: false, '
+        is_rattrapage = 'is_rattrapage: false, '
+        original_grade = 'original_grade: null, '
+
         if grade.saving_grade != None:
             if module_saving_enabled == True:
                 if module_session.session.is_rattrapage == True:
@@ -112,16 +115,14 @@ def collect_module_data_grid(grades, module_session):
                 else:
                     is_savable = 'is_savable: true, '
 
-        is_rattrapage = 'is_rattrapage: false, '
-        original_grade = 'original_grade: null, '
         if grade.is_rattrapage is True:
             is_rattrapage = 'is_rattrapage: true, '
             original_grade = 'original_grade: '+str( get_original_grade(grade) )+', '
 
-        data += '{' + username + grade_id + name \
+        data += '{' + username + grade_id + student_name + module_name \
              + cour + td + tp + t_pers + stage \
-             + saving_grade + average + credit \
-             + is_savable + is_rattrapage + original_grade + formula +'}, '
+             + saving_grade + average + credit + formula \
+             + is_savable + is_rattrapage + original_grade +'}, '
  
     return '[ ' + data + ' ]'
 
@@ -135,8 +136,11 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
     session = Session.query.get_or_404(session_id)
     module = Module.query.get(module_id)
     student = Student.query.get(student_id)
+
     module_session = ModuleSession.query.\
         filter_by(session_id=session_id, module_id=module_id).first()
+    if module_session == None:
+        module_session = create_module_session(session_id, module_id)
 
 
     grid_title = F' *********** '
@@ -150,8 +154,8 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
         
         # module_session = ModuleSession.query.\
         #     filter_by(session_id=session_id, module_id=module_id).first()
-        if module_session == None:
-            module_session = create_module_session(session_id, module_id)
+        # if module_session == None:
+        #     module_session = create_module_session(session_id, module_id)
 
         grades = Grade.query.filter_by(module_id=module_id)\
             .join(StudentSession).filter_by(session_id=session_id).all()

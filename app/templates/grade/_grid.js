@@ -94,12 +94,11 @@ function fill_cols() {
   saving_grade = true;
   {% endif %}
 
-  var second_column_name = "Module Name";
-  if (type == 'module')
-    second_column_name = "Student Name";
+  // var second_column_name = "Module Name";
+  // if (type == 'module')
+  //   second_column_name = "Student Name";
 
   var cols = {
-    'name':    {visible: true, name: second_column_name},
     'cour':    {visible: cour, name: "Cour"},
     'td':      {visible: td, name: "TD"},
     'tp':      {visible: tp, name: "TP"},
@@ -127,7 +126,8 @@ function fill_cols() {
       // 
       // 
       'username': {visible: true, name: "Username"},
-      'name':     {visible: true, name: second_column_name},
+      'student_name': {visible: true, name: "Student Name"},
+      'module_name':     {visible: true, name: "Module Name"},
       'cour':     {visible: cour, name: cour_label + " / " + get_field_percentage(_formula, 'cour') },
       'td':       {visible: td, name: "TD / " + get_field_percentage(_formula, 'td') },
       'tp':       {visible: tp, name: "TP / " + get_field_percentage(_formula, 'tp') },
@@ -158,17 +158,18 @@ var columns = [];
 if(type == 'module') {
   colHeaders.push(cols['username']['name']);
   columns.push({ data: 'username', type: 'text', readOnly: true, renderer: nameRenderer });
+
+  colHeaders.push(cols['student_name']['name']);
+  columns.push({ data: 'student_name', type: 'text', readOnly: true, renderer: nameRenderer });
+}
+else {
+  colHeaders.push(cols['module_name']['name']),
+  columns.push({
+    data: 'module_name', type: 'text', readOnly: true, renderer: nameRenderer
+  });
 }
 
 
-
-
-
-
-colHeaders.push(cols['name']['name']),
-columns.push({
-  data: 'name', type: 'text', readOnly: true, renderer: nameRenderer
-});
 
 colHeaders.push(''),
 columns.push({
@@ -222,6 +223,7 @@ if (cols['saving_grade']['visible'] === true)
     renderer: saving_gradeRenderer
   });
 
+
 colHeaders.push(''),
 columns.push({
   data: '__seperator2__', width: 1, readOnly: true, renderer: creditRenderer
@@ -246,8 +248,6 @@ if (cols['formula']['visible'] === true)
     type: 'text', 
     renderer: formulaRenderer
   });
-
-
 
 
 

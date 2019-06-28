@@ -1211,7 +1211,7 @@ class Module(db.Model):
             sessions += semester.sessions
         return sessions
     def get_label(self):
-        return str(self.code)+' - '+self.display_name
+        return str(self.code)+' - '+str(self.display_name)
 
 class Percentage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
