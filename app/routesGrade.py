@@ -16,32 +16,11 @@ def create_module_session(session_id, module_id):
     db.session.commit()
     return module_session
 
-def grade_dlc(*args, **kwargs):
-    session_id = request.view_args['session_id']
-    
-    if 'module_id' in request.view_args:
-        module_id = request.view_args['module_id']
-        module = Module.query.get_or_404(module_id)
-        text = 'Module ('+module.code+' '+module.name+')'
-        return [{'text': text, 
-            'url': url_for('grade', session_id=session_id, module_id=module_id)}]
-
-    elif 'student_id' in request.view_args:
-        student_id = request.view_args['student_id']
-        student = Student.query.get_or_404(student_id)
-        text = 'Student ('+student.username+' '+student.last_name+' '+student.first_name+')'
-        return [{'text': text, 
-            'url': url_for('grade', session_id=session_id, student_id=student_id)}]
-
-    # return [{'text': '***', 'url': '']
-
-
-
-
 def collect_data_from_grade(grade):
     grade_id = 'id: ' + str(grade.id) + ', '
     username = 'username: "' + grade.get_username() + '", '
     student_name = 'student_name: "' + grade.get_student_name() + '", '
+    code = 'code: "' + str(grade.module.code) + '", '
     module_name = 'module_name: "' + grade.module.get_label() + '", '
 
     cour = 'cour: ' + str(grade.cour) + ', '
@@ -59,7 +38,7 @@ def collect_data_from_grade(grade):
         is_rattrapage = 'is_rattrapage: true, '
         original_grade = 'original_grade: '+str( get_original_grade(grade) )+', '
 
-    return grade_id + username + student_name + module_name \
+    return grade_id + username + student_name + code + module_name \
          + cour + td + tp + t_pers + stage \
          + saving_grade + average + credit + formula  + is_rattrapage + original_grade
 
@@ -94,6 +73,24 @@ def collect_module_data_grid(grades, session, SHOW_SAVING_GRADE):
  
     return '[ ' + data + ' ]'
 
+def grade_dlc(*args, **kwargs):
+    session_id = request.view_args['session_id']
+    
+    if 'module_id' in request.view_args:
+        module_id = request.view_args['module_id']
+        module = Module.query.get_or_404(module_id)
+        text = 'Module ('+module.code+' '+module.name+')'
+        return [{'text': text, 
+            'url': url_for('grade', session_id=session_id, module_id=module_id)}]
+
+    elif 'student_id' in request.view_args:
+        student_id = request.view_args['student_id']
+        student = Student.query.get_or_404(student_id)
+        text = 'Student ('+student.username+' '+student.last_name+' '+student.first_name+')'
+        return [{'text': text, 
+            'url': url_for('grade', session_id=session_id, student_id=student_id)}]
+
+    # return [{'text': '***', 'url': '']
 
 @app.route('/session/<session_id>/module/<module_id>/<_all>/', methods=['GET', 'POST']) 
 @app.route('/session/<session_id>/module/<module_id>/', methods=['GET', 'POST'])

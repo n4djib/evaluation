@@ -97,6 +97,7 @@ function fill_cols() {
   //   second_column_name = "Student Name";
 
   var cols = {
+    'code':    {visible: true, name: "Code"},
     'module_name': {visible: true, name: "Module Name"},
     'cour':    {visible: cour, name: "Cour"},
     'td':      {visible: td, name: "TD"},
@@ -126,6 +127,7 @@ function fill_cols() {
       // 
       'username': {visible: true, name: "Username"},
       'student_name': {visible: true, name: "Student Name"},
+      'code':     {visible: true, name: "Code"},
       'module_name': {visible: true, name: "Module Name"},
       'cour':     {visible: cour, name: cour_label + " / " + get_field_percentage(_formula, 'cour') },
       'td':       {visible: td, name: "TD / " + get_field_percentage(_formula, 'td') },
@@ -156,12 +158,15 @@ var columns = [];
 // hide some columns
 if(type == 'module') {
   colHeaders.push(cols['username']['name']);
-  columns.push({ data: 'username', type: 'text', readOnly: true, renderer: nameRenderer });
+  columns.push({ data: 'username', type: 'text', readOnly: true, renderer: centerRenderer });
 
   colHeaders.push(cols['student_name']['name']);
   columns.push({ data: 'student_name', type: 'text', readOnly: true, renderer: nameRenderer });
 }
 else {
+  colHeaders.push(cols['code']['name']),
+  columns.push({data: 'code', type: 'text', readOnly: true, renderer: centerRenderer});
+
   colHeaders.push(cols['module_name']['name']),
   columns.push({data: 'module_name', type: 'text', readOnly: true, renderer: nameRenderer});
 }
@@ -468,46 +473,53 @@ function move_cursor_in_grid(){
       skip_f = 1;
     }
 
-    if (type == 'module') {
+    
+    //skip 3 start cells
+    if (col == 0) return {row: 0, col: 3};
+    if (col == 1) return {row: 0, col: 2};
+    if (col == 2) return {row: 0, col: 1};
+    //skip 3 end cells
+    if (col == count-4-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-0};
+    if (col == count-3-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-1};
+    if (col == count-2-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-2};
+    if (col == count-1-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-3};
+    if (col == count-0-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-4};
+    // // skip right
+    return {row: 0, col: 1};
 
-      //skip 3 start cells
-      if (col == 0)  return {row: 0, col: 3};
-      if (col == 1)  return {row: 0, col: 2};
-      if (col == 2)  return {row: 0, col: 1};
-      //skip 3 end cells
-      if (col == count-4-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-0};
-      if (col == count-3-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-1};
-      if (col == count-2-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-2};
-      if (col == count-1-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-3};
-      if (col == count-0-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-4};
-      // // skip right
-      return {row: 0, col: 1};
+    // if (type == 'module') {
+    //   //skip 3 start cells
+    //   if (col == 0) return {row: 0, col: 3};
+    //   if (col == 1) return {row: 0, col: 2};
+    //   if (col == 2) return {row: 0, col: 1};
+    //   //skip 3 end cells
+    //   if (col == count-4-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-0};
+    //   if (col == count-3-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-1};
+    //   if (col == count-2-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-2};
+    //   if (col == count-1-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-3};
+    //   if (col == count-0-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-4};
+    //   // // skip right
+    //   return {row: 0, col: 1};
+    // } else {
+    //   // skip the first & the seperator
+    //   if(col === 0) return {row: 0, col: 2};
+    //   // skip last 3
+    //   if (col === count-4-skip_f)
+    //     return {row: 1, col: -(nbr_cols-skip_f)};
+    //   if (col === count-3-skip_f)
+    //     return {row: 1, col: -(nbr_cols-skip_f)-1};
+    //   if (col === count-2-skip_f)
+    //     return {row: 1, col: -(nbr_cols-skip_f)-2};
+    //   if (col === count-1-skip_f)
+    //     return {row: 1, col: -(nbr_cols-skip_f)-3};
 
-    } else {
+    //   if (col === count-0-skip_f)
+    //     return {row: 1, col: -(nbr_cols-skip_f)-4};
 
-      // skip the first & the seperator
-      if(col === 0)
-        return {row: 0, col: 2};
-      // skip last 3
-      if (col === count-4-skip_f)
-        return {row: 1, col: -(nbr_cols-skip_f)};
-      if (col === count-3-skip_f)
-        return {row: 1, col: -(nbr_cols-skip_f)-1};
-      if (col === count-2-skip_f)
-        return {row: 1, col: -(nbr_cols-skip_f)-2};
-      if (col === count-1-skip_f)
-        return {row: 1, col: -(nbr_cols-skip_f)-3};
+    //   // skip right
+    //   return {row: 0, col: 1};
+    // }
 
-
-
-      if (col === count-0-skip_f)
-        return {row: 1, col: -(nbr_cols-skip_f)-4};
-
-      
-      // skip right
-      return {row: 0, col: 1};
-
-    }
 }
 
 /********************/
@@ -623,6 +635,14 @@ function rangeValidator(value, callback) {
   else
     callback(true);
 }
+
+function centerRenderer(instance, td) {
+  Handsontable.renderers.TextRenderer.apply(this, arguments);
+  //td.style.backgroundColor = 'yellow';
+  td.innerHTML = '<center><b>' + td.innerHTML + '</b></center>';
+  return td;
+}
+
 
 function nameRenderer(instance, td) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);

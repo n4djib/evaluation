@@ -97,7 +97,9 @@
           {% for module in modules %}
             <tr>
               <td>{{loop.index}}</td>
-              <td><a href="{{url_for('grade', session_id=session.id, module_id=module.id)}}">{{ module.display_name }}</a></td>
+              <td>
+                <a href="{{url_for('grade', session_id=session.id, module_id=module.id)}}">{{ module.code | replace('None', '???') }} - {{ module.display_name | replace('None', '???') }}
+                </a></td>
               <td>{{ 'f' if module.unit.is_fondamental == True }}</td>
               <td>{{ module.coefficient }}</td>
               <td>{{ module.credit }}</td>
