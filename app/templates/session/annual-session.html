@@ -8,6 +8,9 @@
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/csshake.min.css') }}">
 
   <style type="text/css">
+    /*div, table {
+      margin: 0px; padding: 0px;
+    }*/
     th {
       /* border: 1px solid lightgray;
       padding: 0px 4px;*/
@@ -177,7 +180,7 @@
               {% if R1 != None %}
                 <a href="{{ url_for('session', session_id=R1.id) }}" target="_blank" >Ratt. ({{R1_nbr}})</a>
                 </br>
-                <font size="-2">(R1.check_progress()%)</font>
+                <font size="-2">({{ R1.check_progress() }}%)</font>
               {% else %}
                 {% if R1_nbr != None %}
                  Ratt. ({{R1_nbr}})

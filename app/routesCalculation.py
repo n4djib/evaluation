@@ -133,35 +133,11 @@ def get_formula(module_id):
     return "{" + formula + coefficient + credit + rattrapable + "}"
 
 def init_all(session):
-    # session = Session.query.filter_by(id=session_id).first()
     message1 = init_session(session)
     message2 = init_grade_unit(session)
     message3 = init_grade(session)
     return F'init all : {message1} - {message2} - {message3}'
 
-# def calculate_all(session):
-#     grades = Grade.query.join(StudentSession).filter_by(session_id=session.id).all()
-#     for grade in grades:
-#         grade.calculate()
-#     db.session.commit()
-
-#     grade_units = GradeUnit.query.join(StudentSession).filter_by(session_id=session.id).all()
-#     for grade_unit in grade_units:
-#         grade_unit.calculate()
-#     db.session.commit()
-
-#     student_sessions = StudentSession.query.filter_by(session_id=session.id).all()
-#     for student_session in student_sessions:
-#         student_session.calculate()
-#     db.session.commit()
-
-#     # just to not forget recalculating annual
-#     annual_grades = AnnualGrade.query.filter_by(annual_session_id=session.annual_session_id).all()
-#     for annual_grade in annual_grades:
-#         annual_grade.calculate()
-#     db.session.commit()
-
-#     return 'calculate_all'
 
 def calculate_student(session, student):
     grades = Grade.query.join(StudentSession)\
@@ -204,7 +180,7 @@ def calculate_student(session, student):
             # calculate
             ag.calculate()
             db.session.commit()
-            calc += '  Annual (Moy: '+str(ag.average_final)+' - Credit: ' + str(ag.credit)+')'
+            calc += '  -  Annual (Moy: '+str(ag.average_final)+' - Credit: ' + str(ag.credit)+')'
 
         return calc
     return 'calculate_student grades'
@@ -215,6 +191,19 @@ def reinitialize_session(session_id=0):
     url_return = request.args.get('url_return', default='', type=str)
     message = init_all(session)
     message += "</br>" + session.calculate()
+    #
+    #
+    #
+    #
+    #
+    #
+    # db.session.commit()
+    #
+    #
+    #
+    #
+    #
+    #
     flash(message)
     if url_return != '':
         return redirect(url_return)

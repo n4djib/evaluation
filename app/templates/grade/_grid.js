@@ -571,22 +571,18 @@ $(document).on('keydown', function(e){
     // }
 });
 
-// window.onbeforeunload = function (e) {
-//     var e = e || window.event;
-//     // For IE and Firefox prior to version 4
-//     if (e) {
-//         e.returnValue = 'Any string';
-//     }
-//     // For Safari
-//     return 'Any string';
-// };
 
-// $(window).bind('beforeunload', function(){
-//   console.log('leaving........');
-//   alert('ffff');
-//   var c = confirm ('Are you sure?');
-//   return '>>>>>Before You Go<<<<<<<<  Your custom message go here';
-// });
+window.onbeforeunload = function (e) {
+  if (is_dirty) {
+    var e = e || window.event;
+    // For IE and Firefox prior to version 4
+    if (e) {
+        e.returnValue = 'Any string';
+    }
+    // For Safari
+    return 'Any string';
+  }
+};
 
 
 //////////////////////////////////////////////////////////////
@@ -709,7 +705,7 @@ function saving_gradeRenderer(instance, td, row, col, prop, value, cellPropertie
   else
     td.innerHTML = '';
 
-  td.style.backgroundColor = '#FFFF66';
+  td.style.backgroundColor = '#ffff76';
 
   // coloring the read only cells
   if(cellProperties.readOnly==true){

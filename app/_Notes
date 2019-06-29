@@ -40,6 +40,7 @@
 			- check the two grids
 			- cloase when not allowed in 
 			- add , onupdate=datetime.utcnow) to timestamps
+			- finish : units_r_fond_aquired in annual_grade fetch data
 
 - Potential Problem
 	when you create rattrapage & i already have entered Save grade in normal
@@ -47,13 +48,17 @@
 			to transfaire the better grade
 			do i transfaire it to all Gradings(cour+tp+td+ saving) ?????????????????
 	
-- finish : units_r_fond_aquired in annual_grade fetch data
+- ask for recalculate if enabled_saving is changed
+- PROBLEM:
+	transfer_grades() is transgering only cour ass rattrapable
+
+- turn all calculation to calcule by student
+	session.calculate() -> session.student_sessions.calculate
 
 
 - session config - add datepicker
 - module config - add datepicker - and Tag exam surviyors
-- add saving notion at every level
-	grade(module) + student_session(semester) + annual_grade(annual)
+
 - check module printables
 - add last_modification to printables
 	last entry in the database tables
@@ -66,6 +71,10 @@
 - lock historic grid
 - use letters to navigate the grid rather than arrows
 - make Home Page a todo List
+
+- add saving notion at every level
+	grade(module) + student_session(semester) + annual_grade(annual)
+	or remove it from annual_grade(annual)
 
 - don't leave page in Grade grid
 

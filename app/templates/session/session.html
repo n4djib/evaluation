@@ -19,6 +19,9 @@
       /*background-color: Silver;*/
       /*color: white;*/
     }
+    .std-td {
+      padding-bottom:0px; padding-top:3px; 
+    }
     .no-wrap {  white-space: nowrap; }
 
     div.inline { 
@@ -229,14 +232,14 @@
         <tbody class="searchable">
         {% for student in students %}
           <tr style="padding-bottom:0px; padding-top:3px; ">
-            <td style="padding-bottom:0px; padding-top:3px; ">{{loop.index}}</td>
-            <td  style="padding-bottom:0px; padding-top:3px; "class="no-wrap">
+            <td style="padding-bottom:0px; padding-top:3px;" >{{loop.index}}</td>
+            <td style="padding-bottom:0px; padding-top:3px;" class="no-wrap">
               <a href="{{url_for('grade', session_id=session.id, student_id=student.id)}}"
                 >{{ student.username }}</a>
             </td>
-            <td  style="padding-bottom:0px; padding-top:3px; "class="no-wrap">{{ student.last_name }}</td>
-            <td  style="padding-bottom:0px; padding-top:3px; "class="no-wrap">{{ student.first_name }}</td>
-            <td style="padding-bottom:0px; padding-top:0px; "> <img src="{{ url_for('static', filename='img/' + icons_student[loop.index-1] ) }}"
+            <td style="padding-bottom:0px; padding-top:3px;" class="no-wrap">{{ student.last_name }}</td>
+            <td style="padding-bottom:0px; padding-top:3px;" class="no-wrap">{{ student.first_name }}</td>
+            <td style="padding-bottom:0px; padding-top:0px;" > <img src="{{ url_for('static', filename='img/' + icons_student[loop.index-1] ) }}"
                alt="{{ icons_student[loop.index-1] }}" height="25" width="25">
             </td>
           </tr>

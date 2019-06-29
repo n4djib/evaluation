@@ -526,13 +526,10 @@ class Session(db.Model):
             for grade in student_session.grades:
                 grade.calculate()
             db.session.commit()
-
             for grade_unit in student_session.grade_units:
                 grade_unit.calculate()
             db.session.commit()
-
             student_session.calculate()
-
         db.session.commit()
         return 'Session calculated'
 

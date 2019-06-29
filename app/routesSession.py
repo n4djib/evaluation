@@ -2,7 +2,7 @@ from app import app, db
 from flask import render_template, request, redirect, url_for, flash
 from app.models import Promo, Session, StudentSession, Grade, GradeUnit, Unit, Semester,\
      School, Module, Student, Type, AnnualSession, AnnualGrade, Grade, Annual,\
-     Classement, ClassementYear
+     Classement, ClassementYear, ModuleSession
 from app.forms import SessionConfigForm
 from flask_breadcrumbs import register_breadcrumb
 from decimal import *
@@ -520,58 +520,23 @@ def create_rattrapage(session_id):
     # # if Rattrapage exist -> it is next
     return session
 
-# def init_grades_rattrapage(session, rattrapage):
-#     # # travers students in Rattrapage and Init from Session
-#     students_session = StudentSession.query.filter_by(session_id=session.id).all()
 
-#     for student_sess in students_session:
-#         student_ratt = StudentSession.query\
-#             .filter_by(session_id=rattrapage.id, student_id=student_sess.student_id)\
-#             .first()
-#         # init_grades_modules(student_sess.id, student_ratt.id, student_ratt.student_id)
-#         init_grades_modules(student_sess.id, student_ratt.id)
-#     db.session.commit()
 
-# def init_grades_modules(student_session_id, student_rattrapage_id):
-#     grades = Grade.query.filter_by(student_session_id=student_session_id).all()
-#     for grade_sess in grades:
-#         grade_ratt = Grade.query.filter_by(
-#             student_session_id=student_rattrapage_id, 
-#             module_id=grade_sess.module_id
-#             ).first()
+# def transfer_grade_student_module(grade_from, grade_to, module_sess_from=None, module_sess_to=None):
 
-#         # get "cour" according to 
-#         cour = None
-#         #if 
+#     return 'transfer grade student module'
 
-#         # if grade_ratt does not exist -> create it
-#         # if grade_ratt exist -> update it
-#         if grade_ratt is None:
-#             grade_ratt = Grade(
-#                 cour=cour,
-#                 td=grade_sess.td,
-#                 tp=grade_sess.tp,
-#                 t_pers=grade_sess.t_pers,
-#                 stage=grade_sess.stage,
-#                 formula=grade_sess.formula,
-#                 student_session_id=student_rattrapage_id,
-#                 module_id=grade_sess.module_id
-#                 )
-#             db.session.add(grade_ratt)
-#         else:
-#             grade_ratt.cour = cour
-#             grade_ratt.td = grade_sess.td
-#             grade_ratt.tp = grade_sess.tp
-#             grade_ratt.t_pers = grade_sess.t_pers
-#             grade_ratt.stage = grade_sess.stage
-#             grade_ratt.formula = grade_sess.formula
-#         #
-#     #
 
 def transfer_grades(session_id, ratt_id, student_session_ratt_id, student_id):
+# def transfer_grades(session, rattrapage, student_session_ratt, student):
     grades = Grade.query.join(StudentSession)\
         .filter_by(session_id=session_id, student_id=student_id)\
         .all()
+
+
+    # find module_session
+    # module_session = ModuleSession.query.filter_by(session_id=session_id, ).first()
+
 
     # ratt_modules = get_ratt_modules_list_semester(session_id, student_id)
     student_session = StudentSession.query.filter_by(session_id=session_id, student_id=student_id).first()
@@ -611,7 +576,7 @@ def transfer_grades(session_id, ratt_id, student_session_ratt_id, student_id):
             is_rattrapage=is_rattrapage)
         db.session.add(new_grade)
 
-    return 'transfer_grades'
+    return 'transfer grades'
 
 def transfer_student_session(session_from, session_to, student_id):
     student_session = StudentSession.query\
@@ -639,9 +604,26 @@ def create_rattrapage_sem(session_id, students):
     if len(students_todo_ratt) == 0:
         return None
 
-
+    # create ratt
     session_rattrapage = create_rattrapage(session_id)
     ratt_id = session_rattrapage.id
+
+    # transfer module_session_s
+    module_session_s_sem = session.module_sessions
+    for module_session_sem in module_session_s_sem:
+        # if it exists transfer it
+        if module_session_sem != None:
+            # find if already exist
+            module_session_ratt = ModuleSession.query.filter_by(
+                session_id=session_rattrapage.id,
+                module_id=module_session_sem.module_id).first()
+            if module_session_ratt == None: # create it
+                module_session_ratt = ModuleSession(session_id=session_rattrapage.id)
+                db.session.add(module_session_ratt)
+            module_session_ratt.module_id = module_session_sem.module_id
+            module_session_ratt.teacher_id = module_session_sem.teacher_id
+            module_session_ratt.saving_enabled = module_session_sem.saving_enabled
+    db.session.commit()
 
     # transfair students
     for student_id in students:
@@ -649,15 +631,38 @@ def create_rattrapage_sem(session_id, students):
         if int(student_id) in students_todo_ratt:
             student_session_ratt = transfer_student_session(session_id, ratt_id, student_id)
             # if not historic
-            if not session.is_historic():  
+            if not session.is_historic():
+                #
+                #
+                #
+                #
+                #
                 transfer_grades(session_id, ratt_id, student_session_ratt.id, student_id)
+                # student = Student.query.get(student_id)
+                # transfer_grades(session, student_session_ratt, student)
+                #
+                #
+                #
+                #
+                #
     db.session.commit()
 
-    # initialize 
+    # initialize & calculate
     init_all(session_rattrapage)
-    # calculate_all(session_rattrapage)
     session_rattrapage.calculate()
-    
+
+    db.session.commit()
+
+    #
+    #
+    #
+    #
+    # don't forget to transfer the grades (cout=saving, tp=saving, td=saving)
+    #       if the module is saving_enabled
+    #       and i have to do it be 
+    #
+    #
+    #
     return session_rattrapage
 
 @app.route('/session/<session_id>/create-rattrapage/', methods=['GET', 'POST'])
@@ -802,7 +807,6 @@ def create_rattrapage_annual(annual_session_id=0):
     promo_id = promo.id
     flash("All Rattrapages were created", 'alert-success')
     return redirect(url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id))
-
 
 @app.route('/annual-session/<annual_session_id>/rattrapage/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree_annual.annual.rattrapage', 'Annual Rattrapage')
@@ -983,9 +987,41 @@ def annual_session_refrech(annual_session_id=0):
     return redirect(url_for('annual_session', annual_session_id=annual_session_id))
 
 
+def make_link(ag, col, annual_dict):
 
+    session_id = annual_dict[col]
 
+    if session_id == -1:
+        if col == 'S1':
+            return str(ag.avr_1)
+        if col == 'S2':
+            return str(ag.avr_2)
+        if col == 'R1':
+            return str(ag.avr_r_1)
+        if col == 'R2':
+            return str(ag.avr_r_2)
 
+    student = ag.student
+    session = Session.query.get(session_id)
+    if session == None:
+        return ''
+
+    href = ''
+    avr = ''
+    if col == 'S1':
+        href = url_for('grade', session_id=session.id, student_id=student.id)
+        avr = str(ag.avr_1)
+    if col == 'S2':
+        href = url_for('grade', session_id=session.id, student_id=student.id)
+        avr = str(ag.avr_2)
+    if col == 'R1':
+        href = url_for('grade', session_id=session.id, student_id=student.id)
+        avr = str(ag.avr_r_1)
+    if col == 'R2':
+        href = url_for('grade', session_id=session.id, student_id=student.id)
+        avr = str(ag.avr_r_2)
+
+    return '<a href="'+href+'">'+avr+'</a>'
 
 def collect_data_annual_session(annual_session, sort=''):
     annual_dict = annual_session.get_annual_dict()
@@ -1032,26 +1068,39 @@ def collect_data_annual_session(annual_session, sort=''):
 
         ratt = '' if ag.enter_ratt == False else '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>'
 
+        
+        
+        # S1 S2 R1 R2
+        link_avr_1 = make_link(ag, 'S1', annual_dict)
+        link_avr_2 = make_link(ag, 'S2', annual_dict)
+
+        link_avr_r_1 = make_link(ag, 'R1', annual_dict)
+        link_avr_r_2 = make_link(ag, 'R2', annual_dict)
+
+
         array_data.append([
             '<td class="center">' + str(index+1) + '</td>', 
             '<td class="username">' + student.username + '</td>', 
             '<td class="name">' + student.get_student_name() + '</td>', 
 
-            '<td class="right '+cross_s1+' '+bg_s1+'">'  + str(ag.avr_1) + '</td>', 
+
+            '<td class="right '+cross_s1+' '+bg_s1+'">'  + link_avr_1+ '</td>', 
             '<td class="center '+cross_s1+' '+bg_s1+'">' + str(ag.cr_1) + '</td>', 
-            '<td class="right '+cross_s2+' '+bg_s2+'">'  + str(ag.avr_2) + '</td>', 
+            '<td class="right '+cross_s2+' '+bg_s2+'">'  + link_avr_2 + '</td>', 
             '<td class="center '+cross_s2+' '+bg_s2+'">' + str(ag.cr_2) + '</td>', 
+
             '<td class="right '+cross_average+' '+bg_ann+'">'  + str(ag.average) + '</td>', 
             '<td class="center '+cross_average+' '+bg_ann+'">' + str(ag.credit) + '</td>', 
 
             '<td class="center">' + ratt + '</td>', 
 
-            '<td class="right">'  + str(ag.avr_r_1) + '</td>', 
-            '<td class="center">' + str(ag.cr_r_1) + '</td>', 
-            '<td class="right">'  + str(ag.avr_r_2) + '</td>', 
-            '<td class="center">' + str(ag.cr_r_2) + '</td>', 
-            '<td class="right">'  + str(ag.average_r) + '</td>', 
-            '<td class="center">' + str(ag.credit_r)+' - '+str(ag.units_r_fond_aquired) + '</td>', 
+            '<td class="right '+bg_s1_r+'">'  + link_avr_r_1 + '</td>', 
+            '<td class="center '+bg_s1_r+'">' + str(ag.cr_r_1) + '</td>', 
+            '<td class="right '+bg_s2_r+'">'  + link_avr_r_2 + '</td>', 
+            '<td class="center '+bg_s2_r+'">' + str(ag.cr_r_2) + '</td>', 
+
+            '<td class="right '+bg_ann_r+'">' + str(ag.average_r) + '</td>', 
+            '<td class="center '+bg_ann_r+'">' + str(ag.credit_r) + '</td>', 
 
             # '<td class="right">'  + str(ag.saving_average) + '</td>', 
             # '<td class="center">' + str(ag.saving_credit) + '</td>',
@@ -1190,7 +1239,6 @@ def flash_check_annual_session(annual_dict_obj):
 
     return need_init_recalc
 
-
 def make_button_session_reinit(session):
     session_id = session.id
     annual_session_id = session.annual_session.id
@@ -1210,10 +1258,6 @@ def make_button_session_recalc(session):
     btn = '<a id="re-calc-"'+str(session_id)+' class="btn btn-warning"'
     btn += ' href="'+slow_redirect_url+'" >(Re)calculate</a>'
     return btn
-   
-
-
-
 
 def renegade_annual_session(annual_session_id):
     # if it doesn't have any sessions
