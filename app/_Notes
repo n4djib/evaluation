@@ -27,40 +27,39 @@
 				in real time
 				when you save show the result
 				show annual in students View
-
-
-
 			- in module config 
 				enable_saving
 				read only accorig to it
 				and show saving_grade and calcuate it if enabled
+			- don't forget to fix the cursor for grid by student
+			- saving_grade in grade
+				click show all fields to edit it
+					and indicate by color in average and credit
+			- show if saving_grade is filled
+				SEPERATE IT FROM hiddent values Flash
+			- check the two grids
+			- cloase when not allowed in 
+			- add , onupdate=datetime.utcnow) to timestamps
 
-- when you create rattrapage
-	create module_session
-	transfaire module save bme
+- Potential Problem
+	when you create rattrapage & i already have entered Save grade in normal
+		i must create module_session with saving enabled
+			to transfaire the better grade
+			do i transfaire it to all Gradings(cour+tp+td+ saving) ?????????????????
 	
-- don't forget to fix the cursor for grid by student
-- classement lauriat
-	remove the tables and use annualSession and Student Session
-		by adding classement_average
-	you only need Classement table
+- finish : units_r_fond_aquired in annual_grade fetch data
+
+
 - session config - add datepicker
 - module config - add datepicker - and Tag exam surviyors
-- saving_grade in grade
-	click show all fields to edit it
-		and indicate by color in average and credit
 - add saving notion at every level
 	grade(module) + student_session(semester) + annual_grade(annual)
-- check the two grids
 - check module printables
-- show if saving_grade is filled
-	SEPERATE IT FROM hiddent values Flash
 - add last_modification to printables
-	it 
+	last entry in the database tables
 - calculate average from Saving
 - in classement-laurieate
 	give the option to consider saved students as rattrapage
-- cloase when not allowed in rattrapage
 - fix cursor when it is open
 
 
@@ -110,7 +109,7 @@
 	make Exam Surveyors with Tagging
 	https://bootstrap-tagsinput.github.io/bootstrap-tagsinput/examples/
 	https://select2.org/selections
-- 
+- add filter to rattrapage
 - 
 
 

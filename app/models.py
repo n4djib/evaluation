@@ -71,7 +71,7 @@ class AnnualSession(db.Model):
     promo_id = db.Column(db.Integer, db.ForeignKey('promo.id'))
     promo = db.relationship('Promo', back_populates='annual_session')
     annual_id = db.Column(db.Integer, db.ForeignKey('annual.id'))
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow, onupdate=datetime.utcnow)
     sessions = db.relationship('Session', back_populates='annual_session')
     annual_grades = db.relationship('AnnualGrade', back_populates='annual_session')
     def __repr__(self):
@@ -186,11 +186,12 @@ class AnnualGrade(db.Model):
         # units_fond_aquired
         self.units_fond_aquired = None
         if sess_1 != None and sess_2 != None:
-            # if self.cr_1 != 30 or self.cr_2 != 30:
             u_f_aqui_1 = sess_1.units_fond_aquired()
             u_f_aqui_2 = sess_2.units_fond_aquired()
             self.units_fond_aquired = u_f_aqui_1 and u_f_aqui_2
-            # self.units_fond_aquired = u_f_aqui_2
+
+
+
 
 
         self.avr_r_1 = ratt_1.average if ratt_1 != None else None
@@ -198,17 +199,23 @@ class AnnualGrade(db.Model):
         self.avr_r_2 = ratt_2.average if ratt_2 != None else None
         self.cr_r_2 = ratt_2.credit if ratt_2 != None else None
 
-        # # units_r_fond_aquired
-        # self.units_r_fond_aquired = None
+        # units_r_fond_aquired
+        self.units_r_fond_aquired = None  # init with units_fond_aquired
         # if ratt_1 != None or ratt_2 != None:
-        #         u_f_aqui_1 = sess_1.units_fond_aquired()
-        #         u_f_aqui_2 = sess_2.units_fond_aquired()
+        #     u_f_aqui_1 = sess_1.units_fond_aquired()
+        #     u_f_aqui_2 = sess_2.units_fond_aquired()
 
 
         # u_r_f_aqui_1 = u_r_f_aqui_2 = True
         # if self.cr_r_1 != 30: u_r_f_aqui_1 = ratt_1.units_fond_aquired()
         # if self.cr_r_2 != 30: u_r_f_aqui_2 = ratt_1.units_fond_aquired()
         # self.units_r_fond_aquired = u_r_f_aqui_1 and u_r_f_aqui_2
+
+
+
+
+
+
 
 
         # and Nullify the rest
@@ -243,7 +250,6 @@ class AnnualGrade(db.Model):
             return 'student is missing from one of the semesters'
 
 
-
         # set is_dirty to False
         self.is_dirty = False
 
@@ -271,7 +277,7 @@ class AnnualGrade(db.Model):
         if ag.cr_r_1 != None or ag.cr_r_2 != None:
             cr_r_1 = ag.cr_r_1 if ag.cr_r_1 != None else ag.cr_1
             cr_r_2 = ag.cr_r_2 if ag.cr_r_2 != None else ag.cr_2
-            ag.credit_r = credit(cr_r_1, cr_r_2, is_fondamental, ag.average_r)
+            ag.credit_r = credit(cr_r_1, cr_r_2, ag.average_r, is_fondamental, ag.units_r_fond_aquired)
         
         # saving_average
         # saving_credit
@@ -323,7 +329,7 @@ class Session(db.Model):
     type = db.Column(db.String(20))
     #   historic  or  historique
     #   None  or  ''  or  Standard
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow, onupdate=datetime.utcnow)
     configuration = db.Column(db.Text)
     semester_id = db.Column(db.Integer, db.ForeignKey('semester.id'))
     promo_id = db.Column(db.Integer, db.ForeignKey('promo.id'))
@@ -545,7 +551,7 @@ class Session(db.Model):
 class StudentSession(db.Model):
     __tablename__ = 'student_session'
     id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow, onupdate=datetime.utcnow)
     average = db.Column(db.Numeric(10,2))
     credit = db.Column(db.Integer)
     calculation = db.Column(db.String(100))
@@ -750,7 +756,7 @@ class GradeUnit(db.Model):
     calculation = db.Column(db.String(100))
     unit_coefficient = db.Column(db.Integer())
     is_fondamental = db.Column(db.Boolean, default=False)
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow, onupdate=datetime.utcnow)
     unit_id = db.Column(db.Integer, db.ForeignKey('unit.id'))
     unit = db.relationship('Unit', back_populates='grade_units')
     student_session_id = db.Column(db.Integer, db.ForeignKey('student_session.id'))
@@ -835,7 +841,7 @@ class Grade(db.Model):
     calculation = db.Column(db.String(100))
     is_rattrapage = db.Column(db.Boolean, default=False)
     is_dirty = db.Column(db.Boolean, default=True)
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow, onupdate=datetime.utcnow)
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'))
     module = db.relationship('Module', back_populates='grades')
     student_session_id = db.Column(db.Integer, db.ForeignKey('student_session.id'))

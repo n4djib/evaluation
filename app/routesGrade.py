@@ -37,92 +37,60 @@ def grade_dlc(*args, **kwargs):
 
 
 
-def collect_data_grid(grades, type='module'):
-    session = grades[0].student_session.session
-    module_savable = False
-    if type == 'module':
-        if len(grades) > 0:
-            module_session = ModuleSession.query.filter_by(
-                module_id=grades[0].module_id, 
-                session_id=session.id
-                ).first()
-            if module_session != None:
-                module_savable = module_session.saving_enabled
 
+def collect_data_from_grade(grade):
+    grade_id = 'id: ' + str(grade.id) + ', '
+    username = 'username: "' + grade.get_username() + '", '
+    student_name = 'student_name: "' + grade.get_student_name() + '", '
+    module_name = 'module_name: "' + grade.module.get_label() + '", '
+
+    cour = 'cour: ' + str(grade.cour) + ', '
+    td = 'td: ' + str(grade.td) + ', '
+    tp = 'tp: ' + str(grade.tp) + ', '
+    t_pers = 't_pers: ' + str(grade.t_pers) + ', '
+    stage = 'stage: ' + str(grade.stage) + ', '
+    saving_grade = 'saving_grade: ' + str(grade.saving_grade) + ', '
+    average = 'average: ' + str(grade.average) + ', '
+    credit = 'credit: ' + str(grade.credit) + ', '
+    formula = 'formula: ' + str(grade.formula).replace("None", "") + ', '
+    is_rattrapage = 'is_rattrapage: false, '
+    original_grade = 'original_grade: null, '
+    if grade.is_rattrapage is True:
+        is_rattrapage = 'is_rattrapage: true, '
+        original_grade = 'original_grade: '+str( get_original_grade(grade) )+', '
+
+    return grade_id + username + student_name + module_name \
+         + cour + td + tp + t_pers + stage \
+         + saving_grade + average + credit + formula  + is_rattrapage + original_grade
+
+def collect_student_data_grid(grades, session, SHOW_SAVING_GRADE):
     data = ''
     for grade in grades:
-        grade_id = 'id: ' + str(grade.id) + ', '
-        username = 'username: "' + grade.get_username() + '", '
-        name = 'name: "' + grade.get_student_name() + '", '
-        if type == 'student':
-            name = 'name: "' + grade.module.display_name + '", '
-
-        cour = 'cour: ' + str(grade.cour) + ', '
-        td = 'td: ' + str(grade.td) + ', '
-        tp = 'tp: ' + str(grade.tp) + ', '
-        t_pers = 't_pers: ' + str(grade.t_pers) + ', '
-        stage = 'stage: ' + str(grade.stage) + ', '
-        saving_grade = 'saving_grade: ' + str(grade.saving_grade) + ', '
-        average = 'average: ' + str(grade.average) + ', '
-        credit = 'credit: ' + str(grade.credit) + ', '
-        formula = 'formula: ' + str(grade.formula).replace("None", "") + ', '
-
+        data_part = collect_data_from_grade(grade)
         is_savable = 'is_savable: false, '
-        if type == 'module' and module_savable == True:
+
+        module_session = get_module_session(session, grade.module)
+        if module_session.saving_enabled == True:
             is_savable = 'is_savable: true, '
 
-        is_rattrapage = 'is_rattrapage: false, '
-        original_grade = 'original_grade: null, '
-        if grade.is_rattrapage is True:
-            is_rattrapage = 'is_rattrapage: true, '
-            original_grade = 'original_grade: '+str( get_original_grade(grade) )+', '
-
-        data += '{' + username + grade_id + name \
-             + cour + td + tp + t_pers + stage \
-             + saving_grade + average + credit \
-             + is_savable + is_rattrapage + original_grade + formula +'}, '
+        data += '{' + data_part + is_savable +'}, '
  
     return '[ ' + data + ' ]'
-    
-def collect_module_data_grid(grades, module_session):
-    module_saving_enabled = module_session.saving_enabled
-
+   
+def collect_module_data_grid(grades, session, SHOW_SAVING_GRADE):
     data = ''
     for grade in grades:
-        grade_id = 'id: ' + str(grade.id) + ', '
-        username = 'username: "' + grade.get_username() + '", '
-        student_name = 'student_name: "' + grade.get_student_name() + '", '
-        module_name = 'module_name: "' + grade.module.get_label() + '", '
-
-        cour = 'cour: ' + str(grade.cour) + ', '
-        td = 'td: ' + str(grade.td) + ', '
-        tp = 'tp: ' + str(grade.tp) + ', '
-        t_pers = 't_pers: ' + str(grade.t_pers) + ', '
-        stage = 'stage: ' + str(grade.stage) + ', '
-        saving_grade = 'saving_grade: ' + str(grade.saving_grade) + ', '
-        average = 'average: ' + str(grade.average) + ', '
-        credit = 'credit: ' + str(grade.credit) + ', '
-        formula = 'formula: ' + str(grade.formula).replace("None", "") + ', '
+        data_part = collect_data_from_grade(grade)
         is_savable = 'is_savable: false, '
-        is_rattrapage = 'is_rattrapage: false, '
-        original_grade = 'original_grade: null, '
 
-        if grade.saving_grade != None:
-            if module_saving_enabled == True:
-                if module_session.session.is_rattrapage == True:
-                    if grade.is_rattrapage == True:
-                        is_savable = 'is_savable: true, '
-                else:
+        if SHOW_SAVING_GRADE == True:
+            if session.is_rattrapage == True:
+                if grade.is_rattrapage == True:
                     is_savable = 'is_savable: true, '
+            else:
+                is_savable = 'is_savable: true, '
 
-        if grade.is_rattrapage is True:
-            is_rattrapage = 'is_rattrapage: true, '
-            original_grade = 'original_grade: '+str( get_original_grade(grade) )+', '
-
-        data += '{' + username + grade_id + student_name + module_name \
-             + cour + td + tp + t_pers + stage \
-             + saving_grade + average + credit + formula \
-             + is_savable + is_rattrapage + original_grade +'}, '
+        data += '{' + data_part + is_savable +'}, '
  
     return '[ ' + data + ' ]'
 
@@ -136,72 +104,54 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
     session = Session.query.get_or_404(session_id)
     module = Module.query.get(module_id)
     student = Student.query.get(student_id)
-
-    module_session = ModuleSession.query.\
-        filter_by(session_id=session_id, module_id=module_id).first()
-    if module_session == None:
-        module_session = create_module_session(session_id, module_id)
-
+    module_session = None
 
     grid_title = F' *********** '
     grades = None
     data = '[]'
     type = ''
+    SHOW_SAVING_GRADE = False
 
     if module_id != 0:
+        module_session = get_module_session(session, module)
+        SHOW_SAVING_GRADE = module_session.saving_enabled
         type = 'module'
         grid_title = F'Module: {module.code} - {module.display_name}'
-        
-        # module_session = ModuleSession.query.\
-        #     filter_by(session_id=session_id, module_id=module_id).first()
-        # if module_session == None:
-        #     module_session = create_module_session(session_id, module_id)
-
         grades = Grade.query.filter_by(module_id=module_id)\
             .join(StudentSession).filter_by(session_id=session_id).all()
-        data = collect_module_data_grid(grades, module_session)
+        #
+        data = collect_module_data_grid(grades, session, SHOW_SAVING_GRADE)
+        #
+        # what about type = 'student'
         get_hidden_values_flash(grades, session, module)
 
     if student_id != 0:
         type = 'student'
         grid_title = F'Student: {student.username} - {student.last_name} - {student.first_name}'
-
         grades = Grade.query.join(StudentSession)\
             .filter_by(session_id=session_id, student_id=student_id).all()
-        data = '[]'
-        data = collect_data_grid(grades, type)
+        for grade in grades:
+            module_session = get_module_session(session, grade.module)
+            if module_session != None and module_session.saving_enabled == True:
+                SHOW_SAVING_GRADE = True
+                # comment this if you wan't it to create all module_sessions
+                # commented it to aviod looping all grades(modules)
+                break
         #
-        #
-        #
-        #
-
-
-
-
-
-    # 
-    # 
-    # 
-    # 
-    # move this inside  type = 'module'
-    # 
-    # Note: it will return only one Record
-    # module_session = ModuleSession.query.\
-    #     filter_by(session_id=session_id, module_id=module_id).first()
-    # if module_session == None:
-    #     module_session = create_module_session(session_id, module_id)
-
-    # if type == 'module':
-    #     get_hidden_values_flash(grades, session, module)
-
-    # if module_id != 0:
-    # if student_id != 0:
-    #     student = Student.query.filter_by(id=student_id).first_or_404()
-    #     grid_title = F'Student: {student.username} - {student.last_name} - {student.first_name}'
+        data = collect_student_data_grid(grades, session, SHOW_SAVING_GRADE)
 
     return render_template('grade/grade.html', title='Grade Edit', 
         data=data, _all=_all.lower(), grid_title=grid_title, type=type, 
-        session=session, module=module, student=student, module_session=module_session)
+        session=session, module=module, student=student, 
+        module_session=module_session, SHOW_SAVING_GRADE=SHOW_SAVING_GRADE)
+
+
+def get_module_session(session, module):
+    module_session = ModuleSession.query.\
+        filter_by(session_id=session.id, module_id=module.id).first()
+    if module_session == None:
+        module_session = create_module_session(session.id, module.id)
+    return module_session
 
 
 def get_hidden_values_flash(grades, session, module):

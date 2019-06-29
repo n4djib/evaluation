@@ -987,43 +987,42 @@ def annual_session_refrech(annual_session_id=0):
 
 
 
-def collect_data_annual_session(annual_session):
+def collect_data_annual_session(annual_session, sort=''):
     annual_dict = annual_session.get_annual_dict()
     student_ids = get_student_annual_list(annual_session, annual_dict)
 
-    # annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id)\
-    #     .order_by(AnnualGrade.average_final.desc()).all()
-    annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id).all()
+    annual_grades = []
+    if sort == 'desc':
+        annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id)\
+            .order_by(AnnualGrade.average_final.desc()).all()
+    else:
+        annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id).all()
+
 
     array_data = []
-    for index, an in enumerate(annual_grades):
-        student = an.student
+    for index, ag in enumerate(annual_grades):
+        student = ag.student
         
-        cross_s1 = 'line-through' if an.avr_r_1 != None else ''
-        cross_s2 = 'line-through' if an.avr_r_2 != None else ''
-        cross_average = 'line-through' if an.avr_r_1 != None or an.avr_r_2 != None else ''
+        cross_s1 = 'line-through' if ag.avr_r_1 != None else ''
+        cross_s2 = 'line-through' if ag.avr_r_2 != None else ''
+        cross_average = 'line-through' if ag.avr_r_1 != None or ag.avr_r_2 != None else ''
 
 
+        bg_s1 = 'bg-yellow' if ag.cr_1 != None and ag.cr_1 < 30 else ''
+        bg_s2 = 'bg-yellow' if ag.cr_2 != None and ag.cr_2 < 30 else ''
+        bg_ann = 'bg-yellow-annual' if ag.credit != None and ag.credit < 60 else ''
 
-
-        bg_s1 = 'bg-yellow' if an.cr_1 != None and an.cr_1 < 30 else ''
-        bg_s2 = 'bg-yellow' if an.cr_2 != None and an.cr_2 < 30 else ''
-        bg_ann = 'bg-yellow-annual' if an.credit != None and an.credit < 60 else ''
-
-        bg_s1_r = 'bg-yellow' if an.cr_r_1 != None and an.cr_r_1 < 30 else ''
-        bg_s2_r = 'bg-yellow' if an.cr_r_2 != None and an.cr_r_2 < 30 else ''
-        bg_ann_r = 'bg-yellow-annual' if an.credit_r != None and an.credit_r < 60 else ''
-
-
+        bg_s1_r = 'bg-yellow' if ag.cr_r_1 != None and ag.cr_r_1 < 30 else ''
+        bg_s2_r = 'bg-yellow' if ag.cr_r_2 != None and ag.cr_r_2 < 30 else ''
+        bg_ann_r = 'bg-yellow-annual' if ag.credit_r != None and ag.credit_r < 60 else ''
 
         bg_final = ''
-        if an.credit_final != None and an.credit_final >= 30 and an.credit_final < 60:
+        if ag.credit_final != None and ag.credit_final >= 30 and ag.credit_final < 60:
             bg_final = 'bg-yellow-annual'
 
-        if an.credit_final != None and an.credit_final < 30:
+        if ag.credit_final != None and ag.credit_final < 30:
             bg_final = 'bg-red'
             
-
 
         url = url_for('bultin_annual_print', annual_session_id=annual_session.id, student_id=student.id)
         bultin = '''<a href ="''' +  url + '''" class="btn btn-primary btn-xs" target="_blank" role="button"> Bultin </a>'''
@@ -1031,35 +1030,35 @@ def collect_data_annual_session(annual_session):
         url_ratt = url_for('bultin_annual_print', annual_session_id=annual_session.id, student_id=student.id)
         bultin_ratt = '''<a href ="''' +  url_ratt + '''" class="btn btn-primary btn-xs" target="_blank" role="button"> Bultin Ratt </a>'''
 
-        ratt = '' if an.enter_ratt == False else '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>'
+        ratt = '' if ag.enter_ratt == False else '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>'
 
         array_data.append([
             '<td class="center">' + str(index+1) + '</td>', 
             '<td class="username">' + student.username + '</td>', 
             '<td class="name">' + student.get_student_name() + '</td>', 
 
-            '<td class="right '+cross_s1+' '+bg_s1+'">'  + str(an.avr_1) + '</td>', 
-            '<td class="center '+cross_s1+' '+bg_s1+'">' + str(an.cr_1) + '</td>', 
-            '<td class="right '+cross_s2+' '+bg_s2+'">'  + str(an.avr_2) + '</td>', 
-            '<td class="center '+cross_s2+' '+bg_s2+'">' + str(an.cr_2) + '</td>', 
-            '<td class="right '+cross_average+' '+bg_ann+'">'  + str(an.average) + '</td>', 
-            '<td class="center '+cross_average+' '+bg_ann+'">' + str(an.credit) + '</td>', 
+            '<td class="right '+cross_s1+' '+bg_s1+'">'  + str(ag.avr_1) + '</td>', 
+            '<td class="center '+cross_s1+' '+bg_s1+'">' + str(ag.cr_1) + '</td>', 
+            '<td class="right '+cross_s2+' '+bg_s2+'">'  + str(ag.avr_2) + '</td>', 
+            '<td class="center '+cross_s2+' '+bg_s2+'">' + str(ag.cr_2) + '</td>', 
+            '<td class="right '+cross_average+' '+bg_ann+'">'  + str(ag.average) + '</td>', 
+            '<td class="center '+cross_average+' '+bg_ann+'">' + str(ag.credit) + '</td>', 
 
             '<td class="center">' + ratt + '</td>', 
 
-            '<td class="right">'  + str(an.avr_r_1) + '</td>', 
-            '<td class="center">' + str(an.cr_r_1) + '</td>', 
-            '<td class="right">'  + str(an.avr_r_2) + '</td>', 
-            '<td class="center">' + str(an.cr_r_2) + '</td>', 
-            '<td class="right">'  + str(an.average_r) + '</td>', 
-            '<td class="center">' + str(an.credit_r) + '</td>', 
+            '<td class="right">'  + str(ag.avr_r_1) + '</td>', 
+            '<td class="center">' + str(ag.cr_r_1) + '</td>', 
+            '<td class="right">'  + str(ag.avr_r_2) + '</td>', 
+            '<td class="center">' + str(ag.cr_r_2) + '</td>', 
+            '<td class="right">'  + str(ag.average_r) + '</td>', 
+            '<td class="center">' + str(ag.credit_r) + '</td>', 
 
-            '<td class="right">'  + str(an.saving_average) + '</td>', 
-            '<td class="center">' + str(an.saving_credit) + '</td>',
+            # '<td class="right">'  + str(ag.saving_average) + '</td>', 
+            # '<td class="center">' + str(ag.saving_credit) + '</td>',
 
-            '<td class="right '+bg_final+'">'  + str(an.average_final) + '</td>', 
-            '<td class="center '+bg_final+'">' + str(an.credit_final) + '</td>',  
-            '<td>' + str(an.obs_html).replace('None', '') + '</td>',
+            '<td class="right '+bg_final+'">'  + str(ag.average_final) + '</td>', 
+            '<td class="center '+bg_final+'">' + str(ag.credit_final) + '</td>',  
+            '<td>' + str(ag.obs_html).replace('None', '') + '</td>',
             '<td>' + bultin  + '</td>'
             '<td>' + bultin_ratt  + '</td>'
         ])
@@ -1079,23 +1078,23 @@ def collect_data_annual_session_print(annual_session, sort=''):
 
 
     array_data = []
-    for index, an in enumerate(annual_grades):
-        # name = an.student.get_student_long_name()
-        username = an.student.username
-        name = an.student.get_student_name()
+    for index, ag in enumerate(annual_grades):
+        # name = ag.student.get_student_long_name()
+        username = ag.student.username
+        name = ag.student.get_student_name()
 
-        moyen1 = an.avr_r_1 if an.avr_r_1 != None else an.avr_1
-        credit1 = an.cr_r_1 if an.cr_r_1 != None else an.cr_1
-        session1 = '1' if an.cr_r_1 == None else '2'
+        moyen1 = ag.avr_r_1 if ag.avr_r_1 != None else ag.avr_1
+        credit1 = ag.cr_r_1 if ag.cr_r_1 != None else ag.cr_1
+        session1 = '1' if ag.cr_r_1 == None else '2'
 
-        moyen2 = an.avr_r_2 if an.avr_r_2 != None else an.avr_2
-        credit2 = an.cr_r_2 if an.cr_r_2 != None else an.cr_2
-        session2 = '1' if an.cr_r_2 == None else '2'
+        moyen2 = ag.avr_r_2 if ag.avr_r_2 != None else ag.avr_2
+        credit2 = ag.cr_r_2 if ag.cr_r_2 != None else ag.cr_2
+        session2 = '1' if ag.cr_r_2 == None else '2'
 
-        moyen_f = an.average_final
-        credit_f = an.credit_final
-        session_f = '1' if an.cr_r_1 == None and an.cr_r_2 == None else '2'
-        observation = an.observation
+        moyen_f = ag.average_final
+        credit_f = ag.credit_final
+        session_f = '1' if ag.cr_r_1 == None and ag.cr_r_2 == None else '2'
+        observation = ag.observation
 
         array_data.append([
             index+1, username, name,
@@ -1116,11 +1115,12 @@ def annual_session_dlc(*args, **kwargs):
     return [{'text': '' + name, 
         'url': url_for('annual_session', annual_session_id=annual_session_id) }]
 
+@app.route('/annual-session/<annual_session_id>/print/<sort>/', methods=['GET', 'POST'])
 @app.route('/annual-session/<annual_session_id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree_annual.annual', '***', dynamic_list_constructor=annual_session_dlc)
 def annual_session(annual_session_id=0, sort=''):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
-    array_data = collect_data_annual_session(annual_session)
+    array_data = collect_data_annual_session(annual_session, sort)
     annual_dict_obj = annual_session.get_annual_dict_obj()
     check_ann = flash_check_annual_session(annual_dict_obj)
     return render_template('session/annual-session.html', 

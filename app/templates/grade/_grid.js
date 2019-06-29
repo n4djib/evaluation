@@ -1,8 +1,8 @@
+var data_arr = {{ data | safe | replace('None', 'null') }};
 
 var type = '{{ type | safe }}';
 
 var session_is_rattrapage = {{ session.is_rattrapage | safe | replace('T', 't') | replace('F', 'f') }};
-// var saving_enabled = { { ********* | safe | replace('T', 't') | replace('F', 'f') }};
 var session_is_closed = {{ session.is_closed | safe | replace('T', 't') | replace('F', 'f') }};
 
 var maxRows = data_arr.length;
@@ -26,9 +26,7 @@ function Save(){
     async: true,
     success: function(msg) {
       shake_message(msg);
-
       // alert("YOUR SUCCESS MESSAGE HERE");
-      
       is_dirty = false;
       console.log('calculate_student: ' + msg);
       var calcul = document.getElementById("calcul");
@@ -90,7 +88,7 @@ function fill_cols() {
     formula = true;
   }
 
-  {% if module_session.saving_enabled == True %}
+  {% if SHOW_SAVING_GRADE == True %}
   saving_grade = true;
   {% endif %}
 
@@ -99,12 +97,13 @@ function fill_cols() {
   //   second_column_name = "Student Name";
 
   var cols = {
+    'module_name': {visible: true, name: "Module Name"},
     'cour':    {visible: cour, name: "Cour"},
     'td':      {visible: td, name: "TD"},
     'tp':      {visible: tp, name: "TP"},
     't_pers':  {visible: t_pers, name: "T.Pers"},
     'stage':   {visible: stage, name: "Stage"},
-    'saving_grade':   {visible: saving_grade, name: "Saving Grade"},
+    'saving_grade': {visible: saving_grade, name: "[Saving Grade / 100%]"},
     'average': {visible: true, name: "(Average)"},
     'credit':  {visible: true, name: "(Credit)"},
     'formula': {visible: formula, name: "(Formula)"},
@@ -114,8 +113,8 @@ function fill_cols() {
     var _formula = data_arr[0]['formula'];
     var cour_label = 'Cour';
     // uncomment this Code to change the label Cour to Ratt.
-    // if(session_is_rattrapage == true)
-    //   cour_label = 'Ratt.'
+    if(session_is_rattrapage == true)
+      cour_label = 'Ratt.'
 
     cols = {
       // 
@@ -127,7 +126,7 @@ function fill_cols() {
       // 
       'username': {visible: true, name: "Username"},
       'student_name': {visible: true, name: "Student Name"},
-      'module_name':     {visible: true, name: "Module Name"},
+      'module_name': {visible: true, name: "Module Name"},
       'cour':     {visible: cour, name: cour_label + " / " + get_field_percentage(_formula, 'cour') },
       'td':       {visible: td, name: "TD / " + get_field_percentage(_formula, 'td') },
       'tp':       {visible: tp, name: "TP / " + get_field_percentage(_formula, 'tp') },
@@ -150,11 +149,11 @@ hotElement.innerHTML = '';
 
 var cols = fill_cols();
 
-
 var colHeaders = [];
 var columns = [];
 
 
+// hide some columns
 if(type == 'module') {
   colHeaders.push(cols['username']['name']);
   columns.push({ data: 'username', type: 'text', readOnly: true, renderer: nameRenderer });
@@ -164,10 +163,10 @@ if(type == 'module') {
 }
 else {
   colHeaders.push(cols['module_name']['name']),
-  columns.push({
-    data: 'module_name', type: 'text', readOnly: true, renderer: nameRenderer
-  });
+  columns.push({data: 'module_name', type: 'text', readOnly: true, renderer: nameRenderer});
 }
+
+
 
 
 
@@ -188,28 +187,24 @@ if (cols['td']['visible'] === true)
   colHeaders.push(cols['td']['name']),
   columns.push({
     data: 'td', className: 'htRight', type: 'numeric', validator: rangeValidator,  
-    // numericFormat: { pattern: '0,0.00', culture: 'en-US'},
     allowInvalid: true, allowEmpty: false, renderer: gradeRenderer
   });
 if (cols['tp']['visible'] === true)
   colHeaders.push(cols['tp']['name']),
   columns.push({
     data: 'tp', className: 'htRight', type: 'numeric', validator: rangeValidator,  
-    // numericFormat: { pattern: '0,0.00', culture: 'en-US'},
     allowInvalid: true, allowEmpty: false, renderer: gradeRenderer
   });
 if (cols['t_pers']['visible'] === true)
   colHeaders.push(cols['t_pers']['name']),
   columns.push({
     data: 't_pers', className: 'htRight', type: 'numeric', validator: rangeValidator,  
-    // numericFormat: { pattern: '0,0.00', culture: 'en-US'},
     allowInvalid: true, allowEmpty: false, renderer: gradeRenderer
   });
 if (cols['stage']['visible'] === true)
   colHeaders.push(cols['stage']['name']),
   columns.push({
     data: 'stage', className: 'htRight', type: 'numeric', validator: rangeValidator,  
-    // numericFormat: { pattern: '0,0.00', culture: 'en-US'},
     allowInvalid: true, allowEmpty: false, renderer: gradeRenderer
   });
 
@@ -494,14 +489,21 @@ function move_cursor_in_grid(){
       if(col === 0)
         return {row: 0, col: 2};
       // skip last 3
-      if (col === count-4)
-        return {row: 1, col: -(nbr_cols)};
-      if (col === count-3)
-        return {row: 1, col: -(nbr_cols)-1};
-      if (col === count-2)
-        return {row: 1, col: -(nbr_cols)-2};
-      if (col === count-1)
-        return {row: 1, col: -(nbr_cols)-3};
+      if (col === count-4-skip_f)
+        return {row: 1, col: -(nbr_cols-skip_f)};
+      if (col === count-3-skip_f)
+        return {row: 1, col: -(nbr_cols-skip_f)-1};
+      if (col === count-2-skip_f)
+        return {row: 1, col: -(nbr_cols-skip_f)-2};
+      if (col === count-1-skip_f)
+        return {row: 1, col: -(nbr_cols-skip_f)-3};
+
+
+
+      if (col === count-0-skip_f)
+        return {row: 1, col: -(nbr_cols-skip_f)-4};
+
+      
       // skip right
       return {row: 0, col: 1};
 
