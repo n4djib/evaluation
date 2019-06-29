@@ -188,6 +188,8 @@ def calculate_student(session, student):
 
     if ss != None:
         calc = 'Semester (Moy: '+str(ss.average)+' - Credit: '+str(ss.credit)+')'
+        calc += ' (f: '+str( ss.units_fond_aquired() )+')'
+        
 
         annual_session =  ss.session.annual_session
         if annual_session != None:

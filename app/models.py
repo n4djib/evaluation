@@ -191,32 +191,21 @@ class AnnualGrade(db.Model):
             self.units_fond_aquired = u_f_aqui_1 and u_f_aqui_2
 
 
-
-
-
+        # after ratt
         self.avr_r_1 = ratt_1.average if ratt_1 != None else None
         self.cr_r_1 = ratt_1.credit if ratt_1 != None else None
         self.avr_r_2 = ratt_2.average if ratt_2 != None else None
         self.cr_r_2 = ratt_2.credit if ratt_2 != None else None
 
-        # units_r_fond_aquired
+        # units_r_fond_aquired   
         self.units_r_fond_aquired = None  # init with units_fond_aquired
-        # if ratt_1 != None or ratt_2 != None:
-        #     u_f_aqui_1 = sess_1.units_fond_aquired()
-        #     u_f_aqui_2 = sess_2.units_fond_aquired()
-
-
-        # u_r_f_aqui_1 = u_r_f_aqui_2 = True
-        # if self.cr_r_1 != 30: u_r_f_aqui_1 = ratt_1.units_fond_aquired()
-        # if self.cr_r_2 != 30: u_r_f_aqui_2 = ratt_1.units_fond_aquired()
-        # self.units_r_fond_aquired = u_r_f_aqui_1 and u_r_f_aqui_2
-
-
-
-
-
-
-
+        self.units_r_fond_aquired = False # remove this
+        if ratt_1 != None or ratt_2 != None:
+            ratt_1 = ratt_1 if ratt_1 != None else sess_1
+            ratt_2 = ratt_2 if ratt_2 != None else sess_2
+            u_r_f_aqui_1 = ratt_1.units_fond_aquired()
+            u_r_f_aqui_2 = ratt_2.units_fond_aquired()
+            self.units_r_fond_aquired = u_r_f_aqui_1 and u_r_f_aqui_2
 
         # and Nullify the rest
         self.average = None
@@ -248,7 +237,6 @@ class AnnualGrade(db.Model):
         ag = self
         if ag.avr_1 == None or ag.avr_2 == None or ag.cr_1 == None or ag.cr_2 == None:
             return 'student is missing from one of the semesters'
-
 
         # set is_dirty to False
         self.is_dirty = False

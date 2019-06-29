@@ -1051,7 +1051,7 @@ def collect_data_annual_session(annual_session, sort=''):
             '<td class="right">'  + str(ag.avr_r_2) + '</td>', 
             '<td class="center">' + str(ag.cr_r_2) + '</td>', 
             '<td class="right">'  + str(ag.average_r) + '</td>', 
-            '<td class="center">' + str(ag.credit_r) + '</td>', 
+            '<td class="center">' + str(ag.credit_r)+' - '+str(ag.units_r_fond_aquired) + '</td>', 
 
             # '<td class="right">'  + str(ag.saving_average) + '</td>', 
             # '<td class="center">' + str(ag.saving_credit) + '</td>',
