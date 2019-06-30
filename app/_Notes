@@ -51,6 +51,12 @@
 
 - Combine check_grades_status & get_icon_progress
 
+- don't allow calc when errs
+- don't calculate if data in grid is wrong
+	js and app
+
+
+
 - Potential Problem
 	when you create rattrapage & i already have entered Save grade in normal
 		i must create module_session with saving enabled
