@@ -1,0 +1,101 @@
+<html>
+<head>
+  <title>{{title}}</title>
+
+  <style type="text/css">
+    table {
+      border-collapse: collapse;
+      margin-left: 0px;
+      margin-right: 0px;
+
+      font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+      font-size: 14px;
+      line-height: 1.42857143;
+      color: #111;
+    }
+
+    th, tr, td {
+      border: 1px solid lightgray;
+      padding: 0px 4px;
+    }
+
+    .table-no-border th, .table-no-border tr, .table-no-border td {
+      border: 0px solid lightgray;
+      padding: 0px 4px;
+    }
+
+    tr {
+      page-break-inside:avoid;
+    }
+
+
+    .name {
+      width: 100%;
+      padding-left: 8px;
+      white-space: nowrap; 
+    }
+    .right {
+      text-align: right;
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+    .moyen {
+      text-align: right;
+      padding-left: 15px;
+      padding-right: 8px;
+    }
+    .credit {
+      text-align: center;
+    }
+
+
+  </style>
+</head>
+
+
+<body>
+
+  {{ header | safe }}
+  </br>
+
+
+  <div class="container">
+    <center>
+      <table id="" class="" style="width: 100%;">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Average</th>
+            <th scope="col">Credit</th>
+            <th scope="col">Modules</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for student in students %}
+          <tr>
+            <td class="right">{{ loop.index }}</td>
+            {% set name = student.student.get_student_long_name() %}
+            <td style="width: 50%;" class="name">{{ name | replace(' ', ' ') }}</td>
+            <td class="moyen">{{ student.average | replace('None', '') }}</td>
+            <td class="credit">{{ student.credit | replace('None', '') }}</td>
+            <td style="width: 50%;">{{ student.get_ratt_modules_list_semester_html() | safe }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+
+  </center>
+  <p><span id="datetime"></span></p>
+  </div>
+
+
+  <script type="text/javascript">
+    {% include "_print.js" %}
+    {% include "_datetime.js" %}
+  </script> 
+
+</body>
+</html>
+
+ 

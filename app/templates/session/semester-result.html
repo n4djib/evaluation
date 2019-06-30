@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+
+{% block styles %}
+  {{super()}} 
+  <!-- <link rel="stylesheet" href=""> -->
+  
+  <link rel="stylesheet" href="">
+  
+  
+  <style type="text/css">
+    table {
+      border-collapse: collapse;
+      margin-left: 0px;
+      /*margin-right: 30px;*/
+      margin-right: 0px;
+      display: inline-block;
+    }
+    th {
+      border: 1px solid lightgray;
+      padding: 0px 4px;
+    }
+    .td {
+      border: 1px solid lightgray;
+      padding: 0px 4px;
+    }
+    .no-wrap { white-space: nowrap; /*word-wrap: false;*/ }
+    .module { background-color: Gainsboro; }
+    .unit { background-color: Bisque; }
+    .semester { background-color: LightSalmon; }
+    .right { text-align: right; }
+    .left { text-align: left; }
+    .center { text-align: center; }
+    .yellow { background-color: #ffff7a; }
+
+    tbody > tr:nth-child(even) { background-color: #f7f7ff; }
+    tbody > tr:hover { background-color: #f5f5f5; }
+
+    .filter_w {
+      max-width: 300px;
+      float: left;
+    }
+
+    .sorter {
+      cursor: pointer;
+    }
+
+    .sort-icon {
+      margin: 0px;
+      padding: 0px;
+      zoom: 0.8; 
+      /* For Firefox */
+      -moz-transform: scale(0.8); 
+    }
+
+  </style>
+{% endblock %}
+
+
+
+{% block app_content %}
+
+
+  <!-- { { header | safe }} -->
+
+  <!-- <div class="container" style="border-color:black; text-align:center;">
+    <div class="container" style="display:inline-block; text-align:left; 
+        border-width:1px; border-width:1px; border-color:red;" > -->
+
+      <div style="margin: 2px; float: left" class="input-group filter_w"> 
+        <span class="input-group-addon">Filter</span>
+        <input id="filter" type="text" class="form-control" value="{{ params['filter_word'] }}"
+         placeholder="Type here...">
+      </div>
+      <div style="margin: 2px; float: left">
+        <a id="print-semester-result" class="input-group btn btn-warning"
+           href ="{{ url_for('semester_result_print', session_id=session.id) }}"
+           target="_blank" role="button">Print Resultat</a>
+      </div>
+      <div style="margin: 2px; float: left">
+        <a href ="{{ url_for('bultin_semester_print_all', session_id=session.id) }}"
+           target="_blank" class="input-group btn btn-success" role="button">Print All Bultins</a>
+      </div>
+      <div style="margin: 2px; float: left">
+        <!-- <a href ="{{url_for('classement', session_id=session.id)}}"
+           target="_blank" class="input-group btn btn-primary" role="button">Classement</a> -->
+        <a href ="{{ url_for('classement_print', session_id=session.id) }}"
+           class="btn btn-primary" target="_blank" role="button">Print Classement</a>
+      </div>
+
+      </br>
+
+
+
+      <table id="sort" class="">
+        <thead>{{ t_head | replace('None', '') | 
+          replace('((img))', 'src="/static/img/sort-icons.png"') | safe }}
+        </thead>
+          
+        <tbody id="sort_tbody" class="searchable">
+          {% for data in data_arr %}
+            <tr>{{ data | safe | replace('None', '') }}</tr>
+          {% endfor %}
+        </tbody>
+      </table>
+        
+    <!-- </div>
+  </div> -->
+
+
+  </br></br>
+  <!-- - a </br>
+  - f</br>
+       f</br> -->
+  </br>
+
+{% endblock %}
+
+
+
+
+
+{% block scripts %}
+  {{ super() }}
+
+  <script type="text/javascript">
+  
+    {% include "session/semester-result.js" %}
+
+  </script>
+{% endblock %}
+
+
+
+
+
+
+ 

@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+
+{% block styles %}
+  {{super()}}
+
+  <!-- <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script> -->
+  <script src="{{ url_for('static', filename='handsontable/handsontable.full.7.0.3.min.js') }}"></script>
+  <link rel="stylesheet" type="text/css" 
+        href="{{ url_for('static', filename='handsontable/handsontable.full.7.0.3.min.css') }}">
+
+
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/csshake.min.css') }}">
+
+  <style type="text/css">
+
+    div, table {
+      margin: 0px; padding: 0px;
+      /*border-style: solid;*/
+      /*border-width: 1px;*/
+    }
+    th {
+      background-color: PowderBlue;
+      /*background-color: Silver;*/
+      /*color: white;*/
+    }
+    .no-wrap {  white-space: nowrap; }
+
+    div.inline { 
+      float:left; 
+      /*margin:0px;*/
+      /*margin-left:0px;*/
+    }
+
+    #session-historic, #message {
+      width:70%;
+    }
+
+    input[type=text] {
+      width: 300px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 2px;
+      background-color: white;
+      background-image: url('{{ url_for('static', filename='img/searchicon.png') }}');
+      background-position: 5px 5px;
+      background-repeat: no-repeat;
+      -webkit-transition: width 0.4s ease-in-out;
+      transition: width 0.4s ease-in-out;
+      padding: 7px 10px 7px 40px;
+      margin-bottom: 2px;
+    }
+
+  </style>
+
+{% endblock %}
+
+
+
+
+
+
+{% block app_content %}
+
+  <div class="container">
+    {% set school_id=session.promo.branch.school_id %}
+    {% set branch_id=session.promo.branch_id %}
+    {% set promo_id=session.promo_id %}
+
+    <div class="row">
+      <h2> {{ session.get_label() }} </h2>
+    </div>
+
+    <div style="margin:2px; margin-left:15px; margin-right:15px;" class="row" >
+
+      <div style="margin-right:4px; margin-bottom:4px; "; >
+
+        <a href="{{url_for('session_config', session_id=session.id)}}" 
+          class="btn btn-warning" role="button"
+          ><img src='/static/img/config-session.png'></a>
+
+        <input id="search" name="search" placeholder="Filter ..." type="text" autocomplete="off">
+
+      </div>
+
+
+
+      <div id="session-historic" class="hot handsontable" style="border:0px solid black">
+        <h2> *** the grid is empty *** </h2>
+        <h3> ** you have to add students and initialize ** </h3>
+        <h3> *** if you see this: the JavaScript in (_grid.js) is not working *** <h3>
+      </div>
+
+      </br>
+
+      <pre id="message" style="height:50px; width: 70%;" class="console"><b 
+      style="color: green;"><div class=""><font size="2"></font></div></b>
+      </pre>
+
+      <a id="save" class="btn btn-success btn-lg {{'disabled' if session.is_closed == True }}"
+      >Save</a>
+      </br>
+      </br> 
+
+
+      <a href="{{ url_for('student_session', session_id=session.id) }}"
+         class="btn btn-primary {{'disabled' if session.is_closed else ''}}" 
+         role="button">Add/Remove</a>
+      <a href="{{ url_for('students_update_many', session_id=session.id) }}"
+         class="btn btn-primary {{'disabled' if session.is_closed else ''}}" 
+         role="button">Massive Editing</a>
+      <a href ="{{url_for('create_annual_session', session_id=session.id)}}"
+         class="btn btn-primary" role="button"
+         ><img src='/static/ztree/img/diy/17.png'> Annual</a>
+      
+      {% if session.is_rattrapage != True and session.semester.has_fondamental() == True %}
+      <a href ="{{url_for('students_rattrapage_semester', session_id=session.id)}}"
+         class="btn btn-primary " role="button"
+         >Show Ratt (R:{{ session.semester.get_nbr() }})</a>
+      {% endif %}
+
+      </br></br>
+
+      <a class="btn btn-danger 
+      {{'disabled' if session.allow_delete() != True else ''}}"
+        data-href="{{url_for('delete_session', session_id=session.id)}}" 
+        data-toggle="modal" data-target="#confirm-delete">
+          Delete {{'Rattrapage' if session.is_rattrapage else 'Semester'}}
+      </a>
+      <div class="modal fade" id="confirm-delete" tabindex="-1"
+         role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <!--div class="modal-header">
+                ...
+            </div-->
+            <div class="modal-body">
+              do you really want to delete this session?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              <a class="btn btn-danger btn-ok">Delete</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if session.is_closed != True %}
+      <button class="btn btn-success"
+        data-href="{{url_for('lock_session', session_id=session.id)}}" 
+        data-toggle="modal" data-target="#confirm-lock">
+          Lock {{'Rattrapage' if session.is_rattrapage else 'Semester'}}
+      </button>
+      <div class="modal fade" id="confirm-lock" tabindex="-1"
+         role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <!--div class="modal-header">
+                ...
+            </div-->
+            <div class="modal-body">
+              do you really want to lock this session?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              <a class="btn btn-warning btn-ok">Lock</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if session.is_closed == True %}
+      <button class="btn btn-success"
+        data-href="{{url_for('unlock_session', session_id=session.id)}}" 
+        data-toggle="modal" data-target="#confirm-unlock">
+          Unlock {{'Rattrapage' if session.is_rattrapage else 'Semester'}}
+      </button>
+      <div class="modal fade" id="confirm-unlock" tabindex="-1"
+         role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <!--div class="modal-header">
+                ...
+            </div-->
+            <div class="modal-body">
+              do you really want to unlock this session?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              <a class="btn btn-warning btn-ok">Unlock</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+
+      <hr>
+    </div>
+    <br/>
+  
+  </div>
+
+
+
+  - </br>
+  - </br>
+
+  </br>
+
+{% endblock %}
+
+
+
+
+
+
+{% block scripts %}
+  {{ super() }}
+
+  <script type="text/javascript">
+    
+  
+
+    {% include "session/session-historic.js" %}
+
+    document.getElementById('hot-display-license-info').remove();
+    // document.getElementById('message').remove(); 
+
+
+    {% include "_filter.js" %}
+
+
+    $('#confirm-delete').on('show.bs.modal', function(e) {
+      $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+    });
+    $('#confirm-lock').on('show.bs.modal', function(e) {
+      $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+    });
+    $('#confirm-unlock').on('show.bs.modal', function(e) {
+      $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+    });
+  </script>
+
+{% endblock %}
+

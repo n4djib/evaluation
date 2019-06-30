@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+
+{% block styles %}
+  {{super()}}
+  <style type="text/css">
+    .no-js #loader { display: none;  }
+    .js #loader { display: block; position: absolute; left: 100px; top: 0; }
+    .se-pre-con {
+      /*original*/
+      /*position: fixed;  left: 0px;  top: 0px;  width: 100%;  height: 100%;  z-index: 9999;*/
+
+      /*modified to show NavBar*/
+      /*position: fixed;  left: 50px;  top: 50px;  width: 100%;  height: 100%;  z-index: 9999;*/
+
+      /*centered*/
+      position: fixed; right: 0; left: 0;
+      margin-right: auto; margin-left: auto;
+      width: 90%; height: 70%; z-index: 9999;
+
+      /*background: url({{ url_for('static', filename='img/Preloader_3.gif') }}) center no-repeat #fff;*/
+      /*background: url({{ url_for('static', filename='img/Preloader_8_2.gif') }}) center no-repeat #fff;*/
+      background: url({{ url_for('static', filename='img/'+ gif +'.gif') }}) center no-repeat #fff;
+    }
+  </style>
+{% endblock %}
+
+
+
+
+{% block app_content %}
+    Redirecting to: {{ url | replace('None', '') }}
+    <div class="se-pre-con"></div> 
+{% endblock %}
+
+
+
+
+
+{% block scripts %}
+  {{ super() }}
+
+    <script type="text/javascript">
+        window.onload = function() {
+            var url = "{{ url | replace('None', '') }}";
+            if(url != "")
+                window.location.href = url;
+            else
+                window.location.href = '/tree';
+        }
+    </script>
+
+{% endblock %}

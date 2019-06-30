@@ -1,0 +1,166 @@
+<html>
+<head>
+  <title>{{title}}</title>
+
+  <style type="text/css">
+    table {
+      border-collapse: collapse;
+      margin-left: 0px;
+      margin-right: 0px;
+
+      font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+      font-size: 14px;
+      line-height: 1.42857143;
+      color: #111;
+    }
+
+    thead {
+      background-color: #e5e5e5; 
+    }
+    
+    th, td, tr {
+      border: 1px solid lightgray;
+      padding: 0px 4px;
+    }
+
+    tr { page-break-inside:avoid; }
+
+
+    tbody > tr:nth-child(even) { background-color: #f7f7ff; }
+
+    /*.no-wrap { white-space: nowrap; }*/
+
+    .bg-yellow { background-color: #FFFF66; }
+    .bg-yellow-annual { background-color: #FFFF99; }
+    .bg-red { background-color: #ffb3b3; }
+    .username {
+      white-space: nowrap; 
+      text-align: center;
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+    .name {
+      width: 100%;
+      padding-left: 8px;
+      white-space: nowrap; 
+    }
+    .right {
+      text-align: right;
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+    .moyen {
+      text-align: right;
+      padding-left: 15px;
+      padding-right: 8px;
+    }
+    .credit {
+      text-align: center;
+    }
+    .session {
+      text-align: center;
+      padding-left: 1px;
+      padding-right: 1px;
+    }
+
+
+
+  </style>
+</head>
+
+
+<body>
+
+  {{ header | safe }}
+  </br>
+
+
+  <div class="container">
+    <table id="" class="" style="width: 100%;">
+      <thead>
+        <tr>
+          <th rowspan="2">#</th>
+          <th rowspan="2">Matricule</th>
+          <th rowspan="2">Nom et Prenom</th>
+          <th colspan="3">Semestre ({{ annual_dict_obj['S1'].semester.get_nbr() }})</th>
+          <th colspan="3">Semestre ({{ annual_dict_obj['S2'].semester.get_nbr() }})</th>
+          <th colspan="3">Resultat Annual</th>
+          <th rowspan="2">Observation</th>
+        </tr>
+
+        <tr>
+          <th><font size="-1">Moyen</font></th>
+          <th><font size="-1">Credit</font></th>
+          <th><font size="-1">Session</font></th>
+          <th><font size="-1">Moyen</font></th>
+          <th><font size="-1">Credit</font></th>
+          <th><font size="-1">Session</font></th>
+          <th><font size="-1">Moyen</font></th>
+          <th><font size="-1">Credit</font></th>
+          <th><font size="-1">Session</font></th>
+        </tr>
+
+      </thead>
+      <tbody>
+      {% for data in array_data %}
+        <tr>
+          <td class="right">{{ data[0] | replace('None', '') }}</td>
+          <td class="username">{{ data[1] | replace('None', '') }}</td>
+          <td class="name">{{ data[2] | replace('None', '') }}</td>
+
+          {% if data[4] == 30 %}
+          <td class="moyen">{{ data[3] | replace('None', '') }}</td>
+          <td class="credit">{{ data[4] | replace('None', '') }}</td>
+          <td class="session">{{ data[5] | replace('None', '') }}</td>
+          {% else %}
+          <td class="moyen bg-yellow">{{ data[3] | replace('None', '') }}</td>
+          <td class="credit bg-yellow">{{ data[4] | replace('None', '') }}</td>
+          <td class="session bg-yellow">{{ data[5] | replace('None', '') }}</td>
+          {% endif %}
+
+          {% if data[7] == 30 %}
+          <td class="moyen">{{ data[6] | replace('None', '') }}</td>
+          <td class="credit">{{ data[7] | replace('None', '') }}</td>
+          <td class="session">{{ data[8] | replace('None', '') }}</td>
+          {% else %}
+          <td class="moyen bg-yellow">{{ data[6] | replace('None', '') }}</td>
+          <td class="credit bg-yellow">{{ data[7] | replace('None', '') }}</td>
+          <td class="session bg-yellow">{{ data[8] | replace('None', '') }}</td>
+          {% endif %}
+
+
+          {% if data[12] == 'Admis' or data[12] == '' %}
+          <td class="moyen">{{ data[9] | replace('None', '') }}</td>
+          <td class="credit">{{ data[10] | replace('None', '') }}</td>
+          <td class="session">{{ data[11] | replace('None', '') }}</td>
+          {% endif %}
+          {% if data[12] == 'Rattrapage' or data[12] == 'Admis avec dettes' %}
+            <td class="moyen bg-yellow-annual">{{ data[9] | replace('None', '') }}</td>
+            <td class="credit bg-yellow-annual">{{ data[10] | replace('None', '') }}</td>
+            <td class="session bg-yellow-annual">{{ data[11] | replace('None', '') }}</td>
+          {% endif %}
+          {% if data[12] == 'Ajournée' %}
+            <td class="moyen bg-red">{{ data[9] | replace('None', '') }}</td>
+            <td class="credit bg-red">{{ data[10] | replace('None', '') }}</td>
+            <td class="session bg-red">{{ data[11] | replace('None', '') }}</td>
+          {% endif %}
+
+          <td>{{ data[12] | replace('None', '') }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+    <p><span id="datetime"></span></p>
+  </div>
+
+
+  <script type="text/javascript">
+    {% include "_print.js" %}
+    {% include "_datetime.js" %}
+  </script> 
+
+</body>
+</html>
+
+ 

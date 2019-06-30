@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+
+    <h2>Student: {{student.username}} - {{student.last_name}} - {{student.first_name}}</h2>
+
+    <div>
+        <a class="btn btn-primary" href="{{ url_for('student_update', id=student.id) }}">Update</a>
+        <button class="btn btn-danger"
+            data-href="{{url_for('student_delete', id=student.id)}}" 
+            data-toggle="modal" data-target="#confirm-delete">Delete
+        </button>
+        <div class="modal fade" id="confirm-delete" tabindex="-1"
+            role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <!--div class="modal-header">
+                        ...
+                    </div-->
+                    <div class="modal-body">
+                        do you really want to delete this Student?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <a class="btn btn-danger btn-ok">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </br>
+
+    <div>
+        <table class="table table-bordered">
+          <tr><td><i>ID</i></td> <td>{{student.id}}</td></tr>
+          <tr><td><i>Branch</i></td> <td>{{student.branch.name+" - "+student.branch.description}}</td></tr>
+          <tr><td><i>Username</i></td> <td>{{student.username}}</td></tr>
+          <tr><td><i>Last Name</i></td> <td>{{student.last_name}}</td></tr>
+          <tr><td><i>First Name</i></td> <td>{{student.first_name}}</td></tr>
+          
+          <tr><td><i>اللقب بالعربية</i></td> <td>{{student.last_name_arab | replace("None", "")}}</td></tr>
+          <tr><td><i>الاسم بالعربية</i></td> <td>{{student.first_name_arab | replace("None", "")}}</td></tr>
+
+          <tr><td><i>Email</i></td> <td>{{student.email | replace("None", "")}}</td></tr>
+          <tr><td><i>Birth Date</i></td> <td>{{student.birth_date | replace("None", "")}}</td></tr>
+          <tr><td><i>Birth Place</i></td> <td>{{student.birth_place | replace("None", "")}}</td></tr>
+          <tr><td><i>Address</i></td> <td>{{student.address | replace("None", "")}}</td></tr>
+          <tr><td><i>Wilaya</i></td> <td>{{student.wilaya.name}}</td></tr>
+          <tr><td><i>Sex</i></td> <td>{{student.sex | replace("None", "")}}</td></tr>
+          <tr><td><i>Residency</i></td> <td>{{student.residency | replace("None", "")}}</td></tr>
+          <tr><td><i> </i></td>    <td> </td></tr>
+          <tr><td><i><b>Sessions</b></i></td> 
+            <td>
+              <table>
+              {% for session in student.get_sessions_ordered() %}
+                <tr>
+                  <td> {{ session.promo.name }}    </td>
+                  <td>    <a href="{{ url_for('session', session_id=session.id) }}">{{ session.get_name() }}</a>    </td>
+                  <td>    <a href="{{ url_for('grade', session_id=session.id, student_id=student.id) }}">grades</a> </td>
+                </tr>
+              {% endfor %}
+              </table>
+
+              </br>
+              - note: add annual</br>
+              - note: printabales</br>
+            </td>
+          </tr>
+
+        </table>
+
+
+      </br>
+      </br>
+      - </br>
+      </br>
+
+
+    </div>
+
+{% endblock %}
+
+
+
+{% block scripts %}
+  {{ super() }}
+
+  <script type="text/javascript">
+    $('#confirm-delete').on('show.bs.modal', function(e) {
+      $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+    });
+  </script>
+
+{% endblock %}

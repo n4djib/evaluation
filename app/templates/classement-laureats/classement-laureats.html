@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+
+{% block styles %}
+  {{super()}}
+
+  <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='handsontable/handsontable.full.7.0.3.min.js') }}"></script>
+  <link rel="stylesheet" type="text/css" 
+        href="{{ url_for('static', filename='handsontable/handsontable.full.7.0.3.min.css') }}">
+
+
+  <link href="/static/lightbox2/css/lightbox.css" rel="stylesheet">
+  <script src="/static/lightbox2/js/lightbox.js"></script>
+
+
+  <style type="text/css">
+
+    #classement-laureats{
+      width:100%;
+    }
+
+
+  </style>
+{% endblock %}
+
+
+
+
+{% block app_content %}
+
+  <a href="/static/img/classement-laureats.png" wrapAround="true" data-lightbox="image-1" data-title="classement-laureats"
+    ><img src='/static/img/classement-laureats-thumb.png' 
+      style="margin: 3px; margin-left: 0px;border-radius: 8px;" width="200" ></a> 
+
+  <a href="/static/img/classement-laureats-2.png" wrapAround="true" data-lightbox="image-1" data-title="classement-laureats-2"
+    ><img src='/static/img/classement-laureats-2-thumb.png' 
+      style="margin: 3px; margin-left: 0px;border-radius: 8px;" width="200" ></a> 
+
+  </br> 
+
+  <div class="container" style="margin: 3px; margin-left: 0px; padding-left: 0px; ">
+    <a href="" class="btn btn-primary" role="button" >*************</a>
+    <a href="" class="btn btn-primary" role="button" >*************</a>
+    <a href="" class="btn btn-primary" role="button" >*************</a>
+  </div>
+
+  <div id="classement-laureats" class="hot handsontable">
+    <h2> *** the grid is empty *** </h2>
+    <h3> ** you have to add students and initialize ** </h3>
+  </div>
+
+
+    <pre id="message" class="console"><h3>*** if you see this: the JavaScript in (_grid.js) is not working ***<h3> </pre>
+  </br>
+
+  
+
+{% endblock %}
+
+
+
+{% block scripts %}
+  {{ super() }}
+
+  
+  <script type="text/javascript">
+    // lightbox.option({
+    //   'resizeDuration': 200,
+    //   'wrapAround': true
+    // });
+
+    {% include "classement-laureats/classement-laureats.js" %}
+
+
+    document.getElementById('hot-display-license-info').remove();
+    document.getElementById('message').remove(); 
+
+  </script>
+{% endblock %}
+
+
+
+
+ 

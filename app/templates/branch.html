@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+
+    <h1>Branch List !!!</h1>
+    
+    <div><a  class="btn btn-primary" href="">Create New ---------</a></div>
+    </br>
+    <div>
+        {% for branch in branches %}
+            <a href="">{{ branch.name }}</a> - 
+            {{ branch.description }}
+            </br>
+        {% endfor %}
+    </div>
+
+{% endblock %}

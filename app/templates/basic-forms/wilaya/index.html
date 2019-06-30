@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+
+  <h1>Wilayas List !!!</h1>
+  <div>
+      <a class="btn btn-primary" href="{{ url_for('wilaya_create') }}">Create New</a>
+  </div>
+  </br>
+
+  <div>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Code</th>
+          <th scope="col">Name</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for wilaya in wilayas %}
+        <tr>
+          <td>{{ wilaya.code | replace("None", "") }}</td>
+          <td><a href="{{ url_for('wilaya_view', id=wilaya.id) }}">{{ wilaya.name | replace("None", "") }}</a></td>
+          <!-- <td><a href="">Edit</a></td> -->
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+    </br>
+    </br>
+    - </br>
+    - </br>
+    </br>
+
+
+  </div>
+
+{% endblock %}

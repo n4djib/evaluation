@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block styles %}
+  {{super()}}
+  <style type="text/css">
+    th, td {
+      border: 1px solid lightgray;
+      /*padding: 0px 2px;*/
+      text-align: center;
+      /*vertical-align: middle;*/
+    }
+    .intitule {
+        text-align: left;
+    }
+    .head {
+        background-color: rgb(250,250,250);
+    }
+  </style>
+{% endblock %}
+
+
+
+
+
+{% block app_content %}
+
+  <h1>Bultin</h1>
+
+  {{ header | safe }}
+  <table class="table table-bordered">
+  {{ bultin | safe }}
+  </table>
+  {{ footer | safe }}
+
+  </br>
+  </br>
+  <a href ="{{ url_for('print_semester_bultin', session_id=session_id, student_id=student_id) }}"
+     target="_blank" class="btn btn-primary" role="button">Print</a>
+       
+  </br>
+  </br>
+  - be carfull that (session) will show (session=2) even if the (first) Grade is (better)
+  </br>
+{% endblock %}
+
+
+
+
+
+{% block scripts %}
+  {{ super() }}
+
+  <script type="text/javascript">
+  </script>
+
+{% endblock %}

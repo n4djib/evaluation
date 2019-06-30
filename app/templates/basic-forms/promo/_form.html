@@ -1,0 +1,58 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='dtpicker/bootstrap-datetimepicker.css') }}">
+
+<form class="form form-virtical" method="post" role="form">
+  {{ form.hidden_tag() }}
+  {{ wtf.form_errors(form, hiddens="only") }}
+  {{ wtf.form_field(form.branch_id) }}
+
+
+  <!-- {{ wtf.form_field(form.start_date) }} -->
+  <div class="form-group">
+    <label class="control-label" for="start_date">{{ form.start_date.label }}</label>
+    <div class="row">
+      <div class='col-sm-6'>
+        <div class="form-group">
+          <div class='input-group date'>
+            <input type='text' class="form-control" id='start_date' 
+                   name='start_date_str' value='{{ form.start_date.data }}'/>
+            <span class="input-group-addon">
+              <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+
+  <!-- {{ wtf.form_field(form.finish_date) }} -->
+  <div class="form-group">
+    <label class="control-label" for="finish_date">{{ form.finish_date.label }}</label>
+    <div class="row">
+      <div class='col-sm-6'>
+        <div class="form-group">
+          <div class='input-group date'>
+            <input type='text' class="form-control" id='finish_date' 
+                   name='finish_date_str' value='{{ form.finish_date.data }}'/>
+            <span class="input-group-addon">
+              <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{ wtf.form_field(form.name) }}
+  {{ wtf.form_field(form.display_name) }}
+  
+  <div class="form-group ">
+	  <label class="control-label" for="color">{{ form.color.label }}</label>
+	  <input type="color" id="color" name="color" value="{{form.color.data}}"></input>
+  </div>
+  
+  {{ wtf.form_field(form.submit) }}
+</form>
+
+

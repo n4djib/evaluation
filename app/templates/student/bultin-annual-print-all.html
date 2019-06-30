@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>{{title}}</title>
+
+  <style type="text/css">
+    table {
+      border-collapse: collapse;
+      margin-left: 0px;
+      margin-right: 0px;
+      display:inline-block;
+      /*border-color: black;*/
+    }
+    th, td {
+      border: 1px solid lightgray;
+      padding: 2px 4px;
+      text-align: center;
+      /*padding: 0px;*/
+      /*vertical-align: middle;*/
+      /*border-color: black;*/
+    }
+    .intitule {
+        text-align: left;
+    }
+    .head {
+        background-color: rgb(230,230,230);
+    }
+
+    @media print {
+      .new-page {
+        page-break-before: always;
+      }
+    }
+
+    .rotate {
+      height: 80px;
+      white-space: nowrap;
+    }
+    .rotate > div {
+      width: 20px;
+      padding: 2px 5px;
+      transform: 
+        translate(-7px, 20px)
+        rotate(-75deg);
+    }
+
+  </style>
+</head>
+
+
+<body>
+ 
+  <div class="container" style="border-color:black; text-align:center;">
+
+    {% for bultin in bultins %}
+      <div class="container" 
+           style="display:inline-block; text-align:left; 
+                  border-width:1px; border-width:1px; border-color:red;" >
+        {% if loop.index == 1 %}
+        <div class="container">
+        {% else %}
+        <div class="container new-page">
+        {% endif %}
+
+        {{ bultin | safe }}
+        
+        </div>
+      </div>
+    {% endfor %}
+      
+  </div>
+
+
+  <script type="text/javascript">
+    {% include "_print.js" %}
+  </script> 
+
+
+</body>
+</html>

@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+
+{% block styles %}
+  {{super()}}
+
+  <style>
+    .filter_w {
+      max-width: 300px;
+      float: left;
+      margin: 3px;
+       /*style="float: right;"*/
+    }
+  </style>
+{% endblock %}
+
+
+
+
+{% block app_content %}
+
+    <h1>Students List !!! ({{ students | length }})</h1>
+    <div>
+        <a class="btn btn-primary" href="{{ url_for('students_create') }}">Create New</a>
+        <a class="btn btn-primary" href="{{ url_for('students_create_many') }}"
+        >Insert Many Students from Excel</a>
+    </div>
+
+    </br>
+
+    <div class="input-group filter_w"> 
+      <span class="input-group-addon">Filter</span>
+      <input id="filter" type="text" class="form-control" placeholder="Type here...">
+    </div>
+
+
+    <div class="dropdown filter_w">
+      <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+        Filter By <b>Branch</b>
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+        <li><a href="#">SF</a></li>
+        <li><a href="#">ISP</a></li>
+        <li><a href="#">LSP</a></li>
+        <li><a href="#">HYGN</a></li>
+        <li class="divider"></li>
+        <li><a href="#">Display All</a></li>
+      </ul>
+    </div>
+
+    <div class="dropdown filter_w">
+      <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+        Filter By <b>Promo</b>
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+        <li><a href="#">Action</a></li>
+        <li><a href="#">Another action</a></li>
+        <li><a href="#">Something else here</a></li>
+      </ul>
+    </div>
+
+
+    </br></br></br>
+
+
+    <div>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Matricule</th>
+            <th scope="col">Nom et Prenom</th>
+            <th scope="col">Birth Date</th>
+            <!-- <th scope="col">Birth Place</th> -->
+            <th scope="col">Wilaya</th>
+            <th scope="col">Sex</th>
+            <th scope="col">Branch</th>
+            <th scope="col">Email</th>
+          </tr>
+        </thead>
+        <tbody class="searchable">
+        {% for student in students %}
+          <tr {{ 'class=danger' if student.empty == True else '' }}>
+            <td>{{loop.index}}</td>
+            <td><a href="{{ url_for('student_view', id=student.id) }}"
+              >{{ student.username }}</a></td>
+            <td>{{ student.last_name }} {{ student.first_name }}</td>
+            <td>{{ student.birth_date | replace('None', '') }}</td>
+            <td>
+              {% if student.wilaya %}
+                {{ student.wilaya.get_label() | replace('None', '') }}
+              {% endif %}
+            </td>
+            <td>{{ student.sex | replace('None', '') }}</td>
+            <td class="branch" value="{{student.branch.name}}">{{ student.branch.name }}</td>
+            <td>{{ student.email | replace('None', '') }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+
+      </br></br>
+
+      - filter by searsh box & advanced filtering</br>
+      - load dynamically</br>
+      - it should be able to search unloaded students by Ajax</br>
+           or load students </br>
+      </br>
+
+
+    </div>
+
+{% endblock %}
+
+
+
+
+
+
+{% block scripts %}
+  {{ super() }}
+ 
+  <script type="text/javascript">
+    {% include "_filter.js" %}
+
+  </script>
+{% endblock %}
+
+
+

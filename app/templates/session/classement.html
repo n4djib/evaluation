@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+
+{% block styles %}
+  {{super()}}
+  
+  <style type="text/css">
+
+    table {
+      border-collapse: collapse;
+      margin-left: 0px;
+      margin-right: 0px;
+
+      font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+      font-size: 14px;
+      line-height: 1.42857143;
+      color: #111;
+    }
+    
+    th, td, tr {
+      border: 1px solid lightgray;
+      padding: 0px 4px;
+    }
+
+
+    .no-wrap { 
+      white-space: nowrap; 
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+    .center { 
+      text-align: center;
+    }
+    .name {
+      width: 100%;
+      padding-left: 8px;
+      white-space: nowrap; 
+    }
+    .right {
+      text-align: right;
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+    .moyen {
+      text-align: right;
+      padding-left: 15px;
+      padding-right: 8px;
+    }
+    .credit {
+      text-align: center;
+    }
+  .pad { padding-left: 1px; padding-right: 1px; }
+  </style>
+{% endblock %}
+
+
+
+
+{% block app_content %}
+ 
+
+  <div class="">
+    
+    <a href ="{{ url_for('classement_print', session_id=session.id) }}"
+       class="btn btn-primary" target="_blank" role="button">Print Classement</a>
+    </br>
+    </br>
+
+    <table id="classement-justification" class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th scope="col" class="center">#</th>
+          <th scope="col" class="center">Matricule</th>
+          <th scope="col" class="center">Nom et Prenom</th>
+          <th scope="col" class="center">Moyen</th>
+          <th scope="col" class="center">Credit</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for student_session in student_sessions %}
+        <tr>
+          <td align="middle">{{ loop.index }}</td>
+          <td class="no-wrap">{{ student_session.student.username }}</td>
+          <td class="name no-wrap">{{ student_session.student.last_name }} {{ student_session.student.first_name }}</td>
+          <td class="moyen">{{ student_session.average | replace('None', '') }}</td>
+          <td class="credit">{{ student_session.credit | replace('None', '') }}</td>
+          
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+
+
+{% endblock %}
+
+
+
+
+
+
+{% block scripts %}
+  {{ super() }}
+
+  <script type="text/javascript">
+  </script>
+
+{% endblock %}
+
+
+
+
+ 

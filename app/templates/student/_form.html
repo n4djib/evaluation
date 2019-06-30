@@ -1,0 +1,46 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='dtpicker/bootstrap-datetimepicker.css') }}">
+
+<form class="form form-virtical" method="post" role="form">
+  {{ form.hidden_tag() }}
+  {{ wtf.form_errors(form, hiddens="only") }}
+
+  {{ wtf.form_field(form.branch_id) }}
+  {{ wtf.form_field(form.username) }}
+  {{ wtf.form_field(form.last_name) }}
+  {{ wtf.form_field(form.first_name) }}
+  {{ wtf.form_field(form.last_name_arab) }}
+  {{ wtf.form_field(form.first_name_arab) }}
+  {{ wtf.form_field(form.email) }}
+  <!-- {{ wtf.form_field(form.birth_date) }} -->
+  <div class="form-group">
+    <label class="control-label" for="birth_date">{{ form.birth_date.label }}</label>
+    <div class="row">
+      <div class='col-sm-6'>
+        <div class="form-group">
+          <div class='input-group date'>
+            <input type='text' class="form-control" id='birth_date' 
+                   name='birth_date_str' value='{{ form.birth_date.data }}'/>
+            <span class="input-group-addon">
+              <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+      <script type="text/javascript">
+        // $(function () {
+        //   $('#birth_date').datetimepicker({format: 'YYYY-MM'});
+        // });
+      </script>
+    </div>
+  </div>
+
+  {{ wtf.form_field(form.birth_place) }}
+  {{ wtf.form_field(form.wilaya_id) }}
+  {{ wtf.form_field(form.address) }}
+
+
+  {{ wtf.form_field(form.sex) }}
+  {{ wtf.form_field(form.residency) }}
+
+  {{ wtf.form_field(form.submit) }}
+</form>

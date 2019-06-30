@@ -1,0 +1,45 @@
+﻿ 
+= check if they corrected the names
+	when you find the name in App you can tell where it it in the Excel
+= check if they saved Students in Excel and Eval
+= shorten longer modules name
+= correct the promos names
+= teachers
+
+
+= RUN THE SERVER BY
+	flask run --host=0.0.0.0 --port=5000
+	START /B lt-win -p 5000 --subdomain evaluation
+
+= install drivers on Fatima PC
+ 
+
+= remove from "annual_grade" saving_average & saving_credit
+
+= add start http://localhost:5000/ to server launsher
+
+= shell:startup
+	and add anothr launsher in orange
+
+= 
+
+= 
+
+= 
+
+= 
+
+= fix rattrapable
+	SF S9 Travaux séminaires
+	SF S10 ??????
+	
+	ISP S2 Sémiologie
+	ISP S6 ?????
+	
+	HYGN S6 Elabor
+	
+	LSP S6 ?????
+
+
+
+

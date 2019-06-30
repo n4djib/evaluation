@@ -10,12 +10,8 @@ def extract_fields(formula):
 
     return fields_list
 
-<<<<<<< HEAD
 # def check_grades_status(grades, module_session=None):
 def check_grades_status(grades):
-=======
-def check_grades_status(grades, module_session=None):
->>>>>>> ccbe5914246027983999a5dfcc28edd1c99ebbcd
     # return a dictionary
     #   of errors and empty and calculated
     nbr_cells = 0
@@ -31,7 +27,6 @@ def check_grades_status(grades, module_session=None):
         if grade.formula != None:
             fields_list = extract_fields(grade.formula)
         for field in fields_list:
-            # if field in ['cour', 'td', 'tp', 't_pers', 'stage', 'saving_grade']:
             if field in ['cour', 'td', 'tp', 't_pers', 'stage']:
                 nbr_cells += 1
                 val = getattr(grade, field)
