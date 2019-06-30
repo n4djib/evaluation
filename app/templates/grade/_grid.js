@@ -20,7 +20,6 @@ function Save(){
     url: '{{ url_for("grade_save", type=type) if type == "student" else url_for("grade_save") }}', 
     type: 'POST',
     data: JSON.stringify( nullifyData(data_arr) ),
-    // data: JSON.stringify(data_arr),
     contentType: 'application/json; charset=utf-8',
     dataType: 'text',
     async: true,
@@ -36,7 +35,7 @@ function Save(){
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.log('some error');
-      alert("some error");
+      alert("Some Error Happened while saving data\n try to save again");
     }
   });
 
@@ -594,8 +593,12 @@ function nullifyData(data_arr) {
       cols = ['cour', 'td', 'tp', 't_pers', 'stage', 'saving_grade'];
       if (cols.includes(key)){
         data = data_arr[row][key];
+        // nullify empty
         if(data === '' || isNaN(data))
           data_arr[row][key] = null;
+        // // nullify out-of range
+        // if(data > 20 || data < 0)
+        //   data_arr[row][key] = null;
       }
     }
   }

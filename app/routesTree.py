@@ -436,7 +436,8 @@ def tree_recalc_all(school_id=0):
     nbr_calc = 0
     for session in sessions:
         if session.check_recalculate_needed():
-            calculate_all(session)
+            # calculate_all(session)
+            session.calculate()
             nbr_calc += 1
     flash( str(nbr_calc) + " reinitialized")
 

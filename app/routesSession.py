@@ -63,6 +63,10 @@ def get_icon_progress(grades):
                     filled += 1
                     if val < 0 or val > 20:
                         errors += 1
+        # saving_grade
+        if grade.saving_grade != None:
+            if grade.saving_grade > 20 or grade.saving_grade < 0:
+                errors += 1
 
     if grades_is_empty == False:
         return 'not_started2.png'

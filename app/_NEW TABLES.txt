@@ -14,23 +14,12 @@
 = install drivers on Fatima PC
  
 
-= add to "annual_grade"
-	is_dirty boolean
-		after saving credit
+= remove from "annual_grade" saving_average & saving_credit
 
-= in "annual_grade"
-	put student_id after annual_session_id
+= add start http://localhost:5000/ to server launsher
 
-= add to "grade"
-	saving_grade NUMERIC(10, 2)
-		after stage
-
-= add to "module_session"
-	saving_enabled boolean
-
-= 
-
-= 
+= shell:startup
+	and add anothr launsher in orange
 
 = 
 

@@ -10,6 +10,7 @@ def extract_fields(formula):
 
     return fields_list
 
+# def check_grades_status(grades, module_session=None):
 def check_grades_status(grades):
     # return a dictionary
     #   of errors and empty and calculated
@@ -33,8 +34,13 @@ def check_grades_status(grades):
                     nbr_filled += 1
                     # if val < 0  or  val > 20  or  not isinstance(val, decimal.decimal):
                     if val < 0  or  val > 20:
-                        nbr_errs += 1
                         ERRS = True
+                        nbr_errs += 1
+        # 'saving_grade'
+        if grade.saving_grade != None:
+            if grade.saving_grade > 20 or grade.saving_grade < 0:
+                ERRS = True
+                nbr_errs += 1
 
         # CALC
         if grade.is_dirty == True:
