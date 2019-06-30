@@ -42,6 +42,12 @@
 			- add , onupdate=datetime.utcnow) to timestamps
 			- finish : units_r_fond_aquired in annual_grade fetch data
 
+- don't allow calc when errs
+- don't calculate if data in grid is wrong
+	js and app
+
+
+
 - Potential Problem
 	when you create rattrapage & i already have entered Save grade in normal
 		i must create module_session with saving enabled
@@ -54,7 +60,13 @@
 
 - turn all calculation to calcule by student
 	session.calculate() -> session.student_sessions.calculate
-
+- add param to functions that have 
+	db.session.commit()
+	(self, commit=True):
+		if commit==True:
+			db.session.commit()
+- use is_dirty to optimize calculation time
+- give the ability to open all fields in rattrapage session
 
 - session config - add datepicker
 - module config - add datepicker - and Tag exam surviyors
@@ -173,7 +185,8 @@
 		transfaire from annual, not from semester
 		Only Admit & Admit avec dette
 	- use Count() in sqlalchemy
-	- 
+	- globlize the changing lists like ['cour', 'td', 'tp', 't_pers', 'stage', 'saving_grade']
+		to avoid changing them in many places
 	- 
 
 

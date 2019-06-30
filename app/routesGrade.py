@@ -301,6 +301,9 @@ def module_session_config(session_id, module_id):
         module_session.results_delivered_date = form.results_delivered_date.data
         module_session.exam_surveyors = form.exam_surveyors.data
         module_session.saving_enabled = form.saving_enabled.data
+        # calculate session
+        # module_session.session.set_dirty()
+        module_session.session.calculate()
         db.session.commit()
         flash('Your changes have been saved.', 'alert-success')
         return redirect(url_for('grade', session_id=session_id, module_id=module_id))

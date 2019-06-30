@@ -496,6 +496,14 @@ class Session(db.Model):
         if self.type == 'historic' or self.type == 'historique':
             return True
         return False
+    def set_dirty(self):
+        # set one record of each student session to dirty
+        student_sessions = StudentSession.query.filter_by(session_id=self.id).all()
+        for student_session in student_sessions:
+            for grade in student_session.grades:
+                grade.is_dirty = True
+                break
+        # db.session.commit()
     def check_recalculate_needed(self):
         if self.is_historic():
             return False
@@ -689,7 +697,7 @@ class StudentSession(db.Model):
     def check_progress(self):
         nbr_cells = 0
         nbr_filled = 0
-        nbr_errs = 0
+        # nbr_errs = 0
 
         # type == historic
         if self.session.is_historic():
