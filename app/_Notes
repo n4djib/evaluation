@@ -44,12 +44,30 @@
 			- ask for recalculate if enabled_saving is changed
 			- detect ERRS
 
+<<<<<<< HEAD
 - OK dude - just finish the Bultin
 - don't allow calc when errs
+=======
+>>>>>>> 594663a012084f9d3a14939faa4110f74f6948f6
 - don't calculate if data in grid is wrong
 	js and app
+- show errors in annual
+- remove notes from the Pages
 
+<<<<<<< HEAD
+=======
+- in the AnnualSession grid
+	don't make Obs ajournee before ratt
+
+- OK dude - just finish the Bultin
+- don't allow calc when errs
+>>>>>>> 594663a012084f9d3a14939faa4110f74f6948f6
 - Combine check_grades_status & get_icon_progress
+
+
+
+
+
 
 - Potential Problem
 	when you create rattrapage & i already have entered Save grade in normal
