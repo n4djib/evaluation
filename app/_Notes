@@ -44,6 +44,7 @@
 			- ask for recalculate if enabled_saving is changed
 			- detect ERRS
 
+- name the PDFs title=""
 - don't calculate if data in grid is wrong
 	js and app
 - show errors in annual
