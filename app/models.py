@@ -131,8 +131,8 @@ class AnnualGrade(db.Model):
 
     average_final = db.Column(db.Numeric(10,2))
     credit_final = db.Column(db.Integer)
-    saving_average = db.Column(db.Numeric(10,2))
-    saving_credit = db.Column(db.Integer)
+    # saving_average = db.Column(db.Numeric(10,2))
+    # saving_credit = db.Column(db.Integer)
 
     is_dirty = db.Column(db.Boolean, default=False)
     
@@ -270,13 +270,15 @@ class AnnualGrade(db.Model):
         # saving_average
         # saving_credit
 
-        avr_s = ag.saving_average
+        # avr_s = ag.saving_average
         avr_r = ag.average_r
-        ag.average_final = avr_s if avr_s != None else avr_r if avr_r != None else ag.average
+        # ag.average_final = avr_s if avr_s != None else avr_r if avr_r != None else ag.average
+        ag.average_final = avr_r if avr_r != None else ag.average
 
-        cr_s = ag.saving_credit
+        # cr_s = ag.saving_credit
         cr_r = ag.credit_r
-        ag.credit_final = cr_s if cr_s != None else cr_r if cr_r != None else ag.credit
+        # ag.credit_final = cr_s if cr_s != None else cr_r if cr_r != None else ag.credit
+        ag.credit_final = cr_r if cr_r != None else ag.credit
 
 
         # don't fill Observation when the mudules are not filled
@@ -314,9 +316,9 @@ class Session(db.Model):
     finish_date = db.Column(db.Date)
     is_rattrapage = db.Column(db.Boolean, default=False)
     is_closed = db.Column(db.Boolean, default=False)
-    type = db.Column(db.String(20))
     #   historic  or  historique
     #   None  or  ''  or  Standard
+    type = db.Column(db.String(20))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow, onupdate=datetime.utcnow)
     configuration = db.Column(db.Text)
     semester_id = db.Column(db.Integer, db.ForeignKey('semester.id'))
@@ -528,7 +530,8 @@ class Session(db.Model):
         # 
         # 
         return students
-    def calculate(self):
+    # if commit=False -> don't commit after calculate
+    def calculate(self, commit=True):
         student_sessions = self.student_sessions
         for student_session in student_sessions:
             for grade in student_session.grades:
@@ -538,7 +541,8 @@ class Session(db.Model):
                 grade_unit.calculate()
             db.session.commit()
             student_session.calculate()
-        db.session.commit()
+        if commit == True:
+            db.session.commit()
         return 'Session calculated'
 
 class StudentSession(db.Model):

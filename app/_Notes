@@ -41,12 +41,15 @@
 			- cloase when not allowed in 
 			- add , onupdate=datetime.utcnow) to timestamps
 			- finish : units_r_fond_aquired in annual_grade fetch data
+			- ask for recalculate if enabled_saving is changed
+			- detect ERRS
 
+- OK dude - just finish the Bultin
 - don't allow calc when errs
 - don't calculate if data in grid is wrong
 	js and app
 
-
+- Combine check_grades_status & get_icon_progress
 
 - Potential Problem
 	when you create rattrapage & i already have entered Save grade in normal
@@ -54,7 +57,6 @@
 			to transfaire the better grade
 			do i transfaire it to all Gradings(cour+tp+td+ saving) ?????????????????
 	
-- ask for recalculate if enabled_saving is changed
 - PROBLEM:
 	transfer_grades() is transgering only cour ass rattrapable
 
