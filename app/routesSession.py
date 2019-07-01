@@ -1168,7 +1168,7 @@ def annual_session_dlc(*args, **kwargs):
     return [{'text': '' + name, 
         'url': url_for('annual_session', annual_session_id=annual_session_id) }]
 
-@app.route('/annual-session/<annual_session_id>/print/<sort>/', methods=['GET', 'POST'])
+@app.route('/annual-session/<annual_session_id>/<sort>/', methods=['GET', 'POST'])
 @app.route('/annual-session/<annual_session_id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree_annual.annual', '***', dynamic_list_constructor=annual_session_dlc)
 def annual_session(annual_session_id=0, sort=''):
@@ -1200,6 +1200,19 @@ def flash_check_annual_session(annual_dict_obj):
     need_init_recalc = False
     alert_reinit = 'alert-warning'
     alert_recalc = 'alert-danger'
+    # 
+    # 
+    # 
+    # 
+    # 
+    # 
+    # 
+    # check if there is some errors
+    # 
+    # 
+    # 
+    # 
+    # 
     if S1 != None:
         nbr = str(annual_dict_obj['S1'].semester.get_nbr())
         if S1.is_config_changed():

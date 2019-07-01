@@ -794,17 +794,26 @@ function autoSave(change, source) {
 function calculateAverage(record, formula) {
   var average = 0;
 
-  //traverse the formula and exclude credit
-  for (key in formula) {
-    if(key !== 'credit' && key !== 'coefficient' && key !== 'rattrapable') {
-      var val = record[key];
-      if(val === null || val === '')
-        return null;
-      var percentage = formula[key];
-      average = average + (val * percentage);
-
+  //check if 
+  var save_g = record['saving_grade'];
+  if (save_g !== null && save_g !== '' && record['is_savable'] === true) {
+    if (save_g > 20 || save_g < 0)
+      return null;
+    else
+      average = save_g;
+  } else {
+    //traverse the formula and exclude credit
+    for (key in formula) {
+      if(key !== 'credit' && key !== 'coefficient' && key !== 'rattrapable') {
+        var val = record[key];
+        if(val === null || val === '' || val > 20 || val < 0)
+          return null;
+        var percentage = formula[key];
+        average = average + (val * percentage);
+      }
     }
   }
+
   return Number(average).toFixed(2);
 }
 
@@ -829,12 +838,12 @@ function autoCalculate(change, source) {
 
     // average
     var average = 0;
-    if (data_arr[i]['saving_grade'] !== null
-         && data_arr[i]['saving_grade'] !== '' 
-         && data_arr[i]['is_savable'] === true)
-      average = data_arr[i]['saving_grade'];
-    else
-      average = calculateAverage(data_arr[i], formula);
+    // if (data_arr[i]['saving_grade'] !== null
+    //      && data_arr[i]['saving_grade'] !== '' 
+    //      && data_arr[i]['is_savable'] === true)
+    //   average = data_arr[i]['saving_grade'];
+    // else
+    average = calculateAverage(data_arr[i], formula);
     
     data_arr[i]['average'] = average;
 

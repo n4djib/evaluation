@@ -875,31 +875,42 @@ class Grade(db.Model):
 
                 # is_savable = True
                 if module_saving_enabled == True:
-                    if module_session.session.is_rattrapage == True:
-                        if self.is_rattrapage == True:
+                    # check saving_grade in range
+                    is_in_range = self.saving_grade <= 20 and self.saving_grade >= 0
+                    if is_in_range == True:
+                        if module_session.session.is_rattrapage == True:
+                            if self.is_rattrapage == True:
+                                average = self.saving_grade
+                                is_savable = True
+                                calculation += '(saving_grade: '+str(average)+')'
+                        else:
                             average = self.saving_grade
                             is_savable = True
                             calculation += '(saving_grade: '+str(average)+')'
-                    else:
-                        average = self.saving_grade
-                        is_savable = True
-                        calculation += '(saving_grade: '+str(average)+')'
+                    else: 
+                        calculation += '(there is an ERROR in the grades)'
+                        # calculation = '(there is an ERROR in the grades)'
 
         if is_savable == False:
+            is_in_range = True
             for field in dictionary:
                 if field in ['cour', 'td', 'tp', 't_pers', 'stage']:
                     val = getattr(self, field)
                     percentage = dictionary[field]
+                    is_in_range = val <= 20 and val >= 0
                     getcontext().prec = 4
-                    if val != None:
+                    if val != None and is_in_range:
                         average += round( val * Decimal(percentage) , 2)
                     if val == None:
                         val = '???'
                     calculation += '('+ str(field) + ': ' + str(val) + ' * ' + str(percentage) + ')' + ' + '
             # end for
-            calculation = calculation[:-3]
 
-
+            if is_in_range == True:
+                calculation = calculation[:-3]
+            else:
+                # calculation = '(there is an ERROR in the grades)'
+                calculation += '(there is an ERROR in the grades)'
 
 
         # credit
