@@ -474,8 +474,8 @@ def classement_print(session_id):
         .filter_by(session_id=session_id)\
         .order_by(StudentSession.average.desc()).all()
     session = Session.query.get_or_404(session_id)
-    title = 'classement_print'
-    header = make_semester_print_header(session, 'Classement Semestre ('+str(session.semester.get_nbr())+')' )
+    header = make_header_semester_print(session, 'Classement Semestre ('+str(session.semester.get_nbr())+')' )
+    title = make_title_semester_print(session, label="Classement")
     return render_template('session/classement-print.html',
          title=title, session=session, header=header, student_sessions=student_sessions)
 
@@ -773,10 +773,10 @@ def students_rattrapage_semester(session_id=0):
 def students_rattrapage_semester_print(session_id=0):
     session = Session.query.get_or_404(session_id)
     students = session.get_students_to_enter_rattrapage()
-
-    header = make_semester_print_header(session, 'Rattrapage ('+str(session.semester.semester)+')')
+    header = make_header_semester_print(session, 'Rattrapage ('+str(session.semester.semester)+')')
+    title = make_title_semester_print(session, label="Rattrapage Semestre")
     return render_template('session/students-rattrapage-semester-print.html', 
-        title='ratt-semester-print', students=students, header=header)
+        title=title, students=students, header=header)
 
 
 
@@ -828,13 +828,14 @@ def students_rattrapage_annual_print(annual_session_id=0):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
     students = annual_session.get_students_to_enter_rattrapage()
 
-    header = make_annual_print_header(annual_session, 'Rattrapage Annuelle')
+    header = make_header_annual_print(annual_session, 'Rattrapage Annuelle')
+    title = make_title_annual_print(annual_session, "Rattrapage Annuelle")
     return render_template('session/students-rattrapage-annual-print.html', 
-        title='ratt-annual-print', students=students, header=header)
+        title=title, students=students, header=header)
 
 
 # headers #
-def make_annual_print_header(annual_session, label="**label**"):
+def make_header_annual_print(annual_session, label="**label**"):
     school = annual_session.annual.branch.school.description
     branch = annual_session.annual.branch.description
 
@@ -862,7 +863,7 @@ def make_annual_print_header(annual_session, label="**label**"):
     """
     return header
 
-def make_semester_print_header(session, label="**label**"):
+def make_header_semester_print(session, label="**label**"):
     school = session.promo.branch.school.description
     branch = session.promo.branch.description
 
@@ -892,10 +893,16 @@ def make_semester_print_header(session, label="**label**"):
     """
     return header
 
-def make_annual_print_title(annual_session, label="**label**"):
-    return label
+def make_title_annual_print(annual_session, label="**label**"):
+    annual = str(annual_session.annual.annual)
+    promo = annual_session.promo.name
+    ann_pedagog = annual_session.get_annual_pedagogique()
+    dt = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    title = label +' A('+annual+') ['+promo+' - '+ann_pedagog+'] {'+str(dt)+'}'
+    return title
 
-def make_semester_print_title(session, label="**label**"):
+
+def make_title_semester_print(session, label="**label**"):
     semester = str(session.semester.get_nbr())
     annual = str(session.semester.annual.annual)
     promo = session.promo.name
@@ -904,7 +911,7 @@ def make_semester_print_title(session, label="**label**"):
     title = label +' S('+semester+') A('+annual+') ['+promo+' - '+ann_pedagog+'] {'+str(dt)+'}'
     return title
 
-def make_semester_print_title_by_student(session, student, label="**label**"):
+def make_title_semester_print_by_student(session, student, label="**label**"):
     semester = str(session.semester.get_nbr())
     annual = str(session.semester.annual.annual)
     promo = session.promo.name
@@ -1185,10 +1192,10 @@ def annual_session(annual_session_id=0, sort=''):
 def annual_session_print(annual_session_id=0, sort=''):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
     array_data = collect_data_annual_session_print(annual_session, sort)
-    header = make_annual_print_header(annual_session, 'Resultat Annuelle')
+    header = make_header_annual_print(annual_session, 'Resultat Annuelle')
     annual_dict_obj = annual_session.get_annual_dict_obj()
-    return render_template('session/annual-session-print.html', 
-        title='Annual Session Print', 
+    title = make_title_annual_print(annual_session, "Annuelle")
+    return render_template('session/annual-session-print.html', title=title, 
         array_data=array_data, header=header, annual_dict_obj=annual_dict_obj)
 
 
@@ -1515,7 +1522,7 @@ def bultin_semester_print(session_id, student_id):
 
     session = Session.query.get_or_404(session_id)
     student = student_session.student
-    title = make_semester_print_title_by_student(session, student, 'Bultin - ')
+    title = make_title_semester_print_by_student(session, student, 'Bultin - ')
 
     # return table
     return render_template('student/bultin-semester-print.html', 
@@ -1542,7 +1549,7 @@ def bultin_semester_print_all(session_id):
     # promo = session.promo.name
     # dt = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     # title = 'Bultin All - '+branch+' S'+str(semester) + ' ['+promo+'] ('+str(dt)+')'
-    title = make_semester_print_title(session, 'Bultin All - ')
+    title = make_title_semester_print(session, 'Bultin All - ')
 
     return render_template('student/bultin-semester-print-all.html', 
             title=title, bultins=bultins, session_id=session_id)
@@ -2146,7 +2153,7 @@ def semester_result_print(session_id=0):
     data_arr = collect_semester_result_data(session, cols_per_module)
 
     header = get_semester_result_print_header(session)
-    title = make_semester_print_title(session, 'Releve')
+    title = make_title_semester_print(session, 'Releve')
 
     return render_template('session/semester-result-print.html',
         title=title, header=header, t_head=t_head, data_arr=data_arr, session=session, params=params)

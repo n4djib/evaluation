@@ -43,17 +43,21 @@
 			- finish : units_r_fond_aquired in annual_grade fetch data
 			- ask for recalculate if enabled_saving is changed
 			- detect ERRS
+			- name the PDFs title=""
+			- don't calculate if data in grid is wrong
+				js and app
 
-- name the PDFs title=""
-- don't calculate if data in grid is wrong
-	js and app
+- OK dude - just finish the Bultin
+- add macros to represent datetime
+	http://jinja.pocoo.org/docs/2.10/templates/#macros
+	import
+		https://stackoverflow.com/questions/19002290/how-to-use-macros-in-a-included-file
 - show errors in annual
 - remove notes from the Pages
 
 - in the AnnualSession grid
-	don't make Obs ajournee before ratt
+	don't make Obs ajournée before ratt
 
-- OK dude - just finish the Bultin
 - don't allow calc when errs
 - Combine check_grades_status & get_icon_progress
 
