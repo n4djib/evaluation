@@ -17,6 +17,7 @@
 = remove from "annual_grade" saving_average & saving_credit
 
 = add start http://localhost:5000/ to server launsher
+	make it in orange
 
 = shell:startup
 	and add anothr launsher in orange

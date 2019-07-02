@@ -66,6 +66,7 @@
 - PROBLEM:
 	transfer_grades() is transgering only cour ass rattrapable
 
+- add a cron job to save database
 - turn all calculation to calcule by student
 	session.calculate() -> session.student_sessions.calculate
 - add param to functions that have 
