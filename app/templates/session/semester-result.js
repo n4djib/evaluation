@@ -18,9 +18,7 @@ $('#filter').keyup(
 )
 
 
-
 change_url_params();
-
 
 
 /*******************/
@@ -59,7 +57,6 @@ function change_url_params() {
   
 }
 
-
 function init_icons() {
   //find all sort- and loop through
   var icons = document.getElementsByClassName("sort-icon");
@@ -71,7 +68,6 @@ function init_icons() {
     {% endif  %}
   } 
 }
-
 
 function change_icons(n, dir) {
   //find sort-n
@@ -151,16 +147,15 @@ function sortTable(n, dir = "desc") {
     } else {
       /*If no switching has been done AND the direction is "asc",
       set the direction to "desc" and run the while loop again.*/
+
       // if (switchcount == 0 && dir == "asc") {
       //   dir = "desc";
       //   switching = true;
       // }
-
       if (switchcount == 0 && dir == "desc") {
         dir = "asc";
         switching = true;
       }
-
     }
 
   }
@@ -173,7 +168,6 @@ function sortTable(n, dir = "desc") {
   order = dir;
   change_url_params();
 }
-
 
 
 function search () {
@@ -204,9 +198,6 @@ function search () {
   change_url_params();
 
 }
-
-
-
 
 function isHidden(elem) {
   return !!( elem.offsetWidth || elem.offsetHeight );

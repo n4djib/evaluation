@@ -1599,7 +1599,18 @@ def get_semester_modules_html(student_session):
     # take considiration of Rattrapage
     sem_result = '<td rowspan='+str(row_span_sem)+'>'+str(student_session.average)+'</td>'
     sem_result += '<td rowspan='+str(row_span_sem)+'>'+str(student_session.credit)+'</td>'
-    sem_result += '<td rowspan='+str(row_span_sem)+'>'+str('S')+'</td>'
+    #
+    #
+    #
+    #
+    #
+    #
+    sem_result += '<td rowspan='+str(row_span_sem)+'>'+str('1')+'</td>'
+    #
+    #
+    #
+    #
+    #
 
     grade_units = student_session.grade_units
     
@@ -1724,11 +1735,24 @@ def get_footer_bultin_annual(annual_grade):
     footer = '</br>'
     # you have to take average_r
     #    in case of Rattrapage
-    footer += "Moyenne Annuelle: <b>"+str('*********')+"</b>    "
-    footer += "Crédits cumulés dans l'année: <b>********</b> et <b>"+str('*********')+"</b></br>"
+
+    footer += "Moyenne Annuelle: <b>"+str(annual_grade.average_final)+"</b>    "
+    footer += "Crédits cumulés dans l'année: <b>"+str(annual_grade.annual_session.get_annual_pedagogique())+"</b>"
+    footer += " et <b>"+str(annual_grade.credit_final)+"</b></br>"
     footer += "Décision de la commission de classement et "
-    footer += "d'orientation:  <b>"+str('*********')+"</b></br></br>"
+    footer += "d'orientation:  <b>"+str(annual_grade.observation)+"</b>                                      Le Directeur de l’INFSPM</br>"
     footer += "Ouargla le:  .................."
+
+
+    # footer += "<div style='border-width:2px; border-style:solid; border-color:black;'>"
+    # footer += "Moyenne Annuelle: <b>"+str(annual_grade.average_final)+"</b>    "
+    # footer += "Crédits cumulés dans l'année: <b>"+str(annual_grade.annual_session.get_annual_pedagogique())+"</b>"
+    # footer += " et <b>"+str(annual_grade.credit_final)+"</b></br>"
+    # footer += "Décision de la commission de classement et "
+    # footer += "d'orientation:  <b>"+str(annual_grade.observation)+"</b></br>"
+    # footer += "Ouargla le:  ..................</div>"
+
+    # footer += "<div><span style='text-align: center;'>Le Directeur de l’INFSPM</span></div>"
 
     return footer
 
