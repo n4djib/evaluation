@@ -1417,7 +1417,7 @@ def get_thead_bultin_semester():
 def get_header_bultin_semester(student_session):
     student = student_session.student
     semester = student_session.session.semester
-    sem = semester.semester
+    sem = semester.get_nbr()
 
     annual_string = str(semester.annual.annual)
     annual_string += '<sup>ére</sup>' if semester.annual.annual == 1 else '<sup>ème</sup>'
@@ -1594,7 +1594,7 @@ def get_semester_modules_html(student_session):
         return '<font color="red"><b>' + text + '</b></font>'
 
     sem_tr = '<tr>'
-    sem_tr += '<td class="rotate" rowspan='+str(row_span_sem)+'><div>Semestre '+str(semester.semester)+'</div></td>'
+    sem_tr += '<td class="rotate" rowspan='+str(row_span_sem)+'><div>Semestre '+str(semester.get_nbr())+'</div></td>'
 
     # take considiration of Rattrapage
     sem_result = '<td rowspan='+str(row_span_sem)+'>'+str(student_session.average)+'</td>'

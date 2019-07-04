@@ -46,9 +46,9 @@
 			- name the PDFs title=""
 			- don't calculate if data in grid is wrong
 				js and app
+			- if i don't commit object do i find them in queries????
+				yes
 
-- OK dude - just finish the Bultin
-- if i don't commit object do i find them in queries????
 - add macros to represent datetime
 	http://jinja.pocoo.org/docs/2.10/templates/#macros
 	import
