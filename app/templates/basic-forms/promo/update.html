@@ -45,6 +45,10 @@
       $('#start_date').datetimepicker({format: 'YYYY-MM'});
       $('#finish_date').datetimepicker({format: 'YYYY-MM'});
     });
+    
+    $(document).ready(function() {
+        $("form").attr('novalidate', 'novalidate');
+    });
   </script>
   
 {% endblock %}

@@ -48,7 +48,12 @@
 				js and app
 			- if i don't commit object do i find them in queries????
 				yes
-
+- lockout login after many failed attempts
+- add Tasks(TODO list) as notification
+- add print Thumbnail Preview
+- brut force pass cracking
+- find a way to allow registration
+	enable & disabled Users
 - add macros to represent datetime
 	http://jinja.pocoo.org/docs/2.10/templates/#macros
 	import
@@ -58,10 +63,9 @@
 - show errors in annual
 - remove notes from the Pages
 - resultat is not sorting by neme
-
 - in the AnnualSession grid
 	don't make Obs ajournée before ratt
-
+- add print list to rattrapage without modules
 - don't allow calc when errs
 - Combine check_grades_status & get_icon_progress
 
@@ -73,7 +77,8 @@
 	
 - PROBLEM:
 	transfer_grades() is transgering only cour ass rattrapable
-
+- use tabs to organize students
+- use tabs to organize tree each school
 - add a cron job to save database
 - turn all calculation to calcule by student
 	session.calculate() -> session.student_sessions.calculate
@@ -88,6 +93,11 @@
 - session config - add datepicker
 - module config - add datepicker - and Tag exam surviyors
 
+- add novalidate attribute to each form using javascript/jquery, like this: 
+	$(document).ready(function() {
+	    $("form").attr('novalidate', 'novalidate');
+	});
+
 - check module printables
 - add last_modification to printables
 	last entry in the database tables
@@ -95,6 +105,9 @@
 - in classement-laurieate
 	give the option to consider saved students as rattrapage
 - fix cursor when it is open
+- Scanner
+	https://gitlab.gnome.org/World/OpenPaperwork/libinsane#readme
+	https://doc.openpaper.work/libinsane/latest/libinsane/index.html
 
 
 - lock historic grid
@@ -502,6 +515,9 @@
 				be carefull of the chaning
 - write the teacher and attandence section
 - Calendar
+	https://fullcalendar.io/docs#toc
+	https://www.webslesson.info/2017/12/jquery-fullcalandar-integration-with-php-and-mysql.html
+	
 - make names into CamelCase
 - table (grid) group by
 	http://jsfiddle.net/byv2pk24/89/
