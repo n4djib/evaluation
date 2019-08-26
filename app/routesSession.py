@@ -1912,6 +1912,11 @@ def get_cols_ths(index, label, class_name, cols_per_module):
     label_c = label['c']
     label_s = label['s']
 
+    if cols_per_module < 1:
+        cols_per_module = 1
+    if cols_per_module > 3:
+        cols_per_module = 3
+
     index_c = index + 1
     th = ''
     if cols_per_module == 1 or cols_per_module == 2 or cols_per_module == 3:

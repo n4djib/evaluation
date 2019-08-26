@@ -84,6 +84,10 @@ class SchoolFormUpdate(SchoolFormBase):
 
 ################## Branch
 class BranchFormBase(FlaskForm):
+    # class Meta:
+    #     def render_field(self, field, render_kw):
+    #         render_kw.setdefault('required', False)
+    #         return super().render_field(field, render_kw)
     name = StringField('name', validators=[DataRequired()])
     description = StringField('description')
     school_id = SelectField('School', coerce=int,  

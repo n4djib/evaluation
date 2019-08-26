@@ -3,6 +3,7 @@ from flask import render_template, url_for, redirect, request, flash
 from app.models import School, Session, Annual, Semester, Promo, AnnualSession
 from flask_breadcrumbs import register_breadcrumb
 from datetime import datetime
+from flask_login import current_user, login_required
 # from app.routesCalculation import init_all, calculate_all
 from app.routesCalculation import init_all
 
@@ -314,6 +315,7 @@ def tree_annual(annual_session_id=0):
 @app.route('/tree/school/<school_id>/branch/<branch_id>/', methods=['GET'])
 @app.route('/tree/school/<school_id>/', methods=['GET'])
 @app.route('/tree/', methods=['GET'])
+# @login_required
 @register_breadcrumb(app, '.tree', 'Tree')
 def tree(school_id=0, branch_id=0, promo_id=-1):
     options_arr = get_options()
