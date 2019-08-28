@@ -69,7 +69,7 @@
 	last entry in the database tables
 
 
-
+- use server workers for offline use
 
 
 - lockout login after many failed attempts
