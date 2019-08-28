@@ -48,10 +48,36 @@
 				js and app
 			- if i don't commit object do i find them in queries????
 				yes
+
+- show errors in annual
+	and it shows 100% even if there is a an ERROR
+- in the AnnualSession grid
+	don't make Obs ajournée before ratt
+- don't allow calc when errs
+- give the ability to open all fields in rattrapage session
+- Potential Problem
+	when you create rattrapage & i already have entered Save grade in normal
+		i must create module_session with saving enabled
+			to transfaire the better grade
+			do i transfaire it to all Gradings(cour+tp+td+ saving) ?????????????????
+- PROBLEM:
+	transfer_grades() is transgering only cour ass rattrapable
+- turn all calculation to calcule by student
+	session.calculate() -> session.student_sessions.calculate
+
+- PRINT : add last_modification to printables
+	last entry in the database tables
+
+
+
+
+
 - lockout login after many failed attempts
+	- brut force pass cracking
 - add Tasks(TODO list) as notification
-- add print Thumbnail Preview
-- brut force pass cracking
+	make Home Page a todo List
+- add Thumbnail to Preview print
+
 - find a way to allow registration
 	enable & disabled Users
 - add macros to represent datetime
@@ -60,47 +86,33 @@
 		https://stackoverflow.com/questions/19002290/how-to-use-macros-in-a-included-file
 	Custom widgets
 		https://wtforms.readthedocs.io/en/stable/widgets.html
-- show errors in annual
-- remove notes from the Pages
-- resultat is not sorting by neme
-- in the AnnualSession grid
-	don't make Obs ajournée before ratt
-- add print list to rattrapage without modules
-- don't allow calc when errs
-- Combine check_grades_status & get_icon_progress
 
-- Potential Problem
-	when you create rattrapage & i already have entered Save grade in normal
-		i must create module_session with saving enabled
-			to transfaire the better grade
-			do i transfaire it to all Gradings(cour+tp+td+ saving) ?????????????????
-	
-- PROBLEM:
-	transfer_grades() is transgering only cour ass rattrapable
+- remove notes from the Pages
+- resultat is not sorting by name
+- PRINT : add print : list of rattrapage without modules to pass
+- Combine check_grades_status & get_icon_progress
+	??????????????
 - use tabs to organize students
 - use tabs to organize tree each school
 - add a cron job to save database
-- turn all calculation to calcule by student
-	session.calculate() -> session.student_sessions.calculate
 - add param to functions that have 
 	db.session.commit()
 	(self, commit=True):
 		if commit==True:
 			db.session.commit()
 - use is_dirty to optimize calculation time
-- give the ability to open all fields in rattrapage session
-
 - session config - add datepicker
 - module config - add datepicker - and Tag exam surviyors
-
-- add novalidate attribute to each form using javascript/jquery, like this: 
+- add "novalidate" attribute to each form using javascript/jquery, like this: 
 	$(document).ready(function() {
 	    $("form").attr('novalidate', 'novalidate');
 	});
 
+
+
+
+
 - check module printables
-- add last_modification to printables
-	last entry in the database tables
 - calculate average from Saving
 - in classement-laurieate
 	give the option to consider saved students as rattrapage
@@ -112,7 +124,6 @@
 
 - lock historic grid
 - use letters to navigate the grid rather than arrows
-- make Home Page a todo List
 
 - add saving notion at every level
 	grade(module) + student_session(semester) + annual_grade(annual)
