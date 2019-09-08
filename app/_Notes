@@ -49,6 +49,9 @@
 			- if i don't commit object do i find them in queries????
 				yes
 
+- filtering in the grid Triggers is_dirty
+- in grades by student
+	when filtering the closed cells get messed up
 - show errors in annual
 	and it shows 100% even if there is a an ERROR
 - in the AnnualSession grid
