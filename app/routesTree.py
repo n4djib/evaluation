@@ -1,4 +1,5 @@
-from app import app, db, cache
+from app import app, db
+# from app import cache
 from flask import render_template, url_for, redirect, request, flash
 from app.models import School, Session, Annual, Semester, Promo, AnnualSession
 from flask_breadcrumbs import register_breadcrumb

@@ -8,8 +8,9 @@ from flask_login import LoginManager
 # from flask_admin.contrib.sqla import ModelView
 from flask_breadcrumbs import Breadcrumbs
 # from flask_rbac import RBAC
-from flask_principal import Principal
-from flask_caching import Cache
+
+# from flask_principal import Principal
+# from flask_caching import Cache
 
 
 
@@ -20,12 +21,12 @@ migrate = Migrate(app, db)
 bootstrap = Bootstrap(app)
 login = LoginManager(app)
 login.login_view = 'login'
-principals = Principal(app)
+# principals = Principal(app)
 
 Breadcrumbs(app=app)
 
-cache = Cache(app, config={'CACHE_TYPE': 'simple'})
-cache.init_app(app)
+# cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+# cache.init_app(app)
 
 # admin = Admin(app, template_mode='bootstrap3')
 
