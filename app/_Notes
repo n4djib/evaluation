@@ -19,35 +19,10 @@
 
 == PRIORITY 1 ==
 ----------------
-			- add button to check needed****** in annual session
-				and url return
-			- stopped at fixing the Annual alert
-			- in Student Grid
-				show final Average and Credit
-				in real time
-				when you save show the result
-				show annual in students View
-			- in module config 
-				enable_saving
-				read only accorig to it
-				and show saving_grade and calcuate it if enabled
-			- don't forget to fix the cursor for grid by student
-			- saving_grade in grade
-				click show all fields to edit it
-					and indicate by color in average and credit
-			- show if saving_grade is filled
-				SEPERATE IT FROM hiddent values Flash
-			- check the two grids
-			- cloase when not allowed in 
-			- add , onupdate=datetime.utcnow) to timestamps
-			- finish : units_r_fond_aquired in annual_grade fetch data
-			- ask for recalculate if enabled_saving is changed
-			- detect ERRS
-			- name the PDFs title=""
-			- don't calculate if data in grid is wrong
-				js and app
-			- if i don't commit object do i find them in queries????
-				yes
+
+- in Session make list in "Button items" & "Linked items"
+	https://getbootstrap.com/docs/3.3/components/#list-group-buttons
+- the Need to calculate in session is not working
 
 - filtering in the grid Triggers is_dirty
 - in grades by student
@@ -850,6 +825,35 @@
 				but show only if SF
 			- link from Releve-Result to Module Grid
 
+			- add button to check needed****** in annual session
+				and url return
+			- stopped at fixing the Annual alert
+			- in Student Grid
+				show final Average and Credit
+				in real time
+				when you save show the result
+				show annual in students View
+			- in module config 
+				enable_saving
+				read only accorig to it
+				and show saving_grade and calcuate it if enabled
+			- don't forget to fix the cursor for grid by student
+			- saving_grade in grade
+				click show all fields to edit it
+					and indicate by color in average and credit
+			- show if saving_grade is filled
+				SEPERATE IT FROM hiddent values Flash
+			- check the two grids
+			- cloase when not allowed in 
+			- add , onupdate=datetime.utcnow) to timestamps
+			- finish : units_r_fond_aquired in annual_grade fetch data
+			- ask for recalculate if enabled_saving is changed
+			- detect ERRS
+			- name the PDFs title=""
+			- don't calculate if data in grid is wrong
+				js and app
+			- if i don't commit object do i find them in queries????
+				yes
 
 
 

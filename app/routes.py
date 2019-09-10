@@ -142,7 +142,7 @@ def logout():
     return redirect(url_for('index'))
 
 @app.route('/register/', methods=['GET', 'POST'])
-# @login_not_required
+@login_not_required
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('index'))

@@ -248,6 +248,7 @@ def grade_save(type=''):
         db.session.commit()
 
     # if type is student return : Annual and Semestre Average and Credit
+    # NOTE: it calculate everytime
     if type == 'student':
         grade_id = int(data_arr[0]['id'])
         grade = Grade.query.get(grade_id)
