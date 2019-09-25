@@ -514,6 +514,13 @@ class Session(db.Model):
             if grade.is_dirty == True :
                 return True
         return False
+    def check_errors_exist(self):
+        student_sessions = self.student_sessions
+        grades = Grade.query.join(StudentSession).filter_by(session_id=self.id).all()
+        check = check_grades_status(grades)
+        if check['ERRS'] == True:
+            return True
+        return False
     def get_students_to_enter_rattrapage(self):
         students = StudentSession.query\
             .filter_by(session_id=self.id)\
@@ -897,7 +904,9 @@ class Grade(db.Model):
                 if field in ['cour', 'td', 'tp', 't_pers', 'stage']:
                     val = getattr(self, field)
                     percentage = dictionary[field]
-                    is_in_range = val <= 20 and val >= 0
+                    is_in_range = False
+                    if val != None:
+                        is_in_range = val >= 0 and val <= 20
                     getcontext().prec = 4
                     if val != None and is_in_range:
                         average += round( val * Decimal(percentage) , 2)

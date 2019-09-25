@@ -1206,7 +1206,8 @@ def flash_check_annual_session(annual_dict_obj):
     R2 = annual_dict_obj['R2']
     need_init_recalc = False
     alert_reinit = 'alert-warning'
-    alert_recalc = 'alert-danger'
+    alert_recalc = 'alert-warning'
+    alert_errors = 'alert-danger'
     # 
     # 
     # 
@@ -1226,40 +1227,58 @@ def flash_check_annual_session(annual_dict_obj):
             need_init_recalc = True
             btn = make_button_session_reinit(S1)
             flash("Semester ("+nbr+") init needed "+btn, alert_reinit)
-        if S1.check_recalculate_needed():
+        if S1.check_errors_exist():
             need_init_recalc = True
-            btn = make_button_session_recalc(S1)
-            flash("Semester ("+nbr+") recalculate needed "+btn, alert_recalc)
+            flash("Semester ("+nbr+") has ERRORS ", alert_errors)
+        else:
+            if S1.check_recalculate_needed():
+                need_init_recalc = True
+                btn = make_button_session_recalc(S1)
+                flash("Semester ("+nbr+") recalculate needed "+btn, alert_recalc)
+
     if S2 != None:
         nbr = str(annual_dict_obj['S2'].semester.get_nbr())
         if S2.is_config_changed():
             need_init_recalc = True
             btn = make_button_session_reinit(S2)
             flash("Semester ("+nbr+") init needed "+btn, alert_reinit)
-        if S2.check_recalculate_needed():
+        if S2.check_errors_exist():
             need_init_recalc = True
-            btn = make_button_session_recalc(S2)
-            flash("Semester ("+nbr+") recalculate needed "+btn, alert_recalc)
+            flash("Semester ("+nbr+") has ERRORS ", alert_errors)
+        else:
+            if S2.check_recalculate_needed():
+                need_init_recalc = True
+                btn = make_button_session_recalc(S2)
+                flash("Semester ("+nbr+") recalculate needed "+btn, alert_recalc)
+
     if R1 != None:
         nbr = str(annual_dict_obj['R1'].semester.get_nbr())
         if R1.is_config_changed():
             need_init_recalc = True
             btn = make_button_session_reinit(R1)
             flash("Ratt. ("+nbr+") init needed "+btn, alert_reinit)
-        if R1.check_recalculate_needed():
+        if R2.check_errors_exist():
             need_init_recalc = True
-            btn = make_button_session_recalc(R1)
-            flash("Ratt. ("+nbr+") recalculate needed "+btn, alert_recalc)
+            flash("Ratt. ("+nbr+") has ERRORS ", alert_errors)
+        else:
+            if R1.check_recalculate_needed():
+                need_init_recalc = True
+                btn = make_button_session_recalc(R1)
+                flash("Ratt. ("+nbr+") recalculate needed "+btn, alert_recalc)
     if R2 != None:
         nbr = str(annual_dict_obj['R2'].semester.get_nbr())
         if R2.is_config_changed():
             need_init_recalc = True
             btn = make_button_session_reinit(R2)
             flash("Ratt. ("+nbr+") init needed "+btn, alert_reinit)
-        if R2.check_recalculate_needed():
+        if R2.check_errors_exist():
             need_init_recalc = True
-            btn = make_button_session_recalc(R2)
-            flash("Ratt. ("+nbr+") recalculate needed "+btn, alert_recalc)
+            flash("Ratt. ("+nbr+") has ERRORS ", alert_errors)
+        else:
+            if R2.check_recalculate_needed():
+                need_init_recalc = True
+                btn = make_button_session_recalc(R2)
+                flash("Ratt. ("+nbr+") recalculate needed "+btn, alert_recalc)
 
     return need_init_recalc
 

@@ -157,6 +157,10 @@ def get_sessions_tree(promo):
         # if session.is_config_changed() and session.is_closed==False:
         #     name += "<span style='color: orange;''>        Configuration has changed, you need to Re(initialized)</span>"
 
+        if session.check_errors_exist():
+            name += "<span style='color: red;''>        <<<  Contains ERRORS  >>> </span>"
+
+
         p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", hint:"'+hint+'", open:true, url: "'+url+'", target:"_self", iconSkin:"'+icon+'" },'
 
         sessions_tree += p + get_annual_session(session, pId)
@@ -320,8 +324,12 @@ def tree_annual(annual_session_id=0):
 @register_breadcrumb(app, '.tree', 'Tree')
 def tree(school_id=0, branch_id=0, promo_id=-1):
     options_arr = get_options()
-    nbr_reinit_needed = check_reinit_needed()
-    nbr_recalculate_needed = check_recalculate_needed()
+
+
+    sessions_to_check = Session.query.filter_by(is_closed=False).all()
+    nbr_reinit_needed = check_reinit_needed(sessions_to_check)
+    nbr_recalculate_needed = check_recalculate_needed(sessions_to_check)
+    nbr_sessions_errors = check_errors_exists(sessions_to_check)
 
     # return "i: "+str(nbr_reinit_needed)+" - c: "+str(nbr_recalculate_needed)
 
@@ -333,12 +341,17 @@ def tree(school_id=0, branch_id=0, promo_id=-1):
         msg = str(nbr_reinit_needed) + ' Sessions needs to be (Re)initialized    ' + btn
         flash(msg, 'alert-warning')
 
-    if nbr_recalculate_needed > 0:
-        recalculate_url = url_for('tree_recalc_all')
-        slow_redirect_url = url_for('slow_redirect', url=recalculate_url, message='(Re)calculating' + str(nbr_recalculate_needed) + ' sessions')
-        btn = '<a id="re-calc-all" class="btn btn-warning" href="'+slow_redirect_url+'" >(Re)Calculate All</a>'
-        msg = str(nbr_recalculate_needed) + ' Sessions needs to be (Re)calculate    ' + btn
-        flash(msg, 'alert-warning')
+    if nbr_sessions_errors == 0:
+        if nbr_recalculate_needed > 0:
+            recalculate_url = url_for('tree_recalc_all')
+            slow_redirect_url = url_for('slow_redirect', url=recalculate_url, message='(Re)calculating' + str(nbr_recalculate_needed) + ' sessions')
+            btn = '<a id="re-calc-all" class="btn btn-warning" href="'+slow_redirect_url+'" >(Re)Calculate All</a>'
+            msg = str(nbr_recalculate_needed) + ' Sessions needs to be (Re)calculate    ' + btn
+            flash(msg, 'alert-warning')
+    else:
+        msg = str(nbr_sessions_errors) + ' Sessions Containes ERRORS'
+        flash(msg, 'alert-danger')
+
 
     _tree_ = get_schools_tree(int(school_id), int(branch_id), int(promo_id))
     # _tree_ = get_schools_tree_cached(int(school_id), int(branch_id), int(promo_id))
@@ -348,25 +361,34 @@ def tree(school_id=0, branch_id=0, promo_id=-1):
 
 
 
-def get_semesters_id_in_promo(promo):
-    semesters_id_list = []
+# def get_semesters_id_in_promo(promo):
+#     semesters_id_list = []
+#     sessions = promo.sessions
+#     for session in sessions:
+#         semester_id = session.semester.id
+#         if semester_id not in semesters_id_list:
+#             semesters_id_list.append(semester_id)
+#     return semesters_id_list
+
+def get_semesters_nbr_in_promo(promo):
+    semesters_nbr_list = []
     sessions = promo.sessions
     for session in sessions:
-        semester_id = session.semester.id
-        if semester_id not in semesters_id_list:
-            semesters_id_list.append(semester_id)
-    return semesters_id_list
+        semester_nbr = session.semester.get_nbr()
+        if semester_nbr not in semesters_nbr_list:
+            semesters_nbr_list.append(semester_nbr)
+    return semesters_nbr_list
 
 def get_semesters_not_in_promo(promo):
     semesters = promo.branch.get_semesters_ordered()
     semesters = semesters[-1].get_latest_of_semesters_list()
 
-    semesters_id_in_promo = get_semesters_id_in_promo(promo)
-    semesters_in_promo = []
+    semesters_nbr_in_promo = get_semesters_nbr_in_promo(promo)
+    semesters_remaining_promo = []
     for semester in semesters:
-        if semester.id not in semesters_id_in_promo:
-            semesters_in_promo.append(semester)
-    return semesters_in_promo
+        if semester.get_nbr() not in semesters_nbr_in_promo:
+            semesters_remaining_promo.append(semester)
+    return semesters_remaining_promo
 
 def get_options_by_promo(promo):
     options = ''
@@ -393,13 +415,34 @@ def get_options():
 # def check_reinit_cached():
 #     return check_reinit_needed()
 
-def check_reinit_needed():
-    sessions = Session.query.filter_by(is_closed=False).all()
+
+def check_reinit_needed(sessions):
+    # sessions = Session.query.filter_by(is_closed=False).all()
     count = 0
     for session in sessions:
         if session.is_config_changed():
             count += 1
     return count
+
+def check_recalculate_needed(sessions):
+    # sessions = Session.query.filter_by(is_closed=False)\
+    #     .filter(Session.type!='historic').all()
+    # sessions = Session.query.filter_by(is_closed=False).all()
+    count = 0
+    for session in sessions:
+        if session.check_recalculate_needed():
+            count += 1
+    return count
+
+def check_errors_exists(sessions):
+    # sessions = Session.query.filter_by(is_closed=False).all()
+    count = 0
+    for session in sessions:
+        if session.check_errors_exist():
+            count += 1
+    return count
+
+
 
 @app.route('/tree/re-init/school/<school_id>', methods=['GET'])
 @app.route('/tree/re-init/', methods=['GET'])
@@ -416,19 +459,6 @@ def tree_reinit_all(school_id=0):
 
     return redirect( url_for('tree') )
 
-#
-#
-#
-
-def check_recalculate_needed():
-    # sessions = Session.query.filter_by(is_closed=False)\
-    #     .filter(Session.type!='historic').all()
-    sessions = Session.query.filter_by(is_closed=False).all()
-    count = 0
-    for session in sessions:
-        if session.check_recalculate_needed():
-            count += 1
-    return count
 
 @app.route('/tree/re-calc/school/<school_id>', methods=['GET'])
 @app.route('/tree/re-calc/', methods=['GET'])
@@ -442,7 +472,7 @@ def tree_recalc_all(school_id=0):
             # calculate_all(session)
             session.calculate()
             nbr_calc += 1
-    flash( str(nbr_calc) + " reinitialized")
+    flash( str(nbr_calc) + " recalculated")
 
     return redirect( url_for('tree') )
 

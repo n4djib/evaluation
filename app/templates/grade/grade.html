@@ -70,50 +70,63 @@
   <!-- <div class="container" onbeforeunload ="alert('aaaaa');"> -->
   <div class="container" >
 
-    <input id="search" name="search" placeholder="Filter ..." type="text" autocomplete="off">
-
-    {% if type == 'module' %}
-      {% if _all == 'all' %}
-        {% set href = url_for('grade', session_id=session.id, module_id=module.id) %}
-        {% set label = 'Hide Fields' %}
-      {% else %}
-        {% set href = url_for('grade', session_id=session.id, module_id=module.id, _all='all') %}
-        {% set label = 'Show All Fields' %}
+    <div style='border: 0px solid black; overflow: auto;'>
+      {% if type == 'module' %}
+      <input id="search" 
+        name="search" placeholder="Filter ..." 
+        type="text" autocomplete="off" />
       {% endif %}
-    {% else %}
-      {% if _all == 'all' %}
-        {% set href = url_for('grade', session_id=session.id, student_id=student.id) %}
-        {% set label = 'Hide Fields' %}
+
+
+      {% if type == 'module' %}
+        {% if _all == 'all' %}
+          {% set href = url_for('grade', session_id=session.id, module_id=module.id) %}
+          {% set label = 'Hide Fields' %}
+        {% else %}
+          {% set href = url_for('grade', session_id=session.id, module_id=module.id, _all='all') %}
+          {% set label = 'Show All Fields' %}
+        {% endif %}
       {% else %}
-        {% set href = url_for('grade', session_id=session.id, student_id=student.id, _all='all') %}
-        {% set label = 'Show All Fields' %}
+        {% if _all == 'all' %}
+          {% set href = url_for('grade', session_id=session.id, student_id=student.id) %}
+          {% set label = 'Hide Fields' %}
+        {% else %}
+          {% set href = url_for('grade', session_id=session.id, student_id=student.id, _all='all') %}
+          {% set label = 'Show All Fields' %}
+        {% endif %}
       {% endif %}
-    {% endif %}
 
-    <a id="all" class="btn btn-default" style="float:right;"
-      href="{{ href }}" >{{ label }}</a>
+      <a id="all" class="btn btn-default" style="float:right;"
+        href="{{ href }}" >{{ label }}</a>
 
-    {% if type == 'module' %}
-    <a href="{{ url_for('module_session_config', session_id=session.id, module_id=module.id) }}" 
-      class="btn btn-warning {{'shake-slow shake-constant' if module_session != None and module_session.has_teacher() else ''}}" 
-      role="button" style="margin-bottom:2px; margin-right:4px; float:right;"; 
-      ><img src='/static/img/config-session.png'></a>
-    {% else %}
-    <a href="{{ url_for('justification', session_id=session.id, student_id=student.id) }}" 
-      class="btn btn-primary" style="margin-bottom:2px; margin-right:4px; float:right;"
-      role="button" target="_blank">Justification</a>
-    <a href="{{ url_for('bultin_semester_print', session_id=session.id, student_id=student.id) }}" 
-      class="btn btn-success" style="margin-bottom:2px; margin-right:4px; float:right;"
-      role="button" target="_blank">Print Bultin</a>
-    {% endif %}
+      {% if type == 'module' %}
+      <a href="{{ url_for('module_session_config', session_id=session.id, module_id=module.id) }}" 
+        class="btn btn-warning {{'shake-slow shake-constant' if module_session != None and module_session.has_teacher() else ''}}" 
+        role="button" style="margin-bottom:2px; margin-right:4px; float:right;"; 
+        ><img src='/static/img/config-session.png'></a>
+      {% else %}
+      <a href="{{ url_for('justification', session_id=session.id, student_id=student.id) }}" 
+        class="btn btn-primary" style="margin-bottom:2px; margin-right:4px; float:right;"
+        role="button" target="_blank">Justification</a>
+      <a href="{{ url_for('bultin_semester_print', session_id=session.id, student_id=student.id) }}" 
+        class="btn btn-success" style="margin-bottom:2px; margin-right:4px; float:right;"
+        role="button" target="_blank">Print Bultin</a>
+      {% endif %}
+
+    </div>
+
+
 
     
-    <div id="hot" class="hot handsontable">
+    <div id="hot" class="hot handsontable" >
       <h2> *** the grid is empty *** </h2>
       <h3> ** you have to add students and initialize ** </h3>
     </div>
 
+
     </br>
+
+
     <button id="save" class="btn btn-success btn-lg">Save</button>
        <label><input name="autosave" id="autosave" autocomplete="off" type="checkbox" > Autosave</label>
 

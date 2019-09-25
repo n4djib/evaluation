@@ -20,18 +20,24 @@
 == PRIORITY 1 ==
 ----------------
 
+- add Tasks(TODO list) as notification
+	make Home Page a todo List
+
+	
+
 - in Session make list in "Button items" & "Linked items"
 	https://getbootstrap.com/docs/3.3/components/#list-group-buttons
 - the Need to calculate in session is not working
 
-- filtering in the grid Triggers is_dirty
-- in grades by student
-	when filtering the closed cells get messed up
-- show errors in annual
-	and it shows 100% even if there is a an ERROR
-- in the AnnualSession grid
-	don't make Obs ajournée before ratt
-- don't allow calc when errs
+			- filtering in the grid Triggers is_dirty
+				remove is_dirty for now 
+			- in grades by student
+				when filtering the closed cells get messed up
+			- show errors in annual
+				and it shows 100% even if there is a an ERROR
+			- don't allow calc when errs
+			- in tree - create session
+				it shows the parallel Semesters (it shouldn't)
 - give the ability to open all fields in rattrapage session
 - Potential Problem
 	when you create rattrapage & i already have entered Save grade in normal
@@ -43,20 +49,19 @@
 - turn all calculation to calcule by student
 	session.calculate() -> session.student_sessions.calculate
 
-- PRINT : add last_modification to printables
-	last entry in the database tables
-
 
 
 
 
 - use server workers for offline use
 
+- PRINT : add last_modification to printables
+	last entry in the database tables
+- in the AnnualSession grid
+	don't make Obs ajournée before ratt
 
 - lockout login after many failed attempts
 	- brut force pass cracking
-- add Tasks(TODO list) as notification
-	make Home Page a todo List
 - add Thumbnail to Preview print
 
 - find a way to allow registration

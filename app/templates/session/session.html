@@ -70,8 +70,10 @@
         <a href="{{ url_for('slow_redirect', url=init_url, message='Initializing') }}"
            class="btn btn-{{'warning shake-slow shake-constant' if (check['CONF'] or check['need_init']) and session.is_closed==False else 'primary'}} {{'disabled' if session.is_closed else ''}}" 
            role="button" style="z-index:9999;">(Re)Initialize</a>
+
         <a href="{{url_for('slow_redirect', url=calc_url, message='Calculating', gif='Preloader_3')}}"
-           class="btn btn-{{'warning shake-slow shake-constant' if check['CALC'] else 'primary'}} {{'disabled' if session.is_closed or check['ERRS'] else ''}}" 
+           class="btn btn-{{'warning shake-slow shake-constant' if check['CALC'] and not check['ERRS'] else 'primary'}} 
+           {{'disabled' if session.is_closed or check['ERRS'] else ''}}" 
            role="button" style="z-index:9999;">(Re)Calculate</a>
       </div>
 

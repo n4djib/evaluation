@@ -572,15 +572,15 @@ $(document).on('keydown', function(e){
 
 
 window.onbeforeunload = function (e) {
-  if (is_dirty) {
-    var e = e || window.event;
-    // For IE and Firefox prior to version 4
-    if (e) {
-        e.returnValue = 'Any string';
-    }
-    // For Safari
-    return 'Any string';
-  }
+  // if (is_dirty) {
+  //   var e = e || window.event;
+  //   // For IE and Firefox prior to version 4
+  //   if (e) {
+  //       e.returnValue = 'Any string';
+  //   }
+  //   // For Safari
+  //   return 'Any string';
+  // }
 };
 
 

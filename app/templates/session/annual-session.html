@@ -70,10 +70,14 @@
       <!-- <a href="{ {url_for('_fetch_data_annual_grade', annual_session_id=annual_session.id) }}" 
         class="btn btn-warning" role="button" >Fetch Data</a> -->
 
-      {% set refrech_url = url_for('calculate_annual_session', annual_session_id=annual_session.id) %}
+      {% set refrech_url = url_for('calculate_annual_session',
+         annual_session_id=annual_session.id) %}
       {% set disabled = 'disabled' if check_ann == True else '' %}
+
       <a href="{{url_for('slow_redirect', url=refrech_url) }}"
-       class="btn btn-{{ 'warning shake-slow shake-constant' if ( annual_session.check_need_calculate() == True ) else 'primary' }} {{ disabled }}"
+          class="btn btn-{{ 'warning ' if ( annual_session.check_need_calculate() == True) else 'primary' }} 
+          {{ ' shake-slow shake-constant' if ( annual_session.check_need_calculate() == True and check_ann == False ) else 'primary' }} 
+          {{ disabled }}"
        role="button" >(Re)Calculate</a>
 
 
