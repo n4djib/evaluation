@@ -277,7 +277,7 @@ class ModuleSessionForm(FlaskForm):
         choices = [(-1, '')]+[(t.id, t.last_name+' - '+t.first_name) for t in Teacher.query.order_by('last_name', 'last_name')
     ])
     start_date = DateField('Start Date', format='%Y-%m-%d', validators=[Optional()])
-    finish_date = DateField('Start Date', validators=[Optional()])
+    finish_date = DateField('Finish Date', validators=[Optional()])
     exam_date = DateField('Exam Date', validators=[Optional()])
     results_delivered_date = DateField('Results Delivered Date', validators=[Optional()])
     exam_surveyors = TextAreaField('Exam Surveyors', validators=[Optional()])
@@ -291,7 +291,7 @@ class ModuleSessionForm(FlaskForm):
 class SessionConfigForm(FlaskForm):
     name = StringField('name', validators=[Optional()])
     start_date = DateField('Start Date', validators=[Optional()])
-    finish_date = DateField('Start Date', validators=[Optional()])
+    finish_date = DateField('Finish Date', validators=[Optional()])
     # semester_id = SelectField('Semester', coerce=int, validators=[Optional()], 
     #     choices = [(-1, '')] + [(1, '***fill it in session_config***')]
     # )

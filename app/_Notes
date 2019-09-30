@@ -23,7 +23,12 @@
 - add Tasks(TODO list) as notification
 	make Home Page a todo List
 
-	
+
+- deleting rattrapage is deleting even when connected to annual
+	change it later in  def delete_session(session_id):
+	and session.html {{' s' if module.is_savable == True}}
+
+
 
 - in Session make list in "Button items" & "Linked items"
 	https://getbootstrap.com/docs/3.3/components/#list-group-buttons
@@ -38,6 +43,7 @@
 			- don't allow calc when errs
 			- in tree - create session
 				it shows the parallel Semesters (it shouldn't)
+- in annual disable everything until you calculate
 - give the ability to open all fields in rattrapage session
 - Potential Problem
 	when you create rattrapage & i already have entered Save grade in normal
@@ -73,12 +79,13 @@
 	Custom widgets
 		https://wtforms.readthedocs.io/en/stable/widgets.html
 
-- remove notes from the Pages
+- remove Notes from the Pages
 - resultat is not sorting by name
 - PRINT : add print : list of rattrapage without modules to pass
 - Combine check_grades_status & get_icon_progress
 	??????????????
 - use tabs to organize students
+	in students List
 - use tabs to organize tree each school
 - add a cron job to save database
 - add param to functions that have 
@@ -95,7 +102,8 @@
 	});
 
 
-
+- NOTE in module config it calculates when i change save_enabled
+	add redirect page for a better UX
 
 
 - check module printables

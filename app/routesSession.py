@@ -126,6 +126,26 @@ def session(session_id=0):
         icons_module = []
         for unit in session.semester.units:
             for module in unit.modules:
+                # 
+                # 
+                # 
+                # 
+                # 
+                # 
+                module.is_savable = False
+                module_session = ModuleSession.query.filter_by(module_id=module.id).first()
+                if module_session != None:
+                    module.is_savable = module_session.saving_enabled
+                # 
+                # 
+                # 
+                # 
+                # 
+                # 
+                # 
+                # 
+                # 
+                # 
                 modules_list.append(module)
                 icon = get_icon_progress_module(session_id, module.id)
                 icons_module.append(icon)
@@ -218,6 +238,25 @@ def delete_session(session_id):
         flash('Semester ('+str(session_id)+') was not deleted because it is Closed', 'alert-danger')
     else:
         # you can't delete a session if it has an AnnualSession
+
+
+        # # 
+        # # if rattrapage
+        # #       delete annual first
+        # # 
+        # if session.is_rattrapage:
+        #     annual_session = session.annual_session
+        #     if annual_session != None:
+        #         db.session.delete(annual_session)
+        # # 
+        # # 
+        # # 
+        # # 
+        # # 
+        # # 
+
+
+
         annual_dict = session.get_annual_dict()
         if annual_dict['A'] == -1:
             # cleaning
@@ -229,8 +268,47 @@ def delete_session(session_id):
             db.session.commit()
             flash('Semester ('+str(session_id)+') deleted')
         else:
-            # return str(annual_dict)
-            flash("you can't delete a Session related to an Annual", 'alert-danger')
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # if rattrapage
+            if session.is_rattrapage:
+            # cleaning
+                for ss in session.student_sessions:
+                    Grade.query.filter_by(student_session_id=ss.id).delete()
+                    GradeUnit.query.filter_by(student_session_id=ss.id).delete()
+                    db.session.delete(ss)
+                db.session.delete(session)
+                db.session.commit()
+                flash('Semester ('+str(session_id)+') deleted')
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            else:
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+                flash("you can't delete a Session related to an Annual", 'alert-danger')
         
     return redirect(url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id))
 
@@ -316,11 +394,6 @@ def session_historic_save():
 #####                                                                           #####
 #####################################################################################
                                                                       
-
-                                                                                                
-
-
-
 def init_classement_laureats(promo_id):
     students = Student.query.join(StudentSession).join(Session).filter_by(promo_id=promo_id).all()
     student_in_classements = Student.query.join(Classement).filter_by(promo_id=promo_id).all()
@@ -525,59 +598,99 @@ def create_rattrapage(session_id):
     return session
 
 
-
 # def transfer_grade_student_module(grade_from, grade_to, module_sess_from=None, module_sess_to=None):
 
 #     return 'transfer grade student module'
 
 
-def transfer_grades(session_id, ratt_id, student_session_ratt_id, student_id):
-# def transfer_grades(session, rattrapage, student_session_ratt, student):
-    grades = Grade.query.join(StudentSession)\
-        .filter_by(session_id=session_id, student_id=student_id)\
-        .all()
 
 
-    # find module_session
-    # module_session = ModuleSession.query.filter_by(session_id=session_id, ).first()
 
 
+
+
+def make_ratt_grade(grade, session_id, student_id, student_session_ratt_id):
     # ratt_modules = get_ratt_modules_list_semester(session_id, student_id)
     student_session = StudentSession.query.filter_by(session_id=session_id, student_id=student_id).first()
     ratt_modules = student_session.get_ratt_modules_list_semester()
 
+
+    grade_in_ratt = Grade.query.filter_by(
+        student_session_id=student_session_ratt_id, 
+        module_id=grade.module_id).first()
+
+
+    is_rattrapage = False
+    if grade.module_id in ratt_modules:
+        is_rattrapage = True
+
+    # transfaire to new grade
+    new_grade = Grade(
+        student_session_id=student_session_ratt_id, 
+        module_id=grade.module_id, 
+        formula=grade.formula, 
+        is_rattrapage=is_rattrapage
+    )
+
+    ## fill fields from grade.formula
+    # { 'cour': 0, 'tp': 0, 'stage': 0, 
+    #   'coefficient':4, 'credit':6, 
+    #   'rattrapable': 'cour'
+    # }
+    dictionary = literal_eval(grade.formula)
+    for field in dictionary:
+        if field in ['cour', 'td', 'tp', 't_pers', 'stage']:
+            val = getattr(grade, field)
+
+            # skip rattrapable field if is_rattrapage
+            if new_grade.is_rattrapage and field == dictionary['rattrapable']:
+                val = None
+                if grade_in_ratt != None:
+                    val = getattr(grade_in_ratt, field)
+
+            if grade.saving_grade != None:
+                module_session = ModuleSession.query.filter_by(
+                    module_id=grade.module_id).first()
+                if module_session.saving_enabled:
+                    val = grade.saving_grade
+
+            setattr(new_grade, field, val)
+            
+
+
+    # if it exists save "Rattrabable" and delete record
+    if grade_in_ratt is not None:
+        db.session.delete(grade_in_ratt)
+
+    return new_grade
+
+
+
+
+def transfer_grades(session_id, ratt_id, student_session_ratt_id, student_id):
+    grades = Grade.query.join(StudentSession)\
+        .filter_by(session_id=session_id, student_id=student_id)\
+        .all()
+
     for grade in grades:
-        grade_in_ratt = Grade.query.filter_by(
-            student_session_id=student_session_ratt_id, 
-            module_id=grade.module_id).first()
-
-        cour = grade.cour
-        is_rattrapage = None
-
-        # if int(grade.module_id) in ratt_modules:
-        if grade.module_id in ratt_modules:
-            is_rattrapage = True
-            cour = None
-
-        # if it exists save Cour and delete record
-        if grade_in_ratt is not None:
-            # if int(grade.module_id) in ratt_modules:
-            if grade.module_id in ratt_modules:
-                cour = grade_in_ratt.cour
-            db.session.delete(grade_in_ratt)
-
-        new_grade = Grade(
-            student_session_id=student_session_ratt_id,
-            module_id=grade.module_id, 
-            formula=grade.formula,
-            cour=cour, 
-            td=grade.td, 
-            tp=grade.tp,
-            t_pers=grade.t_pers, 
-            stage=grade.stage, 
-            average=grade.average, 
-            credit=grade.credit,
-            is_rattrapage=is_rattrapage)
+        #
+        #
+        #
+        #
+        #
+        #
+        new_grade = make_ratt_grade(
+            grade, 
+            session_id, 
+            student_id, 
+            student_session_ratt_id
+        )
+        #
+        #
+        #
+        #
+        #
+        #
         db.session.add(new_grade)
 
     return 'transfer grades'
@@ -626,7 +739,28 @@ def create_rattrapage_sem(session_id, students):
                 db.session.add(module_session_ratt)
             module_session_ratt.module_id = module_session_sem.module_id
             module_session_ratt.teacher_id = module_session_sem.teacher_id
-            module_session_ratt.saving_enabled = module_session_sem.saving_enabled
+            #
+            #
+            #
+            #
+            #
+            #
+            #
+            #
+            #
+            #
+            #
+            # module_session_ratt.saving_enabled = module_session_sem.saving_enabled
+            #
+            #
+            #
+            #
+            #
+            #
+            #
+            #
+            #
+            #
     db.session.commit()
 
     # transfair students
@@ -692,10 +826,6 @@ def create_next_session(promo_id=0):
 
     return ' *** create_next_session *** '
 
-
-
-
-
 def has_next(promo_id, semester_id):
     sessions = Session.query.filter_by(promo_id=promo_id).join(Semester)\
         .join(Annual).order_by(Annual.annual, Semester.semester).all()
@@ -712,8 +842,6 @@ def has_next(promo_id, semester_id):
             return True
     
     return False
-
-
 
 @app.route('/create-session/promo/<promo_id>/semester/<semester_id>/', methods=['GET', 'POST'])
 def create_session(promo_id=0, semester_id=0):
@@ -755,7 +883,6 @@ def create_session(promo_id=0, semester_id=0):
     branch_id = session.promo.branch_id
     promo_id = session.promo_id
     return redirect( url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id) )
-
 
 
 ######################
@@ -1257,7 +1384,7 @@ def flash_check_annual_session(annual_dict_obj):
             need_init_recalc = True
             btn = make_button_session_reinit(R1)
             flash("Ratt. ("+nbr+") init needed "+btn, alert_reinit)
-        if R2.check_errors_exist():
+        if R1.check_errors_exist():
             need_init_recalc = True
             flash("Ratt. ("+nbr+") has ERRORS ", alert_errors)
         else:

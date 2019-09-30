@@ -294,7 +294,8 @@ def module_session_config(session_id, module_id):
     module_session = ModuleSession.query.filter_by(session_id=session_id, module_id=module_id).first()
 
     form = ModuleSessionForm(module_session.id)
-    if form.validate_on_submit():    
+    if form.validate_on_submit():
+        remember_savable = module_session.saving_enabled
         module_session.teacher_id = None if form.teacher_id.data == -1 else form.teacher_id.data
         module_session.start_date = form.start_date.data
         module_session.finish_date = form.finish_date.data
@@ -304,7 +305,9 @@ def module_session_config(session_id, module_id):
         module_session.saving_enabled = form.saving_enabled.data
         # calculate session
         # module_session.session.set_dirty()
-        module_session.session.calculate()
+        if remember_savable != form.saving_enabled.data:
+            # we recalculate to incorporate Saving
+            module_session.session.calculate()
         db.session.commit()
         flash('Your changes have been saved.', 'alert-success')
         return redirect(url_for('grade', session_id=session_id, module_id=module_id))

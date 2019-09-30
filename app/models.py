@@ -15,7 +15,7 @@ from app._shared_functions import extract_fields, check_grades_status
 
 # 
 
-# 
+#
 
 class Promo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -912,7 +912,7 @@ class Grade(db.Model):
                         average += round( val * Decimal(percentage) , 2)
                     if val == None:
                         val = '???'
-                    calculation += '('+ str(field) + ': ' + str(val) + ' * ' + str(percentage) + ')' + ' + '
+                    calculation += '('+str(field)+': '+str(val)+' * '+str(percentage)+')' + ' + '
             # end for
 
             if is_in_range == True:

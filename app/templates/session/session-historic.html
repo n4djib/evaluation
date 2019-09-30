@@ -106,13 +106,13 @@
 
       <a href="{{ url_for('student_session', session_id=session.id) }}"
          class="btn btn-primary {{'disabled' if session.is_closed else ''}}" 
-         role="button">Add/Remove</a>
+         role="button">Add/Remove Students</a>
       <a href="{{ url_for('students_update_many', session_id=session.id) }}"
          class="btn btn-primary {{'disabled' if session.is_closed else ''}}" 
-         role="button">Massive Editing</a>
+         role="button">Massive Editing Students</a>
       <a href ="{{url_for('create_annual_session', session_id=session.id)}}"
          class="btn btn-primary" role="button"
-         ><img src='/static/ztree/img/diy/17.png'> Annual</a>
+         ><img src='/static/ztree/img/diy/17.png'> Annual ???</a>
       
       {% if session.is_rattrapage != True and session.semester.has_fondamental() == True %}
       <a href ="{{url_for('students_rattrapage_semester', session_id=session.id)}}"

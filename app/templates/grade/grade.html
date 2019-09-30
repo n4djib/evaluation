@@ -71,10 +71,9 @@
   <div class="container" >
 
     <div style='border: 0px solid black; overflow: auto;'>
-      {% if type == 'module' %}
-      <input id="search" 
-        name="search" placeholder="Filter ..." 
-        type="text" autocomplete="off" />
+      {% if type == 'module'  and  session.is_rattrapage != True %}
+      <input id="search" name="search" 
+        placeholder="Filter ..." type="text" autocomplete="off" />
       {% endif %}
 
 
@@ -128,13 +127,17 @@
 
 
     <button id="save" class="btn btn-success btn-lg">Save</button>
-       <label><input name="autosave" id="autosave" autocomplete="off" type="checkbox" > Autosave</label>
+      <label>
+        <input name="autosave" id="autosave"
+           autocomplete="off" type="checkbox" checked > Autosave</label>
 
     </br>
     </br>
     
 
-    <pre id="message" class="console"><h3>*** if you see this: the JavaScript in (_grid.js) is not working ***<h3> </pre>
+    <pre id="message" class="console">
+      <h3>*** if you see this: the JavaScript in (_grid.js) is not working ***<h3>
+    </pre>
 
 
 
@@ -150,7 +153,7 @@
      value="empty" class="products"> Empty<br>
     <input id="checkbox-sort" type="checkbox" checked name="selected"
      value="sort" class="products"> Sort by Name<br>
-    <input id="checkbox-show" type="checkbox" checked name="selected"
+    <input id="checkbox-show" type="checkbox"  name="selected"
      value="show" class="products"> Show Average & Credit<br>
 
     <a id='link' href ="{{ url_for('module_print', session_id=session.id, module_id=module.id) }}" target="_blank" class="btn btn-primary" role="button">Print</a>

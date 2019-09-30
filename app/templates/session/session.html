@@ -105,7 +105,18 @@
               <td>
                 <a href="{{url_for('grade', session_id=session.id, module_id=module.id)}}">{{ module.code | replace('None', '???') }} - {{ module.display_name | replace('None', '???') }}
                 </a></td>
-              <td>{{ 'f' if module.unit.is_fondamental == True }}</td>
+              <td>{{ 'f' if module.unit.is_fondamental == True }} 
+
+
+
+
+              {{ ' s' if module.is_savable == True }}
+              
+
+
+
+
+              </td>
               <td>{{ module.coefficient }}</td>
               <td>{{ module.credit }}</td>
               <td> <img src="{{ url_for('static', filename='img/' + icons_module[loop.index-1] ) }}"
