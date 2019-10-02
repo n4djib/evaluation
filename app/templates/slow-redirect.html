@@ -17,7 +17,7 @@
       /*centered*/
       position: fixed; right: 0; left: 0;
       margin-right: auto; margin-left: auto;
-      width: 90%; height: 70%; z-index: 9999;
+      width: 90%; height: 70%; z-index: 99;
 
       /*background: url({{ url_for('static', filename='img/Preloader_3.gif') }}) center no-repeat #fff;*/
       /*background: url({{ url_for('static', filename='img/Preloader_8_2.gif') }}) center no-repeat #fff;*/
@@ -32,6 +32,8 @@
 {% block app_content %}
     Redirecting to: {{ url | replace('None', '') }}
     <div class="se-pre-con"></div> 
+
+  </br>
 {% endblock %}
 
 

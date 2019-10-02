@@ -655,7 +655,7 @@ def make_ratt_grade(grade, session_id, student_id, student_session_ratt_id):
                     val = grade.saving_grade
 
             setattr(new_grade, field, val)
-            
+
 
 
     # if it exists save "Rattrabable" and delete record
@@ -1247,7 +1247,7 @@ def collect_data_annual_session(annual_session, sort=''):
             '<td class="center '+bg_final+'">' + str(ag.credit_final) + '</td>',  
             '<td>' + str(ag.obs_html).replace('None', '') + '</td>',
             '<td>' + bultin  + '</td>'
-            '<td>' + bultin_ratt  + '</td>'
+            #'<td>' + bultin_ratt  + '</td>'
         ])
 
     return array_data

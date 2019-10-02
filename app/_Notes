@@ -54,6 +54,15 @@
 	transfer_grades() is transgering only cour ass rattrapable
 - turn all calculation to calcule by student
 	session.calculate() -> session.student_sessions.calculate
+- add checking in the result
+- PRINT: bultin annual normat + rattrapage
+- WARNING: fix observation
+	AnnualGrade->calculate 
+- RATT: la note finale retenue pour la matiere sera la meilleure des moyennes entre les 2 sessions
+- In AnnualGrade Calcule 
+	use dictionary for Obs.
+- Historique can create ratt histo ?????
+
 
 
 

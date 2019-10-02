@@ -379,19 +379,29 @@ def collect_data_for_module(grades, cols, empty=''):
             if 'credit' in cols:
                 record.append('')
         else:
+            # if saving enabled and filled
+            saving_grade = None
+            if grade.saving_grade != None:
+                module_session = ModuleSession.query.filter_by(
+                    session_id=grade.student_session.session_id,
+                    module_id=grade.module_id).first()
+                if module_session.saving_enabled == True:
+                    saving_grade = grade.saving_grade
+
+
             #cour
-            record.append(grade.cour)
+            record.append( saving_grade if saving_grade != None else grade.cour )
             # WARNING: this one shoold be Dynamic
             if 'td' in cols:
-                record.append(grade.td)
+                record.append( saving_grade if saving_grade != None else grade.td )
             if 'tp' in cols:
-                record.append(grade.tp)
+                record.append( saving_grade if saving_grade != None else grade.tp )
             if 't_pers' in cols:
-                record.append(grade.t_pers)
+                record.append( saving_grade if saving_grade != None else grade.t_pers )
             if 'stage' in cols:
-                record.append(grade.stage)
-            if 'saving_grade' in cols:
-                record.append(grade.saving_grade)
+                record.append( saving_grade if saving_grade != None else grade.stage )
+            # if 'saving_grade' in cols:
+            #     record.append(grade.saving_grade)
             if 'average' in cols:
                 record.append(grade.average)
             if 'credit' in cols:

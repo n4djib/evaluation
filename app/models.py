@@ -141,6 +141,26 @@ class AnnualGrade(db.Model):
     annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
     annual_session = db.relationship("AnnualSession", back_populates="annual_grades")
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+
+    OBSERVATION = {
+        'rattrapage': {
+            'obs': 'Rattrapage',
+            'obs_html': '<span class="label label-warning">Rattrapage</span>'
+        },
+        'admis_avec_dettes': {
+            'obs': 'Admis avec dettes',
+            'obs_html': '<span class="label label-warning">Admis avec dettes</span>'
+        },
+        'ajournee': {
+            'obs': 'Ajournée',
+            'obs_html': '<span class="label label-danger">Ajournée</span>'
+        },
+        'admis': {
+            'obs': 'Admis',
+            'obs_html': '<span class="label label-success">Admis</span>'
+        }
+    }
+    
     def get_ratt_modules_list_annual_html(self):
         annual_dict = self.annual_session.get_annual_dict()
         student_session_1 = StudentSession.query\
@@ -219,6 +239,7 @@ class AnnualGrade(db.Model):
         self.enter_ratt = None
 
         return 'fetch_data_annual_grade'
+    
     def calculate(self):
         def average(avr_1, avr_2):
             """ the two vals must not be None """
@@ -295,8 +316,17 @@ class AnnualGrade(db.Model):
                 observation = 'Admis avec dettes'
                 obs_html = '<span class="label label-warning">Admis avec dettes</span>'
 
+        # 
+        # 
+        # et chaque semestre possede au moin 10 crédit
+        # 
+        #       add it to ajournée
+        #       
+        # 
+        # 
+
         if ag.average_r != None:
-            if ag.credit_final < 30:
+            if ag.credit_final < 30: # or one of the semesters credit is bellow 101
                 observation = 'Ajournée'
                 obs_html = '<span class="label label-danger">Ajournée</span>'
 

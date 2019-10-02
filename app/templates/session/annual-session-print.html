@@ -62,6 +62,9 @@
       padding-left: 1px;
       padding-right: 1px;
     }
+    .obs {
+      white-space: nowrap; 
+    }
 
 
 
@@ -145,7 +148,7 @@
             <td class="session bg-red">{{ data[11] | replace('None', '') }}</td>
           {% endif %}
 
-          <td>{{ data[12] | replace('None', '') }}</td>
+          <td class="obs">{{ data[12] | replace('None', '') }}</td>
         </tr>
       {% endfor %}
       </tbody>
