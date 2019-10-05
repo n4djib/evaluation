@@ -23,12 +23,9 @@
 - add Tasks(TODO list) as notification
 	make Home Page a todo List
 
-
 - deleting rattrapage is deleting even when connected to annual
 	change it later in  def delete_session(session_id):
 	and session.html {{' s' if module.is_savable == True}}
-
-
 
 - in Session make list in "Button items" & "Linked items"
 	https://getbootstrap.com/docs/3.3/components/#list-group-buttons
@@ -63,9 +60,13 @@
 	use dictionary for Obs.
 - Historique can create ratt histo ?????
 
-
-
-
+- in annual_grade add: the abilaty to change the Progrission (the observation)
+	make the decision in Progrission and Classement
+	if it i filled it changes what in AnnualGrade
+- in Promo decide wich Classement and Progression formule
+- TAGS FOR EXAM SURVIORS
+	https://www.cssscript.com/tags-input-tagplug/
+	
 
 
 - use server workers for offline use
