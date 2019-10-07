@@ -281,6 +281,7 @@ class ModuleSessionForm(FlaskForm):
     exam_date = DateField('Exam Date', validators=[Optional()])
     results_delivered_date = DateField('Results Delivered Date', validators=[Optional()])
     exam_surveyors = TextAreaField('Exam Surveyors', validators=[Optional()])
+    # exam_surveyors = StringField('Exam Surveyors', validators=[Optional()])
     saving_enabled = BooleanField('Saving Enabled')
     submit = SubmitField('Update')
     def __init__(self, _id=-1, *args, **kwargs):
