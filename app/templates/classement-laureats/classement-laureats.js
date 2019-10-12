@@ -21,6 +21,13 @@ var columns = [
   { data: 'credit_app', type: 'numeric', readOnly: true },
   { data: 'credit_cumul', type: 'numeric', readOnly: true },
   { data: 'decision', type: 'text' },
+
+  { data: 'semester', type: 'text', width: 80, readOnly: true },
+  { data: 'average_s', type: 'numeric' },
+  { data: 'average_app_s', type: 'numeric', readOnly: true },
+  { data: 'credit_s', type: 'numeric' },
+  { data: 'credit_app_s', type: 'numeric', readOnly: true },
+
   // { data: 'R', type: 'numeric' },
   // { data: 'R_app', type: 'numeric', readOnly: true },
   // { data: 'S', type: 'numeric' },
@@ -39,7 +46,8 @@ hot = new Handsontable(container, {
   // colHeaders: true,
   //saisir
   colHeaders: ['--ID--', '#', 'Name', '(Annee)', 
-    'Moy', '(Moy)', 'Cr', '(Cr)', '(Cr Cumul)', 'Decision', 
+    'Moy a', '(Moy a)', 'Cr a', '(Cr a)', '(Cr Cumul)', 'Decision', 
+    '(Semester)', 'Moy s', '(Moy s)', 'Cr s', '(Cr s)', 
     'R', '(R)', 'S', '(S)', '(((Moy Classement)))'],
   stretchH: "all",
   nestedRows: true,

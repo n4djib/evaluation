@@ -408,7 +408,7 @@ def init_classement_laureats(promo_id):
 
     promo = Promo.query.get_or_404(promo_id)
     annuals = promo.branch.annuals
-    semesters = annuals[0].semesters
+    # semesters = annuals[0].semesters
 
     classements = Classement.query.filter_by(promo_id=promo_id).all()
 
@@ -419,7 +419,10 @@ def init_classement_laureats(promo_id):
             classement_year = ClassementYear.query\
                 .filter_by(classement_id=classement.id, year=annual.annual).first()
             if classement_year == None:
-                classement_year = ClassementYear(classement_id=classement.id, year=annual.annual)
+                classement_year = ClassementYear(
+                    classement_id=classement.id, 
+                    year=annual.annual
+                )
                 # 
                 # 
                 ##### disabled it to avoid creating classement_year
@@ -433,15 +436,17 @@ def init_classement_laureats(promo_id):
 
             # fill classement_semester
             for cy in classement.classement_years:
-                for semester in semesters:
+                for semester in annual.semesters:
                     classement_semester = ClassementSemester.query.filter_by(
                             classement_year_id = cy.id,
                             semester = semester.semester
+                            # semester = semester.get_nbr()
                         ).first()
                     if classement_semester == None:
                         classement_semester = ClassementSemester(
                             classement_year_id=cy.id,
                             semester = semester.semester
+                            # semester = semester.get_nbr()
                         )
                         db.session.add(classement_semester)
             
@@ -455,7 +460,9 @@ def init_classement_laureats(promo_id):
 
 def fill_classement_laureats_data(promo_id):
     promo = Promo.query.get_or_404(promo_id)
-    classement_years = ClassementYear.query.join(Classement).filter_by(promo_id=promo_id).all()
+    classement_years = ClassementYear.query.join(Classement)\
+        .filter_by(promo_id=promo_id).join(Student)\
+        .order_by(Student.username, ClassementYear.year).all()
     for classement_year in classement_years:
         student_id = classement_year.classement.student_id
         year = classement_year.year
@@ -518,45 +525,67 @@ def calulate_avr_classement(promo_id):
 
 
 
-def create_classement_merge_arr(classement_years, years):
+def create_classement_merge_arr(classements, years, semesters):
     mergeCells = ''
     last_i = None
-    for index, cy in enumerate(classement_years):
-        i =  str( int( (index-(index%years))/years ) )  
+    for index, cs in enumerate(classements):
+        i =  str( int( (index-(index%semesters))/semesters ) )  
         
         if i != last_i:
-            col1 = ' {row:'+str(index)+', col:1, rowspan:'+str(years)+', colspan:1}, '
-            col2 = ' {row:'+str(index)+', col:2, rowspan:'+str(years)+', colspan:1}, '
-            mergeCells += col1 + col2
+            col1 = ' {row:'+str(index)+', col:1, rowspan:'+str(semesters)+', colspan:1}, '
+            col2 = ' {row:'+str(index)+', col:2, rowspan:'+str(semesters)+', colspan:1}, '
+            mergeCells += col1 + col2 
+
+            for year in range(years):
+                row = str(index + (year * 2) )
+                col3 = ' {row: '+row+', col:3, rowspan: 2, colspan:1}, '
+                col4 = ' {row: '+row+', col:4, rowspan: 2, colspan:1}, '
+                col5 = ' {row: '+row+', col:5, rowspan: 2, colspan:1}, '
+                col6 = ' {row: '+row+', col:6, rowspan: 2, colspan:1}, '
+                col7 = ' {row: '+row+', col:7, rowspan: 2, colspan:1}, '
+                col8 = ' {row: '+row+', col:8, rowspan: 2, colspan:1}, '
+                col9 = ' {row: '+row+', col:9, rowspan: 2, colspan:1}, '
+                mergeCells += col3 + col4 + col5 + col6 + col7 + col8 + col9
+            
             last_i = i
 
     return '[ ' + mergeCells + ' ]'
 
-def create_classement_data_grid(classement_years, years):
-    data_arr = ''
-    for index, cy in enumerate(classement_years):
-        s = cy.classement.student
 
-        id = 'id: ' + str(cy.id) + ', '
-        index = 'index: "' + str( int( (index-(index%years))/years ) + 1 ) + '", '
+def create_classement_data_grid(classements, years, semesters):
+    data_arr = ''
+    for index, cs in enumerate(classements):
+        s = cs.classement_year.classement.student
+
+        id = 'id: ' + str(cs.id) + ', '
+        index = 'index: "' + str( int( (index-(index%semesters))/semesters ) + 1 ) + '", '
         name = 'name: "' + s.username+' - '+ s.last_name+' '+s.first_name + '", '
-        year = 'year: ' + str(cy.year) + ', '
-        average = 'average: ' + str(cy.average) + ', '
-        average_app = 'average_app: ' + str(cy.average_app) + ', '
-        credit = 'credit: ' + str(cy.credit) + ', '
-        credit_app = 'credit_app: ' + str(cy.credit_app) + ', '
-        credit_cumul = 'credit_cumul: ' + str(cy.credit_cumul) + ', '
-        d = "" if cy.decision == None else cy.decision
+        
+        year = 'year: ' + str(cs.classement_year.year) + ', '
+        average = 'average: ' + str(cs.classement_year.average) + ', '
+        average_app = 'average_app: ' + str(cs.classement_year.average_app) + ', '
+        credit = 'credit: ' + str(cs.classement_year.credit) + ', '
+        credit_app = 'credit_app: ' + str(cs.classement_year.credit_app) + ', '
+        credit_cumul = 'credit_cumul: ' + str(cs.classement_year.credit_cumul) + ', '
+
+        semester_nbr = (cs.classement_year.year * 2) - 2 + cs.semester
+        semester = 'semester: ' + str(semester_nbr) + ', '
+        average_s = 'average_s: ' + str(cs.average) + ', '
+        average_app_s = 'average_app_s: ' + str(cs.average_app) + ', '
+        credit_s = 'credit_s: ' + str(cs.credit) + ', '
+        credit_app_s = 'credit_app_s: ' + str(cs.credit_app) + ', '
+
+        d = "" if cs.classement_year.decision == None else cs.classement_year.decision
         decision = 'decision: "' + str(d) + '", '
-        R = 'R: ' + str(cy.R) + ', '
-        R_app = 'R_app: ' + str(cy.R_app) + ', '
-        S = 'S: ' + str(cy.S) + ', '
-        S_app = 'S_app: ' + str(cy.S_app) + ', '
-        avr_classement = 'avr_classement: ' + str(cy.avr_classement) + ', '
+        R = 'R: ' + str(cs.classement_year.R) + ', '
+        R_app = 'R_app: ' + str(cs.classement_year.R_app) + ', '
+        S = 'S: ' + str(cs.classement_year.S) + ', '
+        S_app = 'S_app: ' + str(cs.classement_year.S_app) + ', '
+        avr_classement = 'avr_classement: ' + str(cs.classement_year.avr_classement) + ', '
 
         data_arr += '{'+ id + index + name + year \
              + average + average_app + credit + credit_app \
-             + credit_cumul + decision \
+             + credit_cumul + decision + semester \
              + R + R_app + S + S_app + avr_classement +'}, '
 
     return '[ ' + data_arr + ' ]'
@@ -578,14 +607,28 @@ def classement_laureats(promo_id=0, type_id=0):
     # flash(msg)
     promo = Promo.query.get_or_404(promo_id)
     years = promo.branch.years_from_config()
+    # semesters = promo.branch.semesters_from_config()
+    semesters = years * 2
 
-    classement_years = ClassementYear.query.join(Classement).filter_by(promo_id=promo_id)\
-        .join(Student).order_by(Student.username, ClassementYear.year).all()
+    # classement_years = ClassementYear.query.join(Classement).filter_by(promo_id=promo_id)\
+    #     .join(Student).order_by(Student.username, ClassementYear.year).all()
+
+    classements = ClassementSemester.query\
+        .join(ClassementYear)\
+        .join(Classement).filter_by(promo_id=promo_id)\
+        .all()
+
+        # .join(Student)\
+        # .order_by(Student.username, ClassementYear.year, ClassementSemester.semester)\
 
 
+    mergeCells = create_classement_merge_arr(classements, years, semesters)
+    # mergeCells = []
+    data_arr = create_classement_data_grid(classements, years, semesters)
+    
 
-    data_arr = create_classement_data_grid(classement_years, years)
-    mergeCells = create_classement_merge_arr(classement_years, years)
+
+    # return str(data_arr)
 
 
 
