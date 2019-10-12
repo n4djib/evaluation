@@ -158,6 +158,10 @@ class AnnualGrade(db.Model):
         'admis': {
             'obs': 'Admis',
             'obs_html': '<span class="label label-success">Admis</span>'
+        },
+        'admis_ratt': {
+            'obs': 'Admis apres Ratt.',
+            'obs_html': '<span class="label label-info">Admis apres Ratt.</span>'
         }
     }
     
@@ -184,6 +188,7 @@ class AnnualGrade(db.Model):
         return mudules_list_1 + _br + mudules_list_2
     def fetch_data(self):
         annual_dict = self.annual_session.get_annual_dict()
+
         sess_1 = StudentSession.query.filter_by(
             session_id=annual_dict['S1'], student_id=self.student_id).first()
         sess_2 = StudentSession.query.filter_by(
@@ -202,6 +207,16 @@ class AnnualGrade(db.Model):
         self.cr_1  = sess_1.credit if sess_1 != None else None
         self.avr_2 = sess_2.average if sess_2 != None else None
         self.cr_2  = sess_2.credit if sess_1 != None else None
+
+
+        # print("*********")
+        # # print( str(annual_dict['S1']) )
+        # # print( str(annual_dict['S2']) )
+        # # print( str(annual_dict['A']) )
+        # print("StudentSession " + str(sess_1.id) )
+        # print("session_id " + str(sess_1.session_id) )
+        # print("average " + str(sess_1.average) )
+        # print("*********")
 
         # units_fond_aquired
         self.units_fond_aquired = None
@@ -239,7 +254,6 @@ class AnnualGrade(db.Model):
         self.enter_ratt = None
 
         return 'fetch_data_annual_grade'
-    
     def calculate(self):
         def average(avr_1, avr_2):
             """ the two vals must not be None """
@@ -293,12 +307,10 @@ class AnnualGrade(db.Model):
 
         # avr_s = ag.saving_average
         avr_r = ag.average_r
-        # ag.average_final = avr_s if avr_s != None else avr_r if avr_r != None else ag.average
         ag.average_final = avr_r if avr_r != None else ag.average
 
         # cr_s = ag.saving_credit
         cr_r = ag.credit_r
-        # ag.credit_final = cr_s if cr_s != None else cr_r if cr_r != None else ag.credit
         ag.credit_final = cr_r if cr_r != None else ag.credit
 
 
@@ -317,14 +329,11 @@ class AnnualGrade(db.Model):
                 obs_html = '<span class="label label-warning">Admis avec dettes</span>'
 
         # 
-        # 
         # et chaque semestre possede au moin 10 crédit
         # 
         #       add it to ajournée
         #       
         # 
-        # 
-
         if ag.average_r != None:
             if ag.credit_final < 30: # or one of the semesters credit is bellow 101
                 observation = 'Ajournée'
@@ -333,6 +342,9 @@ class AnnualGrade(db.Model):
         if ag.credit_final == 60: 
             observation = 'Admis'
             obs_html = '<span class="label label-success">Admis</span>'
+            if ag.average_r != None: 
+                observation = 'Admis apres Ratt.'
+                obs_html = '<span class="label label-info">Admis apres Ratt.</span>'
 
         ag.observation = observation
         ag.obs_html = obs_html
@@ -438,6 +450,13 @@ class Session(db.Model):
         R1 = Session.query.get( annual_dict['R1'] )
         R2 = Session.query.get( annual_dict['R2'] )
         A = AnnualSession.query.get( annual_dict['A'] )
+        # print("---")
+        # print(str(S1.id))
+        # print(str(S2.id))
+        # # print(str(annual_dict['R1']))
+        # # print(str(annual_dict['R2']))
+        # print(str(A.id))
+        # print("---")
         return {'S1': S1, 'S2': S2, 'R1': R1, 'R2': R2, 'A': A}
     # this will return the Ratt for a Normal Session and vice versa
     def get_parallel_session(self):
@@ -1457,8 +1476,7 @@ class Classement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     promo_id = db.Column(db.Integer, db.ForeignKey('promo.id'))
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
-    avr_licence = db.Column(db.Numeric(10,2))
-    avr_master = db.Column(db.Numeric(10,2))
+    avr_classement = db.Column(db.Numeric(10,2))
     classement_years = db.relationship('ClassementYear', backref='classement')
     student = db.relationship("Student", back_populates="classement")
     promo = db.relationship("Promo", back_populates="classement")
@@ -1470,10 +1488,32 @@ class ClassementYear(db.Model):
     year = db.Column(db.Integer)
     average = db.Column(db.Numeric(10,2))
     average_app = db.Column(db.Numeric(10,2))
-    R = db.Column(db.Numeric(10,2))
+    credit = db.Column(db.Integer)
+    credit_app = db.Column(db.Integer)
+    credit_cumul = db.Column(db.Integer)
+    decision = db.Column(db.String(150))
+    R     = db.Column(db.Numeric(10,2))
     R_app = db.Column(db.Numeric(10,2))
-    S = db.Column(db.Numeric(10,2))
+    S     = db.Column(db.Numeric(10,2))
     S_app = db.Column(db.Numeric(10,2))
+    avr_classement = db.Column(db.Numeric(10,2))
+    classement_semesters = db.relationship('ClassementSemester', backref='classement_year')
+
+class ClassementSemester(db.Model):
+    __tablename__ = 'classement_semester'
+    id = db.Column(db.Integer, primary_key=True)
+    classement_year_id = db.Column(db.Integer, db.ForeignKey('classement_year.id'))
+    semester = db.Column(db.Integer)
+    average = db.Column(db.Numeric(10,2))
+    average_app = db.Column(db.Numeric(10,2))
+    credit = db.Column(db.Integer)
+    credit_app = db.Column(db.Integer)
+    b     = db.Column(db.Numeric(10,2))
+    b_app = db.Column(db.Numeric(10,2))
+    d     = db.Column(db.Numeric(10,2))
+    d_app = db.Column(db.Numeric(10,2))
+    s     = db.Column(db.Numeric(10,2))
+    s_app = db.Column(db.Numeric(10,2))
     avr_classement = db.Column(db.Numeric(10,2))
 
 ############################## 

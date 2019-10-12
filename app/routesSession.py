@@ -2,7 +2,7 @@ from app import app, db
 from flask import render_template, request, redirect, url_for, flash
 from app.models import Promo, Session, StudentSession, Grade, GradeUnit, Unit, Semester,\
      School, Module, Student, Type, AnnualSession, AnnualGrade, Grade, Annual,\
-     Classement, ClassementYear, ModuleSession
+     Classement, ClassementYear, ModuleSession, ClassementSemester
 from app.forms import SessionConfigForm
 from flask_breadcrumbs import register_breadcrumb
 from decimal import *
@@ -406,24 +406,47 @@ def init_classement_laureats(promo_id):
             student_in_classements.append(student)
     db.session.commit()
 
-
     promo = Promo.query.get_or_404(promo_id)
     annuals = promo.branch.annuals
+    semesters = annuals[0].semesters
 
     classements = Classement.query.filter_by(promo_id=promo_id).all()
-    # classement_years = ClassementYear.query.join(Classement).filter_by(promo_id=promo_id).all()
 
     # insert missing students in classement_years
     for classement in classements:
+        # fill classement_year
         for annual in annuals:
             classement_year = ClassementYear.query\
                 .filter_by(classement_id=classement.id, year=annual.annual).first()
             if classement_year == None:
                 classement_year = ClassementYear(classement_id=classement.id, year=annual.annual)
-                db.session.add(classement_year)
+                # 
+                # 
+                ##### disabled it to avoid creating classement_year
+                # 
+                # db.session.add(classement_year)
+                # 
+                # 
+                # 
+                # 
+                # 
+
+            # fill classement_semester
+            for cy in classement.classement_years:
+                for semester in semesters:
+                    classement_semester = ClassementSemester.query.filter_by(
+                            classement_year_id = cy.id,
+                            semester = semester.semester
+                        ).first()
+                    if classement_semester == None:
+                        classement_semester = ClassementSemester(
+                            classement_year_id=cy.id,
+                            semester = semester.semester
+                        )
+                        db.session.add(classement_semester)
+            
     db.session.commit()
 
-    #
     #
     # remove excess from Classement and ClassementYear
     #
@@ -440,12 +463,37 @@ def fill_classement_laureats_data(promo_id):
             .join(AnnualSession).filter_by(promo_id=promo_id)\
             .join(Annual).filter_by(annual=year).first()
         if annual_grade != None:
-            classement_year.average_app = annual_grade.average
-            # classement_year.average_app = AnnualGrade.average_r
+            # from annual_grade fill the fields
+            classement_year.average_app = annual_grade.average_final
+            classement_year.credit_app = annual_grade.credit_final
 
     db.session.commit()
 
+    # calculate_cumul field
+    calculate_cumul_field(classement_years)
+
     return 'fill_classement_laureats_data'
+
+# def calculate_cumul_field(promo_id):
+def calculate_cumul_field(classement_years):
+    student_id = None
+    cumul = None
+    prev_cumul = None
+    for cy in classement_years:
+        credit = cy.credit if cy.credit != None else cy.credit_app if cy.credit_app != None else 0
+        if student_id != cy.classement.student_id:
+            student_id = cy.classement.student_id
+            cumul = credit
+        else:
+            cumul = cumul + credit
+
+        if cy.credit == None and cy.credit_app == None:
+            cy.credit_cumul = None
+        else:
+            cy.credit_cumul = cumul
+
+    db.session.commit()
+    return 'calculate_cumul_field'
 
 def calulate_avr_classement(promo_id):
     promo = Promo.query.get_or_404(promo_id)
@@ -467,26 +515,8 @@ def calulate_avr_classement(promo_id):
 
     return 'calulate_avr_classement'
 
-@app.route('/classement-laureats/promo/<promo_id>/', methods=['GET'])
-@register_breadcrumb(app, '.tree_promo.classement_laureats', 'Classement Laureats')
-def classement_laureats(promo_id=0, type_id=0):
-    msg = init_classement_laureats(promo_id)
-    msg1 = fill_classement_laureats_data(promo_id)
 
-    calulate_avr_classement(promo_id)
 
-    # flash(msg)
-    promo = Promo.query.get_or_404(promo_id)
-    years = promo.branch.years_from_config()
-
-    classement_years = ClassementYear.query.join(Classement).filter_by(promo_id=promo_id)\
-        .join(Student).order_by(Student.username, ClassementYear.year).all()
-
-    data_arr = create_classement_data_grid(classement_years, years)
-    mergeCells = create_classement_merge_arr(classement_years, years)
-
-    return render_template( 'classement-laureats/classement-laureats.html', 
-        data_arr=data_arr, mergeCells=mergeCells, years=years)
 
 def create_classement_merge_arr(classement_years, years):
     mergeCells = ''
@@ -513,21 +543,58 @@ def create_classement_data_grid(classement_years, years):
         year = 'year: ' + str(cy.year) + ', '
         average = 'average: ' + str(cy.average) + ', '
         average_app = 'average_app: ' + str(cy.average_app) + ', '
+        credit = 'credit: ' + str(cy.credit) + ', '
+        credit_app = 'credit_app: ' + str(cy.credit_app) + ', '
+        credit_cumul = 'credit_cumul: ' + str(cy.credit_cumul) + ', '
+        d = "" if cy.decision == None else cy.decision
+        decision = 'decision: "' + str(d) + '", '
         R = 'R: ' + str(cy.R) + ', '
         R_app = 'R_app: ' + str(cy.R_app) + ', '
         S = 'S: ' + str(cy.S) + ', '
         S_app = 'S_app: ' + str(cy.S_app) + ', '
         avr_classement = 'avr_classement: ' + str(cy.avr_classement) + ', '
 
-        data_arr += '{'+ id + index + name + year + average + average_app + R + R_app + S + S_app + avr_classement +'}, '
+        data_arr += '{'+ id + index + name + year \
+             + average + average_app + credit + credit_app \
+             + credit_cumul + decision \
+             + R + R_app + S + S_app + avr_classement +'}, '
 
     return '[ ' + data_arr + ' ]'
 
 
+
+@app.route('/classement-laureats/promo/<promo_id>/', methods=['GET'])
+@register_breadcrumb(app, '.tree_promo.classement_laureats', 'Classement Laureats')
+def classement_laureats(promo_id=0, type_id=0):
+    # now it init if it doesn't exist
+    # add later the option to delete and init
+    msg1 = init_classement_laureats(promo_id)
+    # 
+    # 
+    # 
+    msg2 = fill_classement_laureats_data(promo_id)
+    msg3 = calulate_avr_classement(promo_id)
+
+    # flash(msg)
+    promo = Promo.query.get_or_404(promo_id)
+    years = promo.branch.years_from_config()
+
+    classement_years = ClassementYear.query.join(Classement).filter_by(promo_id=promo_id)\
+        .join(Student).order_by(Student.username, ClassementYear.year).all()
+
+
+
+    data_arr = create_classement_data_grid(classement_years, years)
+    mergeCells = create_classement_merge_arr(classement_years, years)
+
+
+
+    return render_template( 'classement-laureats/classement-laureats.html', 
+        data_arr=data_arr, mergeCells=mergeCells, years=years)
+
+
 #######################################
-#####                             #####
-#####                             #####
-#####                             #####
+#####    Classement in Session    #####
 #######################################
 
 @app.route('/session/<session_id>/classement/', methods=['GET', 'POST'])
@@ -1097,32 +1164,14 @@ def init_annual_grade(annual_session):
 
     return 'init_annual_grade'
 
-@app.route('/annual-session/<annual_session_id>/calculate', methods=['GET', 'POST'])
-def calculate_annual_session(annual_session_id=0):
-    annual_session = AnnualSession.query.get_or_404(annual_session_id)
-    init_annual_grade(annual_session)
-    fetch_data_annual_session(annual_session)
-    annual_session.calculate()
-    db.session.commit()
-    return redirect(url_for('annual_session', annual_session_id=annual_session_id))
-
 def fetch_data_annual_session(annual_session):
     annual_grades = annual_session.annual_grades
     for ag in annual_grades:
         ag.fetch_data()
+        # break
 
     db.session.commit()
     return "fetch_data_annual_session"
-
-@app.route('/annual-session/<annual_session_id>/refrech', methods=['GET', 'POST'])
-def annual_session_refrech(annual_session_id=0):
-    annual_session = AnnualSession.query.get_or_404(annual_session_id)
-
-    init_annual_grade(annual_session)
-    # fetch_data_annual_session(annual_session)
-    # calculate_annual(annual_session)
-
-    return redirect(url_for('annual_session', annual_session_id=annual_session_id))
 
 
 def make_link(ag, col, annual_dict):
@@ -1292,39 +1341,6 @@ def collect_data_annual_session_print(annual_session, sort=''):
         ])
     return array_data
 
-def annual_session_dlc(*args, **kwargs):
-    annual_session_id = request.view_args['annual_session_id']
-    annual_session = AnnualSession.query.get_or_404(annual_session_id)
-    name = 'Annual ()'
-    if annual_session.annual != None:
-        name = 'Annual (' + str(annual_session.annual.annual) + ')'
-    
-    return [{'text': '' + name, 
-        'url': url_for('annual_session', annual_session_id=annual_session_id) }]
-
-@app.route('/annual-session/<annual_session_id>/<sort>/', methods=['GET', 'POST'])
-@app.route('/annual-session/<annual_session_id>/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree_annual.annual', '***', dynamic_list_constructor=annual_session_dlc)
-def annual_session(annual_session_id=0, sort=''):
-    annual_session = AnnualSession.query.get_or_404(annual_session_id)
-    array_data = collect_data_annual_session(annual_session, sort)
-    annual_dict_obj = annual_session.get_annual_dict_obj()
-    check_ann = flash_check_annual_session(annual_dict_obj)
-    return render_template('session/annual-session.html', 
-        title='Annual Session', annual_session=annual_session, 
-        array_data=array_data, annual_dict_obj=annual_dict_obj, check_ann=check_ann)
-
-@app.route('/annual-session/<annual_session_id>/print/<sort>/', methods=['GET', 'POST'])
-@app.route('/annual-session/<annual_session_id>/print/', methods=['GET', 'POST'])
-def annual_session_print(annual_session_id=0, sort=''):
-    annual_session = AnnualSession.query.get_or_404(annual_session_id)
-    array_data = collect_data_annual_session_print(annual_session, sort)
-    header = make_header_annual_print(annual_session, 'Resultat Annuelle')
-    annual_dict_obj = annual_session.get_annual_dict_obj()
-    title = make_title_annual_print(annual_session, "Annuelle")
-    return render_template('session/annual-session-print.html', title=title, 
-        array_data=array_data, header=header, annual_dict_obj=annual_dict_obj)
-
 
 def flash_check_annual_session(annual_dict_obj):
     S1 = annual_dict_obj['S1']
@@ -1464,6 +1480,26 @@ def init_annual_session_id(session_id, annual_session_id=None):
             session.annual_session_id = annual_session_id
         db.session.commit()
 
+
+@app.route('/annual-session/<annual_session_id>/calculate', methods=['GET', 'POST'])
+def calculate_annual_session(annual_session_id=0):
+    annual_session = AnnualSession.query.get_or_404(annual_session_id)
+    init_annual_grade(annual_session)
+    fetch_data_annual_session(annual_session)
+    annual_session.calculate()
+    db.session.commit()
+    return redirect(url_for('annual_session', annual_session_id=annual_session_id))
+
+@app.route('/annual-session/<annual_session_id>/refrech', methods=['GET', 'POST'])
+def annual_session_refrech(annual_session_id=0):
+    annual_session = AnnualSession.query.get_or_404(annual_session_id)
+
+    init_annual_grade(annual_session)
+    # fetch_data_annual_session(annual_session)
+    # calculate_annual(annual_session)
+
+    return redirect(url_for('annual_session', annual_session_id=annual_session_id))
+
 @app.route('/annual-session/<session_id>/create_annual_session/', methods=['GET', 'POST'])
 def create_annual_session(session_id):
     annual_session_id = None
@@ -1498,6 +1534,40 @@ def create_annual_session(session_id):
     init_annual_session_id(session.id, annual_session_id)
 
     return redirect(url_for('annual_session_refrech', annual_session_id=annual_session_id))
+
+
+def annual_session_dlc(*args, **kwargs):
+    annual_session_id = request.view_args['annual_session_id']
+    annual_session = AnnualSession.query.get_or_404(annual_session_id)
+    name = 'Annual ()'
+    if annual_session.annual != None:
+        name = 'Annual (' + str(annual_session.annual.annual) + ')'
+    
+    return [{'text': '' + name, 
+        'url': url_for('annual_session', annual_session_id=annual_session_id) }]
+
+@app.route('/annual-session/<annual_session_id>/<sort>/', methods=['GET', 'POST'])
+@app.route('/annual-session/<annual_session_id>/', methods=['GET', 'POST'])
+@register_breadcrumb(app, '.tree_annual.annual', '***', dynamic_list_constructor=annual_session_dlc)
+def annual_session(annual_session_id=0, sort=''):
+    annual_session = AnnualSession.query.get_or_404(annual_session_id)
+    array_data = collect_data_annual_session(annual_session, sort)
+    annual_dict_obj = annual_session.get_annual_dict_obj()
+    check_ann = flash_check_annual_session(annual_dict_obj)
+    return render_template('session/annual-session.html', 
+        title='Annual Session', annual_session=annual_session, 
+        array_data=array_data, annual_dict_obj=annual_dict_obj, check_ann=check_ann)
+
+@app.route('/annual-session/<annual_session_id>/print/<sort>/', methods=['GET', 'POST'])
+@app.route('/annual-session/<annual_session_id>/print/', methods=['GET', 'POST'])
+def annual_session_print(annual_session_id=0, sort=''):
+    annual_session = AnnualSession.query.get_or_404(annual_session_id)
+    array_data = collect_data_annual_session_print(annual_session, sort)
+    header = make_header_annual_print(annual_session, 'Resultat Annuelle')
+    annual_dict_obj = annual_session.get_annual_dict_obj()
+    title = make_title_annual_print(annual_session, "Annuelle")
+    return render_template('session/annual-session-print.html', title=title, 
+        array_data=array_data, header=header, annual_dict_obj=annual_dict_obj)
 
 @app.route('/annual-session/<annual_session_id>/delete/', methods=['GET', 'POST'])
 def delete_annual_session(annual_session_id):

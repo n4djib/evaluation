@@ -40,6 +40,11 @@
 			- don't allow calc when errs
 			- in tree - create session
 				it shows the parallel Semesters (it shouldn't)
+
+
+- When Creating a new Annual
+	ask for Reinit/Recalculate
+
 - in annual disable everything until you calculate
 - give the ability to open all fields in rattrapage session
 - Potential Problem
@@ -58,7 +63,7 @@
 - RATT: la note finale retenue pour la matiere sera la meilleure des moyennes entre les 2 sessions
 - In AnnualGrade Calcule 
 	use dictionary for Obs.
-- Historique can create ratt histo ?????
+- Historic can create ratt histo ?????
 
 - in annual_grade add: the abilaty to change the Progrission (the observation)
 	make the decision in Progrission and Classement
@@ -68,6 +73,13 @@
 	https://www.cssscript.com/tags-input-tagplug/
 	https://www.phpzag.com/create-bootstrap-tags-input-with-jquery-php-mysql/
 	https://www.phpzag.com/demo/create-bootstrap-tags-input-with-jquery-php-mysql/
+
+
+
+
+
+
+
 
 
 - use server workers for offline use
