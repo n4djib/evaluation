@@ -465,14 +465,23 @@ def fill_classement_laureats_data(promo_id):
         .order_by(Student.username, ClassementYear.year).all()
     for classement_year in classement_years:
         student_id = classement_year.classement.student_id
-        year = classement_year.year
+        annual = classement_year.year
         annual_grade = AnnualGrade.query.filter_by(student_id=student_id)\
             .join(AnnualSession).filter_by(promo_id=promo_id)\
-            .join(Annual).filter_by(annual=year).first()
+            .join(Annual).filter_by(annual=annual).first()
         if annual_grade != None:
             # from annual_grade fill the fields
             classement_year.average_app = annual_grade.average_final
             classement_year.credit_app = annual_grade.credit_final
+
+        # 
+        # fill classement_semester
+        # for classement_semester in classement_year.classement_semesters:
+            # fill semester 1
+            
+            # fill semester 2
+
+
 
     db.session.commit()
 
@@ -523,8 +532,6 @@ def calulate_avr_classement(promo_id):
     return 'calulate_avr_classement'
 
 
-
-
 def create_classement_merge_arr(classements, years, semesters):
     mergeCells = ''
     last_i = None
@@ -550,7 +557,6 @@ def create_classement_merge_arr(classements, years, semesters):
             last_i = i
 
     return '[ ' + mergeCells + ' ]'
-
 
 def create_classement_data_grid(classements, years, semesters):
     data_arr = ''
@@ -589,7 +595,6 @@ def create_classement_data_grid(classements, years, semesters):
              + R + R_app + S + S_app + avr_classement +'}, '
 
     return '[ ' + data_arr + ' ]'
-
 
 
 @app.route('/classement-laureats/promo/<promo_id>/', methods=['GET'])
@@ -634,7 +639,6 @@ def classement_laureats(promo_id=0, type_id=0):
 
     return render_template( 'classement-laureats/classement-laureats.html', 
         data_arr=data_arr, mergeCells=mergeCells, years=years)
-
 
 #######################################
 #####    Classement in Session    #####

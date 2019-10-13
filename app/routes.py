@@ -105,11 +105,11 @@ def slow_redirect():
 # _insecure_views = ['login', 'register']
 _insecure_views = []
 
-# @app.before_request
-# def before_request():
-#     if not current_user.is_authenticated:
-#         if request.endpoint not in _insecure_views:
-#             return redirect(url_for('login'))
+@app.before_request
+def before_request():
+    if not current_user.is_authenticated:
+        if request.endpoint not in _insecure_views:
+            return redirect(url_for('login'))
 
 def login_not_required(fn):
     '''decorator to disable user authentication'''
