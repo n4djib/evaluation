@@ -150,7 +150,6 @@ def get_module_session(session, module):
         module_session = create_module_session(session.id, module.id)
     return module_session
 
-
 def get_hidden_values_flash(grades, session, module):
     cols = get_module_cols(module)
     # fields = ['cour', 'td', 'tp', 't_pers', 'stage', 'saving_grade']

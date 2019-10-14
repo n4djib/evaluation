@@ -46,7 +46,7 @@ hot = new Handsontable(container, {
   // colHeaders: true,
   //saisir
   colHeaders: ['--ID--', '#', 'Name', '(Annee)', 
-    'Moy a', '(Moy a)', 'Cr a', '(Cr a)', '(Cr Cumul)', 'Decision', 
+    'Moy a', '(Moy a)', 'Cr a', '(Cr a)', '((Cr Cumul))', 'Decision', 
     '(Semester)', 'Moy s', '(Moy s)', 'Cr s', '(Cr s)', 
     'R', '(R)', 'S', '(S)', '(((Moy Classement)))'],
   stretchH: "all",

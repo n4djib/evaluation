@@ -474,13 +474,19 @@ def fill_classement_laureats_data(promo_id):
             classement_year.average_app = annual_grade.average_final
             classement_year.credit_app = annual_grade.credit_final
 
-        # 
-        # fill classement_semester
-        # for classement_semester in classement_year.classement_semesters:
-            # fill semester 1
-            
-            # fill semester 2
-
+            # 
+            # fill classement_semester
+            for classement_semester in classement_year.classement_semesters:
+                cs = classement_semester
+                ag = annual_grade
+                # fill semester 1
+                if cs.semester == 1:
+                    cs.average_app = ag.avr_r_1 if ag.avr_r_1 != None else ag.avr_1
+                    cs.credit_app = ag.cr_r_1 if ag.cr_r_1 != None else ag.cr_1
+                # fill semester 2
+                if cs.semester == 2:
+                    cs.average_app = ag.avr_r_2 if ag.avr_r_2 != None else ag.avr_2
+                    cs.credit_app = ag.cr_r_2 if ag.cr_r_2 != None else ag.cr_2
 
 
     db.session.commit()
@@ -567,6 +573,7 @@ def create_classement_data_grid(classements, years, semesters):
         index = 'index: "' + str( int( (index-(index%semesters))/semesters ) + 1 ) + '", '
         name = 'name: "' + s.username+' - '+ s.last_name+' '+s.first_name + '", '
         
+        # Annual
         year = 'year: ' + str(cs.classement_year.year) + ', '
         average = 'average: ' + str(cs.classement_year.average) + ', '
         average_app = 'average_app: ' + str(cs.classement_year.average_app) + ', '
@@ -574,6 +581,7 @@ def create_classement_data_grid(classements, years, semesters):
         credit_app = 'credit_app: ' + str(cs.classement_year.credit_app) + ', '
         credit_cumul = 'credit_cumul: ' + str(cs.classement_year.credit_cumul) + ', '
 
+        # Semester
         semester_nbr = (cs.classement_year.year * 2) - 2 + cs.semester
         semester = 'semester: ' + str(semester_nbr) + ', '
         average_s = 'average_s: ' + str(cs.average) + ', '
@@ -592,6 +600,7 @@ def create_classement_data_grid(classements, years, semesters):
         data_arr += '{'+ id + index + name + year \
              + average + average_app + credit + credit_app \
              + credit_cumul + decision + semester \
+             + average_s + average_app_s + credit_s + credit_app_s \
              + R + R_app + S + S_app + avr_classement +'}, '
 
     return '[ ' + data_arr + ' ]'
@@ -628,7 +637,7 @@ def classement_laureats(promo_id=0, type_id=0):
 
 
     mergeCells = create_classement_merge_arr(classements, years, semesters)
-    # mergeCells = []
+    mergeCells = []
     data_arr = create_classement_data_grid(classements, years, semesters)
     
 
