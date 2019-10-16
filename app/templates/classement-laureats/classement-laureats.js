@@ -20,7 +20,16 @@ var columns = [
   { data: 'credit', type: 'numeric' },
   { data: 'credit_app', type: 'numeric', readOnly: true },
   { data: 'credit_cumul', type: 'numeric', readOnly: true },
-  { data: 'decision', type: 'text' },
+  { 
+    data: 'decision', 
+    type: 'dropdown',
+    source: ['yellow', 'red', 'orange', 'green', 'blue', 'gray', 'black', 'white'] 
+  },
+  { data: 'R', type: 'numeric' },
+  { data: 'R_app', type: 'numeric', readOnly: true },
+  { data: 'S', type: 'numeric' },
+  { data: 'S_app', type: 'numeric', readOnly: true },
+  { data: 'avr_classement', type: 'numeric', /*width: 12,*/ readOnly: true },
 
   { data: 'semester', type: 'text', width: 80, readOnly: true },
   { data: 'average_s', type: 'numeric' },
@@ -28,11 +37,6 @@ var columns = [
   { data: 'credit_s', type: 'numeric' },
   { data: 'credit_app_s', type: 'numeric', readOnly: true },
 
-  // { data: 'R', type: 'numeric' },
-  // { data: 'R_app', type: 'numeric', readOnly: true },
-  // { data: 'S', type: 'numeric' },
-  // { data: 'S_app', type: 'numeric', readOnly: true },
-  // { data: 'avr_classement', type: 'numeric', /*width: 12,*/ readOnly: true },
 ];
 
 container.innerHTML = ""; 
@@ -47,8 +51,9 @@ hot = new Handsontable(container, {
   //saisir
   colHeaders: ['--ID--', '#', 'Name', '(Annee)', 
     'Moy a', '(Moy a)', 'Cr a', '(Cr a)', '((Cr Cumul))', 'Decision', 
-    '(Semester)', 'Moy s', '(Moy s)', 'Cr s', '(Cr s)', 
-    'R', '(R)', 'S', '(S)', '(((Moy Classement)))'],
+    'R', '(R)', 'S', '(S)', 
+    '(((Moy Clas.)))',
+    '(Semester)', 'Moy s', '(Moy s)', 'Cr s', '(Cr s)'],
   stretchH: "all",
   nestedRows: true,
   contextMenu: true,
@@ -59,5 +64,33 @@ hot = new Handsontable(container, {
   //   indicators: false
   // }
 });
+
+
+$("#save").click(function(){
+  Save();
+});
+
+
+function Save(){
+  $.ajax({
+    // url: '/grade/save/',
+    url: '{{ url_for("classement_laureats_save") }}', 
+    type: 'POST',
+    data: JSON.stringify( data_arr ),
+    contentType: 'application/json; charset=utf-8',
+    dataType: 'text',
+    async: true,
+    success: function(msg) {
+      console.log('success');
+      console.log(msg);
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.log('some error');
+      alert("some error");
+    }
+  });
+
+}
+
 
 

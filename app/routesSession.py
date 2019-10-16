@@ -558,7 +558,14 @@ def create_classement_merge_arr(classements, years, semesters):
                 col7 = ' {row: '+row+', col:7, rowspan: 2, colspan:1}, '
                 col8 = ' {row: '+row+', col:8, rowspan: 2, colspan:1}, '
                 col9 = ' {row: '+row+', col:9, rowspan: 2, colspan:1}, '
-                mergeCells += col3 + col4 + col5 + col6 + col7 + col8 + col9
+
+                col10 = ' {row: '+row+', col:10, rowspan: 2, colspan:1}, '
+                col11 = ' {row: '+row+', col:11, rowspan: 2, colspan:1}, '
+                col12 = ' {row: '+row+', col:12, rowspan: 2, colspan:1}, '
+                col13 = ' {row: '+row+', col:13, rowspan: 2, colspan:1}, '
+                col14 = ' {row: '+row+', col:14, rowspan: 2, colspan:1}, '
+                mergeCells += col3 + col4 + col5 + col6 + col7 + col8 + col9 \
+                    + col10 + col11 + col12 + col13 + col14
             
             last_i = i
 
@@ -568,40 +575,43 @@ def create_classement_data_grid(classements, years, semesters):
     data_arr = ''
     for index, cs in enumerate(classements):
         s = cs.classement_year.classement.student
+        cy = cs.classement_year
 
         id = 'id: ' + str(cs.id) + ', '
         index = 'index: "' + str( int( (index-(index%semesters))/semesters ) + 1 ) + '", '
         name = 'name: "' + s.username+' - '+ s.last_name+' '+s.first_name + '", '
         
         # Annual
-        year = 'year: ' + str(cs.classement_year.year) + ', '
-        average = 'average: ' + str(cs.classement_year.average) + ', '
-        average_app = 'average_app: ' + str(cs.classement_year.average_app) + ', '
-        credit = 'credit: ' + str(cs.classement_year.credit) + ', '
-        credit_app = 'credit_app: ' + str(cs.classement_year.credit_app) + ', '
-        credit_cumul = 'credit_cumul: ' + str(cs.classement_year.credit_cumul) + ', '
+        year = 'year: ' + str(cy.year) + ', '
+        average = 'average: ' + str(cy.average) + ', '
+        average_app = 'average_app: ' + str(cy.average_app) + ', '
+        credit = 'credit: ' + str(cy.credit) + ', '
+        credit_app = 'credit_app: ' + str(cy.credit_app) + ', '
+        credit_cumul = 'credit_cumul: ' + str(cy.credit_cumul) + ', '
 
         # Semester
-        semester_nbr = (cs.classement_year.year * 2) - 2 + cs.semester
+        semester_nbr = (cy.year * 2) - 2 + cs.semester
         semester = 'semester: ' + str(semester_nbr) + ', '
         average_s = 'average_s: ' + str(cs.average) + ', '
         average_app_s = 'average_app_s: ' + str(cs.average_app) + ', '
         credit_s = 'credit_s: ' + str(cs.credit) + ', '
         credit_app_s = 'credit_app_s: ' + str(cs.credit_app) + ', '
 
-        d = "" if cs.classement_year.decision == None else cs.classement_year.decision
+        d = "" if cy.decision == None else cy.decision
         decision = 'decision: "' + str(d) + '", '
-        R = 'R: ' + str(cs.classement_year.R) + ', '
-        R_app = 'R_app: ' + str(cs.classement_year.R_app) + ', '
-        S = 'S: ' + str(cs.classement_year.S) + ', '
-        S_app = 'S_app: ' + str(cs.classement_year.S_app) + ', '
-        avr_classement = 'avr_classement: ' + str(cs.classement_year.avr_classement) + ', '
+        avr_classement = 'avr_classement: ' + str(cy.avr_classement) + ', '
+
+        R = 'R: ' + str(cy.R) + ', '
+        R_app = 'R_app: ' + str(cy.R_app) + ', '
+        S = 'S: ' + str(cy.S) + ', '
+        S_app = 'S_app: ' + str(cy.S_app) + ', '
+
 
         data_arr += '{'+ id + index + name + year \
-             + average + average_app + credit + credit_app \
-             + credit_cumul + decision + semester \
-             + average_s + average_app_s + credit_s + credit_app_s \
-             + R + R_app + S + S_app + avr_classement +'}, '
+             + average + average_app + credit + credit_app + credit_cumul \
+             + decision + avr_classement \
+             + R + R_app + S + S_app \
+             + semester + average_s + average_app_s + credit_s + credit_app_s + '}, '
 
     return '[ ' + data_arr + ' ]'
 
@@ -642,6 +652,52 @@ def classement_laureats(promo_id=0, type_id=0):
 
     return render_template( 'classement-laureats/classement-laureats.html', 
         data_arr=data_arr, mergeCells=mergeCells, years=years)
+
+@app.route('/classement-laureats/save/', methods = ['POST'])
+def classement_laureats_save():
+    data_arr = request.json
+
+    print("data_arr")
+    print(data_arr)
+    print("data_arr")
+
+
+    for i, data in enumerate(data_arr, start=0):
+        # grade = Grade.query.filter_by(id = int(data['id'])).first()
+
+
+        # 
+        # 
+        # 
+        # 
+        # WRONG: id is not the same
+        # 
+        cs = ClassementSemester.query.get(data['id'])
+
+
+        # saved fields must be according to the Permission
+        
+        # Saving CalssementSemester
+        cs.average = data['average_s']
+        cs.credit = data['credit_s']
+
+
+        # Saving CalssementYear
+        if i % 2 == 0:
+            cy = cs.classement_year
+            cy.average = data['average']
+            cy.credit = data['credit']
+            cy.R = data['R']
+            cy.S = data['S']
+
+            
+    db.session.commit()
+
+
+    # return str(data_arr)
+    return 'data saved hhhhhhh'
+
+
 
 #######################################
 #####    Classement in Session    #####
