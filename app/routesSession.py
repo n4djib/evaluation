@@ -624,26 +624,20 @@ def classement_laureats(promo_id=0, type_id=0):
     # semesters = promo.branch.semesters_from_config()
     semesters = years * 2
 
-    # classement_years = ClassementYear.query.join(Classement).filter_by(promo_id=promo_id)\
-    #     .join(Student).order_by(Student.username, ClassementYear.year).all()
-
     classements = ClassementSemester.query\
         .join(ClassementYear)\
         .join(Classement).filter_by(promo_id=promo_id)\
+        .join(Student)\
+        .order_by(Student.username, ClassementYear.year, ClassementSemester.semester)\
         .all()
-
-        # .join(Student)\
-        # .order_by(Student.username, ClassementYear.year, ClassementSemester.semester)\
 
 
     mergeCells = create_classement_merge_arr(classements, years, semesters)
-    mergeCells = []
+    # mergeCells = []
     data_arr = create_classement_data_grid(classements, years, semesters)
     
 
-
-    # return str(data_arr)
-
+    # return str(mergeCells)
 
 
     return render_template( 'classement-laureats/classement-laureats.html', 

@@ -40,7 +40,7 @@ container.innerHTML = "";
 hot = new Handsontable(container, {
   data: data_arr,
   rowHeaders: false,
-  columnSorting: true,
+  columnSorting: false,
   sortIndicator: true,
   manualColumnResize: true,
   // colHeaders: true,

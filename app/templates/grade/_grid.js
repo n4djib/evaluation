@@ -7,7 +7,6 @@ var session_is_closed = {{ session.is_closed | safe | replace('T', 't') | replac
 
 var maxRows = data_arr.length;
 
-
 var hotElement = document.querySelector('#hot');
 
 
