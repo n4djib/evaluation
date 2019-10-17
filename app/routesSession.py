@@ -475,6 +475,31 @@ def fill_classement_laureats_data(promo_id):
             classement_year.credit_app = annual_grade.credit_final
 
             # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            classement_year.decision_app = annual_grade.observation
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+            # 
+
+
+            # 
             # fill classement_semester
             for classement_semester in classement_year.classement_semesters:
                 cs = classement_semester
@@ -589,6 +614,39 @@ def create_classement_data_grid(classements, years, semesters):
         credit_app = 'credit_app: ' + str(cy.credit_app) + ', '
         credit_cumul = 'credit_cumul: ' + str(cy.credit_cumul) + ', '
 
+        # dec = "" if cy.decision == None else cy.decision
+        # if cy.decision == None:
+        #     # print("------------")
+        #     # print("aaaaaaaa "+str(cy.classement.promo_id))
+        #     # print("bbbbbbbb "+str(cy.year))
+        #     # print(" ")
+        #     annual_session = AnnualSession.query.filter_by(
+        #             promo_id=cy.classement.promo_id
+        #         ).join(Annual).filter_by(
+        #             annual=cy.year
+        #         ).first()
+        #     # in case the annual_session is not created
+        #     if annual_session != None:
+        #         annual_grade = AnnualGrade.query.filter_by(
+        #                 annual_session_id=annual_session.id,
+        #                 student_id=cy.classement.student_id
+        #             ).first()
+        #         dec = annual_grade.observation
+        # decision = 'decision: "' + str(dec) + '", '
+
+        dec = "" if cy.decision == None else cy.decision
+        decision = 'decision: "' + str(dec) + '", '
+        dec_app = "" if cy.decision_app == None else cy.decision_app
+        decision_app = 'decision_app: "' + str(dec_app) + '", '
+
+
+        R = 'R: ' + str(cy.R) + ', '
+        R_app = 'R_app: ' + str(cy.R_app) + ', '
+        S = 'S: ' + str(cy.S) + ', '
+        S_app = 'S_app: ' + str(cy.S_app) + ', '
+        avr_classement = 'avr_classement: ' + str(cy.avr_classement) + ', '
+
+
         # Semester
         semester_nbr = (cy.year * 2) - 2 + cs.semester
         semester = 'semester: ' + str(semester_nbr) + ', '
@@ -597,21 +655,21 @@ def create_classement_data_grid(classements, years, semesters):
         credit_s = 'credit_s: ' + str(cs.credit) + ', '
         credit_app_s = 'credit_app_s: ' + str(cs.credit_app) + ', '
 
-        d = "" if cy.decision == None else cy.decision
-        decision = 'decision: "' + str(d) + '", '
-        avr_classement = 'avr_classement: ' + str(cy.avr_classement) + ', '
-
-        R = 'R: ' + str(cy.R) + ', '
-        R_app = 'R_app: ' + str(cy.R_app) + ', '
-        S = 'S: ' + str(cy.S) + ', '
-        S_app = 'S_app: ' + str(cy.S_app) + ', '
+        b = 'b: ' + str(cs.b) + ', '
+        b_app = 'b_app: ' + str(cs.b_app) + ', '
+        d = 'd: ' + str(cs.d) + ', '
+        d_app = 'd_app: ' + str(cs.d_app) + ', '
+        s = 's: ' + str(cs.s) + ', '
+        s_app = 's_app: ' + str(cs.s_app) + ', '
+        avr_classement_s = 'avr_classement_s: ' + str(cs.avr_classement) + ', '
 
 
         data_arr += '{'+ id + index + name + year \
              + average + average_app + credit + credit_app + credit_cumul \
-             + decision + avr_classement \
+             + decision + decision_app + avr_classement \
              + R + R_app + S + S_app \
-             + semester + average_s + average_app_s + credit_s + credit_app_s + '}, '
+             + semester + average_s + average_app_s + credit_s + credit_app_s \
+             + b + b_app + d + d_app + s + s_app + '}, '
 
     return '[ ' + data_arr + ' ]'
 
@@ -657,23 +715,19 @@ def classement_laureats(promo_id=0, type_id=0):
 def classement_laureats_save():
     data_arr = request.json
 
-    print("data_arr")
-    print(data_arr)
-    print("data_arr")
-
+    # print("data_arr")
+    # print(data_arr)
+    # print("data_arr")
 
     for i, data in enumerate(data_arr, start=0):
         # grade = Grade.query.filter_by(id = int(data['id'])).first()
 
-
         # 
         # 
         # 
-        # 
-        # WRONG: id is not the same
+        # WRONG: id is the id of ClassementSemester not ClassementYear
         # 
         cs = ClassementSemester.query.get(data['id'])
-
 
         # saved fields must be according to the Permission
         
@@ -681,6 +735,9 @@ def classement_laureats_save():
         cs.average = data['average_s']
         cs.credit = data['credit_s']
 
+        cs.b = data['b']
+        cs.d = data['d']
+        cs.s = data['s']
 
         # Saving CalssementYear
         if i % 2 == 0:
@@ -690,12 +747,11 @@ def classement_laureats_save():
             cy.R = data['R']
             cy.S = data['S']
 
-            
+
     db.session.commit()
 
-
     # return str(data_arr)
-    return 'data saved hhhhhhh'
+    return 'data saved'
 
 
 

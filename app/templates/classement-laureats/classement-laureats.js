@@ -25,6 +25,8 @@ var columns = [
     type: 'dropdown',
     source: ['yellow', 'red', 'orange', 'green', 'blue', 'gray', 'black', 'white'] 
   },
+  { data: 'decision_app', type: 'text', readOnly: true },
+
   { data: 'R', type: 'numeric' },
   { data: 'R_app', type: 'numeric', readOnly: true },
   { data: 'S', type: 'numeric' },
@@ -36,6 +38,14 @@ var columns = [
   { data: 'average_app_s', type: 'numeric', readOnly: true },
   { data: 'credit_s', type: 'numeric' },
   { data: 'credit_app_s', type: 'numeric', readOnly: true },
+
+  { data: 'b', type: 'numeric' },
+  { data: 'b_app', type: 'numeric', readOnly: true },
+  { data: 'd', type: 'numeric' },
+  { data: 'd_app', type: 'numeric', readOnly: true },
+  { data: 's', type: 'numeric' },
+  { data: 's_app', type: 'numeric', readOnly: true },
+  { data: 'avr_classement_s', type: 'numeric', /*width: 12,*/ readOnly: true },
 
 ];
 
@@ -50,10 +60,11 @@ hot = new Handsontable(container, {
   // colHeaders: true,
   //saisir
   colHeaders: ['--ID--', '#', 'Name', '(Annee)', 
-    'Moy a', '(Moy a)', 'Cr a', '(Cr a)', '((Cr Cumul))', 'Decision', 
-    'R', '(R)', 'S', '(S)', 
-    '(((Moy Clas.)))',
-    '(Semester)', 'Moy s', '(Moy s)', 'Cr s', '(Cr s)'],
+    'Moy a', '(Moy a)', 'Cr a', '(Cr a)', '((Cr Cumul))', 'dec', '(dec_pp)', 
+    'R', '(R)', 'S', '(S)',  '[[Moy Clas.]]',
+    '(Semester)', 'Moy s', '(Moy s)', 'Cr s', '(Cr s)', 
+    'b', '(b_app)', 'd', '(d_app)', 's', '(s_app)',  '[[Moy Clas. s]]'
+  ],
   stretchH: "all",
   nestedRows: true,
   contextMenu: true,

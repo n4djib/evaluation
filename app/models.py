@@ -1492,6 +1492,7 @@ class ClassementYear(db.Model):
     credit_app = db.Column(db.Integer)
     credit_cumul = db.Column(db.Integer)
     decision = db.Column(db.String(150))
+    decision_app = db.Column(db.String(150))
     R     = db.Column(db.Numeric(10,2))
     R_app = db.Column(db.Numeric(10,2))
     S     = db.Column(db.Numeric(10,2))

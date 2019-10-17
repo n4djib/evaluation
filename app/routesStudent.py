@@ -544,7 +544,9 @@ def student_session(session_id=0, _all=''):
         # re-initialize
         if not session.is_historic():
             msg2 = init_all(session)
-            msg3 = calculate_all(session)
+            # msg3 = calculate_all(session)
+            msg3 = session.calculate()
+            
 
         return redirect(url_for('session', session_id=session_id))
 
