@@ -109,6 +109,30 @@ class AnnualSession(db.Model):
                 return True
         return False
 
+
+OBSERVATION = {
+    'rattrapage': {
+        'observation': 'Rattrapage',
+        'obs_html': '<span class="label label-warning">Rattrapage</span>'
+    },
+    'admis_avec_dettes': {
+        'observation': 'Admis avec dettes',
+        'obs_html': '<span class="label label-warning">Admis avec dettes</span>'
+    },
+    'ajournee': {
+        'observation': 'Ajournée',
+        'obs_html': '<span class="label label-danger">Ajournée</span>'
+    },
+    'admis': {
+        'observation': 'Admis',
+        'obs_html': '<span class="label label-success">Admis</span>'
+    },
+    'admis_ratt': {
+        'observation': 'Admis apres Ratt.',
+        'obs_html': '<span class="label label-info">Admis apres Ratt.</span>'
+    }
+}
+    
 class AnnualGrade(db.Model):
     __tablename__ = 'annual_grade'
     id = db.Column(db.Integer, primary_key=True)
@@ -131,40 +155,15 @@ class AnnualGrade(db.Model):
 
     average_final = db.Column(db.Numeric(10,2))
     credit_final = db.Column(db.Integer)
-    # saving_average = db.Column(db.Numeric(10,2))
-    # saving_credit = db.Column(db.Integer)
-
     is_dirty = db.Column(db.Boolean, default=False)
     
+    obs = db.Column(db.String(50))
     observation = db.Column(db.String(50))
     obs_html = db.Column(db.String(150))
     annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
     annual_session = db.relationship("AnnualSession", back_populates="annual_grades")
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
 
-    OBSERVATION = {
-        'rattrapage': {
-            'obs': 'Rattrapage',
-            'obs_html': '<span class="label label-warning">Rattrapage</span>'
-        },
-        'admis_avec_dettes': {
-            'obs': 'Admis avec dettes',
-            'obs_html': '<span class="label label-warning">Admis avec dettes</span>'
-        },
-        'ajournee': {
-            'obs': 'Ajournée',
-            'obs_html': '<span class="label label-danger">Ajournée</span>'
-        },
-        'admis': {
-            'obs': 'Admis',
-            'obs_html': '<span class="label label-success">Admis</span>'
-        },
-        'admis_ratt': {
-            'obs': 'Admis apres Ratt.',
-            'obs_html': '<span class="label label-info">Admis apres Ratt.</span>'
-        }
-    }
-    
     def get_ratt_modules_list_annual_html(self):
         annual_dict = self.annual_session.get_annual_dict()
         student_session_1 = StudentSession.query\
@@ -315,37 +314,43 @@ class AnnualGrade(db.Model):
 
 
         # don't fill Observation when the mudules are not filled
+        obs = ''
         observation = ''
         obs_html = ''
 
         if ag.average != None:
             if ag.credit_final < 60:
-                observation = 'Rattrapage'
-                obs_html = '<span class="label label-warning">Rattrapage</span>'
+                obs = 'rattrapage'
+                observation = OBSERVATION['rattrapage']['observation']
+                obs_html = OBSERVATION['rattrapage']['obs_html']
 
         if ag.average_r != None:
             if ag.credit_final < 60 and ag.credit_final >= 30:
-                observation = 'Admis avec dettes'
-                obs_html = '<span class="label label-warning">Admis avec dettes</span>'
+                obs = 'admis_avec_dettes'
+                observation = OBSERVATION['admis_avec_dettes']['observation']
+                obs_html = OBSERVATION['admis_avec_dettes']['obs_html']
 
         # 
         # et chaque semestre possede au moin 10 crédit
         # 
         #       add it to ajournée
         #       
-        # 
         if ag.average_r != None:
             if ag.credit_final < 30: # or one of the semesters credit is bellow 101
-                observation = 'Ajournée'
-                obs_html = '<span class="label label-danger">Ajournée</span>'
+                obs = 'ajournee'
+                observation = OBSERVATION['ajournee']['observation']
+                obs_html = OBSERVATION['ajournee']['obs_html']
 
         if ag.credit_final == 60: 
-            observation = 'Admis'
-            obs_html = '<span class="label label-success">Admis</span>'
+            obs = 'admis'
+            observation = OBSERVATION['admis']['observation']
+            obs_html = OBSERVATION['admis']['obs_html']
             if ag.average_r != None: 
-                observation = 'Admis apres Ratt.'
-                obs_html = '<span class="label label-info">Admis apres Ratt.</span>'
+                obs = 'admis_ratt'
+                observation = OBSERVATION['admis_ratt']['observation']
+                obs_html = OBSERVATION['admis_ratt']['obs_html']
 
+        ag.obs = obs
         ag.observation = observation
         ag.obs_html = obs_html
 

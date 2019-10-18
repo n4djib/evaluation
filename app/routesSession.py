@@ -473,31 +473,7 @@ def fill_classement_laureats_data(promo_id):
             # from annual_grade fill the fields
             classement_year.average_app = annual_grade.average_final
             classement_year.credit_app = annual_grade.credit_final
-
-            # 
-            # 
-            # 
-            # 
-            # 
-            # 
-            # 
-            # 
-            # 
-            # 
-            # 
-            classement_year.decision_app = annual_grade.observation
-            # 
-            # 
-            # 
-            # 
-            # 
-            # 
-            # 
-            # 
-            # 
-            # 
-            # 
-
+            classement_year.decision_app = annual_grade.obs
 
             # 
             # fill classement_semester
@@ -704,12 +680,20 @@ def classement_laureats(promo_id=0, type_id=0):
     # mergeCells = []
     data_arr = create_classement_data_grid(classements, years, semesters)
     
-
     # return str(mergeCells)
 
+    decisions_list = ['rattrapage', 'admis_avec_dettes', 'ajournee', 'admis', 'admis_ratt']
+    # [
+    #     {'rattrapage', 'Rattrapage'},
+    #     {'admis_avec_dettes', 'Admis avec dettes'},
+    #     {'ajournee', 'Ajournée'},
+    #     {'admis', 'Admis'},
+    #     {'admis_ratt', 'Admis apres Ratt.'},
+    # ]
 
     return render_template( 'classement-laureats/classement-laureats.html', 
-        data_arr=data_arr, mergeCells=mergeCells, years=years)
+        data_arr=data_arr, mergeCells=mergeCells, 
+        years=years, decisions_list=decisions_list)
 
 @app.route('/classement-laureats/save/', methods = ['POST'])
 def classement_laureats_save():
@@ -746,6 +730,7 @@ def classement_laureats_save():
             cy.credit = data['credit']
             cy.R = data['R']
             cy.S = data['S']
+            cy.decision = data['decision']
 
 
     db.session.commit()
@@ -780,8 +765,6 @@ def classement_print(session_id):
     title = make_title_semester_print(session, label="Classement")
     return render_template('session/classement-print.html',
          title=title, session=session, header=header, student_sessions=student_sessions)
-
-
 
 
 ######################################################

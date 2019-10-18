@@ -2,8 +2,8 @@ var container = document.getElementById('classement-laureats');
 
 var data_arr = {{ data_arr | safe | replace('None', 'null') }};
 
+var decisions_list = {{ decisions_list | safe }};
 var mergeCells = {{ mergeCells | safe | replace('None', 'null') }};
-
 var years = '{{ years | safe }}';
 
 var hot;
@@ -23,7 +23,8 @@ var columns = [
   { 
     data: 'decision', 
     type: 'dropdown',
-    source: ['yellow', 'red', 'orange', 'green', 'blue', 'gray', 'black', 'white'] 
+    source: decisions_list,
+    width: 120
   },
   { data: 'decision_app', type: 'text', readOnly: true },
 
@@ -45,7 +46,7 @@ var columns = [
   { data: 'd_app', type: 'numeric', readOnly: true },
   { data: 's', type: 'numeric' },
   { data: 's_app', type: 'numeric', readOnly: true },
-  { data: 'avr_classement_s', type: 'numeric', /*width: 12,*/ readOnly: true },
+  { data: 'avr_classement_s', type: 'numeric', /*width: 3,*/ readOnly: true },
 
 ];
 
@@ -57,23 +58,23 @@ hot = new Handsontable(container, {
   columnSorting: false,
   sortIndicator: true,
   manualColumnResize: true,
-  // colHeaders: true,
   //saisir
   colHeaders: ['--ID--', '#', 'Name', '(Annee)', 
-    'Moy a', '(Moy a)', 'Cr a', '(Cr a)', '((Cr Cumul))', 'dec', '(dec_pp)', 
+    'Moy a', '(Moy a)', 'Cr a', '(Cr a)', '((Cr Cumul))', 'dec', '(dec)', 
     'R', '(R)', 'S', '(S)',  '[[Moy Clas.]]',
     '(Semester)', 'Moy s', '(Moy s)', 'Cr s', '(Cr s)', 
-    'b', '(b_app)', 'd', '(d_app)', 's', '(s_app)',  '[[Moy Clas. s]]'
+    'b', '(b)', 'd', '(d)', 's', '(s)',  '[[Moy Clas. s]]'
   ],
   stretchH: "all",
   nestedRows: true,
   contextMenu: true,
   mergeCells: mergeCells,
   columns: columns,
-  // hiddenColumns: {
-  //   columns: [0],
-  //   indicators: false
-  // }
+  hiddenColumns: {
+    /* hide app fields */
+    // columns: [5, 7, 10, 12, 14, 15, 18, 20, 22, 24, 26, /*27*/],
+    indicators: false
+  }
 });
 
 
