@@ -238,12 +238,7 @@ def get_branches_tree(school, open_b_id, open_p_id):
             b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+name+'", hint:"'+hint+'", open:'+open+', isParent:true},'
         
         branches_tree += b + p + separation
-
-        ##################
-        # break
-        ##################
-
-
+        
     return branches_tree
 
 def get_schools_tree(open_s_id, open_b_id, open_p_id):
@@ -321,7 +316,8 @@ def tree_annual(annual_session_id=0):
 @app.route('/tree/school/<school_id>/', methods=['GET'])
 @app.route('/tree/', methods=['GET'])
 @register_breadcrumb(app, '.tree', 'Tree')
-def tree(school_id=0, branch_id=0, promo_id=-1):
+# def tree(school_id=0, branch_id=0, promo_id=-1):
+def tree(school_id=0, branch_id=-1, promo_id=-1):
     options_arr = get_options()
 
 

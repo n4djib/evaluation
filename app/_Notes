@@ -44,6 +44,11 @@
 
 - When Creating a new Annual
 	ask for Reinit/Recalculate
+-Table Session
+	remove type = 'historic'
+	make it is_historic
+
+- in historic session make the message stay in the box for a while
 
 - in annual disable everything until you calculate
 - give the ability to open all fields in rattrapage session
@@ -77,13 +82,15 @@
 	no-wrap-matricule
 - PRINT : Ratt list by module
 - JS grid ERROR: SF S10 Elaboration not openning
+- in Tree show year with session not in Promo
 
-
-
-
+- Historic Rattrapage ??????????
+- WARNING: if SF average is under 10 in a semester 
+	that does not mean necisseraly it will enter RATT.
 
 
 - use server workers for offline use
+- lock semestr Historic
 
 - PRINT : add last_modification to printables
 	last entry in the database tables

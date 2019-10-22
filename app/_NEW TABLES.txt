@@ -9,17 +9,21 @@
 	flask run --host=0.0.0.0 --port=5000
 	START /B lt-win -p 5000 --subdomain evaluation
 
-
-
-= remove from "annual_grade" saving_average & saving_credit
-
-
 = add 
 	start http://localhost:5000/ to server launsher
 	make it in orange
 
+
+
+
+
+= remove from "annual_grade" saving_average & saving_credit
+
 = update table annual_grade
 	add "obs" varchar 50
+	!!!!!!!!!! check the obs fields !!!!!!!!!!
+
+= add "decision" to "annual_grade" varchar 50
 
 = RUN 
 	http://localhost:5000/run-code-change-obs-annual-grade

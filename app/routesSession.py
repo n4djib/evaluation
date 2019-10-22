@@ -430,9 +430,6 @@ def init_classement_laureats(promo_id):
                 # db.session.add(classement_year)
                 # 
                 # 
-                # 
-                # 
-                # 
 
             # fill classement_semester
             for cy in classement.classement_years:
@@ -473,7 +470,9 @@ def fill_classement_laureats_data(promo_id):
             # from annual_grade fill the fields
             classement_year.average_app = annual_grade.average_final
             classement_year.credit_app = annual_grade.credit_final
-            classement_year.decision_app = annual_grade.obs
+            # classement_year.decision_app = annual_grade.obs
+            # classement_year.decision_app = annual_grade.observation
+            classement_year.decision_app = annual_grade.decision
 
             # 
             # fill classement_semester
@@ -488,7 +487,6 @@ def fill_classement_laureats_data(promo_id):
                 if cs.semester == 2:
                     cs.average_app = ag.avr_r_2 if ag.avr_r_2 != None else ag.avr_2
                     cs.credit_app = ag.cr_r_2 if ag.cr_r_2 != None else ag.cr_2
-
 
     db.session.commit()
 
@@ -548,25 +546,26 @@ def create_classement_merge_arr(classements, years, semesters):
         if i != last_i:
             col1 = ' {row:'+str(index)+', col:1, rowspan:'+str(semesters)+', colspan:1}, '
             col2 = ' {row:'+str(index)+', col:2, rowspan:'+str(semesters)+', colspan:1}, '
-            mergeCells += col1 + col2 
+            col3 = ' {row:'+str(index)+', col:3, rowspan:'+str(semesters)+', colspan:1}, '
+            mergeCells += col1 + col2  + col3
 
             for year in range(years):
                 row = str(index + (year * 2) )
-                col3 = ' {row: '+row+', col:3, rowspan: 2, colspan:1}, '
                 col4 = ' {row: '+row+', col:4, rowspan: 2, colspan:1}, '
                 col5 = ' {row: '+row+', col:5, rowspan: 2, colspan:1}, '
                 col6 = ' {row: '+row+', col:6, rowspan: 2, colspan:1}, '
                 col7 = ' {row: '+row+', col:7, rowspan: 2, colspan:1}, '
                 col8 = ' {row: '+row+', col:8, rowspan: 2, colspan:1}, '
                 col9 = ' {row: '+row+', col:9, rowspan: 2, colspan:1}, '
-
                 col10 = ' {row: '+row+', col:10, rowspan: 2, colspan:1}, '
+
                 col11 = ' {row: '+row+', col:11, rowspan: 2, colspan:1}, '
                 col12 = ' {row: '+row+', col:12, rowspan: 2, colspan:1}, '
                 col13 = ' {row: '+row+', col:13, rowspan: 2, colspan:1}, '
                 col14 = ' {row: '+row+', col:14, rowspan: 2, colspan:1}, '
-                mergeCells += col3 + col4 + col5 + col6 + col7 + col8 + col9 \
-                    + col10 + col11 + col12 + col13 + col14
+                col15 = ' {row: '+row+', col:15, rowspan: 2, colspan:1}, '
+                mergeCells += col4 + col5 + col6 + col7 + col8 + col9 \
+                    + col10 + col11 + col12 + col13 + col14 + col15
             
             last_i = i
 
@@ -580,47 +579,27 @@ def create_classement_data_grid(classements, years, semesters):
 
         id = 'id: ' + str(cs.id) + ', '
         index = 'index: "' + str( int( (index-(index%semesters))/semesters ) + 1 ) + '", '
-        name = 'name: "' + s.username+' - '+ s.last_name+' '+s.first_name + '", '
+        name = 'name: "' + s.username+' - '+ s.last_name +' '+ s.first_name + '", '
+        average = 'average: ' + str(cs.classement_year.classement.avr_classement) + ', '
         
         # Annual
         year = 'year: ' + str(cy.year) + ', '
-        average = 'average: ' + str(cy.average) + ', '
-        average_app = 'average_app: ' + str(cy.average_app) + ', '
-        credit = 'credit: ' + str(cy.credit) + ', '
-        credit_app = 'credit_app: ' + str(cy.credit_app) + ', '
+        average_a = 'average_a: ' + str(cy.average) + ', '
+        average_app_a = 'average_app_a: ' + str(cy.average_app) + ', '
+        credit_a = 'credit_a: ' + str(cy.credit) + ', '
+        credit_app_a = 'credit_app_a: ' + str(cy.credit_app) + ', '
         credit_cumul = 'credit_cumul: ' + str(cy.credit_cumul) + ', '
-
-        # dec = "" if cy.decision == None else cy.decision
-        # if cy.decision == None:
-        #     # print("------------")
-        #     # print("aaaaaaaa "+str(cy.classement.promo_id))
-        #     # print("bbbbbbbb "+str(cy.year))
-        #     # print(" ")
-        #     annual_session = AnnualSession.query.filter_by(
-        #             promo_id=cy.classement.promo_id
-        #         ).join(Annual).filter_by(
-        #             annual=cy.year
-        #         ).first()
-        #     # in case the annual_session is not created
-        #     if annual_session != None:
-        #         annual_grade = AnnualGrade.query.filter_by(
-        #                 annual_session_id=annual_session.id,
-        #                 student_id=cy.classement.student_id
-        #             ).first()
-        #         dec = annual_grade.observation
-        # decision = 'decision: "' + str(dec) + '", '
 
         dec = "" if cy.decision == None else cy.decision
         decision = 'decision: "' + str(dec) + '", '
         dec_app = "" if cy.decision_app == None else cy.decision_app
         decision_app = 'decision_app: "' + str(dec_app) + '", '
 
-
         R = 'R: ' + str(cy.R) + ', '
         R_app = 'R_app: ' + str(cy.R_app) + ', '
         S = 'S: ' + str(cy.S) + ', '
         S_app = 'S_app: ' + str(cy.S_app) + ', '
-        avr_classement = 'avr_classement: ' + str(cy.avr_classement) + ', '
+        avr_classement_a = 'avr_classement_a: ' + str(cy.avr_classement) + ', '
 
 
         # Semester
@@ -640,9 +619,9 @@ def create_classement_data_grid(classements, years, semesters):
         avr_classement_s = 'avr_classement_s: ' + str(cs.avr_classement) + ', '
 
 
-        data_arr += '{'+ id + index + name + year \
-             + average + average_app + credit + credit_app + credit_cumul \
-             + decision + decision_app + avr_classement \
+        data_arr += '{'+ id + index + name + average + year \
+             + average_a + average_app_a + credit_a + credit_app_a + credit_cumul \
+             + decision + decision_app + avr_classement_a  \
              + R + R_app + S + S_app \
              + semester + average_s + average_app_s + credit_s + credit_app_s \
              + b + b_app + d + d_app + s + s_app + '}, '
@@ -682,7 +661,8 @@ def classement_laureats(promo_id=0, type_id=0):
     
     # return str(mergeCells)
 
-    decisions_list = ['rattrapage', 'admis_avec_dettes', 'ajournee', 'admis', 'admis_ratt']
+    # decisions_list = ['rattrapage', 'admis_avec_dettes', 'ajournee', 'admis', 'admis_ratt']
+    decisions_list = ['', 'Rattrapage', 'Admis avec dettes', 'Ajournée', 'Admis', 'Admis apres Ratt.']
     # [
     #     {'rattrapage', 'Rattrapage'},
     #     {'admis_avec_dettes', 'Admis avec dettes'},
@@ -726,8 +706,8 @@ def classement_laureats_save():
         # Saving CalssementYear
         if i % 2 == 0:
             cy = cs.classement_year
-            cy.average = data['average']
-            cy.credit = data['credit']
+            cy.average = data['average_a']
+            cy.credit = data['credit_a']
             cy.R = data['R']
             cy.S = data['S']
             cy.decision = data['decision']
@@ -813,8 +793,6 @@ def create_rattrapage(session_id):
 # def transfer_grade_student_module(grade_from, grade_to, module_sess_from=None, module_sess_to=None):
 
 #     return 'transfer grade student module'
-
-
 
 
 
@@ -937,6 +915,18 @@ def create_rattrapage_sem(session_id, students):
     session_rattrapage = create_rattrapage(session_id)
     ratt_id = session_rattrapage.id
 
+    # 
+    # 
+    # 
+    # 
+    # 
+    # 
+    # 
+    # 
+    # 
+    # 
+    # 
+    # 
     # transfer module_session_s
     module_session_s_sem = session.module_sessions
     for module_session_sem in module_session_s_sem:
@@ -954,22 +944,7 @@ def create_rattrapage_sem(session_id, students):
             #
             #
             #
-            #
-            #
-            #
-            #
-            #
-            #
-            #
-            #
             # module_session_ratt.saving_enabled = module_session_sem.saving_enabled
-            #
-            #
-            #
-            #
-            #
-            #
-            #
             #
             #
             #
@@ -1142,7 +1117,6 @@ def create_rattrapage_annual(annual_session_id=0):
     sessions = annual_session.sessions
     for session in sessions:
         create_rattrapage_sem(session.id, students)
-    # create_rattrapage_sem(sessions[1].id, students)
 
     promo = annual_session.promo
     school_id = promo.branch.school_id
@@ -1279,6 +1253,7 @@ def get_student_annual_list(annual_session, annual_dict):
 
     return student_ids
 
+
 # call this after creating a new session and 
 # and creating a new 
 def init_annual_grade(annual_session):
@@ -1299,8 +1274,12 @@ def init_annual_grade(annual_session):
     # delete users in Table Who are not supposed to be in annual
     students_annual = AnnualGrade.query.filter_by(annual_session_id=annual_session.id).all()
     students_annual_list = [s_a.student_id for s_a in students_annual]
+
+    print ("---------------aaaaaaaaaaaaaaaaaaa")
     for student_id in students_annual_list:
+        print ("bbbbbbbbbbbb")
         if student_id not in student_ids:
+            print ("--------------ccccccccccccc")
             annual_grade = AnnualGrade.query\
                 .filter_by(annual_session_id=annual_session.id, student_id=student_id)\
                 .first()
@@ -1313,7 +1292,6 @@ def fetch_data_annual_session(annual_session):
     annual_grades = annual_session.annual_grades
     for ag in annual_grades:
         ag.fetch_data()
-        # break
 
     db.session.commit()
     return "fetch_data_annual_session"
@@ -1355,7 +1333,52 @@ def make_link(ag, col, annual_dict):
 
     return '<a href="'+href+'">'+avr+'</a>'
 
-def collect_data_annual_session(annual_session, sort=''):
+
+
+DESICIONS = {
+    'rattrapage': {
+        'observation': 'Rattrapage',
+        'obs_html': '<span class="label label-warning">Rattrapage</span>'
+    },
+    'admis_avec_dettes': {
+        'observation': 'Admis avec dettes',
+        'obs_html': '<span class="label label-warning">Admis avec dettes</span>'
+    },
+    'ajournee': {
+        'observation': 'Ajournée',
+        'obs_html': '<span class="label label-danger">Ajournée</span>'
+    },
+    'admis': {
+        'observation': 'Admis',
+        'obs_html': '<span class="label label-success">Admis</span>'
+    },
+    'admis_ratt': {
+        'observation': 'Admis apres Ratt.',
+        'obs_html': '<span class="label label-info">Admis apres Ratt.</span>'
+    }
+}
+
+
+
+def decision_to_html(decision):
+    if decision == None:
+        return ''
+    return DESICIONS[decision]['obs_html']
+
+def decision_to_observation(decision):
+    return DESICIONS[decision]['observation']
+
+def observation_to_decision(observation):
+    # if DESICIONS['rattrapage']['observation'] == 'Rattrapage':
+    #     return 'rattrapage'
+    for key in DESICIONS:
+        if DESICIONS[key]['observation'] == observation:
+            return key
+    return '???'
+
+
+
+def collect_data_annual_session(annual_session, sort='', historic_exist=False):
     annual_dict = annual_session.get_annual_dict()
     student_ids = get_student_annual_list(annual_session, annual_dict)
 
@@ -1365,7 +1388,6 @@ def collect_data_annual_session(annual_session, sort=''):
             .order_by(AnnualGrade.average_final.desc()).all()
     else:
         annual_grades = AnnualGrade.query.filter_by(annual_session_id=annual_session.id).all()
-
 
     array_data = []
     for index, ag in enumerate(annual_grades):
@@ -1390,7 +1412,6 @@ def collect_data_annual_session(annual_session, sort=''):
 
         if ag.credit_final != None and ag.credit_final < 30:
             bg_final = 'bg-red'
-            
 
         url = url_for('bultin_annual_print', annual_session_id=annual_session.id, student_id=student.id)
         bultin = '''<a href ="''' +  url + '''" class="btn btn-primary btn-xs" target="_blank" role="button"> Bultin </a>'''
@@ -1401,7 +1422,6 @@ def collect_data_annual_session(annual_session, sort=''):
         ratt = '' if ag.enter_ratt == False else '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>'
 
         
-        
         # S1 S2 R1 R2
         link_avr_1 = make_link(ag, 'S1', annual_dict)
         link_avr_2 = make_link(ag, 'S2', annual_dict)
@@ -1410,11 +1430,18 @@ def collect_data_annual_session(annual_session, sort=''):
         link_avr_r_2 = make_link(ag, 'R2', annual_dict)
 
 
+        obs_html = '<td>' + decision_to_html(ag.decision) + '</td>'
+
+        bultin = '<td>' + bultin  + '</td>'
+
+        # hide bultin if any session is historic
+        if historic_exist == True:
+            bultin = ''
+
         array_data.append([
             '<td class="center">' + str(index+1) + '</td>', 
             '<td class="username">' + student.username + '</td>', 
             '<td class="name">' + student.get_student_name() + '</td>', 
-
 
             '<td class="right '+cross_s1+' '+bg_s1+'">'  + link_avr_1+ '</td>', 
             '<td class="center '+cross_s1+' '+bg_s1+'">' + str(ag.cr_1) + '</td>', 
@@ -1434,14 +1461,10 @@ def collect_data_annual_session(annual_session, sort=''):
             '<td class="right '+bg_ann_r+'">' + str(ag.average_r) + '</td>', 
             '<td class="center '+bg_ann_r+'">' + str(ag.credit_r) + '</td>', 
 
-            # '<td class="right">'  + str(ag.saving_average) + '</td>', 
-            # '<td class="center">' + str(ag.saving_credit) + '</td>',
-
             '<td class="right '+bg_final+'">'  + str(ag.average_final) + '</td>', 
             '<td class="center '+bg_final+'">' + str(ag.credit_final) + '</td>',  
-            '<td>' + str(ag.obs_html).replace('None', '') + '</td>',
-            '<td>' + bultin  + '</td>'
-            #'<td>' + bultin_ratt  + '</td>'
+            obs_html,
+            bultin
         ])
 
     return array_data
@@ -1626,15 +1649,6 @@ def init_annual_session_id(session_id, annual_session_id=None):
         db.session.commit()
 
 
-@app.route('/annual-session/<annual_session_id>/calculate', methods=['GET', 'POST'])
-def calculate_annual_session(annual_session_id=0):
-    annual_session = AnnualSession.query.get_or_404(annual_session_id)
-    init_annual_grade(annual_session)
-    fetch_data_annual_session(annual_session)
-    annual_session.calculate()
-    db.session.commit()
-    return redirect(url_for('annual_session', annual_session_id=annual_session_id))
-
 @app.route('/annual-session/<annual_session_id>/refrech', methods=['GET', 'POST'])
 def annual_session_refrech(annual_session_id=0):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
@@ -1645,7 +1659,16 @@ def annual_session_refrech(annual_session_id=0):
 
     return redirect(url_for('annual_session', annual_session_id=annual_session_id))
 
-@app.route('/annual-session/<session_id>/create_annual_session/', methods=['GET', 'POST'])
+@app.route('/annual-session/<annual_session_id>/calculate', methods=['GET', 'POST'])
+def calculate_annual_session(annual_session_id=0):
+    annual_session = AnnualSession.query.get_or_404(annual_session_id)
+    init_annual_grade(annual_session)
+    fetch_data_annual_session(annual_session)
+    annual_session.calculate()
+    db.session.commit()
+    return redirect(url_for('annual_session', annual_session_id=annual_session_id))
+
+@app.route('/annual-session/<session_id>/create-annual-session/', methods=['GET', 'POST'])
 def create_annual_session(session_id):
     annual_session_id = None
     promo_id = None
@@ -1696,12 +1719,21 @@ def annual_session_dlc(*args, **kwargs):
 @register_breadcrumb(app, '.tree_annual.annual', '***', dynamic_list_constructor=annual_session_dlc)
 def annual_session(annual_session_id=0, sort=''):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
-    array_data = collect_data_annual_session(annual_session, sort)
+
+    # hide bultin if any session is historic
+    historic_exist = False
+    for session in annual_session.sessions:
+        if session.type == 'historic':
+            historic_exist = True 
+
+    array_data = collect_data_annual_session(annual_session, sort, historic_exist)
     annual_dict_obj = annual_session.get_annual_dict_obj()
     check_ann = flash_check_annual_session(annual_dict_obj)
+
     return render_template('session/annual-session.html', 
         title='Annual Session', annual_session=annual_session, 
-        array_data=array_data, annual_dict_obj=annual_dict_obj, check_ann=check_ann)
+        array_data=array_data, annual_dict_obj=annual_dict_obj, 
+        check_ann=check_ann, historic_exist=historic_exist)
 
 @app.route('/annual-session/<annual_session_id>/print/<sort>/', methods=['GET', 'POST'])
 @app.route('/annual-session/<annual_session_id>/print/', methods=['GET', 'POST'])
@@ -1734,7 +1766,7 @@ def delete_annual_session(annual_session_id):
     flash('annual session (' + str(annual_session_id) + ') is deleted')
 
     return redirect(url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo.id))
-    
+
 
 
 
@@ -1788,8 +1820,8 @@ def get_header_bultin_semester(student_session):
     header += "Le directeur de <b>"+student.branch.school.name+",</b> atteste que l'étudiant(e)</br>"
     header += 'Nom: <b>'+student.last_name+'</b>     '
     header += 'Prenom: <b>'+student.first_name+'</b>    '
-    header += 'Né(e) le: <b>'+str(student.birth_date).replace('None', '???')+'</b>'
-    header += ' à <b>'+str(student.birth_place).replace('None', '???')+'</b></br>'
+    header += 'Né(e) le: <b>'+str(student.birth_date).replace('None', '#é$/&?|[+{#%*#$=')+'</b>'
+    header += ' à <b>'+str(student.birth_place).replace('None', '#é$/&?|[+{#%*#$=')+'</b></br>'
     header += 'Inscrit(e) en <b>' + str(annual_string) + ' année</b>   '
     header += 'Corps des: <b>'+student.branch.description+'</b></br>'
     header += 'Sous le matricule: <b>' + student.username + '</b>'
@@ -1834,7 +1866,7 @@ def get_bultin_semester(student_session):
             module = grade.module
             if rowspan > 0:
                 grades_tr += '<tr>'
-            grades_tr += '<td>'+str(module.code).replace('None', EMPTY('???'))+'</td>'
+            grades_tr += '<td>'+str(module.code).replace('None', EMPTY('#é$/&'))+'</td>'
             grades_tr += '<td class="intitule">'+module.display_name.replace(' ', ' ')+'</td>'
             grades_tr += '<td>'+str(module.credit)+'</td> <td>'+str(module.coefficient)+'</td>'
             grades_tr += '<td>'+str(grade.average).replace('None', EMPTY('X'))+'</td>'
@@ -1998,7 +2030,7 @@ def get_semester_modules_html(student_session):
 
         for grade in grades_in_unit:
             module = grade.module
-            grade_tr = '<td>'+str(module.code).replace('None', EMPTY('???'))+'</td>'
+            grade_tr = '<td>'+str(module.code).replace('None', EMPTY('#é$/&'))+'</td>'
             grade_tr += '<td class="intitule">'+module.display_name.replace(' ', ' ')+'</td>'
             grade_tr += '<td>'+str(module.credit)+'</td> <td>'+str(module.coefficient)+'</td>'
             grade_tr += '<td>'+str(grade.average).replace('None', EMPTY('X'))+'</td>'

@@ -85,9 +85,14 @@
 
 
       {% set S1 = annual_dict_obj['S1'] %}
-      {% set S1_nbr = S1.semester.get_nbr() %}
+      {% if S1 != None %}
+        {% set S1_nbr = S1.semester.get_nbr() %}
+      {% endif %}
+
       {% set S2 = annual_dict_obj['S2'] %}
-      {% set S2_nbr = S2.semester.get_nbr() %}
+      {% if S2 != None %}
+        {% set S2_nbr = S2.semester.get_nbr() %}
+      {% endif %}
 
       {% set R1 = annual_dict_obj['R1'] %}
       {% if R1 != None %}
@@ -226,10 +231,12 @@
                 </br></br>
                 <font size="-2"> </font>
             </th>
+            {% if historic_exist != True %}
             <th colspan="2" rowspan="2">Bultin
                 </br></br>
                 <font size="-2"> </font>
             </th>
+            {% endif %}
           </tr>
           <tr>
             <th>A</th><th>C</th><th>A</th><th>C</th>

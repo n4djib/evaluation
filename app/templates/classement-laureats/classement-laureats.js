@@ -14,13 +14,15 @@ var columns = [
   { data: 'id', type: 'text', width: 1, readOnly: true },
   { data: 'index', type: 'text', width: 20/*shrink rather than width*/, readOnly: true },
   { data: 'name', type: 'text', readOnly: true },
+  { data: 'average', type: 'numeric', readOnly: true },
+
   { data: 'year', type: 'text', width: 55, readOnly: true },
-  { data: 'average', type: 'numeric' },
-  { data: 'average_app', type: 'numeric', readOnly: true },
-  { data: 'credit', type: 'numeric' },
-  { data: 'credit_app', type: 'numeric', readOnly: true },
+  { data: 'average_a', type: 'numeric' },
+  { data: 'average_app_a', type: 'numeric', readOnly: true },
+  { data: 'credit_a', type: 'numeric' },
+  { data: 'credit_app_a', type: 'numeric', readOnly: true },
   { data: 'credit_cumul', type: 'numeric', readOnly: true },
-  { 
+  {
     data: 'decision', 
     type: 'dropdown',
     source: decisions_list,
@@ -32,7 +34,7 @@ var columns = [
   { data: 'R_app', type: 'numeric', readOnly: true },
   { data: 'S', type: 'numeric' },
   { data: 'S_app', type: 'numeric', readOnly: true },
-  { data: 'avr_classement', type: 'numeric', /*width: 12,*/ readOnly: true },
+  { data: 'avr_classement_a', type: 'numeric', /*width: 12,*/ readOnly: true },
 
   { data: 'semester', type: 'text', width: 80, readOnly: true },
   { data: 'average_s', type: 'numeric' },
@@ -59,9 +61,9 @@ hot = new Handsontable(container, {
   sortIndicator: true,
   manualColumnResize: true,
   //saisir
-  colHeaders: ['--ID--', '#', 'Name', '(Annee)', 
+  colHeaders: ['--ID--', '#', 'Name', '[[Moy Clas.]]', '(Annee)', 
     'Moy a', '(Moy a)', 'Cr a', '(Cr a)', '((Cr Cumul))', 'dec', '(dec)', 
-    'R', '(R)', 'S', '(S)',  '[[Moy Clas.]]',
+    'R', '(R)', 'S', '(S)',  '[[Moy Clas. a]]',
     '(Semester)', 'Moy s', '(Moy s)', 'Cr s', '(Cr s)', 
     'b', '(b)', 'd', '(d)', 's', '(s)',  '[[Moy Clas. s]]'
   ],
@@ -72,7 +74,7 @@ hot = new Handsontable(container, {
   columns: columns,
   hiddenColumns: {
     /* hide app fields */
-    // columns: [5, 7, 10, 12, 14, 15, 18, 20, 22, 24, 26, /*27*/],
+    // columns: [6, 8, 11, 13, 15, 16, 19, 21, 23, 25, 27, /*28*/],
     indicators: false
   }
 });

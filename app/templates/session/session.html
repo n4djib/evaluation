@@ -103,7 +103,7 @@
             <tr>
               <td>{{loop.index}}</td>
               <td>
-                <a href="{{url_for('grade', session_id=session.id, module_id=module.id)}}">{{ module.code | replace('None', '???') }} - {{ module.display_name | replace('None', '???') }}
+                <a href="{{url_for('grade', session_id=session.id, module_id=module.id)}}">{{ module.code | replace('None', '#é$/&?|[+{#%*#$=') }} - {{ module.display_name | replace('None', '#é$/&?|[+{#%*#$=') }}
                 </a></td>
               <td>{{ 'f' if module.unit.is_fondamental == True }} 
 

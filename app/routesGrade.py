@@ -462,7 +462,7 @@ def get_module_print_header(session, module):
     promo = session.promo.name
     annual_pedagogique = session.get_annual_pedagogique()
 
-    time = '?????'
+    time = '#é$/&?|[+{#%*#$='
     if module.time != None: time = module.time
 
     module_session = ModuleSession.query\
@@ -474,7 +474,7 @@ def get_module_print_header(session, module):
     if module_session != None:
         teacher = module_session.teacher
 
-    teacher_name = '???'
+    teacher_name = '#é$/&?|[+{#%*#$='
     if teacher != None:
         teacher_name = teacher.last_name + ' ' + teacher.first_name
 

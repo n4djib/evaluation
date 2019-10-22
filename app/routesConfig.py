@@ -66,7 +66,7 @@ def tree_module(module, is_closed=False, return_url='', collapsibles={}):
     val = module.name.replace(' ', ' ')
     # link = '{ val: "' + val + '", href: "' + href + '", target: "_blank" }'
     link = '{ val: "' + val + '", href: "' + href + '" }'
-    code = str(module.code).replace('None', '???????')
+    code = str(module.code).replace('None', '#é$/&?|[+{#%*#$=')
     coeff = str(module.coefficient)
     credit = str(module.credit)
     time = ''

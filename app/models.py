@@ -7,6 +7,7 @@ from sqlalchemy.event import listen
 from decimal import *
 from sqlalchemy import or_
 from app._shared_functions import extract_fields, check_grades_status
+# from flask import flash
 
 # FIX:  = db.Column(db.String(64), index=True, unique=True)
 
@@ -110,29 +111,29 @@ class AnnualSession(db.Model):
         return False
 
 
-OBSERVATION = {
-    'rattrapage': {
-        'observation': 'Rattrapage',
-        'obs_html': '<span class="label label-warning">Rattrapage</span>'
-    },
-    'admis_avec_dettes': {
-        'observation': 'Admis avec dettes',
-        'obs_html': '<span class="label label-warning">Admis avec dettes</span>'
-    },
-    'ajournee': {
-        'observation': 'Ajournée',
-        'obs_html': '<span class="label label-danger">Ajournée</span>'
-    },
-    'admis': {
-        'observation': 'Admis',
-        'obs_html': '<span class="label label-success">Admis</span>'
-    },
-    'admis_ratt': {
-        'observation': 'Admis apres Ratt.',
-        'obs_html': '<span class="label label-info">Admis apres Ratt.</span>'
-    }
-}
-    
+# OBSERVATION = {
+#     'rattrapage': {
+#         'observation': 'Rattrapage',
+#         'obs_html': '<span class="label label-warning">Rattrapage</span>'
+#     },
+#     'admis_avec_dettes': {
+#         'observation': 'Admis avec dettes',
+#         'obs_html': '<span class="label label-warning">Admis avec dettes</span>'
+#     },
+#     'ajournee': {
+#         'observation': 'Ajournée',
+#         'obs_html': '<span class="label label-danger">Ajournée</span>'
+#     },
+#     'admis': {
+#         'observation': 'Admis',
+#         'obs_html': '<span class="label label-success">Admis</span>'
+#     },
+#     'admis_ratt': {
+#         'observation': 'Admis apres Ratt.',
+#         'obs_html': '<span class="label label-info">Admis apres Ratt.</span>'
+#     }
+# }
+
 class AnnualGrade(db.Model):
     __tablename__ = 'annual_grade'
     id = db.Column(db.Integer, primary_key=True)
@@ -157,9 +158,11 @@ class AnnualGrade(db.Model):
     credit_final = db.Column(db.Integer)
     is_dirty = db.Column(db.Boolean, default=False)
     
-    obs = db.Column(db.String(50))
-    observation = db.Column(db.String(50))
-    obs_html = db.Column(db.String(150))
+    # obs = db.Column(db.String(50))
+    # observation = db.Column(db.String(50))
+    # obs_html = db.Column(db.String(150))
+    decision = db.Column(db.String(50))
+    
     annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
     annual_session = db.relationship("AnnualSession", back_populates="annual_grades")
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
@@ -188,6 +191,10 @@ class AnnualGrade(db.Model):
     def fetch_data(self):
         annual_dict = self.annual_session.get_annual_dict()
 
+        # print ('-------')
+        # print (str(self.student_id))
+        # print (str(annual_dict))
+
         sess_1 = StudentSession.query.filter_by(
             session_id=annual_dict['S1'], student_id=self.student_id).first()
         sess_2 = StudentSession.query.filter_by(
@@ -198,24 +205,15 @@ class AnnualGrade(db.Model):
         ratt_2 = StudentSession.query.filter_by(
             session_id=annual_dict['R2'], student_id=self.student_id).first()
 
-        if sess_1 == None or sess_2 == None:
-            return
+        # if sess_1 == None or sess_2 == None:
+        #     flash("you need to have at least Semester 1 & 2")
+        #     return
 
         # Filling the fields from sessions
         self.avr_1 = sess_1.average if sess_1 != None else None
         self.cr_1  = sess_1.credit if sess_1 != None else None
         self.avr_2 = sess_2.average if sess_2 != None else None
-        self.cr_2  = sess_2.credit if sess_1 != None else None
-
-
-        # print("*********")
-        # # print( str(annual_dict['S1']) )
-        # # print( str(annual_dict['S2']) )
-        # # print( str(annual_dict['A']) )
-        # print("StudentSession " + str(sess_1.id) )
-        # print("session_id " + str(sess_1.session_id) )
-        # print("average " + str(sess_1.average) )
-        # print("*********")
+        self.cr_2  = sess_2.credit if sess_2 != None else None
 
         # units_fond_aquired
         self.units_fond_aquired = None
@@ -246,12 +244,9 @@ class AnnualGrade(db.Model):
         self.credit = None
         self.average_r = None
         self.credit_r = None
-
         self.average_final = None
         self.credit_final = None
-
         self.enter_ratt = None
-
         return 'fetch_data_annual_grade'
     def calculate(self):
         def average(avr_1, avr_2):
@@ -314,21 +309,24 @@ class AnnualGrade(db.Model):
 
 
         # don't fill Observation when the mudules are not filled
-        obs = ''
-        observation = ''
-        obs_html = ''
+        # obs = ''
+        # observation = ''
+        # obs_html = ''
+        decision = ''
 
         if ag.average != None:
             if ag.credit_final < 60:
-                obs = 'rattrapage'
-                observation = OBSERVATION['rattrapage']['observation']
-                obs_html = OBSERVATION['rattrapage']['obs_html']
+                # obs = 'rattrapage'
+                # observation = OBSERVATION['rattrapage']['observation']
+                # obs_html = OBSERVATION['rattrapage']['obs_html']
+                decision = 'rattrapage'
 
         if ag.average_r != None:
             if ag.credit_final < 60 and ag.credit_final >= 30:
-                obs = 'admis_avec_dettes'
-                observation = OBSERVATION['admis_avec_dettes']['observation']
-                obs_html = OBSERVATION['admis_avec_dettes']['obs_html']
+                # obs = 'admis_avec_dettes'
+                # observation = OBSERVATION['admis_avec_dettes']['observation']
+                # obs_html = OBSERVATION['admis_avec_dettes']['obs_html']
+                decision = 'admis_avec_dettes'
 
         # 
         # et chaque semestre possede au moin 10 crédit
@@ -337,22 +335,26 @@ class AnnualGrade(db.Model):
         #       
         if ag.average_r != None:
             if ag.credit_final < 30: # or one of the semesters credit is bellow 101
-                obs = 'ajournee'
-                observation = OBSERVATION['ajournee']['observation']
-                obs_html = OBSERVATION['ajournee']['obs_html']
+                # obs = 'ajournee'
+                # observation = OBSERVATION['ajournee']['observation']
+                # obs_html = OBSERVATION['ajournee']['obs_html']
+                decision = 'ajournee'
 
         if ag.credit_final == 60: 
-            obs = 'admis'
-            observation = OBSERVATION['admis']['observation']
-            obs_html = OBSERVATION['admis']['obs_html']
+            # obs = 'admis'
+            # observation = OBSERVATION['admis']['observation']
+            # obs_html = OBSERVATION['admis']['obs_html']
+            decision = 'admis'
             if ag.average_r != None: 
-                obs = 'admis_ratt'
-                observation = OBSERVATION['admis_ratt']['observation']
-                obs_html = OBSERVATION['admis_ratt']['obs_html']
+                # obs = 'admis_ratt'
+                # observation = OBSERVATION['admis_ratt']['observation']
+                # obs_html = OBSERVATION['admis_ratt']['obs_html']
+                decision = 'admis_ratt'
 
-        ag.obs = obs
-        ag.observation = observation
-        ag.obs_html = obs_html
+        # ag.obs = obs
+        # ag.observation = observation
+        # ag.obs_html = obs_html
+        ag.decision = decision
 
         return 'AnnualGrade calculated'
 
@@ -521,7 +523,7 @@ class Session(db.Model):
             promo_start = self.promo.start_date.year
             return str(promo_start+annual-1) + '/' + str(promo_start+annual)
 
-        return '[ ??? ]/[ ??? ]'
+        return '[ #é$/&? ]/[ #é$/&? ]'
     # 
     # Note: if you have 5 students and 4 of them are filled
     #    you'll get 80% because AVERAGE(100% + 100% + 100% + 100% + 0%) = 80%
@@ -965,7 +967,7 @@ class Grade(db.Model):
                     if val != None and is_in_range:
                         average += round( val * Decimal(percentage) , 2)
                     if val == None:
-                        val = '???'
+                        val = '#é$/&?|[+{#%*#$='
                     calculation += '('+str(field)+': '+str(val)+' * '+str(percentage)+')' + ' + '
             # end for
 
