@@ -62,10 +62,10 @@ hot = new Handsontable(container, {
   manualColumnResize: true,
   //saisir
   colHeaders: ['--ID--', '#', 'Name', '[[Moy Clas.]]', '(Annee)', 
-    'Moy a', '(Moy a)', 'Cr a', '(Cr a)', '((Cr Cumul))', 'dec', '(dec)', 
-    'R', '(R)', 'S', '(S)',  '[[Moy Clas. a]]',
+    'Moy a', '(Moy a)', 'Cr a', '(Cr a)', '((Cr Cumul))', 'dec', '(dec 11)', 
+    'R', '(R)', 'S', '(S)',  '[[Moy Clas. a]16]',
     '(Semester)', 'Moy s', '(Moy s)', 'Cr s', '(Cr s)', 
-    'b', '(b)', 'd', '(d)', 's', '(s)',  '[[Moy Clas. s]]'
+    'b', '(b)', 'd', '(d)', 's', '(s)', '[[Moy Clas. s]]'
   ],
   stretchH: "all",
   nestedRows: true,
@@ -76,7 +76,7 @@ hot = new Handsontable(container, {
     /* hide app fields */
     // columns: [6, 8, 11, 13, 15, 16, 19, 21, 23, 25, 27, /*28*/],
     /* show progression */
-    // columns: [3, 6, 8, 11, 12, 13, 14, 15, 19, 21, 22, 23, 24, 25, 26,27],
+    // columns: [3, 6, 8, 11, 12, 13, 14, 15, 16, 19, 21,22,23,24,25,26,27,28],
     indicators: false
   }
 });

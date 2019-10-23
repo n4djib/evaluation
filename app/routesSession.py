@@ -836,9 +836,6 @@ def create_rattrapage(session_id):
 
 
 
-
-
-
 def make_ratt_grade(grade, session_id, student_id, student_session_ratt_id):
     # ratt_modules = get_ratt_modules_list_semester(session_id, student_id)
     student_session = StudentSession.query.filter_by(session_id=session_id, student_id=student_id).first()
@@ -893,8 +890,6 @@ def make_ratt_grade(grade, session_id, student_id, student_session_ratt_id):
         db.session.delete(grade_in_ratt)
 
     return new_grade
-
-
 
 
 def transfer_grades(session_id, ratt_id, student_session_ratt_id, student_id):
@@ -1315,11 +1310,8 @@ def init_annual_grade(annual_session):
     students_annual = AnnualGrade.query.filter_by(annual_session_id=annual_session.id).all()
     students_annual_list = [s_a.student_id for s_a in students_annual]
 
-    print ("---------------aaaaaaaaaaaaaaaaaaa")
     for student_id in students_annual_list:
-        print ("bbbbbbbbbbbb")
         if student_id not in student_ids:
-            print ("--------------ccccccccccccc")
             annual_grade = AnnualGrade.query\
                 .filter_by(annual_session_id=annual_session.id, student_id=student_id)\
                 .first()
@@ -1427,7 +1419,24 @@ def collect_data_annual_session(annual_session, sort='', historic_exist=False):
         link_avr_r_2 = make_link(ag, 'R2', annual_dict)
 
 
-        obs_html = '<td>' + decision_to_html(ag.decision) + '</td>'
+        
+
+        # bring decision from ClassementYear
+        decision = ag.decision
+        obs_html = '<td>' + decision_to_html(decision) + '</td>'
+
+        annual = ag.annual_session.annual.annual
+        promo = ag.annual_session.promo
+        cy = ClassementYear.query.filter_by(year = annual)\
+            .join(Classement).filter_by(student_id=ag.student_id,
+                promo_id=promo.id).first()
+        if cy != None:
+            if cy.decision != None and cy.decision != '':
+                decision = cy.decision
+                obs_html = '<td>decision de committee</br>' + decision_to_html(decision) + '</td>'
+
+        
+        
 
         bultin = '<td>' + bultin  + '</td>'
 
@@ -1721,7 +1730,8 @@ def annual_session(annual_session_id=0, sort=''):
     historic_exist = False
     for session in annual_session.sessions:
         if session.type == 'historic':
-            historic_exist = True 
+            historic_exist = True
+            break
 
     array_data = collect_data_annual_session(annual_session, sort, historic_exist)
     annual_dict_obj = annual_session.get_annual_dict_obj()
@@ -2130,20 +2140,9 @@ def get_footer_bultin_annual(annual_grade):
     footer += "Crédits cumulés dans l'année: <b>"+str(annual_grade.annual_session.get_annual_pedagogique())+"</b>"
     footer += " et <b>"+str(annual_grade.credit_final)+"</b></br>"
     footer += "Décision de la commission de classement et "
-    footer += "d'orientation:  <b>"+str(annual_grade.observation)+"</b>                                      Le Directeur de l’INFSPM</br>"
-    footer += "Ouargla le:  .................."
-
-
-    # footer += "<div style='border-width:2px; border-style:solid; border-color:black;'>"
-    # footer += "Moyenne Annuelle: <b>"+str(annual_grade.average_final)+"</b>    "
-    # footer += "Crédits cumulés dans l'année: <b>"+str(annual_grade.annual_session.get_annual_pedagogique())+"</b>"
-    # footer += " et <b>"+str(annual_grade.credit_final)+"</b></br>"
-    # footer += "Décision de la commission de classement et "
-    # footer += "d'orientation:  <b>"+str(annual_grade.observation)+"</b></br>"
-    # footer += "Ouargla le:  ..................</div>"
-
-    # footer += "<div><span style='text-align: center;'>Le Directeur de l’INFSPM</span></div>"
-
+    # footer += "d'orientation:  <b>"+str(annual_grade.decision)+"</b>                                      Le Directeur de l’INFSPM</br>"
+    footer += "d'orientation:  <b>" + decision_to_observation(annual_grade.decision) + "</b>                                      Le Directeur de l’INFSPM</br>"
+    footer += "Ouargla le: .................."
     return footer
 
 def get_bultin_annual(annual_grade):
