@@ -20,26 +20,6 @@ from app.permissions_and_roles import *
 # from app.models import Session, Promo
 # from app.routesCalculation import init_all, calculate_all
 
-from app.models import AnnualGrade
-
-@app.route('/run-code-change-obs-annual-grade/')
-def run_code_change_obs_annual_grade():
-    annual_grades = AnnualGrade.query.all()
-    for annual_grade in annual_grades:
-        if annual_grade.observation == 'Rattrapage':
-            annual_grade.obs = 'rattrapage'
-        if annual_grade.observation == 'Admis avec dettes':
-            annual_grade.obs = 'admis_avec_dettes'
-        if annual_grade.observation == 'Ajournée':
-            annual_grade.obs = 'ajournee'
-        if annual_grade.observation == 'Admis':
-            annual_grade.obs = 'admis'
-        if annual_grade.observation == 'Admis apres Ratt.':
-            annual_grade.obs = 'admis_ratt'
-        db.session.commit()
-    return 'excuted run_code_change_obs_annual_grade'
-
-
 # @app.route('/code-fill-annual/')
 # def run_code_annual():
 #     annual_sessions = AnnualSession.query.all()

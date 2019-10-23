@@ -36,13 +36,11 @@ class Promo(db.Model):
             .order_by(Annual.annual, Semester.semester).all()
         if len(sessions) == 0:
             return None
-            # raise Exception ('promo get_next_semester no sessions')
         last_session = sessions[-1]
         next_semester = last_session.semester.get_next()
         return next_semester
     def get_label(self):
         if self.display_name != None and self.display_name != '':
-            # return self.name + ' - ' + self.display_name
             return self.name + ' ' + self.display_name
         return self.name
     def get_color(self):
@@ -57,12 +55,8 @@ class Promo(db.Model):
             .join(Semester).join(Session).filter_by(promo_id=self.id)\
             .order_by(Annual.annual.desc()).first()
         if latest_annual is None:
-            return '***'
+            return 0
         return latest_annual.annual
-    # def get_semesters_in_promo(self):
-    #     semesters = self.branch.get_semesters_ordered()
-    #     semesters = semesters[-1].get_latest_of_semesters_list()
-    #     sessions = self.sessions
     
 class AnnualSession(db.Model):
     __tablename__ = 'annual_session'
@@ -111,29 +105,6 @@ class AnnualSession(db.Model):
         return False
 
 
-# OBSERVATION = {
-#     'rattrapage': {
-#         'observation': 'Rattrapage',
-#         'obs_html': '<span class="label label-warning">Rattrapage</span>'
-#     },
-#     'admis_avec_dettes': {
-#         'observation': 'Admis avec dettes',
-#         'obs_html': '<span class="label label-warning">Admis avec dettes</span>'
-#     },
-#     'ajournee': {
-#         'observation': 'Ajournée',
-#         'obs_html': '<span class="label label-danger">Ajournée</span>'
-#     },
-#     'admis': {
-#         'observation': 'Admis',
-#         'obs_html': '<span class="label label-success">Admis</span>'
-#     },
-#     'admis_ratt': {
-#         'observation': 'Admis apres Ratt.',
-#         'obs_html': '<span class="label label-info">Admis apres Ratt.</span>'
-#     }
-# }
-
 class AnnualGrade(db.Model):
     __tablename__ = 'annual_grade'
     id = db.Column(db.Integer, primary_key=True)
@@ -158,9 +129,6 @@ class AnnualGrade(db.Model):
     credit_final = db.Column(db.Integer)
     is_dirty = db.Column(db.Boolean, default=False)
     
-    # obs = db.Column(db.String(50))
-    # observation = db.Column(db.String(50))
-    # obs_html = db.Column(db.String(150))
     decision = db.Column(db.String(50))
     
     annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
@@ -191,10 +159,6 @@ class AnnualGrade(db.Model):
     def fetch_data(self):
         annual_dict = self.annual_session.get_annual_dict()
 
-        # print ('-------')
-        # print (str(self.student_id))
-        # print (str(annual_dict))
-
         sess_1 = StudentSession.query.filter_by(
             session_id=annual_dict['S1'], student_id=self.student_id).first()
         sess_2 = StudentSession.query.filter_by(
@@ -221,7 +185,6 @@ class AnnualGrade(db.Model):
             u_f_aqui_1 = sess_1.units_fond_aquired()
             u_f_aqui_2 = sess_2.units_fond_aquired()
             self.units_fond_aquired = u_f_aqui_1 and u_f_aqui_2
-
 
         # after ratt
         self.avr_r_1 = ratt_1.average if ratt_1 != None else None
@@ -273,7 +236,6 @@ class AnnualGrade(db.Model):
         # does the Annual has a fondamental
         is_fondamental = ag.annual_session.annual.has_fondamental()
 
-        # 
         # before Ratt
         ag.average = average(ag.avr_1, ag.avr_2)
         ag.credit = credit(ag.cr_1, ag.cr_2, ag.average, is_fondamental, ag.units_fond_aquired)
@@ -282,7 +244,6 @@ class AnnualGrade(db.Model):
         if ag.credit < 60:
             ag.enter_ratt = True
 
-        # 
         # after Ratt
         ag.average_r = None
         if ag.avr_r_1 != None or ag.avr_r_2 != None:
@@ -294,38 +255,23 @@ class AnnualGrade(db.Model):
         if ag.cr_r_1 != None or ag.cr_r_2 != None:
             cr_r_1 = ag.cr_r_1 if ag.cr_r_1 != None else ag.cr_1
             cr_r_2 = ag.cr_r_2 if ag.cr_r_2 != None else ag.cr_2
-            ag.credit_r = credit(cr_r_1, cr_r_2, ag.average_r, is_fondamental, ag.units_r_fond_aquired)
-        
-        # saving_average
-        # saving_credit
+            ag.credit_r = credit(cr_r_1, cr_r_2, ag.average_r, 
+                is_fondamental, ag.units_r_fond_aquired)
 
-        # avr_s = ag.saving_average
         avr_r = ag.average_r
         ag.average_final = avr_r if avr_r != None else ag.average
 
-        # cr_s = ag.saving_credit
         cr_r = ag.credit_r
         ag.credit_final = cr_r if cr_r != None else ag.credit
 
-
-        # don't fill Observation when the mudules are not filled
-        # obs = ''
-        # observation = ''
-        # obs_html = ''
         decision = ''
 
         if ag.average != None:
             if ag.credit_final < 60:
-                # obs = 'rattrapage'
-                # observation = OBSERVATION['rattrapage']['observation']
-                # obs_html = OBSERVATION['rattrapage']['obs_html']
                 decision = 'rattrapage'
 
         if ag.average_r != None:
             if ag.credit_final < 60 and ag.credit_final >= 30:
-                # obs = 'admis_avec_dettes'
-                # observation = OBSERVATION['admis_avec_dettes']['observation']
-                # obs_html = OBSERVATION['admis_avec_dettes']['obs_html']
                 decision = 'admis_avec_dettes'
 
         # 
@@ -335,28 +281,17 @@ class AnnualGrade(db.Model):
         #       
         if ag.average_r != None:
             if ag.credit_final < 30: # or one of the semesters credit is bellow 101
-                # obs = 'ajournee'
-                # observation = OBSERVATION['ajournee']['observation']
-                # obs_html = OBSERVATION['ajournee']['obs_html']
                 decision = 'ajournee'
 
-        if ag.credit_final == 60: 
-            # obs = 'admis'
-            # observation = OBSERVATION['admis']['observation']
-            # obs_html = OBSERVATION['admis']['obs_html']
+        if ag.credit_final == 60:
             decision = 'admis'
-            if ag.average_r != None: 
-                # obs = 'admis_ratt'
-                # observation = OBSERVATION['admis_ratt']['observation']
-                # obs_html = OBSERVATION['admis_ratt']['obs_html']
-                decision = 'admis_ratt'
+            if ag.average_r != None:
+                decision = 'admis_apres_ratt'
 
-        # ag.obs = obs
-        # ag.observation = observation
-        # ag.obs_html = obs_html
         ag.decision = decision
 
         return 'AnnualGrade calculated'
+
 
 class Session(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -186,7 +186,11 @@ def get_promos_tree(branch, open_p_id):
         if promo_display_name != '':
             name += " - <span style='color: "+str(promo.color)+";'>" + promo_display_name + "</span>"
 
-        name = name + ' (' + str(  promo.get_latest_annual() ) + ' Year)'
+        year = promo.get_latest_annual()
+        if year == 1:
+            name = name + ' (' + str(  promo.get_latest_annual() ) + ' ère Année)'
+        elif year > 1:
+            name = name + ' (' + str(  promo.get_latest_annual() ) + ' ème Année)'
 
         hint = ''
 
@@ -230,13 +234,13 @@ def get_branches_tree(school, open_b_id, open_p_id):
             if open_b_id == branch.id:
                 open = 'true'
 
-        separation = '{id:"separate_'+id+'", pId:"'+pId+'", name:"", iconSkin:"icon0"},'
-
         if p == '':
             b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+name+'", hint:"'+hint+'", open:'+open+', iconSkin:"icon11"},'
         else:
             b = '{ id:"'+id+'", pId:"'+pId+'", name:"'+name+'", hint:"'+hint+'", open:'+open+', isParent:true},'
         
+        separation = '{id:"separate_'+id+'", pId:"'+pId+'", name:"", iconSkin:"icon0"},'
+
         branches_tree += b + p + separation
         
     return branches_tree

@@ -19,14 +19,11 @@
 
 = remove from "annual_grade" saving_average & saving_credit
 
-= update table annual_grade
-	add "obs" varchar 50
-	!!!!!!!!!! check the obs fields !!!!!!!!!!
+= remove from "annual_grade" 
+	"obs" "observation" "obs_html"
 
 = add "decision" to "annual_grade" varchar 50
 
-= RUN 
-	http://localhost:5000/run-code-change-obs-annual-grade
 
 
 = 

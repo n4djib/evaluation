@@ -431,19 +431,20 @@ def init_classement_laureats(promo_id):
                 # 
                 # 
 
+    for classement in classements:
+        # fill classement_year
+        for annual in annuals:
             # fill classement_semester
             for cy in classement.classement_years:
                 for semester in annual.semesters:
                     classement_semester = ClassementSemester.query.filter_by(
                             classement_year_id = cy.id,
                             semester = semester.semester
-                            # semester = semester.get_nbr()
                         ).first()
                     if classement_semester == None:
                         classement_semester = ClassementSemester(
                             classement_year_id=cy.id,
                             semester = semester.semester
-                            # semester = semester.get_nbr()
                         )
                         db.session.add(classement_semester)
             
@@ -537,6 +538,56 @@ def calulate_avr_classement(promo_id):
     return 'calulate_avr_classement'
 
 
+DESICIONS = {
+    'rattrapage': {
+        'observation': 'Rattrapage',
+        'obs_html': '<span class="label label-warning">Rattrapage</span>'
+    },
+    'admis_avec_dettes': {
+        'observation': 'Admis avec dettes',
+        'obs_html': '<span class="label label-warning">Admis avec dettes</span>'
+    },
+    'ajournee': {
+        'observation': 'Ajournée',
+        'obs_html': '<span class="label label-danger">Ajournée</span>'
+    },
+    'admis': {
+        'observation': 'Admis',
+        'obs_html': '<span class="label label-success">Admis</span>'
+    },
+    'admis_apres_ratt': {
+        'observation': 'Admis apres Ratt.',
+        'obs_html': '<span class="label label-info">Admis apres Ratt.</span>'
+    }
+}
+
+def get_desions_list():
+    desions_list = ['']
+    for key in DESICIONS:
+        desions_list.append( DESICIONS[key]['observation'] )
+
+    return desions_list
+
+
+def decision_to_html(decision):
+    if decision in DESICIONS:
+        return DESICIONS[decision]['obs_html']
+    return ''
+
+def decision_to_observation(decision):
+    if decision in DESICIONS:
+        return DESICIONS[decision]['observation']
+    return ''
+
+def observation_to_decision(observation):
+    for key in DESICIONS:
+        if DESICIONS[key]['observation'] == observation:
+            return key
+    return ''
+
+
+
+
 def create_classement_merge_arr(classements, years, semesters):
     mergeCells = ''
     last_i = None
@@ -590,9 +641,11 @@ def create_classement_data_grid(classements, years, semesters):
         credit_app_a = 'credit_app_a: ' + str(cy.credit_app) + ', '
         credit_cumul = 'credit_cumul: ' + str(cy.credit_cumul) + ', '
 
-        dec = "" if cy.decision == None else cy.decision
+        dec = "" if cy.decision == None\
+             else decision_to_observation(cy.decision)
         decision = 'decision: "' + str(dec) + '", '
-        dec_app = "" if cy.decision_app == None else cy.decision_app
+        dec_app = "" if cy.decision_app == None\
+             else decision_to_observation(cy.decision_app)
         decision_app = 'decision_app: "' + str(dec_app) + '", '
 
         R = 'R: ' + str(cy.R) + ', '
@@ -641,7 +694,6 @@ def classement_laureats(promo_id=0, type_id=0):
     msg2 = fill_classement_laureats_data(promo_id)
     msg3 = calulate_avr_classement(promo_id)
 
-    # flash(msg)
     promo = Promo.query.get_or_404(promo_id)
     years = promo.branch.years_from_config()
     # semesters = promo.branch.semesters_from_config()
@@ -654,22 +706,13 @@ def classement_laureats(promo_id=0, type_id=0):
         .order_by(Student.username, ClassementYear.year, ClassementSemester.semester)\
         .all()
 
-
     mergeCells = create_classement_merge_arr(classements, years, semesters)
-    # mergeCells = []
     data_arr = create_classement_data_grid(classements, years, semesters)
     
-    # return str(mergeCells)
 
-    # decisions_list = ['rattrapage', 'admis_avec_dettes', 'ajournee', 'admis', 'admis_ratt']
-    decisions_list = ['', 'Rattrapage', 'Admis avec dettes', 'Ajournée', 'Admis', 'Admis apres Ratt.']
-    # [
-    #     {'rattrapage', 'Rattrapage'},
-    #     {'admis_avec_dettes', 'Admis avec dettes'},
-    #     {'ajournee', 'Ajournée'},
-    #     {'admis', 'Admis'},
-    #     {'admis_ratt', 'Admis apres Ratt.'},
-    # ]
+    # decisions_list = ['', 'Rattrapage', 'Admis avec dettes', 'Ajournée', 'Admis', 'Admis apres Ratt.']
+    decisions_list = get_desions_list()
+
 
     return render_template( 'classement-laureats/classement-laureats.html', 
         data_arr=data_arr, mergeCells=mergeCells, 
@@ -679,15 +722,7 @@ def classement_laureats(promo_id=0, type_id=0):
 def classement_laureats_save():
     data_arr = request.json
 
-    # print("data_arr")
-    # print(data_arr)
-    # print("data_arr")
-
     for i, data in enumerate(data_arr, start=0):
-        # grade = Grade.query.filter_by(id = int(data['id'])).first()
-
-        # 
-        # 
         # 
         # WRONG: id is the id of ClassementSemester not ClassementYear
         # 
@@ -710,7 +745,12 @@ def classement_laureats_save():
             cy.credit = data['credit_a']
             cy.R = data['R']
             cy.S = data['S']
-            cy.decision = data['decision']
+
+            observation = observation_to_decision(data['decision'])
+            if observation != None and observation != '':
+                cy.decision = observation
+            else:
+                cy.decision = None
 
 
     db.session.commit()
@@ -1332,49 +1372,6 @@ def make_link(ag, col, annual_dict):
         avr = str(ag.avr_r_2)
 
     return '<a href="'+href+'">'+avr+'</a>'
-
-
-
-DESICIONS = {
-    'rattrapage': {
-        'observation': 'Rattrapage',
-        'obs_html': '<span class="label label-warning">Rattrapage</span>'
-    },
-    'admis_avec_dettes': {
-        'observation': 'Admis avec dettes',
-        'obs_html': '<span class="label label-warning">Admis avec dettes</span>'
-    },
-    'ajournee': {
-        'observation': 'Ajournée',
-        'obs_html': '<span class="label label-danger">Ajournée</span>'
-    },
-    'admis': {
-        'observation': 'Admis',
-        'obs_html': '<span class="label label-success">Admis</span>'
-    },
-    'admis_ratt': {
-        'observation': 'Admis apres Ratt.',
-        'obs_html': '<span class="label label-info">Admis apres Ratt.</span>'
-    }
-}
-
-
-
-def decision_to_html(decision):
-    if decision == None:
-        return ''
-    return DESICIONS[decision]['obs_html']
-
-def decision_to_observation(decision):
-    return DESICIONS[decision]['observation']
-
-def observation_to_decision(observation):
-    # if DESICIONS['rattrapage']['observation'] == 'Rattrapage':
-    #     return 'rattrapage'
-    for key in DESICIONS:
-        if DESICIONS[key]['observation'] == observation:
-            return key
-    return '???'
 
 
 

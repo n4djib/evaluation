@@ -75,6 +75,8 @@ hot = new Handsontable(container, {
   hiddenColumns: {
     /* hide app fields */
     // columns: [6, 8, 11, 13, 15, 16, 19, 21, 23, 25, 27, /*28*/],
+    /* show progression */
+    // columns: [3, 6, 8, 11, 12, 13, 14, 15, 19, 21, 22, 23, 24, 25, 26,27],
     indicators: false
   }
 });
@@ -87,7 +89,6 @@ $("#save").click(function(){
 
 function Save(){
   $.ajax({
-    // url: '/grade/save/',
     url: '{{ url_for("classement_laureats_save") }}', 
     type: 'POST',
     data: JSON.stringify( data_arr ),
