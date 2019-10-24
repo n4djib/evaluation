@@ -10,6 +10,20 @@ var hot;
 
 
 
+var mode = '{{ mode | safe }}';
+var hiddenColumns = null;
+
+if(mode == 'classement') {
+  hiddenColumns = [6, 8, 11, 13, 15, 16, 19, 21, 23, 25, 27, 28];
+}
+
+if(mode == 'progression') {
+  hiddenColumns = [3, 6, 8, 11, 12, 13, 14, 15, 16, 19, 21,22,23,24,25,26,27,28];
+}
+
+
+
+
 var columns = [
   { data: 'id', type: 'text', width: 1, readOnly: true },
   { data: 'index', type: 'text', width: 20/*shrink rather than width*/, readOnly: true },
@@ -49,7 +63,6 @@ var columns = [
   { data: 's', type: 'numeric' },
   { data: 's_app', type: 'numeric', readOnly: true },
   { data: 'avr_classement_s', type: 'numeric', /*width: 3,*/ readOnly: true },
-
 ];
 
 container.innerHTML = ""; 
@@ -73,6 +86,7 @@ hot = new Handsontable(container, {
   mergeCells: mergeCells,
   columns: columns,
   hiddenColumns: {
+    columns: hiddenColumns,
     /* hide app fields */
     // columns: [6, 8, 11, 13, 15, 16, 19, 21, 23, 25, 27, /*28*/],
     /* show progression */

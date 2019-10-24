@@ -682,9 +682,10 @@ def create_classement_data_grid(classements, years, semesters):
     return '[ ' + data_arr + ' ]'
 
 
+@app.route('/classement-laureats/promo/<promo_id>/mode/<mode>', methods=['GET'])
 @app.route('/classement-laureats/promo/<promo_id>/', methods=['GET'])
 @register_breadcrumb(app, '.tree_promo.classement_laureats', 'Classement Laureats')
-def classement_laureats(promo_id=0, type_id=0):
+def classement_laureats(promo_id=0, type_id=0, mode=''):
     # now it init if it doesn't exist
     # add later the option to delete and init
     msg1 = init_classement_laureats(promo_id)
@@ -716,7 +717,7 @@ def classement_laureats(promo_id=0, type_id=0):
 
     return render_template( 'classement-laureats/classement-laureats.html', 
         data_arr=data_arr, mergeCells=mergeCells, 
-        years=years, decisions_list=decisions_list)
+        years=years, decisions_list=decisions_list, mode=mode)
 
 @app.route('/classement-laureats/save/', methods = ['POST'])
 def classement_laureats_save():

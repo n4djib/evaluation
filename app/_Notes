@@ -48,6 +48,10 @@
 	remove type = 'historic'
 	make it is_historic
 
+- massive editing SF 5 ERROR
+	save error
+- add Massive Editing in Tree promo->students
+
 - in historic session make the message stay in the box for a while
 
 - in annual disable everything until you calculate
@@ -87,7 +91,7 @@
 - Historic Rattrapage ??????????
 - WARNING: if SF average is under 10 in a semester 
 	that does not mean necisseraly it will enter RATT.
-
+- in Tree check annual session need to caclulate
 
 - use server workers for offline use
 - lock semestr Historic
