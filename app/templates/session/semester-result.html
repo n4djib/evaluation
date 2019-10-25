@@ -85,12 +85,12 @@
         <!-- <a href ="{{url_for('classement', session_id=session.id)}}"
            target="_blank" class="input-group btn btn-primary" role="button">Classement</a> -->
         <a href ="{{ url_for('classement_print', session_id=session.id) }}"
-           class="btn btn-primary" target="_blank" role="button">Print Classement</a>
+            class="btn btn-primary" target="_blank" role="button">Print Classement</a>
+        <input id="checkbox-session" type="checkbox" name="selected"
+            value="session" class="products" > Show Session<br>
       </div>
 
       </br>
-
-
 
       <table id="sort" class="">
         <thead>{{ t_head | replace('None', '') | 
@@ -103,15 +103,10 @@
           {% endfor %}
         </tbody>
       </table>
-        
-    <!-- </div>
-  </div> -->
+      
 
-
-  </br></br>
-  <!-- - a </br>
-  - f</br>
-       f</br> -->
+  </br>
+  </br>
   </br>
 
 {% endblock %}

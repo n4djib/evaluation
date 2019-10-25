@@ -300,9 +300,12 @@ class Session(db.Model):
     finish_date = db.Column(db.Date)
     is_rattrapage = db.Column(db.Boolean, default=False)
     is_closed = db.Column(db.Boolean, default=False)
+    
     #   historic  or  historique
     #   None  or  ''  or  Standard
     type = db.Column(db.String(20))
+    is_historic = db.Column(db.Boolean, default=False)
+
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow, onupdate=datetime.utcnow)
     configuration = db.Column(db.Text)
     semester_id = db.Column(db.Integer, db.ForeignKey('semester.id'))
@@ -476,7 +479,7 @@ class Session(db.Model):
         progress = int(percentages / nbr_students)
 
         # type = historic
-        if self.is_historic():
+        if self.is_historic:
             return progress
 
         if progress == 100:
@@ -485,10 +488,8 @@ class Session(db.Model):
             if check['CALC'] == True:
                 return progress - 1
         return progress
-    def is_historic(self):
-        if self.type == 'historic' or self.type == 'historique':
-            return True
-        return False
+    # def check_is_historic(self):
+    #     return self.check_is_historic
     def set_dirty(self):
         # set one record of each student session to dirty
         student_sessions = StudentSession.query.filter_by(session_id=self.id).all()
@@ -498,7 +499,7 @@ class Session(db.Model):
                 break
         # db.session.commit()
     def check_recalculate_needed(self):
-        if self.is_historic():
+        if self.is_historic:
             return False
         grades = Grade.query.join(StudentSession).filter_by(session_id=self.id).all()
         for grade in grades:
@@ -565,12 +566,16 @@ class StudentSession(db.Model):
                     # raise Exception('units_fond_aquired: '+str(credit)+' '+str(unit_cumul_credit))
                     return False
         return True
-    #
-    #
-    #
-    #
-    #
-    #
+    def check_is_rattrapage(self):
+        grades = self.grades
+        for grade in grades:
+            if grade.check_is_rattrapage():
+                return True
+        return False
+    def get_ratt_bultin(self):
+        if self.check_is_rattrapage():
+            return '2'
+        return '1'
     #
     #
     #
@@ -702,7 +707,7 @@ class StudentSession(db.Model):
         # nbr_errs = 0
 
         # type == historic
-        if self.session.is_historic():
+        if self.session.is_historic:
             average = 50 if self.average else 0
             credit = 50 if self.credit else 0
             return average + credit
@@ -757,15 +762,16 @@ class GradeUnit(db.Model):
     student_session_id = db.Column(db.Integer, db.ForeignKey('student_session.id'))
     student_session = db.relationship('StudentSession', back_populates='grade_units')
     def get_ratt_bultin(self):
+        if self.check_is_rattrapage():
+            return '2'
+        return '1'
+    def check_is_rattrapage(self):
         grades = self.student_session.grades
         for grade in grades:
-            if grade.get_ratt_bultin() == '2' and grade.module.unit_id == self.unit_id:
-                return '2'
-        return '1'
-    #
-    #
-    #
-    #
+            if grade.module.unit_id == self.unit_id:
+                if grade.check_is_rattrapage():
+                    return True
+        return False
     #
     #
     #
@@ -846,6 +852,22 @@ class Grade(db.Model):
     def get_username(self):
         s = self.student_session.student
         return s.username
+    def check_is_rattrapage(self):
+        if self.is_rattrapage == True:
+            # get the original grade
+            original_grade = self.get_ratt_original_grade()
+
+            # check if this grade is empty
+            field = self.module.get_rattrapable_field()
+            this_grade = getattr(self, field)
+            if this_grade == None or original_grade == None:
+                return True
+
+            # see if the new grade is higher
+            if original_grade <= this_grade:
+                return True
+
+        return False
     def get_student_name(self):
         s = self.student_session.student
         return s.last_name + ' ' + s.first_name
@@ -853,9 +875,23 @@ class Grade(db.Model):
     #     s = self.student_session.student
     #     return s.username + ' - ' + s.last_name + ' ' + s.first_name
     def get_ratt_bultin(self):
-        if self.is_rattrapage == None or self.is_rattrapage == 0:
-            return '1'
-        return '2'
+        if self.check_is_rattrapage():
+            return '2'
+        return '1'
+    def get_ratt_original_grade(self):
+        original_grade = 0
+        # original_grade = None
+        if self.is_rattrapage == True:
+            parallel_session = self.student_session.session.get_parallel_session()
+            original = Grade.query.filter_by(module_id=self.module_id)\
+                .join(StudentSession).filter_by(
+                    session_id=parallel_session.id, 
+                    student_id=self.student_session.student_id).first()
+            # get the rattrapable
+            if original != None:
+                field = self.module.get_rattrapable_field()
+                original_grade = getattr(original, field)
+        return original_grade
     def calculate(self):
         average = 0
         calculation = ''

@@ -13,107 +13,34 @@
 	start http://localhost:5000/ to server launsher
 	make it in orange
 
+= SF 2016/2021 4eme
+	check S4 resultat
+	ratt
+	annual
+
+	maybe just delete ratt and reenter the data
+
+= Table Session - remove type = 'historic' - make it is_historic
+
+	- add to "Session" "is_historic" bool
+	- run code http://localhost:5000/code-fill-is_historic/
 
 
-
-
-= remove from "annual_grade" saving_average & saving_credit
-
-= remove from "annual_grade" 
-	"obs" "observation" "obs_html"
-
-= add "decision" to "annual_grade" varchar 50
-
-
-
-= NEW TABLES
-
-CREATE TABLE classement (
-    id             INTEGER         PRIMARY KEY
-                                   NOT NULL,
-    promo_id       INTEGER,
-    student_id     INTEGER,
-    avr_classement NUMERIC (10, 2),
-    FOREIGN KEY (
-        student_id
-    )
-    REFERENCES student (id) ON DELETE CASCADE
-                            ON UPDATE CASCADE,
-    FOREIGN KEY (
-        promo_id
-    )
-    REFERENCES promo (id) ON DELETE CASCADE
-                          ON UPDATE CASCADE
-);
-
-
-CREATE TABLE classement_year (
-    id             INTEGER         PRIMARY KEY
-                                   NOT NULL,
-    classement_id  INTEGER,
-    year           INTEGER,
-    average        NUMERIC (10, 2),
-    average_app    NUMERIC (10, 2),
-    credit         INTEGER,
-    credit_app     INTEGER,
-    credit_cumul   INTEGER,
-    decision       VARCHAR (150),
-    decision_app   VARCHAR (150),
-    R              NUMERIC (10, 2),
-    R_app          NUMERIC (10, 2),
-    S              NUMERIC (10, 2),
-    S_app          NUMERIC (10, 2),
-    avr_classement NUMERIC (10, 2),
-    FOREIGN KEY (
-        classement_id
-    )
-    REFERENCES classement (id) ON DELETE CASCADE
-                               ON UPDATE CASCADE
-);
-
-
-CREATE TABLE classement_semester (
-    id                 INTEGER         PRIMARY KEY
-                                       NOT NULL,
-    classement_year_id INTEGER,
-    semester           INTEGER,
-    average            NUMERIC (10, 2),
-    average_app        NUMERIC (10, 2),
-    credit             INTEGER,
-    credit_app         INTEGER,
-    b                  NUMERIC (10, 2),
-    b_app              NUMERIC (10, 2),
-    d                  NUMERIC (10, 2),
-    d_app              NUMERIC (10, 2),
-    s                  NUMERIC (10, 2),
-    s_app              NUMERIC (10, 2),
-    avr_classement     NUMERIC (10, 2),
-    FOREIGN KEY (
-        classement_year_id
-    )
-    REFERENCES classement_year (id) ON DELETE CASCADE
-                                    ON UPDATE CASCADE
-);
 
 
 
 
 = 
 
-= 
+
+
+= remove "type" from table
+= remove type from models line 305
+		or just put the new code if removed
 
 = 
 
-= fix rattrapable
-	SF S9 Travaux séminaires
-	SF S10 ??????
-	
-	ISP S2 Sémiologie
-	ISP S6 ?????
-	
-	HYGN S6 Elabor
-	
-	LSP S6 ?????
+= 
 
 
 

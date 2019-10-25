@@ -116,7 +116,7 @@ def session(session_id=0):
     # if session.is_closed == False:
     #     get_config_changed_flash(session)
 
-    if session.is_historic():
+    if session.is_historic:
         # test session-historic progress
         data_arr = create_data_session_historic(session)
         return render_template('session/session-historic.html', title='Session Historique', 
@@ -329,7 +329,7 @@ def session_config(session_id=0):
         # session.semester_id = form.semester_id.data
         session.type = form.type.data
         db.session.commit()
-        # if session.is_historic():
+        # if session.is_historic:
         #     init_all(session)
         flash('Your changes have been saved.', 'alert-success')
         return redirect(url_for('session', session_id=session_id))
@@ -338,7 +338,8 @@ def session_config(session_id=0):
         form.start_date.data = session.start_date
         form.finish_date.data = session.finish_date
         # form.semester_id.data = session.semester_id
-        form.type.data = session.type
+        # form.type.data = session.type
+        form.is_historic.data = session.is_historic
     return render_template('session/session-config.html', 
         title='Session Config', form=form)
 
@@ -368,7 +369,7 @@ def session_historic_save():
 
         # check if the student_sessino_id is a Historic
         session = student_session.session
-        if not session.is_historic():
+        if not session.is_historic:
             return "returned before finoshing because it's Not Historic"
 
         # saved fields must be according to the Permission
@@ -813,7 +814,8 @@ def create_rattrapage(session_id):
             promo_id=session.promo_id, 
             is_rattrapage=True, 
             annual_session_id=session.annual_session_id,
-            type=session.type)
+            # type=session.type
+            is_historic=session.is_historic)
         # set start_date and finish_date    
         # would it reference Semester before it is saved ???
         new_session.configuration = session.configuration
@@ -992,7 +994,7 @@ def create_rattrapage_sem(session_id, students):
         if int(student_id) in students_todo_ratt:
             student_session_ratt = transfer_student_session(session_id, ratt_id, student_id)
             # if not historic
-            if not session.is_historic():
+            if not session.is_historic:
                 #
                 #
                 #
@@ -1010,11 +1012,12 @@ def create_rattrapage_sem(session_id, students):
 
     # initialize & calculate
     init_all(session_rattrapage)
-    session_rattrapage.calculate()
+    # if not historic
+    if not session.is_historic:
+        session_rattrapage.calculate()
 
     db.session.commit()
 
-    #
     #
     #
     #
@@ -1080,11 +1083,12 @@ def create_session(promo_id=0, semester_id=0):
         if session is not None:
             flash('Semester (' + str(session.semester.get_nbr()) + ') already exist', 'alert-warning')
     else:
-        type = None
+        is_historic = False
         if has_next(promo_id, semester_id):  
-            type = 'historic'
+           is_historic = True
 
-        session = Session(promo_id=promo_id, semester_id=semester_id, type=type)
+
+        session = Session(promo_id=promo_id, semester_id=semester_id, is_historic=is_historic)
         db.session.add(session)
         db.session.commit()
 
@@ -1730,7 +1734,7 @@ def annual_session(annual_session_id=0, sort=''):
     # hide bultin if any session is historic
     historic_exist = False
     for session in annual_session.sessions:
-        if session.type == 'historic':
+        if session.is_historic == True:
             historic_exist = True
             break
 
@@ -1844,8 +1848,8 @@ def get_footer_bultin_semester(student_session):
     footer = '</br>'
     footer += 'Moyenne Semestrielle: <b>'+str(student_session.average)+'</b>    '
     footer += 'Crédits cumulés dans le Semeste: <b>'+str(student_session.credit)+'</b></br>'
-    footer += 'Décision de la commission de classement et '
-    footer += 'd''orientation:  <b>******</b></br></br>'
+    # footer += 'Décision de la commission de classement et '
+    # footer += 'd''orientation:  <b>******</b></br></br>'
     footer += 'Ouargla le:  ..................'
 
     return footer
@@ -1898,18 +1902,6 @@ def get_bultin_semester(student_session):
 
     return table
 
-# @app.route('/session/<session_id>/student/<student_id>/bultin/', methods=['GET', 'POST'])
-# @register_breadcrumb(app, '.tree_session.session.classement.bultin', 'Bultin')
-# def bultin_semester(session_id, student_id):
-#     student_session = StudentSession.query\
-#         .filter_by(session_id=session_id, student_id=student_id).first()
-#     header = get_header_bultin_semester(student_session)
-#     footer = get_footer_bultin_semester(student_session)
-
-#     table = get_bultin_semester(student_session)
-#     return render_template('student/bultin-semester.html',
-#         title='Bultin', bultin=bultin, header=header, footer=footer, 
-#         session_id=session_id, student_id=student_id)
 
 @app.route('/session/<session_id>/student/<student_id>/bultin-print/', methods=['GET', 'POST'])
 def bultin_semester_print(session_id, student_id):
@@ -2000,18 +1992,7 @@ def get_semester_modules_html(student_session):
     # take considiration of Rattrapage
     sem_result = '<td rowspan='+str(row_span_sem)+'>'+str(student_session.average)+'</td>'
     sem_result += '<td rowspan='+str(row_span_sem)+'>'+str(student_session.credit)+'</td>'
-    #
-    #
-    #
-    #
-    #
-    #
-    sem_result += '<td rowspan='+str(row_span_sem)+'>'+str('1')+'</td>'
-    #
-    #
-    #
-    #
-    #
+    sem_result += '<td rowspan='+str(row_span_sem)+'>'+student_session.get_ratt_bultin()+'</td>'
 
     grade_units = student_session.grade_units
     
@@ -2141,10 +2122,11 @@ def get_footer_bultin_annual(annual_grade):
     footer += "Crédits cumulés dans l'année: <b>"+str(annual_grade.annual_session.get_annual_pedagogique())+"</b>"
     footer += " et <b>"+str(annual_grade.credit_final)+"</b></br>"
     footer += "Décision de la commission de classement et "
-    # footer += "d'orientation:  <b>"+str(annual_grade.decision)+"</b>                                      Le Directeur de l’INFSPM</br>"
-    footer += "d'orientation:  <b>" + decision_to_observation(annual_grade.decision) + "</b>                                      Le Directeur de l’INFSPM</br>"
+    footer += "d'orientation:  <b>" + decision_to_observation(annual_grade.decision)
+    footer += "</b>                                      Le Directeur de l’INFSPM</br>"
     footer += "Ouargla le: .................."
     return footer
+
 
 def get_bultin_annual(annual_grade):
     student_sessions = get_active_student_sessions(annual_grade.annual_session_id, annual_grade.student_id)
@@ -2368,7 +2350,10 @@ def get_row_module(grade, cols_per_module):
     if cols_per_module >= 2:
         row += F'<td class="center td">{grade.credit}</td>'
     if cols_per_module == 3:
-        row += F'<td class="center td">*</td>'
+        s = 1
+        if grade.check_is_rattrapage():
+            s = 2
+        row += F'<td class="center td">{s}</td>'
     return row
 
 def get_row_unit(grade_unit, cols_per_module):
@@ -2383,7 +2368,10 @@ def get_row_unit(grade_unit, cols_per_module):
     if cols_per_module >= 2:
         row += F'<td class="unit center td">{grade_unit.credit}</td>'
     if cols_per_module == 3:
-        row += F'<td class="unit center td">+</td>'
+        s = 1
+        if grade_unit.check_is_rattrapage():
+            s = 2
+        row += F'<td class="unit center td">{s}</td>'
     return row
 
 def get_row_semester(student_session, cols_per_module=2):
@@ -2401,7 +2389,10 @@ def get_row_semester(student_session, cols_per_module=2):
     if cols_per_module >= 2:
         row += F'<td class="semester center td {yellow}">{student_session.credit}</td>'
     if cols_per_module == 3:
-        row += F'<td class="semester center td {yellow}">{student_session.session_id}</td>'
+        s = 1
+        if student_session.check_is_rattrapage():
+            s = 2
+        row += F'<td class="semester center td {yellow}">{s}</td>'
     return row
 
 
@@ -2544,7 +2535,7 @@ def get_semester_result_print_header(session):
     """
     return header
 
-@app.route('/session/<session_id>/semester-result-print/', methods=['GET', 'POST'])
+@app.route('/session/<session_id>/semester-result-print/', methods=['GET'])
 def semester_result_print(session_id=0):
     session = Session.query.filter_by(id=session_id).first_or_404()
 
@@ -2561,9 +2552,10 @@ def semester_result_print(session_id=0):
         'filter_word': filter_word, 
         'sort': sort, 
         'order': order, 
-        'cols': cols,
+        'cols': cols, 
         'URL': url_for('semester_result', session_id=session_id),
-        'URL_PRINT': url_for('semester_result_print', session_id=session_id)}
+        'URL_PRINT': url_for('semester_result_print', session_id=session_id)
+    }
 
     global URL_PRINT
     URL_PRINT = False
@@ -2575,7 +2567,8 @@ def semester_result_print(session_id=0):
     title = make_title_semester_print(session, 'Releve')
 
     return render_template('session/semester-result-print.html',
-        title=title, header=header, t_head=t_head, data_arr=data_arr, session=session, params=params)
+        title=title, header=header, t_head=t_head, data_arr=data_arr, 
+        session=session, params=params)
 
 
 #######################################

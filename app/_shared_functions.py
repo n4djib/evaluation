@@ -59,7 +59,7 @@ def check_session_is_complite(grades, session):
     status = check_grades_status(grades)
     status['CONF'] = CONF
     if (status['nbr_cells'] == 0 
-        and not session.is_historic() 
+        and not session.is_historic
         and len(session.student_sessions) > 0):
         status['need_init'] = True
     return status

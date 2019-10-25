@@ -393,7 +393,6 @@ def update_many_student_save():
         #
         #
         username_list = get_username_list()
-        # if data[0] != '' and data[1] not in username_list:
         if data[0] != '':
             student = Student.query.get_or_404(data[0])
 
@@ -406,7 +405,8 @@ def update_many_student_save():
             student.birth_place = data[5]
 
             if data[4] != None and data[4] != '':
-                student.birth_date = datetime.datetime.strptime(data[4], "%d/%m/%Y")
+                birth_date = datetime.strptime( str(data[4]) , "%d/%m/%Y")
+                student.birth_date = birth_date
 
             wilaya = Wilaya.query.filter_by(name = data[6]).first()
             if wilaya != None:
@@ -447,7 +447,6 @@ def update_many_name_case(session_id, case=''):
 
 #######################################
 #             Add/Remove              #
-
 
 def update_student_session(students_from, students_to, session_id):
     session = Session.query.filter_by(id=session_id).first()
@@ -542,9 +541,8 @@ def student_session(session_id=0, _all=''):
         msg = update_student_session(students_from, students_to, session_id)
         flash(msg)
         # re-initialize
-        if not session.is_historic():
+        if not session.is_historic:
             msg2 = init_all(session)
-            # msg3 = calculate_all(session)
             msg3 = session.calculate()
             
 

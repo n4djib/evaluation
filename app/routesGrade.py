@@ -36,7 +36,8 @@ def collect_data_from_grade(grade):
     original_grade = 'original_grade: null, '
     if grade.is_rattrapage is True:
         is_rattrapage = 'is_rattrapage: true, '
-        original_grade = 'original_grade: '+str( get_original_grade(grade) )+', '
+        # original_grade = 'original_grade: '+str( get_original_grade(grade) )+', '
+        original_grade = 'original_grade: '+str( grade.get_ratt_original_grade() )+', '
 
     return grade_id + username + student_name + code + module_name \
          + cour + td + tp + t_pers + stage \
@@ -186,18 +187,18 @@ def get_hidden_values_flash(grades, session, module):
         btn = '<a href="'+url+'" class="btn btn-warning" role="button">Show All Fields</a>'
         flash('there is hidden value, because the Configuration changed  '+btn, 'alert-warning')
 
-def get_original_grade(grade):
-    original_grade = 0
-    parallel_session = grade.student_session.session.get_parallel_session()
-    original = Grade.query.filter_by(module_id=grade.module_id)\
-        .join(StudentSession).filter_by(
-            session_id=parallel_session.id, 
-            student_id=grade.student_session.student_id).first()
-    # get the rattrapable
-    if original != None:
-        field = grade.module.get_rattrapable_field()
-        original_grade = getattr(original, field)
-    return original_grade
+# def get_original_grade(grade):
+#     original_grade = 0
+#     parallel_session = grade.student_session.session.get_parallel_session()
+#     original = Grade.query.filter_by(module_id=grade.module_id)\
+#         .join(StudentSession).filter_by(
+#             session_id=parallel_session.id, 
+#             student_id=grade.student_session.student_id).first()
+#     # get the rattrapable
+#     if original != None:
+#         field = grade.module.get_rattrapable_field()
+#         original_grade = getattr(original, field)
+#     return original_grade
 
 def grade_going_to_change(grade, data):
     if grade.cour != data['cour']:

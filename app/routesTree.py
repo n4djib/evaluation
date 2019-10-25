@@ -15,7 +15,7 @@ def get_classement_link(promo, separate=True):
     # promo = promo.
     id = 'classement_' + str(promo.id)
     pId = 'promo_' + str(promo.id)
-    name = 'Classement'
+    name = 'Progression / Classement'
     hint = ''
     icon = 'icon24'
     url = url_for('classement_laureats', promo_id=promo.id)
@@ -127,7 +127,7 @@ def get_sessions_tree(promo):
         if session.is_rattrapage == True:
             icon = 'icon22'
 
-        if session.is_historic():
+        if session.is_historic:
             icon = 'icon21_ratt_h'
             if session.is_rattrapage == True:
                 icon = 'icon22_ratt_h'
@@ -424,9 +424,6 @@ def check_reinit_needed(sessions):
     return count
 
 def check_recalculate_needed(sessions):
-    # sessions = Session.query.filter_by(is_closed=False)\
-    #     .filter(Session.type!='historic').all()
-    # sessions = Session.query.filter_by(is_closed=False).all()
     count = 0
     for session in sessions:
         if session.check_recalculate_needed():
@@ -452,7 +449,6 @@ def tree_reinit_all(school_id=0):
     for session in sessions:
         if session.is_config_changed():
             init_all(session)
-            # calculate_all(session)
             nbr_init += 1
     flash( str(nbr_init) + " reinitialized")
 
@@ -462,8 +458,6 @@ def tree_reinit_all(school_id=0):
 @app.route('/tree/re-calc/school/<school_id>', methods=['GET'])
 @app.route('/tree/re-calc/', methods=['GET'])
 def tree_recalc_all(school_id=0):
-    # sessions = Session.query.filter_by(is_closed=False)\
-    #     .filter(Session.type!='historic').all()
     sessions = Session.query.filter_by(is_closed=False).all()
     nbr_calc = 0
     for session in sessions:

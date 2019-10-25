@@ -18,6 +18,34 @@ $('#filter').keyup(
 )
 
 
+
+
+if(cols == 3) {
+  $('#checkbox-session').prop( "checked", true );
+}
+if(cols == 2) {
+  $('#checkbox-session').prop( "checked", false );
+}
+
+$('#checkbox-session').change(function() {
+    if(this.checked) {
+        cols = 3;
+    }
+    else {
+      cols = 2;
+    }
+
+    _params = change_url_params();
+
+    // var new_url = location.origin + location.pathname + _params
+    // console.log(new_url);
+    var new_url = location.protocol + '//' + location.host + location.pathname + _params
+    console.log(new_url);
+
+    window.location.replace( new_url );
+});
+
+
 change_url_params();
 
 
@@ -54,7 +82,9 @@ function change_url_params() {
   var print_btn = document.getElementById('print-semester-result')
   if(print_btn !== null)
     print_btn.href = URL_PRINT + _params;
-  
+
+
+  return _params;
 }
 
 function init_icons() {
@@ -80,7 +110,7 @@ function change_icons(n, dir) {
 
 
 
-function sortTable(n, dir = "desc") {
+function sortTable(n, dir = "asc") {
   if (n === 0)
     return;
 
@@ -196,7 +226,6 @@ function search () {
   // change_url_params
   filter_word = vals;
   change_url_params();
-
 }
 
 function isHidden(elem) {

@@ -296,7 +296,7 @@ class SessionConfigForm(FlaskForm):
     # semester_id = SelectField('Semester', coerce=int, validators=[Optional()], 
     #     choices = [(-1, '')] + [(1, '***fill it in session_config***')]
     # )
-    type = SelectField('Type', choices = [('', ''), ('standard', 'Standard'), ('historic', 'Historic')])
+    is_historic = BooleanField('Historic')
     submit = SubmitField('Update')
     def __init__(self, _id=-1, *args, **kwargs):
         super(SessionConfigForm, self).__init__(*args, **kwargs)

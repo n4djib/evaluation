@@ -17,17 +17,17 @@ from app.permissions_and_roles import *
 # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # #
 
-# from app.models import Session, Promo
+from app.models import Session
 # from app.routesCalculation import init_all, calculate_all
 
-# @app.route('/code-fill-annual/')
-# def run_code_annual():
-#     annual_sessions = AnnualSession.query.all()
-#     for annual_session in annual_sessions:
-#         if annual_session.annual_id == None:
-#             annual_session.annual_id = annual_session.sessions[0].semester.annual.annual
-#     db.session.commit()
-#     return 'excuted code-fill-annual-id'
+@app.route('/code-fill-is_historic/')
+def run_fill_is_historic():
+    sessions = Session.query.all()
+    for session in sessions:
+        if session.type == "historic" or session.type == "historique":
+            session.is_historic = True
+    db.session.commit()
+    return 'excuted code-fill-is_historic'
 
 
 # # # # # # # # # # # # # # # # # # # # # 

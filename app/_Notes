@@ -19,94 +19,124 @@
 
 == PRIORITY 1 ==
 ----------------
+			- the Need to calculate in session is not working
 
-- add Tasks(TODO list) as notification
-	make Home Page a todo List
-
-- deleting rattrapage is deleting even when connected to annual
-	change it later in  def delete_session(session_id):
-	and session.html {{' s' if module.is_savable == True}}
 
 - in Session make list in "Button items" & "Linked items"
 	https://getbootstrap.com/docs/3.3/components/#list-group-buttons
-- the Need to calculate in session is not working
-
-			- filtering in the grid Triggers is_dirty
-				remove is_dirty for now 
-			- in grades by student
-				when filtering the closed cells get messed up
-			- show errors in annual
-				and it shows 100% even if there is a an ERROR
-			- don't allow calc when errs
-			- in tree - create session
-				it shows the parallel Semesters (it shouldn't)
-
-
-- When Creating a new Annual
-	ask for Reinit/Recalculate
--Table Session
-	remove type = 'historic'
-	make it is_historic
-
-- massive editing SF 5 ERROR
-	save error
-- add Massive Editing in Tree promo->students
-
-- in historic session make the message stay in the box for a while
-
-- in annual disable everything until you calculate
+- ERROR : JS grid : SF S10 Elaboration not openning
+- ERROR : resultat is not sorting by name
 - give the ability to open all fields in rattrapage session
-- Potential Problem
-	when you create rattrapage & i already have entered Save grade in normal
-		i must create module_session with saving enabled
-			to transfaire the better grade
-			do i transfaire it to all Gradings(cour+tp+td+ saving) ?????????????????
-- PROBLEM:
-	transfer_grades() is transgering only cour ass rattrapable
+-- Session
+	- show session in resultat Semester
+		result apres Ratt.
+	- semester Result Ratt must show Session
+	- in Result and Bultin 
+		be carefull of the source of the data (semester vs ratt)
+	- remove session from Annual
+- promo year should be got from promo start_year and current and last session 
+	(start + current date + last session)
+	and indecate errors
+
+
+- Tree load only at depth requested
+	don't load promos when branches are closed
+- add Massive Editing in Tree promo->students
+- in historic session make the message stay in the box for a while
 - turn all calculation to calcule by student
 	session.calculate() -> session.student_sessions.calculate
 - add checking in the result
-- PRINT: bultin annual normat + rattrapage
-- WARNING: fix observation
-	AnnualGrade->calculate 
-- RATT: la note finale retenue pour la matiere sera la meilleure des moyennes entre les 2 sessions
-- In AnnualGrade Calcule 
-	use dictionary for Obs.
-- Historic can create ratt histo ?????
 
-- in annual_grade add: the abilaty to change the Progrission (the observation)
-	make the decision in Progrission and Classement
-	if it i filled it changes what in AnnualGrade
-- in Promo decide wich Classement and Progression formule
+- Add notes for users
+	- RATT: la note finale retenue pour la matiere sera la meilleure des moyennes entre les 2 sessions
+
+-- Progrission et Classement
+	- in Promo decide wich Classement and Progression formule
+	- in annual_grade add: the ability to change the Progrission (the observation)
+		make the decision in Progrission and Classement
+		if it i filled it changes what in AnnualGrade
+	- in classement-laurieate
+		give the option to consider saved students as rattrapage
+
+
 - TAGS FOR EXAM SURVIORS
 	https://www.cssscript.com/tags-input-tagplug/
 	https://www.phpzag.com/create-bootstrap-tags-input-with-jquery-php-mysql/
 	https://www.phpzag.com/demo/create-bootstrap-tags-input-with-jquery-php-mysql/
-- PRINT by : module list
-	no-wrap-matricule
-- PRINT : Ratt list by module
-- JS grid ERROR: SF S10 Elaboration not openning
-- in Tree show year with session not in Promo
+	in Module_Session Config 
+		make Exam Surveyors with Tagging
+		https://bootstrap-tagsinput.github.io/bootstrap-tagsinput/examples/
+		https://select2.org/selections
+	- module config - add datepicker - and Tag exam surviyors
 
-- Historic Rattrapage ??????????
+
+
+
+
 - WARNING: if SF average is under 10 in a semester 
 	that does not mean necisseraly it will enter RATT.
-- in Tree check annual session need to caclulate
+- WARNING : when i don't fill Rattrapage
+	and then calculate annual - some inconsistencies appear
+- WARNING:
+	when i duplicate the Semester
+	is the Modules duplicated too ??????
+		yes modules are duplicated
+		and this causes problems
+			i have to treet Config as a String
+- WARNING : add/remove Student order in Chrome
+
+
+
+
+
+
+
+
+- add Tasks(TODO list) as notification
+	make Home Page a todo List
+- deleting rattrapage is deleting even when connected to annual
+	change it later in  def delete_session(session_id):
+	and session.html {{' s' if module.is_savable == True}}
+
+
+
+
+
+
+-- ANNUAL:
+    - classement in annual
+	- When Creating a new Annual
+		ask for Reinit/Recalculate
+	- lock annual
+		maybe no need because you calculate all the time
+		and maybe lock it to not allow recalculating 
+	- lock historic grid
+	- lock semestr Historic
+	- lockout login after many failed attempts
+		- brut force pass cracking
+	- find a way to allow registration
+		enable & disabled Users
+	- in Tree check annual session need to caclulate
+	- in calculating Annual Average
+		i have to put a finalAverage column
+		and be carfull when printing Bulting
+			give the option of printing before Rattrapage
+	add create annual link to tree
+
+
+
+
 
 - use server workers for offline use
-- lock semestr Historic
+- add a cron job to save database
 
-- PRINT : add last_modification to printables
-	last entry in the database tables
-- in the AnnualSession grid
-	don't make Obs ajournée before ratt
 
-- lockout login after many failed attempts
-	- brut force pass cracking
-- add Thumbnail to Preview print
 
-- find a way to allow registration
-	enable & disabled Users
+
+
+
+
+
 - add macros to represent datetime
 	http://jinja.pocoo.org/docs/2.10/templates/#macros
 	import
@@ -115,50 +145,62 @@
 		https://wtforms.readthedocs.io/en/stable/widgets.html
 
 - remove Notes from the Pages
-- resultat is not sorting by name
-- PRINT : add print : list of rattrapage without modules to pass
 - Combine check_grades_status & get_icon_progress
 	??????????????
 - use tabs to organize students
 	in students List
 - use tabs to organize tree each school
-- add a cron job to save database
 - add param to functions that have 
 	db.session.commit()
 	(self, commit=True):
 		if commit==True:
 			db.session.commit()
 - use is_dirty to optimize calculation time
-- session config - add datepicker
-- module config - add datepicker - and Tag exam surviyors
-- add "novalidate" attribute to each form using javascript/jquery, like this: 
+
+- add "no-validate" attribute to each form using javascript/jquery, like this: 
 	$(document).ready(function() {
 	    $("form").attr('novalidate', 'novalidate');
 	});
+
+
+
+
+
 
 
 - NOTE in module config it calculates when i change save_enabled
 	add redirect page for a better UX
 
 
-- check module printables
+
 - calculate average from Saving
-- in classement-laurieate
-	give the option to consider saved students as rattrapage
 - fix cursor when it is open
 - Scanner
 	https://gitlab.gnome.org/World/OpenPaperwork/libinsane#readme
 	https://doc.openpaper.work/libinsane/latest/libinsane/index.html
 
 
-- lock historic grid
+
+
+
 - use letters to navigate the grid rather than arrows
 
-- add saving notion at every level
-	grade(module) + student_session(semester) + annual_grade(annual)
-	or remove it from annual_grade(annual)
 
-- don't leave page in Grade grid
+-- make the navigation easier
+	show Semester Average & Annual Average
+	between semesters
+	from semester result to Module Grid
+	from annual to grids
+	and from ratt
+	- add a button to navigate between a session(semester) and its ratt
+	and the notion of URL_RETURN
+		you can add a flash of url_return
+
+
+
+
+
+
 
 - check in routesCalculation
 	calculate_all(session):
@@ -170,8 +212,8 @@
     grades = Grade.query.filter_by(
         student_session_id=grade_unit.student_session_id
         ).all()
-- promo year should be got from promo start_year and current
-	and indecate errors
+    - form error messages in quickform is different than you use the fields
+		like in Promo
 - flask static
 	and upload automaticaly to github
 	try to include the javascript
@@ -183,27 +225,18 @@
 	used in init_grade_unit --- grade_unit.unit_coefficient = unit.unit_coefficient
 	& is_fondamental
 		i think i added them for Historic Config
+
+
+
 - add sort to annual
 - add sorter in UEF unit
 - indecate the need to calculate in Annual
 - duplicate Semester from FlaskAdmin
 
 - upload files to a free Static website
-- when i don't fill Rattrapage
-	and then calculate annual - some inconsistencies appear
-- in get_annual_chain_students_to_enter_rattrapage_annual
-	students list must return from before rattraage
-- lock annual
-	maybe no need because you calculate all the time
-	and maybe lock it to not allow recalculating 
-- in Module_Session Config 
-	make Exam Surveyors with Tagging
-	https://bootstrap-tagsinput.github.io/bootstrap-tagsinput/examples/
-	https://select2.org/selections
 - add filter to rattrapage
 - 
-
-
+- what about the students who need to pass some modules (avec dette)
 
 
 - IDEA: in grade grid
@@ -214,37 +247,61 @@
 	meaning two agents enter data twice to make sure everything is correct
 	maybe no need for it if the student can check by himself
 
--- Session
-	- show session in resultat Semester
-	- semester Result Ratt must show Session
-	- in Result and Bultin 
-		be carefull of the source of the data (semester vs ratt)
-	- remove session from Annual
 
--- FINISH PRINTABLES
+== PRINTABLES ==
+----------------
+				- bultin annual normal + rattrapage
+				- print bultin is showing None in birth date
+				- Bultin Semester Header
+				- Bultin Average & credit & session
+				- finish the 3 printables first
+					bultin header + annual + ratt
+					and the choice between the two sessions
+					print From Annual Page
+					and module header
+				- when printing XPS & PDF
+					name the file with a date
+				- classement in resultat
+				- add the headers and footers for the printables
+				- change "name" to "display_name" in printables 
+	- all Printables in one PDF of a Session | Annual | Promo 
+		for all or for one Student
 	- in printables Title and header 
 		be carfull of Semester|ratt
-	- print bultin is showing None in birth date
-	- one PDF contains all Semester
-	- one PDF contains all Annual
-	- classement in resultat
-	- finish the 3 printables first
-		bultin header + annual + ratt
-		and the choice between the two sessions
-		print From Annual Page
-		and module header
-	- Bultin Semester Header
-	- Bultin Average & credit & session
-	- Rattrapage printables
+	- one PDF contains all Annual Printables
+	- one PDF contains all Semester Printables
+	- add print : list of rattrapage without modules to pass
+	- Ratt list by module
+	- add last_modification to printables
+		last entry in the database tables Grade
+	- add Thumbnail to Preview print
+	- check module printables
+	- print Module list
+		if there is any grades, show new other buttons
+	- Annual Result
+	- print Annual (sem1 + sem2 + ratt)
+	- print Zerbia (Ratt + normal)
+		and show session 1 or 2
+	
+	- make check_grid_is_complite() universal in routesSession.py
+		pass grades and check them
+	- add diolog box to print Module to choose
+	- annual bultin would not display correctly
+		if the initializition is not updated (rattrapage and normal)
+	- in Result Be carful of long Module Names
+	- in Result Print Browser the tables print wrong if it jumps to the next Page
 
--- make the navigation easier
-	show Semester Average & Annual Average
-	between semesters
-	from semester result to Module Grid
-	from annual to grids
-	and from ratt
-	and the notion of URL_RETURN
-		you can add a flash of url_return
+	- Rattrapage printables
+	- annual Ratt print must show only when there is two semesters
+	- a location to print all Printables
+	- you have to show session (normal or ratt) in printables
+		result & bultin
+	- finish Progrission Etat
+
+
+
+
+
 
 -- Refactoring
 	- move annual functions from Semester to Annual
@@ -266,15 +323,8 @@
 
 
 
-- when i duplicate the Semester
-	is the Modules duplicated too ??????
-		yes modules are duplicated
-		and this causes problems
-			i have to treet Config as a String
-
 
 - finish permissions to allow multi-user-entering of Historic
-- classement in annual
 
 - the Option to activate Live calcule
 	do it in a background job
@@ -282,26 +332,22 @@
 	??????????
 - in ratt list add check all
 	??????????
-
 - don't close the Grid before Saving
 - show messages automaticaly through Ajax
 	init and calcul
 - show there is errors Grid in the Tree
-
 - show init and calcule Warnings in Releve-Result
 	and in annual
 - can i put two links in a node ???
 - in AnnualSession show a Tree
-- 
 - Hidden buttons in Session Historic is not showing until you refrech the page
 - in Session progress icon
 	show progress with more icons
 - maybe indecate the need to calculate in Tree if the Entries are finished
-- add/remove Student order in Chrome
 - in Config Tree
 	order the percentages according to grid
-- print rattrapage
-- annual Ratt print must show only when there is two semesters
+- 
+
 - a mask to Sort the studets of the third year
 		maybe do it with table tree (grouping)
 	1 - create table and fill it with the students (all years according to branch)
@@ -352,8 +398,6 @@
 - when i run flask
 	flask-admin echos some warnings about missing fields
 - test Tunneling from the internet
-- open classement when all the semesters exist
-	or filled or show messages in classement
 - check init_all() and exclude grades ans unit
 - in update many
 	when the table is Empty it still shows the header
@@ -361,12 +405,16 @@
 		
 - Don't forget to Comment 
 	get_semester_result_data in routesSession.py
-- a location to print all Printables
-- you have to show session (normal or ratt) in printables
-	result & bultin
 
 
-- annual Obs before and After Ratt
+
+
+
+
+
+-- GRID:
+	make grid Save And Fetch Data from Server at the same time
+		to allow parrallel editing
 
 
 
@@ -375,14 +423,12 @@
 - make Choice(Select) Empty in insert many Students
 	and don't allow submition
 - make the filter in Handsontale like the one in in _filter.js
-- make grid Save And Fetch Data from Server at the same time
-	to allow parrallel editing
-- open ratt with  Normal 
-- add create annual link to tree
+- 
+- 
 - use Python to retrive data from google forms
 - NOTE : in module session
 	it only allow one teacher
-- PRINT : finish Progrission Etat
+
 - add a place to run checkups on everything by buttons
 	* use ajax
 	like naming errors
@@ -417,7 +463,7 @@
 
 
 
-- add a button to navigate between a session(semester) and its ratt
+
 
 - DANGER: a Promo can be in a Branch and have a Session and Semester in a different Branch
 - when creating a new session
@@ -429,7 +475,12 @@
 - init date in Promo
 
 - trim names in Wilaya when saving
-- Massive editing in session is not working
+
+
+
+
+
+
 - massive Students Edit (grid) for a promo
 	/*
 	  get all usernames
@@ -443,12 +494,13 @@
 - New Inserted students should be given username="*****"
 	then you change them with massive Edit
 
-- in calculating Annual Average
-	i have to put a finalAverage column
-	and be carfull when printing Bulting
-		give the option of printing before Rattrapage
-- form error messages in quickform is different than you use the fields
-	like in Promo
+
+
+
+
+
+
+
 - Student card Matricule (2018/05)
 	add a new Field or make it uniform with it
 - finish the Students Filter
@@ -496,30 +548,6 @@
 - some breadcrumbs need to adapt to path
 	like justification in Grade & resultat
 		or just change them to Printables
-
-
-== PRINTABLES ==
-----------------
-	- when printing XPS & PDF
-		name the file with a date
-	- print Module list
-		if there is any grades, show new other buttons
-	- Annual Result
-	- print Annual (sem1 + sem2 + ratt)
-	- print Zerbia (Ratt + normal)
-		and show session 1 or 2
-	- what about the students who need to pass some modules (avec dette)
-	- make check_grid_is_complite() universal in routesSession.py
-		pass grades and check them
-	- add diolog box to print Module to choose
-	- add the headers and footers for the printables
-	- change "name" to "display_name" in printables 
-	- annual bultin would not display correctly
-		if the initializition is not updated (rattrapage and normal)
-	- in Result Be carful of long Module Names
-	- in Result Print Browser the tables print wrong if it jumps to the next Page
-	- all Printables in one PDF of a Session | Annual | Promo 
-		for all or for one Student
 
 
 
@@ -902,6 +930,39 @@
 				js and app
 			- if i don't commit object do i find them in queries????
 				yes
+			- filtering in the grid Triggers is_dirty
+				remove is_dirty for now 
+			- in grades by student
+				when filtering the closed cells get messed up
+			- show errors in annual
+				and it shows 100% even if there is a an ERROR
+			- don't allow calc when errs
+			- in tree - create session
+				it shows the parallel Semesters (it shouldn't)
+			- massive editing SF 5 ERROR
+				save error
+			- Potential Problem
+				when you create rattrapage & i already have entered Save grade in normal
+					i must create module_session with saving enabled
+						to transfaire the better grade
+						do i transfaire it to all Gradings(cour+tp+td+ saving) ?????????????????
+			- PROBLEM:
+				transfer_grades() is transgering only cour ass rattrapable
+
+			-Table Session
+				remove type = 'historic'
+				make it is_historic
+			- in annual disable everything until you calculate
+			- WARNING: fix observation
+				AnnualGrade->calculate 
+			- Historic can create ratt histo ?????
+				yes for SF - do it from annual
+			- PRINT by : module list
+				no-wrap-matricule
+			- Historic Rattrapage ??????????
+			- in the AnnualSession grid
+				don't make Obs ajournée before ratt
+			- session config - add datepicker
 
 
 

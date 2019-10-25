@@ -14,11 +14,11 @@ var mode = '{{ mode | safe }}';
 var hiddenColumns = null;
 
 if(mode == 'classement') {
-  hiddenColumns = [6, 8, 11, 13, 15, 16, 19, 21, 23, 25, 27, 28];
+  hiddenColumns = [0, 6, 8, 11, 13, 15, 16, 19, 21, 23, 25, 27, 28];
 }
 
 if(mode == 'progression') {
-  hiddenColumns = [3, 6, 8, 11, 12, 13, 14, 15, 16, 19, 21,22,23,24,25,26,27,28];
+  hiddenColumns = [0, 3, 6, 8, 11, 12, 13, 14, 15, 16, 19, 21,22,23,24,25,26,27,28];
 }
 
 
@@ -88,11 +88,56 @@ hot = new Handsontable(container, {
   hiddenColumns: {
     columns: hiddenColumns,
     /* hide app fields */
-    // columns: [6, 8, 11, 13, 15, 16, 19, 21, 23, 25, 27, /*28*/],
+    // columns: [0, 6, 8, 11, 13, 15, 16, 19, 21, 23, 25, 27, /*28*/],
     /* show progression */
-    // columns: [3, 6, 8, 11, 12, 13, 14, 15, 16, 19, 21,22,23,24,25,26,27,28],
+    // columns: [0, 3, 6, 8, 11, 12, 13, 14, 15, 16, 19, 21,22,23,24,25,26,27,28],
     indicators: false
-  }
+  },
+
+  customBorders: [
+  {
+    range: {
+      from: {
+        row: 0,
+        col: 1
+      },
+      to: {
+        row: 5,
+        col: 28
+      }
+    },
+    top: {
+      width: 2,
+      color: '#5292F7'
+    },
+    left: {
+      width: 2,
+      color: 'orange'
+    },
+    bottom: {
+      width: 2,
+      color: 'red'
+    },
+    right: {
+      width: 2,
+      color: 'magenta'
+    }
+  },
+  // {
+  //   row: 2,
+  //   col: 2,
+  //   left: {
+  //     width: 2,
+  //     color: 'red'
+  //   },
+  //   right: {
+  //     width: 1,
+  //     color: 'green'
+  //   }
+  // }
+  ]
+
+
 });
 
 
