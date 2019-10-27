@@ -19,8 +19,6 @@
 
 == PRIORITY 1 ==
 ----------------
-
-
 - in justification
 	show how the credit is calculated
 	http://localhost:5000/session/55/student/134/
@@ -38,7 +36,7 @@
 - Add notes for users
 	- RATT: la note finale retenue pour la matiere sera la meilleure des moyennes entre les 2 sessions
 
--- Progrission et Classement
+== Progrission et Classement ==
 	- Average and credit in Classement is shown in Bultin and Annual like Decision
 	- in Promo decide wich Classement and Progression formula
 	- in classement-laurieate
@@ -67,6 +65,10 @@
 	change it later in  def delete_session(session_id):
 	and session.html {{' s' if module.is_savable == True}}
 
+
+
+- make check_grid_is_complite() universal in routesSession.py
+		pass grades and check them
 
 
 
@@ -98,9 +100,6 @@
 	- WARNING: add/remove Student order in Chrome
 
 
-
-
-
 == Result ==
 	- add checking in the result
 	- Note: i am grabing Semester Result Informations from the Config String
@@ -128,7 +127,7 @@
 	- use tabs to organize tree each school
 
 
-== ANNUAL:
+== ANNUAL ==
     - classement (by average) in annual
 	- lock annual
 		maybe no need because you calculate all the time
@@ -138,7 +137,7 @@
 		at least one module
 		who is already generated and who is not
 
-== Student
+== Student ==
 	- Student card Matricule (2018/05)
 		add a new Field or make it uniform with it
 	- finish the Students Filter
@@ -167,12 +166,8 @@
 	- in add/remove Student - Gliphcon Not appearig when internet is Off
 
 
-== make the navigation easier
-	show Semester Average & Annual Average
-	between semesters
-	
-	from annual to grids
-	and from ratt
+== make the navigation easier ==
+	- navigate between semesters
 	- add a button to navigate between a session(semester) and its ratt
 	and the notion of URL_RETURN
 		you can add a flash of url_return
@@ -181,45 +176,32 @@
 == PRINTABLES ==
 	- all Printables in one PDF of a Session | Annual | Promo 
 		for all or for one Student
-	- in printables Title and header 
-		be carfull of Semester|ratt
 	- one PDF contains all Annual Printables
 	- one PDF contains all Semester Printables
-	- add print : list of rattrapage without modules to pass
+	- add Print: list of rattrapage students without modules to pass
 	- Ratt list by module
 	- add last_modification to printables
 		last entry in the database tables Grade
 	- add Thumbnail to Preview print
-	- check module printables
-	- print Module list
-		if there is any grades, show new other buttons
-	- print Annual (sem1 + sem2 + ratt)
 	- print Zerbia (Ratt + normal)
 		and show session 1 or 2
-	
-	- make check_grid_is_complite() universal in routesSession.py
-		pass grades and check them
 	- add diolog box to print Module to choose
-	- annual bultin would not display correctly
-		if the initializition is not updated (rattrapage and normal)
-
-	- Rattrapage printables
 	- annual Ratt print must show only when there is two semesters
 	- a location to print all Printables
 	- finish Progrission Etat
 
 
-== Refactoring
+== Refactoring ==
 	- move annual functions from Semester to Annual
 		like get_annual_chain
-	- in FORM SelectField should filter 
 	- use Count() in sqlalchemy
-	- globlize the changing lists like ['cour', 'td', 'tp', 't_pers', 'stage', 'saving_grade']
+	- globlize the changing lists like 
+			['cour', 'td', 'tp', 't_pers', 'stage', 'saving_grade']
 		to avoid changing them in many places
 	- 
 
 
-== GRID:
+== GRID ==
 	- warning of leaving the grid without save
 	- use letters to navigate the grid rather than arrows
 	- IDEA: in grade grid
@@ -232,7 +214,6 @@
 	- GRID:
 		make grid Save And Fetch Data from Server at the same time
 			to allow parrallel editing
-	
 	-
 
 

@@ -173,6 +173,12 @@ def get_sessions_tree(promo):
         + get_classement_link(promo, False)\
         + get_creation_links(promo, separate)
 
+
+# @app.route('/get_async_promos_by_branch/<branch_id>/', methods=['GET', 'POST'])
+# def get_async_promos_by_branch(branch_id):
+#     branch = Branch.query.get_or_404(branch_id)
+#     return '[' + get_promos_tree(branch, 0) + ']'
+
 def get_promos_tree(branch, open_p_id):
     promos = branch.promos
     promos_tree = ''
@@ -188,9 +194,9 @@ def get_promos_tree(branch, open_p_id):
 
         year = promo.get_latest_annual()
         if year == 1:
-            name = name + ' (' + str(  promo.get_latest_annual() ) + ' ère Année)'
+            name = name + ' (' +str(promo.get_latest_annual())+ ' ère Année)'
         elif year > 1:
-            name = name + ' (' + str(  promo.get_latest_annual() ) + ' ème Année)'
+            name = name + ' (' +str(promo.get_latest_annual())+ ' ème Année)'
 
         hint = ''
 
@@ -201,14 +207,12 @@ def get_promos_tree(branch, open_p_id):
         if open_p_id == 0:
             open = 'true'
         if open_p_id > 0:
-            open = 'false'
+            # open = 'false'
             if open_p_id == promo.id:
                 open = 'true'
 
         sessions_tree = ''
         if open == 'true':
-            # promo_name = promo.name + ' ' + promo_display_name
-            # sessions_tree = get_sessions_tree(promo, promo_name)
             sessions_tree = get_sessions_tree(promo)
 
 
@@ -216,6 +220,7 @@ def get_promos_tree(branch, open_p_id):
         promos_tree += p + sessions_tree
 
     return promos_tree
+
 
 def get_branches_tree(school, open_b_id, open_p_id):
     branches = school.branches
@@ -262,6 +267,7 @@ def get_schools_tree(open_s_id, open_b_id, open_p_id):
         s = '{ id:"'+id+'", pId:0, name:"'+name+'", hint:"'+hint+'", open:'+open+', iconSkin:"'+icon+'", isParent:true },'
         schools_tree += s + branches_tree
     return schools_tree
+    
 
 # @cache.cached(timeout=500)
 # def get_schools_tree_cached(open_s_id, open_b_id, open_p_id):

@@ -9,7 +9,6 @@ function get_promos_with_options() {
   return promos;
 }
 
-
 var setting = {
   view: {
     dblClickExpand: false,
@@ -17,7 +16,6 @@ var setting = {
     nameIsHTML: true,
     selectedMulti: false,
     addDiyDom: addDiyDom,
-    
     //isHighLight: false  // i thought it will allow me to not show the highlight
   },
   check: {
@@ -30,12 +28,12 @@ var setting = {
   data: {
     key: {
       title: "hint"
-      // title: ""
     },
     simpleData: {
       enable: true
     }
   },
+
 
   async: {
     enable: true,
@@ -43,11 +41,11 @@ var setting = {
   },
   callback: {
     onClick: onClick,
-
     beforeExpand: beforeExpand,
     onAsyncSuccess: onAsyncSuccess,
     onAsyncError: onAsyncError
   }
+
 }; 
 
 
@@ -58,6 +56,7 @@ var log,
     endTime = 0, 
     perCount = 100, 
     perTime = 100;
+    
 
 function getUrl(treeId, treeNode) {
   var promo_id = parseInt( treeNode.id.replace('promo_', '') )
@@ -106,8 +105,7 @@ function onAsyncError(event, treeId, treeNode, XMLHttpRequest, textStatus, error
 
 function ajaxGetNodes(treeNode, reloadType) {
   var zTree = $.fn.zTree.getZTreeObj("treeDemo");
-  // var treeNode_id_str = treeNode.id+'';
-  // alert(treeNode.id.includes("promo"));
+  
   if ( treeNode.id.includes("promo") ) {
     if (reloadType == "refresh") {
       treeNode.icon = "/static/ztree/img/loading.gif";
