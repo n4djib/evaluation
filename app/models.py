@@ -127,7 +127,6 @@ class AnnualGrade(db.Model):
     average_final = db.Column(db.Numeric(10,2))
     credit_final = db.Column(db.Integer)
     is_dirty = db.Column(db.Boolean, default=False)
-    
     decision = db.Column(db.String(50))
     
     annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
@@ -302,7 +301,7 @@ class Session(db.Model):
     
     #   historic  or  historique
     #   None  or  ''  or  Standard
-    type = db.Column(db.String(20))
+    # type = db.Column(db.String(20))
     is_historic = db.Column(db.Boolean, default=False)
 
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -571,12 +570,7 @@ class StudentSession(db.Model):
             if grade.check_is_rattrapage():
                 return True
         return False
-    #
-    #
-    #
-    #
     # i pass grade_units to avoid commiting them then fetching again
-    #
     def calculate(self, grade_units=None):
         if grade_units is None:
             grade_units = self.grade_units
@@ -763,14 +757,7 @@ class GradeUnit(db.Model):
                 if grade.check_is_rattrapage():
                     return True
         return False
-    #
-    #
-    #
-    #
-    #
-    #
     # i pass grades to avoid commiting them then fetching again
-    #
     def calculate(self, grades=None):
         # grades in a one grade_unit
         if grades is None:
@@ -788,6 +775,7 @@ class GradeUnit(db.Model):
         average = 0
         credit = 0
         calculation = ''
+        credit_calculation = ''
         for grade in grades:
             # if grade.average == None:
             #     average = None
@@ -802,6 +790,7 @@ class GradeUnit(db.Model):
             average += round(g_avr * coefficient / cumul_unit_coeff, 2)
             credit += grade.credit
             calculation += str(g_avr) + ' * ' + str(coefficient) + ' + '
+            credit_calculation += str(grade.credit) + ' + '
 
         self.average = average
         if average == None:
@@ -815,8 +804,10 @@ class GradeUnit(db.Model):
 
             calculation = calculation[:-3]
             calculation = '(' + calculation + ') / ' + str(cumul_unit_coeff)
-            # self.calculation = calculation + ' = ' + str(average)
-            self.calculation = calculation
+            # self.calculation = calculation
+            self.calculation = '<div>   <b>Moy:</b> ' + calculation\
+                 + '</div>   <b>Cr:</b> ' + credit_calculation[:-3]\
+                + ' ( fondamental ) ( < or > than 10 )'
         return 'unit calculated'
 
 class Grade(db.Model):

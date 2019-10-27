@@ -253,7 +253,8 @@ def get_unit_justification(grade_unit, conf_dict):
     name = get_unit_name(grade_unit.unit_id, conf_dict)
     justification = ['    <b>UNIT</b> : ' + name]
     if grade_unit.calculation != None and grade_unit.calculation != '':
-        justification += ['    ' + grade_unit.calculation]
+        # justification += ['    ' + grade_unit.calculation]
+        justification += [grade_unit.calculation]
     else:
         justification += '**********'
 

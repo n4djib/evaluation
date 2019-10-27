@@ -78,7 +78,7 @@
       {% for just in justs %}
       <tr>
         <td class="no-wrap name">{{ just[0] | safe }}</td>
-        <td class="no-wrap">{{ just[1] }}</td>
+        <td class="no-wrap">{{ just[1] | safe  }}</td>
         <td class="moyen">{{ just[2] }}</td>
         <td class="credit">{{ just[3] }}</td>
       </tr>

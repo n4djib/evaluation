@@ -17,17 +17,17 @@ from app.permissions_and_roles import *
 # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # #
 
-from app.models import Session
-# from app.routesCalculation import init_all, calculate_all
+# from app.models import Session
+# # from app.routesCalculation import init_all, calculate_all
 
-@app.route('/code-fill-is_historic/')
-def run_fill_is_historic():
-    sessions = Session.query.all()
-    for session in sessions:
-        if session.type == "historic" or session.type == "historique":
-            session.is_historic = True
-    db.session.commit()
-    return 'excuted code-fill-is_historic'
+# @app.route('/code-fill-is_historic/')
+# def run_fill_is_historic():
+#     sessions = Session.query.all()
+#     for session in sessions:
+#         if session.type == "historic" or session.type == "historique":
+#             session.is_historic = True
+#     db.session.commit()
+#     return 'excuted code-fill-is_historic'
 
 
 # # # # # # # # # # # # # # # # # # # # # 
@@ -91,11 +91,11 @@ def slow_redirect():
 # _insecure_views = ['login', 'register']
 _insecure_views = []
 
-# @app.before_request
-# def before_request():
-#     if not current_user.is_authenticated:
-#         if request.endpoint not in _insecure_views:
-#             return redirect(url_for('login'))
+@app.before_request
+def before_request():
+    if not current_user.is_authenticated:
+        if request.endpoint not in _insecure_views:
+            return redirect(url_for('login'))
 
 def login_not_required(fn):
     '''decorator to disable user authentication'''
