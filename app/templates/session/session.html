@@ -263,9 +263,9 @@
       <a href="{{ url_for('student_session', session_id=session.id) }}"
          class="btn btn-primary {{'disabled' if session.is_closed else ''}}" 
          role="button">Add/Remove</a>
-      <a href="{{ url_for('students_update_many', session_id=session.id) }}"
+      <!-- <a href="{ { url_for('students_update_many', session_id=session.id) }}"
          class="btn btn-primary { {'disabled' if session.is_closed else ''} }" 
-         role="button">Massive Editing</a>
+         role="button">Massive Editing</a> -->
 
     </div>
 

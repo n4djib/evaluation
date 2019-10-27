@@ -1854,6 +1854,15 @@ def get_footer_bultin_semester(student_session):
 
     return footer
 
+
+# EMPTY = '<font color="red"><b>X</b></font>'
+def EMPTY(text):
+    return '<font color="red"><b>' + text + '</b></font>'
+def get_ratt_bultin(ratt):
+    if ratt == True:
+        return '2'
+    return '1'
+
 def get_bultin_semester(student_session):
     student = student_session.student
     semester = student_session.session.semester
@@ -1861,6 +1870,7 @@ def get_bultin_semester(student_session):
     # Table
     grade_units = student_session.grade_units
     table = get_thead_bultin_semester()
+
 
     for grade_unit in grade_units:
         modules_in_unit = [module.id for module in grade_unit.unit.modules]
@@ -1870,9 +1880,6 @@ def get_bultin_semester(student_session):
 
         grades_tr = ''
         rowspan = 0
-        # EMPTY = '<font color="red"><b>X</b></font>'
-        def EMPTY(text):
-            return '<font color="red"><b>' + text + '</b></font>'
 
         for grade in grades_in_unit:
             module = grade.module
@@ -1883,11 +1890,11 @@ def get_bultin_semester(student_session):
             grades_tr += '<td>'+str(module.credit)+'</td> <td>'+str(module.coefficient)+'</td>'
             grades_tr += '<td>'+str(grade.average).replace('None', EMPTY('X'))+'</td>'
             grades_tr += '<td>'+str(grade.credit).replace('None', EMPTY('X'))+'</td>'
-            grades_tr += '<td>'+str(grade.get_ratt_bultin())+'</td>'
+            grades_tr += '<td>'+get_ratt_bultin(grade.check_is_rattrapage())+'</td>'
             if rowspan == 0:
                 grades_tr += '<td rowspan=_rowspan_>'+str(grade_unit.average).replace('None', EMPTY('X'))+'</td>'
                 grades_tr += '<td rowspan=_rowspan_>'+str(grade_unit.credit).replace('None', EMPTY('X'))+'</td>'
-                grades_tr += '<td rowspan=_rowspan_>'+str(grade_unit.get_ratt_bultin())+'</td>'
+                grades_tr += '<td rowspan=_rowspan_>'+get_ratt_bultin(grade_unit.check_is_rattrapage())+'</td>'
             
             grades_tr += '</tr>'
             rowspan += 1
@@ -1983,16 +1990,13 @@ def get_semester_modules_html(student_session):
     semester = student_session.session.semester
     row_span_sem = semester.nbr_of_modules()
 
-    def EMPTY(text):
-        return '<font color="red"><b>' + text + '</b></font>'
-
     sem_tr = '<tr>'
     sem_tr += '<td class="rotate" rowspan='+str(row_span_sem)+'><div>Semestre '+str(semester.get_nbr())+'</div></td>'
 
     # take considiration of Rattrapage
     sem_result = '<td rowspan='+str(row_span_sem)+'>'+str(student_session.average)+'</td>'
     sem_result += '<td rowspan='+str(row_span_sem)+'>'+str(student_session.credit)+'</td>'
-    sem_result += '<td rowspan='+str(row_span_sem)+'>'+student_session.get_ratt_bultin()+'</td>'
+    sem_result += '<td rowspan='+str(row_span_sem)+'>'+get_ratt_bultin(student_session.check_is_rattrapage()) +'</td>'
 
     grade_units = student_session.grade_units
     
@@ -2011,7 +2015,7 @@ def get_semester_modules_html(student_session):
 
         unit_result = '<td rowspan=_unit-rowspan_>'+str(grade_unit.average).replace('None', EMPTY('X'))+'</td>'
         unit_result += '<td rowspan=_unit-rowspan_>'+str(grade_unit.credit).replace('None', EMPTY('X'))+'</td>'
-        unit_result += '<td rowspan=_unit-rowspan_>'+str(grade_unit.get_ratt_bultin())+'</td>'
+        unit_result += '<td rowspan=_unit-rowspan_>'+get_ratt_bultin(grade_unit.check_is_rattrapage())+'</td>'
 
         row_module = 0
         if row_module == 0:
@@ -2024,7 +2028,7 @@ def get_semester_modules_html(student_session):
             grade_tr += '<td>'+str(module.credit)+'</td> <td>'+str(module.coefficient)+'</td>'
             grade_tr += '<td>'+str(grade.average).replace('None', EMPTY('X'))+'</td>'
             grade_tr += '<td>'+str(grade.credit).replace('None', EMPTY('X'))+'</td>'
-            grade_tr += '<td>'+str(grade.get_ratt_bultin())+'</td>'
+            grade_tr += '<td>'+get_ratt_bultin(grade.check_is_rattrapage())+'</td>'
             if row_module == 0:
                 grade_tr += unit_result
             if row_unit == 0 and row_module == 0:
@@ -2103,7 +2107,8 @@ def get_header_bultin_annual(annual_grade):
     header += "Le directeur de <b>"+student.branch.school.name+",</b> atteste que l'étudiant(e)</br>"
     header += 'Nom:  <b>'+student.last_name+'</b>     '
     header += 'Prenom:  <b>'+student.first_name+'</b>    '
-    header += 'Né(e) le: <b>'+str(student.birth_date)+'</b> à <b>'+str(student.birth_place)+'</b></br>'
+    header += 'Né(e) le: <b>'+str(student.birth_date).replace('None', '#é$/&?|[+{#%*#$=')+'</b>'
+    header += ' à <b>'+str(student.birth_place).replace('None', '#é$/&?|[+{#%*#$=')+'</b></br>'
     header += 'Inscrit(e) en <b>' + annual_literal + '</b>   '
     header += 'Corps des:  <b>'+student.branch.description+'</b></br>'
     header += 'Sous le matricule: <b>' + student.username + '</b>'

@@ -104,7 +104,6 @@ class AnnualSession(db.Model):
                 return True
         return False
 
-
 class AnnualGrade(db.Model):
     __tablename__ = 'annual_grade'
     id = db.Column(db.Integer, primary_key=True)
@@ -572,10 +571,6 @@ class StudentSession(db.Model):
             if grade.check_is_rattrapage():
                 return True
         return False
-    def get_ratt_bultin(self):
-        if self.check_is_rattrapage():
-            return '2'
-        return '1'
     #
     #
     #
@@ -761,10 +756,6 @@ class GradeUnit(db.Model):
     unit = db.relationship('Unit', back_populates='grade_units')
     student_session_id = db.Column(db.Integer, db.ForeignKey('student_session.id'))
     student_session = db.relationship('StudentSession', back_populates='grade_units')
-    def get_ratt_bultin(self):
-        if self.check_is_rattrapage():
-            return '2'
-        return '1'
     def check_is_rattrapage(self):
         grades = self.student_session.grades
         for grade in grades:
@@ -852,6 +843,9 @@ class Grade(db.Model):
     def get_username(self):
         s = self.student_session.student
         return s.username
+    def get_student_name(self):
+        s = self.student_session.student
+        return s.last_name + ' ' + s.first_name
     def check_is_rattrapage(self):
         if self.is_rattrapage == True:
             # get the original grade
@@ -866,18 +860,7 @@ class Grade(db.Model):
             # see if the new grade is higher
             if original_grade <= this_grade:
                 return True
-
         return False
-    def get_student_name(self):
-        s = self.student_session.student
-        return s.last_name + ' ' + s.first_name
-    # def get_student_full_name(self):
-    #     s = self.student_session.student
-    #     return s.username + ' - ' + s.last_name + ' ' + s.first_name
-    def get_ratt_bultin(self):
-        if self.check_is_rattrapage():
-            return '2'
-        return '1'
     def get_ratt_original_grade(self):
         original_grade = 0
         # original_grade = None

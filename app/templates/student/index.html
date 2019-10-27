@@ -24,6 +24,12 @@
         <a class="btn btn-primary" href="{{ url_for('students_create') }}">Create New</a>
         <a class="btn btn-primary" href="{{ url_for('students_create_many') }}"
         >Insert Many Students from Excel</a>
+
+        {% if promo_id | length != 0 %}
+        <a href="{{ url_for('students_update_many', promo_id=promo_id) }}"
+             class="btn btn-default }" 
+             role="button">Massive Editing</a>
+        {% endif %}
     </div>
 
     </br>
@@ -34,6 +40,7 @@
     </div>
 
 
+    {% if promo_id | length == 0 %}
     <div class="dropdown filter_w">
       <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
         Filter By <b>Branch</b>
@@ -60,6 +67,8 @@
         <li><a href="#">Something else here</a></li>
       </ul>
     </div>
+    {% endif %}
+
 
 
     </br></br></br>

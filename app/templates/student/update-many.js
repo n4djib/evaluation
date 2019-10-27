@@ -170,7 +170,7 @@ function Save(){
     success: function(msg) {
       // alert('---' +msg+ '---');
       console.log('Success: \n' + msg + ' \n------------');
-      window.location = '{{ url_for("students_update_many", session_id=session_id) }}';
+      window.location = '{{ url_for("students_update_many", promo_id=promo_id) }}';
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       alert("fix the errors before Updating...");

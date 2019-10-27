@@ -13,6 +13,11 @@
 	start http://localhost:5000/ to server launsher
 	make it in orange
 
+
+
+
+
+
 = SF 2016/2021 4eme
 	check S4 resultat
 	ratt
@@ -20,27 +25,27 @@
 
 	maybe just delete ratt and reenter the data
 
+= ISP class 2018/2021 
+	regenerate R2
+
 = Table Session - remove type = 'historic' - make it is_historic
 
 	- add to "Session" "is_historic" bool
 	- run code http://localhost:5000/code-fill-is_historic/
 
 
-
-
-
-
-= 
-
-
-
 = remove "type" from table
-= remove type from models line 305
+= remove "type" from models line 305
 		or just put the new code if removed
 
 = 
 
 = 
+
+
+
+= 
+
 
 
 

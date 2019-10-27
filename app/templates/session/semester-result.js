@@ -110,7 +110,7 @@ function change_icons(n, dir) {
 
 
 
-function sortTable(n, dir = "asc") {
+function sortTable(n, dir = "desc") {
   if (n === 0)
     return;
 
@@ -143,7 +143,8 @@ function sortTable(n, dir = "asc") {
       var _x = x.innerHTML.toLowerCase();
       var _y = y.innerHTML.toLowerCase();
 
-      if (n !== 1 && n !== 2) {
+      // all numerics
+      if (n != 1 && n != 2) {
         _x = parseFloat( x.innerHTML.toLowerCase() );
         _y = parseFloat( y.innerHTML.toLowerCase() );
       }

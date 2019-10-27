@@ -19,78 +19,47 @@
 
 == PRIORITY 1 ==
 ----------------
-			- the Need to calculate in session is not working
 
 
-- in Session make list in "Button items" & "Linked items"
-	https://getbootstrap.com/docs/3.3/components/#list-group-buttons
-- ERROR : JS grid : SF S10 Elaboration not openning
-- ERROR : resultat is not sorting by name
-- give the ability to open all fields in rattrapage session
--- Session
-	- show session in resultat Semester
-		result apres Ratt.
-	- semester Result Ratt must show Session
-	- in Result and Bultin 
-		be carefull of the source of the data (semester vs ratt)
-	- remove session from Annual
-- promo year should be got from promo start_year and current and last session 
-	(start + current date + last session)
-	and indecate errors
+- in justification
+	show how the credit is calculated
 
 
-- Tree load only at depth requested
-	don't load promos when branches are closed
-- add Massive Editing in Tree promo->students
+- check if students are consistant between the two semesters
+- lock semester Historic
+- lockout login after many failed attempts
+- brut force pass cracking
+- find a way to allow registration
+	enable & disabled Users
 - in historic session make the message stay in the box for a while
 - turn all calculation to calcule by student
 	session.calculate() -> session.student_sessions.calculate
-- add checking in the result
 
 - Add notes for users
 	- RATT: la note finale retenue pour la matiere sera la meilleure des moyennes entre les 2 sessions
 
 -- Progrission et Classement
-	- in Promo decide wich Classement and Progression formule
-	- in annual_grade add: the ability to change the Progrission (the observation)
-		make the decision in Progrission and Classement
-		if it i filled it changes what in AnnualGrade
+	- Average and credit in Classement is shown in Bultin and Annual like Decision
+	- in Promo decide wich Classement and Progression formula
 	- in classement-laurieate
 		give the option to consider saved students as rattrapage
+	- when you transfer students to the next year
+		they have to qualify
+		transfaire from annual, not from semester
+		Only Admit & Admit avec dette
 
 
-- TAGS FOR EXAM SURVIORS
-	https://www.cssscript.com/tags-input-tagplug/
-	https://www.phpzag.com/create-bootstrap-tags-input-with-jquery-php-mysql/
-	https://www.phpzag.com/demo/create-bootstrap-tags-input-with-jquery-php-mysql/
-	in Module_Session Config 
-		make Exam Surveyors with Tagging
-		https://bootstrap-tagsinput.github.io/bootstrap-tagsinput/examples/
-		https://select2.org/selections
-	- module config - add datepicker - and Tag exam surviyors
+- finish permissions to allow multi-user-entering of Historic
 
 
-
-
-
-- WARNING: if SF average is under 10 in a semester 
-	that does not mean necisseraly it will enter RATT.
-- WARNING : when i don't fill Rattrapage
-	and then calculate annual - some inconsistencies appear
-- WARNING:
-	when i duplicate the Semester
-	is the Modules duplicated too ??????
-		yes modules are duplicated
-		and this causes problems
-			i have to treet Config as a String
-- WARNING : add/remove Student order in Chrome
-
-
-
-
-
-
-
+- in AnnualSession show a Tree
+- module config - add datepicker 
+- give the ability to open all fields in rattrapage session
+	naaaah: you can force a student to enter ratt by reducing his grades
+	then generate ratt and after that correct thyem back
+- promo year should be got from promo start_year and current and last session 
+	(start + current date + last session)
+	and indecate errors
 
 - add Tasks(TODO list) as notification
 	make Home Page a todo List
@@ -101,95 +70,107 @@
 
 
 
+- TAGS FOR EXAM SURVIORS
+	https://www.cssscript.com/tags-input-tagplug/
+	https://www.phpzag.com/create-bootstrap-tags-input-with-jquery-php-mysql/
+	https://www.phpzag.com/demo/create-bootstrap-tags-input-with-jquery-php-mysql/
+	in Module_Session Config 
+		make Exam Surveyors with Tagging
+		https://bootstrap-tagsinput.github.io/bootstrap-tagsinput/examples/
+		https://select2.org/selections
+	- module config - and Tag exam surviyors
 
 
--- ANNUAL:
-    - classement in annual
-	- When Creating a new Annual
-		ask for Reinit/Recalculate
+
+== QUESTIONS: 
+	- what about the students who need to pass some modules (avec dette)
+
+
+== Potential Bugs ==
+	- WARNING: if SF average is under 10 in a semester 
+		that does not mean necisseraly it will enter RATT.
+	- WARNING:
+		when i duplicate the Semester
+		is the Modules duplicated too ??????
+			yes modules are duplicated
+			and this causes problems
+				i have to treet Config as a String
+	- WARNING: add/remove Student order in Chrome
+
+
+
+
+
+== Result ==
+	- add checking in the result
+	- Note: i am grabing Semester Result Informations from the Config String
+	- show init and calcule Warnings in Releve-Result
+		and in annual
+	- link from semester result Module -> to Module Grid
+	- Semester Result add the option to close module width
+		??????????1
+	- Resultat print is stretching to end of page
+	- you have to show session (normal or ratt) in printables
+		result & bultin
+	- in Result Be carful of long Module Names
+	- in result header    on the left is centering
+	- Don't forget to Comment 
+		get_semester_result_data in routesSession.py
+
+
+== Tree ==
+	- Tree load only at depth requested
+		don't load promos when branches are closed
+	- add create new branch and school and promo
+		and add url_return to go back to tree after creation
+	- in Tree check annual session need to caclulate
+	- add create annual link to tree
+	- use tabs to organize tree each school
+
+
+== ANNUAL:
+    - classement (by average) in annual
 	- lock annual
 		maybe no need because you calculate all the time
 		and maybe lock it to not allow recalculating 
-	- lock historic grid
-	- lock semestr Historic
-	- lockout login after many failed attempts
-		- brut force pass cracking
-	- find a way to allow registration
-		enable & disabled Users
-	- in Tree check annual session need to caclulate
-	- in calculating Annual Average
-		i have to put a finalAverage column
-		and be carfull when printing Bulting
-			give the option of printing before Rattrapage
-	add create annual link to tree
+	- add sort to annual
+	- in ratt annual indicate students who entered the rattrapage
+		at least one module
+		who is already generated and who is not
+
+== Student
+	- Student card Matricule (2018/05)
+		add a new Field or make it uniform with it
+	- finish the Students Filter
+		by Branch and Promo
+	- add pagination to student table
+	- massive students delete Or Branch change
+		apply a thing a mass of students	
+	- New Inserted students should be given username="*****"
+		then you change them with massive Edit
+	- massive Students Edit (grid) for a promo
+		/*
+		  get all usernames
+		  get usernames in this Promo
+		  do not color the usernames of this Promos
+		    unless there is A duplication
+		*/
+	- deactivate a student rather than deleting him
+	- make Choice(Select) Empty in insert many Students
+		and don't allow submition
+	- add group to student session
+	order by group
+	teacher by group
+	- use tabs to organize students
+		in students List
+	- Submit Data by CRTL+S in Update many & create many
+	- in add/remove Student - Gliphcon Not appearig when internet is Off
 
 
-
-
-
-- use server workers for offline use
-- add a cron job to save database
-
-
-
-
-
-
-
-
-- add macros to represent datetime
-	http://jinja.pocoo.org/docs/2.10/templates/#macros
-	import
-		https://stackoverflow.com/questions/19002290/how-to-use-macros-in-a-included-file
-	Custom widgets
-		https://wtforms.readthedocs.io/en/stable/widgets.html
-
-- remove Notes from the Pages
-- Combine check_grades_status & get_icon_progress
-	??????????????
-- use tabs to organize students
-	in students List
-- use tabs to organize tree each school
-- add param to functions that have 
-	db.session.commit()
-	(self, commit=True):
-		if commit==True:
-			db.session.commit()
-- use is_dirty to optimize calculation time
-
-- add "no-validate" attribute to each form using javascript/jquery, like this: 
-	$(document).ready(function() {
-	    $("form").attr('novalidate', 'novalidate');
-	});
-
-
-
-
-
-
-
-- NOTE in module config it calculates when i change save_enabled
-	add redirect page for a better UX
-
-
-
-- calculate average from Saving
-- fix cursor when it is open
-- Scanner
-	https://gitlab.gnome.org/World/OpenPaperwork/libinsane#readme
-	https://doc.openpaper.work/libinsane/latest/libinsane/index.html
-
-
-
-
-
-- use letters to navigate the grid rather than arrows
-
-
--- make the navigation easier
+== make the navigation easier
 	show Semester Average & Annual Average
 	between semesters
-	from semester result to Module Grid
+	
 	from annual to grids
 	and from ratt
 	- add a button to navigate between a session(semester) and its ratt
@@ -197,73 +178,7 @@
 		you can add a flash of url_return
 
 
-
-
-
-
-
-- check in routesCalculation
-	calculate_all(session):
-	calculate_student(session, student):
-	same for init
-
-- Note: in session calculate check
-    # grades = grade_unit.grades
-    grades = Grade.query.filter_by(
-        student_session_id=grade_unit.student_session_id
-        ).all()
-    - form error messages in quickform is different than you use the fields
-		like in Promo
-- flask static
-	and upload automaticaly to github
-	try to include the javascript
-- deactivate a student rather than deleting him
-- indicate that a semestral ratt is passing in annual for SF
-- maybe when i reintialize the ids change
-	when removing a student
-- in GradeUnit what is the purpose of unit_coefficient
-	used in init_grade_unit --- grade_unit.unit_coefficient = unit.unit_coefficient
-	& is_fondamental
-		i think i added them for Historic Config
-
-
-
-- add sort to annual
-- add sorter in UEF unit
-- indecate the need to calculate in Annual
-- duplicate Semester from FlaskAdmin
-
-- upload files to a free Static website
-- add filter to rattrapage
-- 
-- what about the students who need to pass some modules (avec dette)
-
-
-- IDEA: in grade grid
-	when you change set to dirty and send only dirty fields
-		this will allow parallel editing
-
-- add double saisier notion
-	meaning two agents enter data twice to make sure everything is correct
-	maybe no need for it if the student can check by himself
-
-
 == PRINTABLES ==
-----------------
-				- bultin annual normal + rattrapage
-				- print bultin is showing None in birth date
-				- Bultin Semester Header
-				- Bultin Average & credit & session
-				- finish the 3 printables first
-					bultin header + annual + ratt
-					and the choice between the two sessions
-					print From Annual Page
-					and module header
-				- when printing XPS & PDF
-					name the file with a date
-				- classement in resultat
-				- add the headers and footers for the printables
-				- change "name" to "display_name" in printables 
 	- all Printables in one PDF of a Session | Annual | Promo 
 		for all or for one Student
 	- in printables Title and header 
@@ -278,7 +193,6 @@
 	- check module printables
 	- print Module list
 		if there is any grades, show new other buttons
-	- Annual Result
 	- print Annual (sem1 + sem2 + ratt)
 	- print Zerbia (Ratt + normal)
 		and show session 1 or 2
@@ -288,155 +202,139 @@
 	- add diolog box to print Module to choose
 	- annual bultin would not display correctly
 		if the initializition is not updated (rattrapage and normal)
-	- in Result Be carful of long Module Names
-	- in Result Print Browser the tables print wrong if it jumps to the next Page
 
 	- Rattrapage printables
 	- annual Ratt print must show only when there is two semesters
 	- a location to print all Printables
-	- you have to show session (normal or ratt) in printables
-		result & bultin
 	- finish Progrission Etat
 
 
-
-
-
-
--- Refactoring
+== Refactoring
 	- move annual functions from Semester to Annual
 		like get_annual_chain
 	- in FORM SelectField should filter 
-	- when you transfer students to the next year
-		they have to qualify
-		transfaire from annual, not from semester
-		Only Admit & Admit avec dette
 	- use Count() in sqlalchemy
 	- globlize the changing lists like ['cour', 'td', 'tp', 't_pers', 'stage', 'saving_grade']
 		to avoid changing them in many places
 	- 
 
 
--- Potencial Bugs ==
-	- 
-	- 
+== GRID:
+	- warning of leaving the grid without save
+	- use letters to navigate the grid rather than arrows
+	- IDEA: in grade grid
+		when you change set to dirty and send only dirty fields
+			this will allow parallel editing
+	- add double saisier notion
+		meaning two agents enter data twice to make sure everything is correct
+		maybe no need for it if the student can check by himself
+	- autosave Grid by user
+	- GRID:
+		make grid Save And Fetch Data from Server at the same time
+			to allow parrallel editing
+	
+	-
+
+
+== Promo ==
+	- show errors in Promo Form
+	- init date in Promo
+		change the date of the session
+	- when creating a new session
+		set starting date based on Promo
+		when changing the start_date in Promo
+    - form error messages in quickform is different than you use the fields
+		like in Promo
+	- in Basic Table Promos group by School/Branch
+	- enforce Promo naming
 
 
 
 
-- finish permissions to allow multi-user-entering of Historic
-
+- use server workers for offline use
+- add a cron job to save database
+- add macros to represent datetime
+	http://jinja.pocoo.org/docs/2.10/templates/#macros
+	import
+		https://stackoverflow.com/questions/19002290/how-to-use-macros-in-a-included-file
+	Custom widgets
+		https://wtforms.readthedocs.io/en/stable/widgets.html
+- remove Notes from the Pages
+- Combine check_grades_status & get_icon_progress
+	??????????????
+- add param to functions that have 
+	db.session.commit()
+	(self, commit=True):
+		if commit==True:
+			db.session.commit()
+- use is_dirty to optimize calculation time
+- add "no-validate" attribute to each form using javascript/jquery, like this: 
+	$(document).ready(function() {
+	    $("form").attr('novalidate', 'novalidate');
+	});
+- NOTE in module config it calculates when i change save_enabled
+	add redirect page for a better UX
+			- calculate average from Saving
+- fix cursor when it is open
+- Scanner
+	https://gitlab.gnome.org/World/OpenPaperwork/libinsane#readme
+	https://doc.openpaper.work/libinsane/latest/libinsane/index.html
+- check in routesCalculation
+	calculate_all(session):
+	calculate_student(session, student):
+	same for init
+- Note: in session calculate check
+    # grades = grade_unit.grades
+    grades = Grade.query.filter_by(
+        student_session_id=grade_unit.student_session_id
+        ).all()
+- flask static
+	and upload automaticaly to github
+	try to include the javascript
+- indicate that a semestral ratt is passing in annual for SF
+- in GradeUnit what is the purpose of unit_coefficient
+	used in init_grade_unit --- grade_unit.unit_coefficient = unit.unit_coefficient
+	& is_fondamental
+		i think i added them for Historic Config
+- add sorter in UEF unit
+- indecate the need to calculate in Annual
+- duplicate Semester from FlaskAdmin
+- upload files to a free Static website
+- add filter to rattrapage
 - the Option to activate Live calcule
 	do it in a background job
-- Semester Result add the option to close module width
-	??????????
 - in ratt list add check all
 	??????????
-- don't close the Grid before Saving
 - show messages automaticaly through Ajax
 	init and calcul
-- show there is errors Grid in the Tree
-- show init and calcule Warnings in Releve-Result
-	and in annual
-- can i put two links in a node ???
-- in AnnualSession show a Tree
-- Hidden buttons in Session Historic is not showing until you refrech the page
-- in Session progress icon
-	show progress with more icons
-- maybe indecate the need to calculate in Tree if the Entries are finished
-- in Config Tree
-	order the percentages according to grid
-- 
-
-- a mask to Sort the studets of the third year
-		maybe do it with table tree (grouping)
-	1 - create table and fill it with the students (all years according to branch)
-		or give the choice of Licence or master
-	2 - collect data from History
-		give the choice between keeping entered data or crushing it
-		maybe show them both
-	3 - give the ability to add students and remove them
-	4 - Error and format checking
-	5 -
-- don't allow session config when session is closed especialy historic
-
-- warning of leaving the grid without save
-- autosave Grid by user
-- add create new branch and school and promo
-	and add url_return to go back to tree after creation
-- in ratt annual indicate students who entered the rattrapage
-	at least one module
-	who is already generated and who is not
-- make a system (configurable) for passage
-	table
-	and configurable
-	in SF if i generate RATT from annual
-		it will show students that should not enter RATT
-		it can happen in ISP if ratt 2
-			you have to take into considiration that the semester is passed
-	check every student Annual
-	and take into consideration Branch+Annual
-- in Tree create new Semester
-	when the Options start with S2
-	it defaults to S1
-- in result header    on the left is centering
-- in create many students
-	wilaya dropdown is not working when i use the keyboard
-- some problem with "leaving the page" notification 
 - when you modify Module in Table Base
 	set semester last_update
 - Smester update should be accessed from Config
 	and add return URL
 - Session Config
-	add type to Session Historique
-	when changed to Historique
-		add a new Semester Average and Credit Entering
 	remove Config String
 	remove grades and grade_units
 	when you create before 
-	stop init and Calculate when Historic
 - when i run flask
 	flask-admin echos some warnings about missing fields
 - test Tunneling from the internet
-- check init_all() and exclude grades ans unit
-- in update many
-	when the table is Empty it still shows the header
-		use it in other Handsontable
+- check init_all() and exclude grades and unit
 		
-- Don't forget to Comment 
-	get_semester_result_data in routesSession.py
 
 
 
 
 
 
-
--- GRID:
-	make grid Save And Fetch Data from Server at the same time
-		to allow parrallel editing
-
-
-
-
-
-- make Choice(Select) Empty in insert many Students
-	and don't allow submition
 - make the filter in Handsontale like the one in in _filter.js
-- 
-- 
 - use Python to retrive data from google forms
 - NOTE : in module session
 	it only allow one teacher
-
 - add a place to run checkups on everything by buttons
 	* use ajax
 	like naming errors
 	missing filds
 	errors
-- add group to student session
-	order by group
-	teacher by group
 - in ratt check the data - FLASHES
 	is the grades are Consistent
 	is the grade hiegher
@@ -445,109 +343,26 @@
 - close session before generating rattrapage
 	maybe no need
 	because we want to allow starting Ratt before coplite
-			- a button to calculate all Open Sessions
 - a place to run code on DATA
 - download Lists as Excel
 - i add/remove multi select flag the studet who has Grades Entered
-- Submit Data by CRTL+S in Update many & create many
-- in annual add link to Notes in Grid of the AnnualSession
-- link from Annual to Student Grades
-- in add/remove Student - Gliphcon Not appearig when internet is Off
 - upload PDF automaticaly to Google Drive
 - pre-populate a table of bultin
-
-
-
-
-
-
-
-
-
-
-- DANGER: a Promo can be in a Branch and have a Session and Semester in a different Branch
-- when creating a new session
-	set starting date based on Promo
-	when changing the start_date in Promo
-		change the date of the session
 - rename the session when creating it
 	and fill the start and finish dates from promo
-- init date in Promo
-
 - trim names in Wilaya when saving
-
-
-
-
-
-
-- massive Students Edit (grid) for a promo
-	/*
-	  get all usernames
-	  get usernames in this Promo
-	  do not color the usernames of this Promos
-	    unless there is A duplication
-	*/
-- massive students delete Or Branch change
-	apply a thing a mass of students	
-
-- New Inserted students should be given username="*****"
-	then you change them with massive Edit
-
-
-
-
-
-
-
-
-- Student card Matricule (2018/05)
-	add a new Field or make it uniform with it
-- finish the Students Filter
-	by Branch and Promo
-- in justification
-	show how the credit is calculated
-- add pagination to student table
 - make the Interface Uniform
 	like the filters input box
-
-- show errors in Promo Form
-- in Basic Table Promos group by School/Branch
 - in Basic Table Branches group by Branch
-- Order Promos in Tree by name only
-	why ?????????
-- fix forign key behavior
-
-- After Finishing the Job I should Publish Pre-rendered pages
 - detect bezare values after calculating
-
-- change annual + semsester to semester
 - give the ability to create the pair of semesters
-- when creating a session with no student
-	the modules do not show
-- maybe don't allow session deletion until you remove all students
-	delete_session
-- CHECK THE Tables Data in the database and decide what you should fill from the APP
-- Note: i am grabing Semester Result Informations from the Config String
-
-- change Matricule Massivaly
-	maybe a Function that rename everyone based on there Order
-	https://handsontable.com/docs/6.2.1/demo-moving.html
-- 
-- 
-- 
-- 
 
 
 
 
-==BREADCRUMBS to finish==
--------------------------
-- some breadcrumbs got messed up
-	because i moved them
-- some breadcrumbs need to adapt to path
-	like justification in Grade & resultat
-		or just change them to Printables
+
+
+
 
 
 
@@ -555,6 +370,7 @@
 ----------------
 == PRIORITY 2 ==
 ----------------
+- After Finishing the Job I should Publish Pre-rendered pages
 - Best Vue.js Rich-Text Editor Ever tiptap
 	it has a built in todo list
 - gestion des fiches de stage
@@ -567,20 +383,10 @@
 - add a place to put notes shared between Evaluation team
 - in SemesterTree
 	show promos that use this semester
-- enforce Promo naming
-
-
-
-	
-- add a link in the Tree to create a New Promo
 - show list of associated record in view of Basic tables
 - when creating a new session do not transfaire students
 	then when i enter the session present a button
 	or just do it in a cron job
-			- add Button: create a new semester
-				duplicate config
-				and when creating a new session take the latest version
-				be carefull of the chaning
 - write the teacher and attandence section
 - Calendar
 	https://fullcalendar.io/docs#toc
@@ -604,10 +410,8 @@
 ----------------
 == PRIORITY 3 ==
 ----------------
-			- show a progress bar like a WiFi in Tree
 - teachers rating
 	only his students can rate him
-- Authorization
 - Mysql
 - upload Photos
 - convert Table(configuration in guide) to Treant
@@ -621,6 +425,7 @@
 - always check the correctness of the Data  before calculating
 	raise an exception
 - Audits
+- Authorization
 - Authentication
 	https://www.google.com/search?q=flask+authorization&ie=utf-8&oe=utf-8&client=firefox-b-ab
 	http://flask-user.readthedocs.io/en/latest/authorization.html
@@ -963,6 +768,47 @@
 			- in the AnnualSession grid
 				don't make Obs ajournée before ratt
 			- session config - add datepicker
+			- the Need to calculate in session is not working
+			- show session in resultat Semester
+				result apres Ratt.
+			- Session in Result and Bultin 
+				be carefull of the source of the data (semester vs ratt)
+			- ERROR: Ratt grid seems to be open for all students
+			- ERROR: JS grid: SF S10 Elaboration not openning
+			- ERROR: resultat is not sorting by name
+				no need to fix it
+			- in annual_grade add: the ability to change the Progrission (the observation)
+				make the decision in Progrission and Classement
+				if it i filled it changes what in AnnualGrade
+			- remove massive editing students in Session
+				add it in Students In Promo
+			- don't show filter by branch and promo
+			- add Massive Editing in Tree promo->students
+			- bultin annual normal + rattrapage
+			- print bultin is showing None in birth date
+			- Bultin Semester Header
+			- Bultin Average & credit & session
+			- finish the 3 printables first
+				bultin header + annual + ratt
+				and the choice between the two sessions
+				print From Annual Page
+				and module header
+			- when printing XPS & PDF
+				name the file with a date
+			- classement in resultat
+			- add the headers and footers for the printables
+			- change "name" to "display_name" in printables 
+			- maybe don't allow session deletion until you remove all students
+				delete_session
+			- in annual add link to Notes in Grid of the AnnualSession
+			- show there is errors Grid in the Tree
+			- add Button: create a new semester
+				duplicate config
+				and when creating a new session take the latest version
+				be carefull of the chaning
+			- a button to calculate all Open Sessions
+			- show a progress bar like a WiFi in Tree
+			- link from Annual to Student Grades
 
 
 

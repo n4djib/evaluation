@@ -20,13 +20,18 @@ from app.routesCalculation import init_all
 @app.route('/student/promo/<promo_id>')
 @register_breadcrumb(app, '.tree_promo.student_promo', 'Students in Promo')
 def student_by_promo(promo_id=0):
-    return student_list(promo_id)
+    new_students = student_list(promo_id)
+    return render_template('student/index.html', 
+        title='Students List by Promo', 
+        students=new_students, promo_id=promo_id)
 
 
 @app.route('/student/')
 @register_breadcrumb(app, '.basic.student', 'Students')
 def student_index():
-    return student_list()
+    new_students = student_list()
+    return render_template('student/index.html', 
+        title='Students List', students=new_students)
 
 def student_list(promo_id=0):
     students = []
@@ -49,7 +54,8 @@ def student_list(promo_id=0):
         if student not in renegades:
             new_students.append(student)
 
-    return render_template('student/index.html', title='Students List', students=new_students)
+    return new_students
+
 #
 
 
@@ -285,15 +291,15 @@ def create_many_student_save():
 #######################################
 #            update_many              #
 
-@app.route('/session/<session_id>/update-many-student-username/t/<template>/', methods=['GET', 'POST'])
-@app.route('/session/<session_id>/update-many-student-username/', methods=['GET', 'POST'])
-def update_many_username_ordered(session_id, template=''):
+@app.route('/promo/<promo_id>/update-many-student-username/t/<template>/', methods=['GET', 'POST'])
+@app.route('/promo/<promo_id>/update-many-student-username/', methods=['GET', 'POST'])
+def update_many_username_ordered(promo_id, template=''):
     # check change is allowed
-    session = Session.query.get_or_404(session_id)
-    promo_has_closed = session.promo.has_closed_session()
+    promo = Promo.query.get_or_404(promo_id)
+    promo_has_closed = promo.has_closed_session()
     if promo_has_closed == True:
         flash("you can't Update the Usernames because ********")
-        return redirect( url_for('students_update_many', session_id=session_id) )
+        return redirect( url_for('students_update_many', promo_id=promo_id) )
         
     # get the Username Template
     if template == '':
@@ -304,7 +310,8 @@ def update_many_username_ordered(session_id, template=''):
         template = branch_name+'-'+str(start_date.year)+'-'
 
     # get the students to change in the Session or Promo
-    students = Student.query.join(StudentSession).filter_by(session_id=session_id).all()
+    students = Student.query.join(StudentSession)\
+        .join(Session).filter_by(promo_id=promo_id).all()
 
     # change to somthing nutral
     for student in students:
@@ -313,7 +320,7 @@ def update_many_username_ordered(session_id, template=''):
 
     # order and rename 
     students = Student.query.join(StudentSession)\
-        .filter_by(session_id=session_id)\
+        .join(Session).filter_by(promo_id=promo_id)\
         .order_by(Student.last_name, Student.first_name).all()
 
     i = 1
@@ -336,17 +343,15 @@ def update_many_username_ordered(session_id, template=''):
     db.session.commit()
 
     flash('Ordered and renamed', 'alert-success')
-    return redirect(url_for('students_update_many', session_id=session_id))
+    return redirect(url_for('students_update_many', promo_id=promo_id))
 
-@app.route('/session/<session_id>/update-many-student/', methods=['GET', 'POST'])
-@register_breadcrumb(app, '.tree_session.session.update_many', 'Update Many')
-def students_update_many(session_id):
-    student_sessions = StudentSession.query.filter_by(session_id=session_id).all()
 
+
+
+def get_students_list(students):
     data = []
 
-    for student_session in student_sessions:
-        student = student_session.student
+    for student in students:
         birth_date = None
         wilaya = None
 
@@ -370,9 +375,23 @@ def students_update_many(session_id):
             wilaya
         ])
 
+    return data
+
+
+@app.route('/promo/<promo_id>/update-many-student/', methods=['GET'])
+@register_breadcrumb(app, '.tree_promo.student_promo.update_many', 'Update Many')
+def students_update_many(promo_id=0):
+    students = Student.query.join(StudentSession)\
+           .join(Session).filter_by(promo_id=promo_id)\
+           .all()
+           # .order_by('username')\
+
+
+    data = get_students_list(students)
+
     # disallow username change
-    session = Session.query.get_or_404(session_id)
-    promo_has_closed = session.promo.has_closed_session()
+    promo = Promo.query.get_or_404(promo_id)
+    promo_has_closed = promo.has_closed_session()
 
     return render_template('student/update-many.html', 
         title='Student Update Many', 
@@ -381,9 +400,10 @@ def students_update_many(session_id):
         username_list=get_username_list(),
         branch_list=get_branches_list(),
         branches=Branch.query.all(),
-        session_id=session_id,
+        promo_id=promo_id,
         promo_has_closed=promo_has_closed
-        )
+    )
+
 
 @app.route('/student/update-many/save/', methods = ['POST'])
 def update_many_student_save():
@@ -420,19 +440,12 @@ def update_many_student_save():
     return 'data updated'
 
 
-@app.route('/session/<session_id>/update-many-name-case/case/<case>/', methods=['GET', 'POST'])
-@app.route('/session/<session_id>/update-many-name-case/', methods=['GET', 'POST'])
-def update_many_name_case(session_id, case=''):
-    # check change is allowed
-    session = Session.query.get_or_404(session_id)
-    # promo_has_closed = session.promo.has_closed_session()
-    # if promo_has_closed == True:
-    #     flash("you can't Update the Names Because ****+++****")
-    #     return redirect( url_for('students_update_many', session_id=session_id) )
-
-
+@app.route('/promo/<promo_id>/update-many-name-case/case/<case>/', methods=['GET', 'POST'])
+@app.route('/promo/<promo_id>/update-many-name-case/', methods=['GET', 'POST'])
+def update_many_name_case(promo_id, case=''):
     # get the students to change in the Session or Promo
-    students = Student.query.join(StudentSession).filter_by(session_id=session_id).all()
+    students = Student.query.join(StudentSession)\
+        .join(Session).filter_by(promo_id=promo_id).all()
 
     for student in students:
         student.last_name = student.last_name.upper()
@@ -440,9 +453,8 @@ def update_many_name_case(session_id, case=''):
 
     db.session.commit()
 
-    flash('Ordered and renamed', 'alert-success')
-    return redirect(url_for('students_update_many', session_id=session_id))
-
+    flash('Names Case Changed', 'alert-success')
+    return redirect(url_for('students_update_many', promo_id=promo_id))
 
 
 #######################################

@@ -21,7 +21,8 @@ def collect_data_from_grade(grade):
     username = 'username: "' + grade.get_username() + '", '
     student_name = 'student_name: "' + grade.get_student_name() + '", '
     code = 'code: "' + str(grade.module.code) + '", '
-    module_name = 'module_name: "' + grade.module.get_label() + '", '
+    # module_name = 'module_name: "' + grade.module.get_label() + '", '
+    module_name = 'module_name: "' + grade.module.get_label().replace('"', ' ') + '", '
 
     cour = 'cour: ' + str(grade.cour) + ', '
     td = 'td: ' + str(grade.td) + ', '
@@ -119,6 +120,20 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
             .join(StudentSession).filter_by(session_id=session_id).all()
         #
         data = collect_module_data_grid(grades, session, SHOW_SAVING_GRADE)
+
+
+        # data = """[
+
+        # {id: 78518, username: "SF-2015-01", 
+        # student_name: "ABANOU Naoual", 
+        # code: "1011", module_name: "1011 - Mise en ion d'un mmoire p situation professionnelle", 
+        # cour: null, td: null, tp: null, t_pers: null, stage: null, 
+        # saving_grade: null, average: 0.00, credit: 0, 
+        # formula: {'stage': 1.00, 'coefficient': 9, 'credit': 18, 'rattrapable': 'cour'}, 
+        # is_rattrapage: false, original_grade: null, is_savable: false }
+
+        # ]"""
+
         #
         # what about type = 'student'
         get_hidden_values_flash(grades, session, module)
@@ -135,8 +150,11 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
                 # comment this if you wan't it to create all module_sessions
                 # commented it to aviod looping all grades(modules)
                 break
+        
         #
         data = collect_student_data_grid(grades, session, SHOW_SAVING_GRADE)
+
+
 
     return render_template('grade/grade.html', title='Grade Edit', 
         data=data, _all=_all.lower(), grid_title=grid_title, type=type, 
