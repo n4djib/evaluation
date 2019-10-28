@@ -15,14 +15,16 @@
 
 
 
-
+= remove --host=0.0.0.0 and see if it becomes fast
+	access through 127.0.0.1
 
 
 = remove "type" from table
 = remove "type" from models line 305
 		or just put the new code if removed
 
-= 
+= flip student name
+	- Djouad Maysoun
 
 = 
 

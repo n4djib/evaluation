@@ -736,6 +736,15 @@ class StudentSession(db.Model):
         if nbr_cells == 0:
             return 0
         return nbr_filled * 100 / nbr_cells
+    def get_last_grade_modification(self):
+        # take into consideration Modifications in Classement
+
+        last_grade = Grade.query.filter_by(student_session_id=self.id)\
+            .order_by( Grade.timestamp.desc() ).first()
+        if last_grade == None:
+            return '***'
+        return last_grade.timestamp.strftime("%d/%m/%Y %H:%M")
+
 
 class GradeUnit(db.Model):
     __tablename__ = 'grade_unit'
@@ -824,11 +833,11 @@ class Grade(db.Model):
     calculation = db.Column(db.String(100))
     is_rattrapage = db.Column(db.Boolean, default=False)
     is_dirty = db.Column(db.Boolean, default=True)
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow, onupdate=datetime.utcnow)
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'))
     module = db.relationship('Module', back_populates='grades')
     student_session_id = db.Column(db.Integer, db.ForeignKey('student_session.id'))
     student_session = db.relationship('StudentSession', back_populates='grades')
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow, onupdate=datetime.utcnow)
     def __repr__(self):
         return '<{} - {} - {}>'.format(self.id, self.student_session_id, self.cour)
     def get_username(self):

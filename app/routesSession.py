@@ -1858,6 +1858,7 @@ def get_footer_bultin_semester(student_session):
 # EMPTY = '<font color="red"><b>X</b></font>'
 def EMPTY(text):
     return '<font color="red"><b>' + text + '</b></font>'
+
 def get_ratt_bultin(ratt):
     if ratt == True:
         return '2'
@@ -1924,9 +1925,18 @@ def bultin_semester_print(session_id, student_id):
     student = student_session.student
     title = make_title_semester_print_by_student(session, student, 'Bultin - ')
 
+
+    # print('------')
+    # print('------')
+    # print(str( student_session.get_last_grade_modification() ))
+    # print('------')
+    # print('------')
+
+
     # return table
     return render_template('student/bultin-semester-print.html', 
-            title=title, bultin=bultin, header=header, footer=footer, session_id=session_id)
+            title=title, bultin=bultin, header=header, footer=footer, 
+            session_id=session_id, student_session=student_session)
 
 @app.route('/session/<session_id>/bultin-print-all/', methods=['GET', 'POST'])
 def bultin_semester_print_all(session_id):

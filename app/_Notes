@@ -19,9 +19,10 @@
 
 == PRIORITY 1 ==
 ----------------
-- add date to bultin
+			- add date to bultin
 - add last modification
 	and put it in field in Session (studentSession) table
+	la dernière modification
 
 
 - in justification

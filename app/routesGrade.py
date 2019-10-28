@@ -121,20 +121,6 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
         #
         data = collect_module_data_grid(grades, session, SHOW_SAVING_GRADE)
 
-
-        # data = """[
-
-        # {id: 78518, username: "SF-2015-01", 
-        # student_name: "ABANOU Naoual", 
-        # code: "1011", module_name: "1011 - Mise en ion d'un mmoire p situation professionnelle", 
-        # cour: null, td: null, tp: null, t_pers: null, stage: null, 
-        # saving_grade: null, average: 0.00, credit: 0, 
-        # formula: {'stage': 1.00, 'coefficient': 9, 'credit': 18, 'rattrapable': 'cour'}, 
-        # is_rattrapage: false, original_grade: null, is_savable: false }
-
-        # ]"""
-
-        #
         # what about type = 'student'
         get_hidden_values_flash(grades, session, module)
 
@@ -150,11 +136,8 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
                 # comment this if you wan't it to create all module_sessions
                 # commented it to aviod looping all grades(modules)
                 break
-        
         #
         data = collect_student_data_grid(grades, session, SHOW_SAVING_GRADE)
-
-
 
     return render_template('grade/grade.html', title='Grade Edit', 
         data=data, _all=_all.lower(), grid_title=grid_title, type=type, 
@@ -204,19 +187,6 @@ def get_hidden_values_flash(grades, session, module):
         url = url_for('grade', session_id=session.id, module_id=module.id, _all='all')
         btn = '<a href="'+url+'" class="btn btn-warning" role="button">Show All Fields</a>'
         flash('there is hidden value, because the Configuration changed  '+btn, 'alert-warning')
-
-# def get_original_grade(grade):
-#     original_grade = 0
-#     parallel_session = grade.student_session.session.get_parallel_session()
-#     original = Grade.query.filter_by(module_id=grade.module_id)\
-#         .join(StudentSession).filter_by(
-#             session_id=parallel_session.id, 
-#             student_id=grade.student_session.student_id).first()
-#     # get the rattrapable
-#     if original != None:
-#         field = grade.module.get_rattrapable_field()
-#         original_grade = getattr(original, field)
-#     return original_grade
 
 def grade_going_to_change(grade, data):
     if grade.cour != data['cour']:
