@@ -3,10 +3,16 @@
 // { % include "_datetime.js" %}
 
 
-var dt_elem = document.getElementById("datetime");
+var dt_elems = document.getElementsByClassName("datetime");
 
-if (dt_elem !== null)
-    dt_elem.innerHTML = get_current_datetime();
+// if (dt_elem !== null)
+//     dt_elem.innerHTML = get_current_datetime();
+
+var current_datetime = get_current_datetime();
+
+for(i=0; i < dt_elems.length; i++) {
+	dt_elems[i].innerHTML = current_datetime;
+}
 
 function get_current_datetime() {
 	var d = new Date(),

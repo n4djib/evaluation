@@ -19,6 +19,11 @@
 
 == PRIORITY 1 ==
 ----------------
+- add date to bultin
+- add last modification
+	and put it in field in Session (studentSession) table
+
+
 - in justification
 	show how the credit is calculated
 	http://localhost:5000/session/55/student/134/
