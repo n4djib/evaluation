@@ -19,6 +19,9 @@
 
 == PRIORITY 1 ==
 ----------------
+			- check if students are consistant between the two semesters
+			- check_students_ratt_are_in_semesters
+				in ratt session
 			- add date to bultin
 - add last modification
 	and put it in field in Session (studentSession) table
@@ -29,15 +32,12 @@
 	show how the credit is calculated
 	http://localhost:5000/session/55/student/134/
 
-- check if students are consistant between the two semesters
 - lock semester Historic
 - lockout login after many failed attempts
 - brut force pass cracking
 - find a way to allow registration
 	enable & disabled Users
 - in historic session make the message stay in the box for a while
-- turn all calculation to calcule by student
-	session.calculate() -> session.student_sessions.calculate
 
 - Add notes for users
 	- RATT: la note finale retenue pour la matiere sera la meilleure des moyennes entre les 2 sessions
@@ -143,6 +143,7 @@
 		at least one module
 		who is already generated and who is not
 
+
 == Student ==
 	- Student card Matricule (2018/05)
 		add a new Field or make it uniform with it
@@ -204,6 +205,8 @@
 	- globlize the changing lists like 
 			['cour', 'td', 'tp', 't_pers', 'stage', 'saving_grade']
 		to avoid changing them in many places
+	- REFACTORING: turn all calculation to calcule by student
+		session.calculate() -> session.student_sessions.calculate
 	- 
 
 

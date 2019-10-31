@@ -7,7 +7,7 @@ from sqlalchemy.event import listen
 from decimal import *
 from sqlalchemy import or_
 from app._shared_functions import extract_fields, check_grades_status
-# from flask import flash
+from flask import flash
 
 # FIX:  = db.Column(db.String(64), index=True, unique=True)
 
@@ -103,6 +103,54 @@ class AnnualSession(db.Model):
             if annual_grade.is_dirty == True:
                 return True
         return False
+    def check_students_consistant_between_two_semesters(self):
+        annual_dict_obj = self.get_annual_dict_obj()
+        s1 = annual_dict_obj['S1']
+        s2 = annual_dict_obj['S2']
+        if s1 != None and s2 != None:
+            students_list1 = s1.get_students_list()
+            students_list2 = s2.get_students_list()
+            students_list1.sort()
+            students_list2.sort()
+            if students_list1 == students_list2:
+                return True
+            else:
+                #show message what is the problem
+                l1 = len(students_list1)
+                l2 = len(students_list2)
+                s1_nbr = s1.get_name()
+                s2_nbr = s2.get_name()
+                msg1 = 'there is an inconsistency in the number of students </br>'
+                msg2 = str(s1_nbr)+': ' + str(l1) + ' <> ' + str(s2_nbr)+': ' + str(l2)
+                flash(msg1 + msg2, 'alert-danger')
+                return False
+        return True
+    def check_students_ratt_are_in_semesters(self, ratt):
+        annual_dict_obj = self.get_annual_dict_obj()
+        s1 = annual_dict_obj['S1']
+        r1 = annual_dict_obj['R1']
+        s2 = annual_dict_obj['S2']
+        r2 = annual_dict_obj['R2']
+
+        if r1 == ratt and s1 != None:
+            students_list = s1.get_students_list()
+            students_ratt = r1.get_students_list()
+            for student_id in students_ratt:
+                if student_id not in students_list:
+                    flash('some ratt students are not in '+s1.get_name(), 'alert-danger')
+                    return False
+
+        if r2 == ratt and s2 != None:
+            students_list = s2.get_students_list()
+            students_ratt = r2.get_students_list()
+            print('--------------')
+            print('--------------')
+            for student_id in students_ratt:
+                if student_id not in students_list:
+                    flash('some ratt students are not in '+s2.get_name(), 'alert-danger')
+                    return False
+        
+        return True
 
 class AnnualGrade(db.Model):
     __tablename__ = 'annual_grade'
@@ -496,6 +544,11 @@ class Session(db.Model):
                 grade.is_dirty = True
                 break
         # db.session.commit()
+    def get_students_list(self):
+        student_list = []
+        for student_session in self.student_sessions:
+            student_list.append(student_session.student_id)
+        return student_list
     def check_recalculate_needed(self):
         if self.is_historic:
             return False
@@ -744,7 +797,6 @@ class StudentSession(db.Model):
         if last_grade == None:
             return '***'
         return last_grade.timestamp.strftime("%d/%m/%Y %H:%M")
-
 
 class GradeUnit(db.Model):
     __tablename__ = 'grade_unit'

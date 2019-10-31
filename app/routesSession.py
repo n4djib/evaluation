@@ -116,6 +116,13 @@ def session(session_id=0):
     # if session.is_closed == False:
     #     get_config_changed_flash(session)
 
+
+    students_consistant = session.annual_session\
+        .check_students_consistant_between_two_semesters()
+    students_ratt_are_in_semesters = session.annual_session\
+        .check_students_ratt_are_in_semesters(session)
+
+
     if session.is_historic:
         # test session-historic progress
         data_arr = create_data_session_historic(session)
@@ -1715,6 +1722,9 @@ def create_annual_session(session_id):
     return redirect(url_for('annual_session_refrech', annual_session_id=annual_session_id))
 
 
+
+
+
 def annual_session_dlc(*args, **kwargs):
     annual_session_id = request.view_args['annual_session_id']
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
@@ -1741,6 +1751,8 @@ def annual_session(annual_session_id=0, sort=''):
     array_data = collect_data_annual_session(annual_session, sort, historic_exist)
     annual_dict_obj = annual_session.get_annual_dict_obj()
     check_ann = flash_check_annual_session(annual_dict_obj)
+
+    students_consistant = annual_session.check_students_consistant_between_two_semesters()
 
     return render_template('session/annual-session.html', 
         title='Annual Session', annual_session=annual_session, 
