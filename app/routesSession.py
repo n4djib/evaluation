@@ -1487,7 +1487,7 @@ def collect_data_annual_session(annual_session, sort='', historic_exist=False):
 
     return array_data
 
-def collect_data_annual_session_print(annual_session, sort=''):
+def collect_data_annual_session_print(annual_session, sort='', ratt=''):
     annual_dict = annual_session.get_annual_dict()
     student_ids = get_student_annual_list(annual_session, annual_dict)
 
@@ -1501,7 +1501,9 @@ def collect_data_annual_session_print(annual_session, sort=''):
 
     array_data = []
     for index, ag in enumerate(annual_grades):
-        # name = ag.student.get_student_long_name()
+        if ratt == 'ratt' and ag.enter_ratt == 0:
+            continue
+
         username = ag.student.username
         name = ag.student.get_student_name()
 
@@ -1516,14 +1518,14 @@ def collect_data_annual_session_print(annual_session, sort=''):
         moyen_f = ag.average_final
         credit_f = ag.credit_final
         session_f = '1' if ag.cr_r_1 == None and ag.cr_r_2 == None else '2'
-        observation = ag.observation
+        decision = decision_to_observation(ag.decision)
 
         array_data.append([
             index+1, username, name,
             moyen1, credit1, session1, 
             moyen2, credit2, session2, 
             moyen_f, credit_f, session_f, 
-            observation
+            decision
         ])
     return array_data
 
@@ -1759,16 +1761,19 @@ def annual_session(annual_session_id=0, sort=''):
         array_data=array_data, annual_dict_obj=annual_dict_obj, 
         check_ann=check_ann, historic_exist=historic_exist)
 
-@app.route('/annual-session/<annual_session_id>/print/<sort>/', methods=['GET', 'POST'])
+@app.route('/annual-session/<annual_session_id>/print/<ratt>', methods=['GET', 'POST'])
+@app.route('/annual-session/<annual_session_id>/print/sort/<sort>/<ratt>', methods=['GET', 'POST'])
+@app.route('/annual-session/<annual_session_id>/print/sort/<sort>/', methods=['GET', 'POST'])
 @app.route('/annual-session/<annual_session_id>/print/', methods=['GET', 'POST'])
-def annual_session_print(annual_session_id=0, sort=''):
+def annual_session_print(annual_session_id=0, sort='', ratt=''):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
-    array_data = collect_data_annual_session_print(annual_session, sort)
+    array_data = collect_data_annual_session_print(annual_session, sort, ratt)
     header = make_header_annual_print(annual_session, 'Resultat Annuelle')
     annual_dict_obj = annual_session.get_annual_dict_obj()
     title = make_title_annual_print(annual_session, "Annuelle")
     return render_template('session/annual-session-print.html', title=title, 
         array_data=array_data, header=header, annual_dict_obj=annual_dict_obj)
+
 
 @app.route('/annual-session/<annual_session_id>/delete/', methods=['GET', 'POST'])
 def delete_annual_session(annual_session_id):

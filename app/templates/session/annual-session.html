@@ -127,18 +127,18 @@
       { % endif %} -->
 
 
-      <a href="{{url_for('annual_session_print', annual_session_id=annual_session.id)}}"
+      <!-- <a href="{{url_for('annual_session_print', annual_session_id=annual_session.id)}}"
        class="btn btn-success {{ disabled }}" role="button" target="_blank" >Print</a>
       <a href="{{url_for('annual_session_print', annual_session_id=annual_session.id, sort='desc')}} {{ disabled }}"
-       class="btn btn-success {{ disabled }}" role="button" target="_blank" >Print ordered</a>
+       class="btn btn-success {{ disabled }}" role="button" target="_blank" >Print ordered</a> -->
 
       </div>
 
-      <div style="margin: 3px; float:right">
+      <!-- <div style="margin: 3px; float:right">
       {% set all_bultin_url = url_for('bultin_annual_print_all', annual_session_id=annual_session.id) %} <a href="{{ url_for('slow_redirect', url=all_bultin_url, message='Collecting...') }}"
        class="btn btn-primary {{ disabled }}"  role="button" target="_blank" >Print All Bultin</a>
       </div>
-
+ -->
 
       </br> </br>
 
@@ -260,22 +260,51 @@
       </table>
     </div>
 
-    <button class="btn btn-danger"
-      data-href="{{url_for('delete_annual_session', annual_session_id=annual_session.id)}}" 
-      data-toggle="modal" data-target="#confirm-delete">Delete Annual</button>
-    <div class="modal fade" id="confirm-delete" tabindex="-1"
-       role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <!--div class="modal-header">
-              ...
-          </div-->
-          <div class="modal-body">
-            do you really want to delete this Annual session?
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-            <a class="btn btn-danger btn-ok">Delete</a>
+
+
+
+    <div style="margin: 0px; margin-left: -5px; float: left">
+      <a href="{{url_for('annual_session_print', annual_session_id=annual_session.id)}}"
+       class="btn btn-success {{ disabled }}" role="button" target="_blank" >Print</a>
+      <a href="{{url_for('annual_session_print', annual_session_id=annual_session.id, sort='desc')}} {{ disabled }}"
+       class="btn btn-success {{ disabled }}" role="button" target="_blank" >Print ordered</a>
+
+      <a style=" margin-left: 15px;" href="{{url_for('annual_session_print', annual_session_id=annual_session.id, ratt='ratt')}}"
+       class="btn btn-success {{ disabled }}" role="button" target="_blank" >Print Ratt.</a>
+      <a href="{{url_for('annual_session_print', annual_session_id=annual_session.id, sort='desc', ratt='ratt')}} {{ disabled }}"
+       class="btn btn-success {{ disabled }}" role="button" target="_blank" >Print Ratt. ordered</a>
+    </div>
+
+
+    <div style="margin: 3px; float:right">
+      {% set all_bultin_url = url_for('bultin_annual_print_all', annual_session_id=annual_session.id) %} <a href="{{ url_for('slow_redirect', url=all_bultin_url, message='Collecting...') }}"
+       class="btn btn-primary {{ disabled }}"  role="button" target="_blank" >Print All Bultin</a>
+    </div>
+
+
+    </br>
+    </br>
+    </br>
+    </br>
+
+    <div style="margin: 5px; margin-left: -5px;">
+      <button class="btn btn-danger"
+        data-href="{{url_for('delete_annual_session', annual_session_id=annual_session.id)}}" 
+        data-toggle="modal" data-target="#confirm-delete">Delete Annual</button>
+      <div class="modal fade" id="confirm-delete" tabindex="-1"
+         role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <!--div class="modal-header">
+                ...
+            </div-->
+            <div class="modal-body">
+              do you really want to delete this Annual session?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              <a class="btn btn-danger btn-ok">Delete</a>
+            </div>
           </div>
         </div>
       </div>
