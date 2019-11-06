@@ -1518,13 +1518,14 @@ def collect_data_annual_session_print(annual_session, sort='', ratt=''):
         moyen_f = ag.average_final
         credit_f = ag.credit_final
         session_f = '1' if ag.cr_r_1 == None and ag.cr_r_2 == None else '2'
+
         decision = decision_to_observation(ag.decision)
 
         array_data.append([
             index+1, username, name,
-            moyen1, credit1, session1, 
-            moyen2, credit2, session2, 
-            moyen_f, credit_f, session_f, 
+            str(moyen1), str(credit1), str(session1), 
+            str(moyen2), str(credit2), str(session2), 
+            str(moyen_f), str(credit_f), str(session_f), 
             decision
         ])
     return array_data
@@ -1768,6 +1769,14 @@ def annual_session(annual_session_id=0, sort=''):
 def annual_session_print(annual_session_id=0, sort='', ratt=''):
     annual_session = AnnualSession.query.get_or_404(annual_session_id)
     array_data = collect_data_annual_session_print(annual_session, sort, ratt)
+    # return str(array_data)
+    # array_data = [
+    #     [5, 'SF-2018-05', 'LAOUAR Meriem', Decimal('11.43'), 22, '2', Decimal('10.62'), 28, '2',    '1', '2', '3', 'Admis avec dettes'], 
+    #     [5, 'SF-2018-05', 'LAOUAR Meriem', Decimal('11.43'), 22, '2', Decimal('10.62'), 28, '2',    '1', '2', '3', 'Admis avec dettes'], 
+    #     [5, 'SF-2018-05', 'LAOUAR Meriem', Decimal('11.43'), 22, '2', Decimal('10.62'), 28, '2',    '1', '2', '3', 'Admis avec dettes'], 
+    #     [5, 'SF-2018-05', 'LAOUAR Meriem', Decimal('11.43'), 22, '2', Decimal('10.62'), 28, '2',    '1', '2', '3', 'Admis avec dettes'], 
+    # ]
+
     header = make_header_annual_print(annual_session, 'Resultat Annuelle')
     annual_dict_obj = annual_session.get_annual_dict_obj()
     title = make_title_annual_print(annual_session, "Annuelle")

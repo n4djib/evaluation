@@ -23,6 +23,7 @@
 			- check_students_ratt_are_in_semesters
 				in ratt session
 			- add date to bultin
+			- add title to Teachers table
 - add last modification
 	and put it in field in Session (studentSession) table
 	la dernière modification

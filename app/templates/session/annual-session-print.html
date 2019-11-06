@@ -132,20 +132,26 @@
           {% endif %}
 
 
-          {% if data[12] == 'Admis' or data[12] == '' %}
-          <td class="moyen">{{ data[9] | replace('None', '') }}</td>
-          <td class="credit">{{ data[10] | replace('None', '') }}</td>
-          <td class="session">{{ data[11] | replace('None', '') }}</td>
-          {% endif %}
-          {% if data[12] == 'Rattrapage' or data[12] == 'Admis avec dettes' %}
-            <td class="moyen bg-yellow-annual">{{ data[9] | replace('None', '') }}</td>
-            <td class="credit bg-yellow-annual">{{ data[10] | replace('None', '') }}</td>
-            <td class="session bg-yellow-annual">{{ data[11] | replace('None', '') }}</td>
-          {% endif %}
-          {% if data[12] == 'Ajournée' %}
-            <td class="moyen bg-red">{{ data[9] | replace('None', '') }}</td>
-            <td class="credit bg-red">{{ data[10] | replace('None', '') }}</td>
-            <td class="session bg-red">{{ data[11] | replace('None', '') }}</td>
+          {% if data[12] in ['Admis', 'Rattrapage', 'Admis avec dettes', 'Ajournée', 'Admis avec dettes'] %}
+            {% if data[12] == 'Admis' or data[12] == '' %}
+              <td class="moyen">{{ data[9] | replace('None', '') }}</td>
+              <td class="credit">{{ data[10] | replace('None', '') }}</td>
+              <td class="session">{{ data[11] | replace('None', '') }}</td>
+            {% endif %}
+            {% if data[12] in ['Rattrapage', 'Admis avec dettes', 'Admis avec dettes'] %}
+              <td class="moyen bg-yellow-annual">{{ data[9] | replace('None', '') }}</td>
+              <td class="credit bg-yellow-annual">{{ data[10] | replace('None', '') }}</td>
+              <td class="session bg-yellow-annual">{{ data[11] | replace('None', '') }}</td>
+            {% endif %}
+            {% if data[12] == 'Ajournée' %}
+              <td class="moyen bg-red">{{ data[9] | replace('None', '') }}</td>
+              <td class="credit bg-red">{{ data[10] | replace('None', '') }}</td>
+              <td class="session bg-red">{{ data[11] | replace('None', '') }}</td>
+            {% endif %}
+          {% else %}
+            <td class="moyen">{{ data[9] | replace('None', '') }}</td>
+            <td class="credit">{{ data[10] | replace('None', '') }}</td>
+            <td class="session">{{ data[11] | replace('None', '') }}</td>
           {% endif %}
 
           <td class="obs">{{ data[12] | replace('None', '') }}</td>

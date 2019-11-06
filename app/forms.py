@@ -234,6 +234,7 @@ class WilayaFormUpdate(WilayaFormBase):
 ################## Teacher
 class TeacherFormBase(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
+    title = StringField('Title', validators=[Optional()])
     last_name = StringField('Last Name', validators=[DataRequired()])
     first_name = StringField('First Name', validators=[DataRequired()])
     email = StringField('Email', validators=[Optional(), Email()])

@@ -465,7 +465,7 @@ def get_module_print_header(session, module):
 
     teacher_name = '#é$/&?|[+{#%*#$='
     if teacher != None:
-        teacher_name = teacher.last_name + ' ' + teacher.first_name
+        teacher_name = str(teacher.title).replace("None", "") + ' ' + teacher.last_name + ' ' + teacher.first_name
 
     header = F"""
       <div class="container" style="display: flex;">

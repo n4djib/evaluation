@@ -26,7 +26,8 @@
 = flip student name
 	- Djouad Maysoun
 
-= 
+= Add to "Teacher" title varchar 20
+	
 
 
 

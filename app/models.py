@@ -1428,6 +1428,7 @@ class Phone(db.Model):
 class Teacher(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), index=True, unique=True) # matricule
+    title = db.Column(db.String(20))
     last_name = db.Column(db.String(45), index=True)
     first_name = db.Column(db.String(45), index=True)
     # last_name_arab = db.Column(db.String(100))
