@@ -638,6 +638,7 @@ def teacher_create():
     if form.validate_on_submit():
         teacher = Teacher(
             username=form.username.data,
+            title=form.title.data, 
             last_name=form.last_name.data, 
             first_name=form.first_name.data,
             # last_name_arab=form.last_name_arab.data,
@@ -663,6 +664,7 @@ def teacher_update(id):
     form = TeacherFormUpdate(teacher.id)
     if form.validate_on_submit():
         teacher.username = form.username.data
+        teacher.title = form.title.data
         teacher.last_name = form.last_name.data
         teacher.first_name = form.first_name.data
         # teacher.last_name_arab = form.last_name_arab.data
@@ -680,6 +682,7 @@ def teacher_update(id):
         return redirect(url_for('teacher_view', id=teacher.id))
     elif request.method == 'GET':
         form.username.data = teacher.username
+        form.title.data = teacher.title
         form.last_name.data = teacher.last_name
         form.first_name.data = teacher.first_name
         # form.last_name_arab.data = teacher.last_name_arab

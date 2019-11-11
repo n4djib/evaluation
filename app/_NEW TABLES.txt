@@ -9,25 +9,10 @@
 	flask run --host=0.0.0.0 --port=5000
 	START /B lt-win -p 5000 --subdomain evaluation
 
-= add 
-	start http://localhost:5000/ to server launsher
-	make it in orange
-
-
-
 = remove --host=0.0.0.0 and see if it becomes fast
 	access through 127.0.0.1
 
 
-= remove "type" from table
-= remove "type" from models line 305
-		or just put the new code if removed
-
-= flip student name
-	- Djouad Maysoun
-
-= Add to "Teacher" title varchar 20
-	
 
 
 

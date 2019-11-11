@@ -116,12 +116,12 @@ def session(session_id=0):
     # if session.is_closed == False:
     #     get_config_changed_flash(session)
 
-
-    students_consistant = session.annual_session\
-        .check_students_consistant_between_two_semesters()
-    students_ratt_are_in_semesters = session.annual_session\
-        .check_students_ratt_are_in_semesters(session)
-
+    annual_session = session.annual_session
+    if annual_session != None:
+        students_consistant = session.annual_session\
+            .check_students_consistant_between_two_semesters()
+        students_ratt_are_in_semesters = session.annual_session\
+            .check_students_ratt_are_in_semesters(session)
 
     if session.is_historic:
         # test session-historic progress
