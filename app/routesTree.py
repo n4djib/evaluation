@@ -362,33 +362,25 @@ def tree_annual(annual_session_id=0):
 def tree(school_id=0, branch_id=-1, promo_id=-1):
     options_arr = get_options()
 
+    sessions_to_check = Session.query.filter_by(is_closed=False).all()
+    nbr_reinit_needed = check_reinit_needed(sessions_to_check)
+    nbr_recalculate_needed = check_recalculate_needed(sessions_to_check)
+        # nbr_sessions_errors = check_errors_exists(sessions_to_check)
 
-    # sessions_to_check = Session.query.filter_by(is_closed=False).all()
-    # # nbr_reinit_needed = check_reinit_needed(sessions_to_check)
-    # # nbr_recalculate_needed = check_recalculate_needed(sessions_to_check)
-    # # nbr_sessions_errors = check_errors_exists(sessions_to_check)
-
-    # nbr_reinit_needed = 0
-    # nbr_recalculate_needed = 0
-    # nbr_sessions_errors = 0
-
-    # # return "i: "+str(nbr_reinit_needed)+" - c: "+str(nbr_recalculate_needed)
-
-    # # nbr_reinit_needed = 1
-    # if nbr_reinit_needed > 0:
-    #     reinit_url = url_for('tree_reinit_all')
-    #     slow_redirect_url = url_for('slow_redirect', url=reinit_url, message='(Re)initializing ' + str(nbr_reinit_needed) + ' sessions')
-    #     btn = '<a id="re-init-all" class="btn btn-warning" href="'+slow_redirect_url+'" >(Re)initialize All</a>'
-    #     msg = str(nbr_reinit_needed) + ' Sessions needs to be (Re)initialized    ' + btn
-    #     flash(msg, 'alert-warning')
+    if nbr_reinit_needed > 0:
+        reinit_url = url_for('tree_reinit_all')
+        slow_redirect_url = url_for('slow_redirect', url=reinit_url, message='(Re)initializing ' + str(nbr_reinit_needed) + ' sessions')
+        btn = '<a id="re-init-all" class="btn btn-warning" href="'+slow_redirect_url+'" >(Re)initialize All</a>'
+        msg = str(nbr_reinit_needed) + ' Sessions needs to be (Re)initialized    ' + btn
+        flash(msg, 'alert-warning')
 
     # if nbr_sessions_errors == 0:
-    #     if nbr_recalculate_needed > 0:
-    #         recalculate_url = url_for('tree_recalc_all')
-    #         slow_redirect_url = url_for('slow_redirect', url=recalculate_url, message='(Re)calculating' + str(nbr_recalculate_needed) + ' sessions')
-    #         btn = '<a id="re-calc-all" class="btn btn-warning" href="'+slow_redirect_url+'" >(Re)Calculate All</a>'
-    #         msg = str(nbr_recalculate_needed) + ' Sessions needs to be (Re)calculate    ' + btn
-    #         flash(msg, 'alert-warning')
+    if nbr_recalculate_needed > 0:
+        recalculate_url = url_for('tree_recalc_all')
+        slow_redirect_url = url_for('slow_redirect', url=recalculate_url, message='(Re)calculating' + str(nbr_recalculate_needed) + ' sessions')
+        btn = '<a id="re-calc-all" class="btn btn-warning" href="'+slow_redirect_url+'" >(Re)Calculate All</a>'
+        msg = str(nbr_recalculate_needed) + ' Sessions needs to be (Re)calculate    ' + btn
+        flash(msg, 'alert-warning')
     # else:
     #     msg = str(nbr_sessions_errors) + ' Sessions Containes ERRORS'
     #     flash(msg, 'alert-danger')
