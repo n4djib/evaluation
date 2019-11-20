@@ -26,6 +26,7 @@ class Promo(db.Model):
     finish_date = db.Column(db.Date)
     color = db.Column(db.String(50))
     branch_id = db.Column(db.Integer, db.ForeignKey('branch.id'))
+    sub_tree = db.Column(db.Text)
     sessions = db.relationship('Session', backref='promo')
     annual_session = db.relationship('AnnualSession', back_populates='promo')
     classement = db.relationship("Classement", uselist=False, back_populates="promo")
@@ -371,6 +372,13 @@ class Session(db.Model):
         label = 'Rattrapage ' if self.is_rattrapage else 'Semestre '
         label += '(' + str(self.semester.get_nbr()) + ')'
         return label
+    def get_title(self):
+        branch = self.promo.branch.name
+        letter = 'R' if self.is_rattrapage else 'S'
+        if self.is_historic:
+            letter = 'HR' if self.is_rattrapage else 'H'
+        semester = self.semester.get_nbr()
+        return 'Session ('+str(branch)+' - '+letter+' '+str(semester)+')'
     def student_nbr(self):
         return StudentSession.query.filter_by(session_id=self.id).count()
     def get_previous(self):

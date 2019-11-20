@@ -174,6 +174,27 @@ def get_sessions_tree(promo):
         + get_creation_links(promo, separate)
 
 
+# 
+# 
+# remove the @app.route
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# # @app.route('/tree/promos-tree/<promo_id>/prerender/', methods=['GET'])
+# # def pre_render_promos_tree(promo_id):
+# def pre_render_promos_tree(promo):
+#     # promo = Promo.query.get(promo_id)
+#     sub_tree = get_sessions_tree(promo)
+#     promo.sub_tree = sub_tree
+#     db.session.commit()
+#     return str(sub_tree)
+
+
 # @app.route('/get_async_promos_by_branch/<branch_id>/', methods=['GET', 'POST'])
 # def get_async_promos_by_branch(branch_id):
 #     branch = Branch.query.get_or_404(branch_id)
@@ -213,8 +234,19 @@ def get_promos_tree(branch, open_p_id):
 
         sessions_tree = ''
         if open == 'true':
+            # 
+            # 
+            # 
             sessions_tree = get_sessions_tree(promo)
-
+            # 
+            # 
+            # 
+            # if promo is None:
+            #     pre_render_promos_tree(promo)
+            # sessions_tree = promo.sub_tree
+            # 
+            # 
+            # 
 
         p = '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", hint:"'+hint+'", times:1, isParent:true, open:'+open+', iconSkin:"'+icon+'", font:'+font+'},'
         promos_tree += p + sessions_tree
@@ -331,38 +363,43 @@ def tree(school_id=0, branch_id=-1, promo_id=-1):
     options_arr = get_options()
 
 
-    sessions_to_check = Session.query.filter_by(is_closed=False).all()
-    nbr_reinit_needed = check_reinit_needed(sessions_to_check)
-    nbr_recalculate_needed = check_recalculate_needed(sessions_to_check)
-    nbr_sessions_errors = check_errors_exists(sessions_to_check)
+    # sessions_to_check = Session.query.filter_by(is_closed=False).all()
+    # # nbr_reinit_needed = check_reinit_needed(sessions_to_check)
+    # # nbr_recalculate_needed = check_recalculate_needed(sessions_to_check)
+    # # nbr_sessions_errors = check_errors_exists(sessions_to_check)
 
-    # return "i: "+str(nbr_reinit_needed)+" - c: "+str(nbr_recalculate_needed)
+    # nbr_reinit_needed = 0
+    # nbr_recalculate_needed = 0
+    # nbr_sessions_errors = 0
 
-    # nbr_reinit_needed = 1
-    if nbr_reinit_needed > 0:
-        reinit_url = url_for('tree_reinit_all')
-        slow_redirect_url = url_for('slow_redirect', url=reinit_url, message='(Re)initializing ' + str(nbr_reinit_needed) + ' sessions')
-        btn = '<a id="re-init-all" class="btn btn-warning" href="'+slow_redirect_url+'" >(Re)initialize All</a>'
-        msg = str(nbr_reinit_needed) + ' Sessions needs to be (Re)initialized    ' + btn
-        flash(msg, 'alert-warning')
+    # # return "i: "+str(nbr_reinit_needed)+" - c: "+str(nbr_recalculate_needed)
 
-    if nbr_sessions_errors == 0:
-        if nbr_recalculate_needed > 0:
-            recalculate_url = url_for('tree_recalc_all')
-            slow_redirect_url = url_for('slow_redirect', url=recalculate_url, message='(Re)calculating' + str(nbr_recalculate_needed) + ' sessions')
-            btn = '<a id="re-calc-all" class="btn btn-warning" href="'+slow_redirect_url+'" >(Re)Calculate All</a>'
-            msg = str(nbr_recalculate_needed) + ' Sessions needs to be (Re)calculate    ' + btn
-            flash(msg, 'alert-warning')
-    else:
-        msg = str(nbr_sessions_errors) + ' Sessions Containes ERRORS'
-        flash(msg, 'alert-danger')
+    # # nbr_reinit_needed = 1
+    # if nbr_reinit_needed > 0:
+    #     reinit_url = url_for('tree_reinit_all')
+    #     slow_redirect_url = url_for('slow_redirect', url=reinit_url, message='(Re)initializing ' + str(nbr_reinit_needed) + ' sessions')
+    #     btn = '<a id="re-init-all" class="btn btn-warning" href="'+slow_redirect_url+'" >(Re)initialize All</a>'
+    #     msg = str(nbr_reinit_needed) + ' Sessions needs to be (Re)initialized    ' + btn
+    #     flash(msg, 'alert-warning')
+
+    # if nbr_sessions_errors == 0:
+    #     if nbr_recalculate_needed > 0:
+    #         recalculate_url = url_for('tree_recalc_all')
+    #         slow_redirect_url = url_for('slow_redirect', url=recalculate_url, message='(Re)calculating' + str(nbr_recalculate_needed) + ' sessions')
+    #         btn = '<a id="re-calc-all" class="btn btn-warning" href="'+slow_redirect_url+'" >(Re)Calculate All</a>'
+    #         msg = str(nbr_recalculate_needed) + ' Sessions needs to be (Re)calculate    ' + btn
+    #         flash(msg, 'alert-warning')
+    # else:
+    #     msg = str(nbr_sessions_errors) + ' Sessions Containes ERRORS'
+    #     flash(msg, 'alert-danger')
 
 
     _tree_ = get_schools_tree(int(school_id), int(branch_id), int(promo_id))
     # _tree_ = get_schools_tree_cached(int(school_id), int(branch_id), int(promo_id))
 
     zNodes = '[' + _tree_ + ']'
-    return render_template('tree/tree.html', title='Tree', zNodes=zNodes, options_arr=options_arr)
+    return render_template('tree/tree.html', title='Tree', 
+        zNodes=zNodes, options_arr=options_arr)
 
 
 
@@ -479,3 +516,21 @@ def tree_recalc_all(school_id=0):
 #
 #
 #
+
+
+
+
+############## RE-Render Promo Tree ################
+
+@app.route('/tree/prerender/', methods=['GET'])
+def pre_render_tree():
+    # later
+    # filter further more to speed up pre render
+    promos = Promo.query.all()
+    for promo in promos:
+        pre_render_promos_tree(promo.id)
+
+    flash('pre-rendered the tree')
+    return redirect(url_for('tree'))
+
+

@@ -24,10 +24,18 @@
 				in ratt session
 			- add date to bultin
 			- add title to Teachers table
+			- Make the Tree faster
+					https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-x-email-support
+				just disabled the errors checking
+			- session page name Title
+			- Historic is crashing
+- go to a new page when creating a new session
+	open a Modal box and give the choices
+- 
 - add last modification
 	and put it in field in Session (studentSession) table
 	la dernière modification
-- ANNUAL PRINT
+- Annual PRINT
 	before and after rattrapage
 
 - in justification

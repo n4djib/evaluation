@@ -126,7 +126,11 @@ def session(session_id=0):
     if session.is_historic:
         # test session-historic progress
         data_arr = create_data_session_historic(session)
-        return render_template('session/session-historic.html', title='Session Historique', 
+        # title = 'Session Historique ('
+        # title += str(session.promo.branch.name)+' - '
+        # title += session.semester+')'
+        title = session.get_title()
+        return render_template('session/session-historic.html', title=title, 
             session=session, data_arr=data_arr)
     else:
         modules_list = []
@@ -166,9 +170,11 @@ def session(session_id=0):
 
         grades = Grade.query.join(StudentSession).filter_by(session_id=session_id).all()
         check = check_session_is_complite(grades, session)
-
+        # title = 'Session ()'
+        
+        title = session.get_title()
         return render_template('session/session.html', 
-            title='Session', session=session,
+            title=title, session=session,
             students=students_list, modules=modules_list,
             icons_module=icons_module, icons_student=icons_student, check=check)
 

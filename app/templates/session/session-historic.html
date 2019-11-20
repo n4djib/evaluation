@@ -107,7 +107,7 @@
       <a href="{{ url_for('student_session', session_id=session.id) }}"
          class="btn btn-primary {{'disabled' if session.is_closed else ''}}" 
          role="button">Add/Remove Students</a>
-      <a href="{{ url_for('students_update_many', session_id=session.id) }}"
+      <a href="{{ url_for('students_update_many', promo_id=session.promo.id) }}"
          class="btn btn-primary {{'disabled' if session.is_closed else ''}}" 
          role="button">Massive Editing Students</a>
       <a href ="{{url_for('create_annual_session', session_id=session.id)}}"
