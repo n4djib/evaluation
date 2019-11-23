@@ -347,6 +347,8 @@
 - download Lists as Excel
 - i add/remove multi select flag the studet who has Grades Entered
 - upload PDF automaticaly to Google Drive
+	How to Upload Files to Google Drive using Google Drive API V3
+	https://codingshiksha.com/how-to-upload-files-to-google-drive-in-javascript-using-google-drive-rest-api-v3
 - pre-populate a table of bultin
 - rename the session when creating it
 	and fill the start and finish dates from promo

@@ -331,7 +331,7 @@ def annuals_tr(branch, open_sem_id):
         name = 'Annual ' + str(annual.annual)
 
         sem = semesters_tr(annual, open_sem_id)
-        open = 'true'
+        open = 'false'
 
         font = '{ }'
         icon = 'pIcon23'

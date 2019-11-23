@@ -163,8 +163,10 @@ def calculate_student(session, student):
         db.session.commit()
 
     if ss != None:
-        calc = 'Semester (Moy: '+str(ss.average)+' - Credit: '+str(ss.credit)+')'
-        calc += ' (f: '+str( ss.units_fond_aquired() )+')'
+        calc = 'Ce Semestre (Moy: '+str(ss.average)+' - Cr: '+str(ss.credit)+')'
+
+        if student_session.session.semester.has_fondamental():
+            calc += ' (f: '+str( ss.units_fond_aquired() )+')'
         
 
         annual_session =  ss.session.annual_session
@@ -180,7 +182,32 @@ def calculate_student(session, student):
             # calculate
             ag.calculate()
             db.session.commit()
-            calc += '  -  Annual (Moy: '+str(ag.average_final)+' - Credit: ' + str(ag.credit)+')'
+
+
+            calc += '</br>'
+
+            annual = annual_session.annual.annual
+            first_sem = annual*2 - 1
+            second_sem = first_sem + 1
+
+            if ag.avr_1 is not None:
+                calc += 'S{} (Moy: {} - Cr: {}) -- '.format(first_sem, ag.avr_1, ag.cr_1)
+            if ag.avr_r_1 is not None:
+                calc += 'R{} (Moy: {} - Cr: {}) -- '.format(first_sem, ag.avr_r_1, ag.cr_r_1)
+            if ag.avr_2 is not None:
+                calc += 'S{} (Moy: {} - Cr: {}) -- '.format(second_sem, ag.avr_2, ag.cr_2)
+            if ag.avr_r_2 is not None:
+                calc += 'R{} (Moy: {} - Cr: {}) -- '.format(second_sem, ag.avr_r_2, ag.cr_r_2)
+            calc = calc[:-4]
+            calc = calc.replace('None', '')
+
+
+            calc += '</br>'
+
+            if session.is_rattrapage:
+                calc += 'Annual avant Ratt. (Moy: '+str(ag.average)+' - Cr: ' + str(ag.credit)+')  -  '
+
+            calc += 'Annual Final (Moy: '+str(ag.average_final)+' - Cr: ' + str(ag.credit_final)+')'
 
         return calc
     return 'calculate_student grades'
