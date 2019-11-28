@@ -29,6 +29,9 @@
 				just disabled the errors checking
 			- session page name Title
 			- Historic is crashing
+- run background jobs in Docker
+- make the app installable
+- port it to MySql
 - go to a new page when creating a new session
 	open a Modal box and give the choices
 - 
