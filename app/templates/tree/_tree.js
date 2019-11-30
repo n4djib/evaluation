@@ -138,21 +138,73 @@ function getFont(treeId, node) {
   return node.font ? node.font : {};
 }
 
-function onClick(e,treeId, treeNode) {
+
+
+function onClick(e,treeId, treeNode, clickFlag) {
   var zTree = $.fn.zTree.getZTreeObj("treeDemo");
   zTree.expandNode(treeNode);
+
+
+  var promo_id = parseInt( treeNode.id.replace('new_modal_', '') );
+  if ( Number.isInteger(promo_id) ) {
+    console.log("promo_id = " + promo_id);
+    
+    launch_create_session_modal(promo_id);
+
+
+  }
+
 }
+
+
+function get_options(promo_id) {
+  var options = '';
+  for(const opt_arr of options_arr) {
+    var p_id = opt_arr[0];
+    if(p_id == promo_id)
+      options = opt_arr[1];
+  }
+
+  return options;
+}
+
+
+function launch_create_session_modal(promo_id) {
+    const ipAPI = '//api.ipify.org?format=json'
+
+    Swal.queue([{
+      title: 'Your public IP',
+      confirmButtonText: 'Show my public IP',
+      text:
+        'Your public IP will be received ' +
+        'via AJAX request',
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        return fetch(ipAPI)
+          .then(response => response.json())
+          .then(data => Swal.insertQueueStep(data.ip))
+          .catch(() => {
+            Swal.insertQueueStep({
+              icon: 'error',
+              title: 'Unable to get your public IP'
+            })
+          })
+      }
+    }])
+    
+}
+
+
+
 
 function addDiyDom(treeId, treeNode) {
   var promo_id = parseInt( treeNode.id.replace('new_', '') );
 
   if ( Number.isInteger(promo_id) ) {
-    var options = '';
-    for(const opt_arr of options_arr) {
-      var p_id = opt_arr[0];
-      if(p_id == promo_id)
-        options = opt_arr[1];
-    }
+
+    // get options
+    var options = get_options(promo_id);
+
 
     if(options != '') {
       // treeDemo_ 8 _a

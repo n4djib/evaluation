@@ -229,7 +229,6 @@ def lock_session(session_id):
 # check that the session is not closed
 @app.route('/session/<session_id>/delete-session/', methods=['GET', 'POST'])
 def delete_session(session_id):
-
     session = Session.query.filter_by(id=session_id).first_or_404()
     if session.is_closed == True:
         flash("you can't delete this session because it is locked", "alert-danger")
@@ -242,8 +241,8 @@ def delete_session(session_id):
     promo_id = session.promo_id
 
     # don't allow deletion if it is not the last one
-    # and not ratt
-    if session.get_next() is not None and not session.is_rattrapage:
+    # and not ratt and not historic
+    if session.get_next() is not None and not session.is_rattrapage and not session.is_historic:
         flash("you can't delete this Semester because it not the last one", 'alert-danger')
         return redirect(url_for('session', session_id=session.id))
 
@@ -252,10 +251,8 @@ def delete_session(session_id):
     else:
         # you can't delete a session if it has an AnnualSession
 
-
         # # 
-        # # if rattrapage
-        # #       delete annual first
+        # # if rattrapage    delete annual first
         # # 
         # if session.is_rattrapage:
         #     annual_session = session.annual_session
@@ -264,12 +261,6 @@ def delete_session(session_id):
         # # 
         # # 
         # # 
-        # # 
-        # # 
-        # # 
-
-
-
         annual_dict = session.get_annual_dict()
         if annual_dict['A'] == -1:
             # cleaning
@@ -281,10 +272,6 @@ def delete_session(session_id):
             db.session.commit()
             flash('Semester ('+str(session_id)+') deleted')
         else:
-            # 
-            # 
-            # 
-            # 
             # 
             # 
             # 
@@ -308,13 +295,7 @@ def delete_session(session_id):
             # 
             # 
             # 
-            # 
-            # 
-            # 
             else:
-            # 
-            # 
-            # 
             # 
             # 
             # 

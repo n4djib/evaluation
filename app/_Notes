@@ -30,6 +30,7 @@
 			- session page name Title
 			- Historic is crashing
 - run background jobs in Docker
+- enable deleting Historique sessions
 - make the app installable
 - port it to MySql
 - go to a new page when creating a new session

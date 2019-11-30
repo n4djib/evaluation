@@ -476,8 +476,9 @@ class Session(db.Model):
             return False
 
         ### is rattrapage
-        if self.is_rattrapage == True and self.is_closed != True:
-            return True
+        if self.is_closed != True:
+            if self.is_rattrapage == True or self.is_historic == True: 
+                return True
 
         ### has annual
         annual_dict = self.get_annual_dict()

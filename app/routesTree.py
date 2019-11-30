@@ -61,6 +61,25 @@ def get_creation_links(promo, separate=True):
         links += '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", hint:"'+hint+'", target:"_top", url: "'+url+'", iconSkin:"icon01"},'
     return links
 
+def get_creation_link_modal(promo):
+    semesters = get_semesters_not_in_promo(promo)
+    links = ''
+    if len(semesters) > 0:
+        first_semester_id = semesters[0].id
+        next_semester_to_create = promo.get_next_semester()
+
+        id = 'new_modal_' + str(promo.id)
+        pId = 'promo_' + str(promo.id)
+        hint = ''
+        semester_id=first_semester_id
+        if next_semester_to_create != None:
+            semester_id=next_semester_to_create.id
+        url = ''
+        # url = url_for('create_session', promo_id=promo.id, semester_id=semester_id)
+        name = 'Create Semester Modal'
+        links += '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", hint:"'+hint+'", target:"_top", url: "'+url+'", iconSkin:"icon01"},'
+    return links
+
 def get_annual_session(session, pId):
     # it shows only after last session in Annual chain
     annual = ''
@@ -105,11 +124,6 @@ def get_percentage_progress(percentage):
     return progress
 
 
-@app.route('/get_async_sessions_by_promo/<promo_id>/', methods=['GET', 'POST'])
-def get_async_sessions_by_promo(promo_id):
-    promo = Promo.query.get_or_404(promo_id)
-    return '[' + get_sessions_tree(promo) + ']'
-
 def get_sessions_tree(promo):
     sessions = Session.query.filter_by(promo_id=promo.id).join(Semester).join(Annual)\
         .order_by(Annual.annual, Semester.semester).all()
@@ -122,6 +136,7 @@ def get_sessions_tree(promo):
         id = 'semester_'+str(session.id)
         pId = 'promo_'+str(promo.id)
         url = url_for('session', session_id=session.id)
+        hint = ''
 
         icon = 'icon21'
         if session.is_rattrapage == True:
@@ -137,8 +152,6 @@ def get_sessions_tree(promo):
             name += "  "
         if session.is_rattrapage:
             name = 'Rattrapage: '+str(semester)
-
-        hint = ''
 
         if session.is_closed == True:
             name += " <span class='button icon13_ico_docu'></span> "
@@ -171,34 +184,16 @@ def get_sessions_tree(promo):
     return sessions_tree \
         + get_students_list_link(promo, separate)\
         + get_classement_link(promo, False)\
-        + get_creation_links(promo, separate)
+        + get_creation_links(promo, separate)\
+        + get_creation_link_modal(promo)
 
 
-# 
-# 
-# remove the @app.route
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# # @app.route('/tree/promos-tree/<promo_id>/prerender/', methods=['GET'])
-# # def pre_render_promos_tree(promo_id):
-# def pre_render_promos_tree(promo):
-#     # promo = Promo.query.get(promo_id)
-#     sub_tree = get_sessions_tree(promo)
-#     promo.sub_tree = sub_tree
-#     db.session.commit()
-#     return str(sub_tree)
+@app.route('/get_async_sessions_by_promo/<promo_id>/', methods=['GET', 'POST'])
+def get_async_sessions_by_promo(promo_id):
+    promo = Promo.query.get_or_404(promo_id)
+    return '[' + get_sessions_tree(promo) + ']'
 
 
-# @app.route('/get_async_promos_by_branch/<branch_id>/', methods=['GET', 'POST'])
-# def get_async_promos_by_branch(branch_id):
-#     branch = Branch.query.get_or_404(branch_id)
-#     return '[' + get_promos_tree(branch, 0) + ']'
 
 def get_promos_tree(branch, open_p_id):
     promos = branch.promos
