@@ -144,6 +144,27 @@ var hot = new Handsontable(hotElement, {
     // we want to be sure that our cache is up to date, even if someone pastes data from another source than our tables.
     clipboardCache = sheetclip.stringify(changes);
   },
+  
+  contextMenu: [
+    'copy', 
+    'cut', 
+    '---------', 
+    {
+      key: 'paste',
+      name: 'Paste',
+      disabled: function() {
+        return clipboardCache.length === 0;
+      },
+      callback: function() {
+        var plugin = this.getPlugin('copyPaste');
+
+        this.listen();
+        plugin.paste(clipboardCache);
+      }
+    },
+    'if <i>Paste</i> is not working use <b>CRTL+V</b> to <i>Paste</i>',
+    // '<strike> paste </strike> (this is not working)</br>use <b>CRTL+V</b> to <i>paste</i>'
+  ],
 
 });
 

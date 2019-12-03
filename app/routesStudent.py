@@ -303,8 +303,8 @@ def update_many_username_ordered(promo_id, template=''):
         
     # get the Username Template
     if template == '':
-        branch_name = session.promo.branch.name
-        start_date = session.promo.start_date
+        branch_name = promo.branch.name
+        start_date = promo.start_date
         if start_date == None:
             start_date = datetime.now()
         template = branch_name+'-'+str(start_date.year)+'-'
@@ -411,9 +411,10 @@ def update_many_student_save():
 
     for i, data in enumerate(data_arr, start=0):
         #
-        #
-        username_list = get_username_list()
+        # username_list = get_username_list()
+        # and data[0] not in username_list
         if data[0] != '':
+            # if data[1] not in username_list:
             student = Student.query.get_or_404(data[0])
 
             # allow username change
@@ -425,7 +426,7 @@ def update_many_student_save():
             student.birth_place = data[5]
 
             if data[4] != None and data[4] != '':
-                birth_date = datetime.strptime( str(data[4]) , "%d/%m/%Y")
+                birth_date = datetime.strptime( str(data[4]) , "%d/%m/%Y" )
                 student.birth_date = birth_date
 
             wilaya = Wilaya.query.filter_by(name = data[6]).first()
@@ -459,7 +460,6 @@ def update_many_name_case(promo_id, case=''):
 
 #######################################
 #             Add/Remove              #
-
 def update_student_session(students_from, students_to, session_id):
     session = Session.query.filter_by(id=session_id).first()
 

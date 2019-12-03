@@ -29,6 +29,10 @@
 				just disabled the errors checking
 			- session page name Title
 			- Historic is crashing
+- in Massive Editing
+			in grid allow copy and paste
+	when updating check for duplications and show messages
+	show by color if the username is allready taken
 - run background jobs in Docker
 - enable deleting Historique sessions
 - make the app installable
