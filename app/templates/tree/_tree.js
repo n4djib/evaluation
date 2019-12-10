@@ -170,17 +170,25 @@ function get_options(promo_id) {
 
 
 function launch_create_session_modal(promo_id) {
-    const ipAPI = '//api.ipify.org?format=json'
+    const ipAPI = 'http://localhost:5001/create-session-api/';
+
+    let fetchData = { 
+        method: 'POST', 
+        body: {
+          promo_id: 7,
+        },
+        headers: new Headers()
+    }
 
     Swal.queue([{
-      title: 'Your public IP',
-      confirmButtonText: 'Show my public IP',
+      title: 'create new session semester',
+      confirmButtonText: 'create',
       text:
-        'Your public IP will be received ' +
+        'session will be created ' +
         'via AJAX request',
       showLoaderOnConfirm: true,
       preConfirm: () => {
-        return fetch(ipAPI)
+        return fetch(ipAPI, fetchData)
           .then(response => response.json())
           .then(data => Swal.insertQueueStep(data.ip))
           .catch(() => {

@@ -1063,8 +1063,8 @@ def has_next(promo_id, semester_id):
     
     return False
 
-@app.route('/create-session/promo/<promo_id>/semester/<semester_id>/', methods=['GET', 'POST'])
-def create_session(promo_id=0, semester_id=0):
+
+def create_session__(promo_id, semester_id):
     session = None
 
     sessions = Session.query.filter_by(
@@ -1099,7 +1099,25 @@ def create_session(promo_id=0, semester_id=0):
     # to fill configuration at creation
     update_session_configuraton(session)
 
+    return session
 
+
+@app.route('/create-session-api/', methods=['POST'])
+def create_session_api():
+    data = request.get_json(force=True)  #calendar
+    # data = request.get_json()
+
+    print(str(data))
+
+    # session = create_session__(promo_id, semester_id)
+
+    return 'create_session_api'
+
+
+@app.route('/create-session/promo/<promo_id>/semester/<semester_id>/', methods=['GET', 'POST'])
+def create_session(promo_id=0, semester_id=0):
+    session = create_session__(promo_id, semester_id)
+    
     school_id = session.promo.branch.school_id
     branch_id = session.promo.branch_id
     promo_id = session.promo_id

@@ -123,7 +123,6 @@ def get_percentage_progress(percentage):
 
     return progress
 
-
 def get_sessions_tree(promo):
     sessions = Session.query.filter_by(promo_id=promo.id).join(Semester).join(Annual)\
         .order_by(Annual.annual, Semester.semester).all()
@@ -247,7 +246,6 @@ def get_promos_tree(branch, open_p_id):
         promos_tree += p + sessions_tree
 
     return promos_tree
-
 
 def get_branches_tree(school, open_b_id, open_p_id):
     branches = school.branches
