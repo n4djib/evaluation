@@ -147,7 +147,7 @@ function onClick(e,treeId, treeNode, clickFlag) {
 
   var promo_id = parseInt( treeNode.id.replace('new_modal_', '') );
   if ( Number.isInteger(promo_id) ) {
-    console.log("promo_id = " + promo_id);
+    // console.log("promo_id = " + promo_id);
     
     launch_create_session_modal(promo_id);
 
@@ -172,20 +172,22 @@ function get_options(promo_id) {
 function launch_create_session_modal(promo_id) {
     const ipAPI = 'http://localhost:5001/create-session-api/';
 
+    console.log("1 promo_id = " + promo_id);
+
     let fetchData = { 
         method: 'POST', 
         body: {
-          promo_id: 7,
+          'promo_id': promo_id,
         },
         headers: new Headers()
-    }
+    };
+
+    console.log("2 promo_id = " + promo_id);
 
     Swal.queue([{
       title: 'create new session semester',
       confirmButtonText: 'create',
-      text:
-        'session will be created ' +
-        'via AJAX request',
+      text: 'session will be created via AJAX request',
       showLoaderOnConfirm: true,
       preConfirm: () => {
         return fetch(ipAPI, fetchData)
@@ -198,7 +200,9 @@ function launch_create_session_modal(promo_id) {
             })
           })
       }
-    }])
+    }]);
+
+    console.log("3 promo_id = " + promo_id);
     
 }
 

@@ -14,8 +14,7 @@ from app.permissions_and_roles import *
 
 # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # #
+
 
 # from app.models import Session
 # # from app.routesCalculation import init_all, calculate_all

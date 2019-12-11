@@ -29,17 +29,18 @@
 				just disabled the errors checking
 			- session page name Title
 			- Historic is crashing
+			- in Massive Editing
+				in grid allow copy and paste
+			- enable deleting Historique sessions
 - in Massive Editing
-			in grid allow copy and paste
 	when updating check for duplications and show messages
 	show by color if the username is allready taken
 - run background jobs in Docker
-- enable deleting Historique sessions
 - make the app installable
 - port it to MySql
+- i desabled the checking in the Tree
 - go to a new page when creating a new session
 	open a Modal box and give the choices
-- 
 - add last modification
 	and put it in field in Session (studentSession) table
 	la dernière modification
@@ -48,6 +49,8 @@
 - in justification
 	show how the credit is calculated
 	http://localhost:5000/session/55/student/134/
+- 
+- 
 
 - lock semester Historic
 - lockout login after many failed attempts
@@ -55,7 +58,6 @@
 - find a way to allow registration
 	enable & disabled Users
 - in historic session make the message stay in the box for a while
-
 - Add notes for users
 	- RATT: la note finale retenue pour la matiere sera la meilleure des moyennes entre les 2 sessions
 

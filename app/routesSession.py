@@ -1064,6 +1064,8 @@ def has_next(promo_id, semester_id):
     return False
 
 
+
+
 def create_session__(promo_id, semester_id):
     session = None
 
@@ -1107,7 +1109,7 @@ def create_session_api():
     data = request.get_json(force=True)  #calendar
     # data = request.get_json()
 
-    print(str(data))
+    print(str(data['promo_id']))
 
     # session = create_session__(promo_id, semester_id)
 
