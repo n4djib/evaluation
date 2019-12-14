@@ -36,6 +36,14 @@
 	when updating check for duplications and show messages
 	show by color if the username is allready taken
 - run background jobs in Docker
+-- 
+-- Security
+-- Celery
+-- SweetAlerts
+-- Blueprint
+-- Mail
+-- Waitress
+-- 
 - make the app installable
 - port it to MySql
 - i desabled the checking in the Tree
