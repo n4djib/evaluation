@@ -1,5 +1,5 @@
 from app import app, db
-from flask import url_for #, request, current_app
+from flask import url_for
 from flask_admin import Admin
 from flask_admin.form import rules
 from flask_admin.contrib.sqla import ModelView
@@ -82,8 +82,10 @@ class U(ModelView):
 
 class M(ModelView):
 	form_excluded_columns = ['percentages', 'grades', 'unit', 'module_sessions']
+	# form_excluded_columns = ['grades', 'unit', 'module_sessions']
 	can_create = False
 	can_delete = False
+	# inline_models = [Percentage]
 	def __init__(self, model, session, **kwargs):
 		# new_label = '<img src="/static/img/new_yellow.ico"> Add a New Percentage' 
 		new_label = '<img src="/static/img/New-16.png"> Add Percentage' 
@@ -97,6 +99,7 @@ class M(ModelView):
 		    "credit", 
 		    "time", 
 		    "order", 
+		    # "percentages",
 		    rules.HTML( new_button  ),
 		    rules.HTML( del_button ),
 		)
