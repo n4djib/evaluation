@@ -683,7 +683,7 @@ def create_classement_data_grid(classements, years, semesters):
 def classement_laureats(promo_id=0, type_id=0, mode=''):
     # now it init if it doesn't exist
     # add later the option to delete and init
-    msg1 = init_classement_laureats(promo_id)
+    # msg1 = init_classement_laureats(promo_id)
     # 
     # 
     # 
@@ -1106,14 +1106,27 @@ def create_session__(promo_id, semester_id):
 
 @app.route('/create-session-api/', methods=['POST'])
 def create_session_api():
-    data = request.get_json(force=True)  #calendar
-    # data = request.get_json()
+    data = request.get_json(force=True) 
 
-    print(str(data['promo_id']))
+    promo_id = data['promo_id']
+    semester_id = data['semester_id']
 
-    # session = create_session__(promo_id, semester_id)
+    print('')
+    print('promo_id: ' + str(promo_id))
+    print('semester_id: ' + str(semester_id))
+    print('')
 
-    return 'create_session_api'
+    session = create_session__(promo_id, semester_id)
+    # if :
+    # flash('Semester: {} was created'.format( session.semester.get_nbr() ))
+
+
+    promo = Promo.query.get(promo_id)
+    branch_id = promo.branch.id
+    school_id = promo.branch.school.id
+    url = url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id)
+
+    return {"session_id": session.id, "rediret_to_url": url}
 
 
 @app.route('/create-session/promo/<promo_id>/semester/<semester_id>/', methods=['GET', 'POST'])

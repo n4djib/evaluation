@@ -51,9 +51,9 @@ def get_creation_links(promo, separate=True):
         id = 'new_' + str(promo.id)
         pId = 'promo_' + str(promo.id)
         hint = ''
-        semester_id=first_semester_id
+        semester_id = first_semester_id
         if next_semester_to_create != None:
-            semester_id=next_semester_to_create.id
+            semester_id = next_semester_to_create.id
         url = url_for('create_session', promo_id=promo.id, semester_id=semester_id)
         name = 'Create Semester'
         # if separate is True:
@@ -76,7 +76,7 @@ def get_creation_link_modal(promo):
             semester_id=next_semester_to_create.id
         url = ''
         # url = url_for('create_session', promo_id=promo.id, semester_id=semester_id)
-        name = 'Create Semester Modal'
+        name = 'Create Semester'
         links += '{id:"'+id+'", pId:"'+pId+'", name:"'+name+'", hint:"'+hint+'", target:"_top", url: "'+url+'", iconSkin:"icon01"},'
     return links
 
@@ -183,9 +183,8 @@ def get_sessions_tree(promo):
     return sessions_tree \
         + get_students_list_link(promo, separate)\
         + get_classement_link(promo, False)\
-        + get_creation_links(promo, separate)\
         + get_creation_link_modal(promo)
-
+        # + get_creation_links(promo, separate)\
 
 @app.route('/get_async_sessions_by_promo/<promo_id>/', methods=['GET', 'POST'])
 def get_async_sessions_by_promo(promo_id):
@@ -353,7 +352,6 @@ def tree_annual(annual_session_id=0):
 @register_breadcrumb(app, '.tree', 'Tree')
 # def tree(school_id=0, branch_id=0, promo_id=-1):
 def tree(school_id=0, branch_id=-1, promo_id=-1):
-    options_arr = get_options()
 
     # sessions_to_check = Session.query.filter_by(is_closed=False).all()
     # nbr_reinit_needed = check_reinit_needed(sessions_to_check)
@@ -378,6 +376,8 @@ def tree(school_id=0, branch_id=-1, promo_id=-1):
     # #     msg = str(nbr_sessions_errors) + ' Sessions Containes ERRORS'
     # #     flash(msg, 'alert-danger')
 
+
+    options_arr = get_options()
 
     _tree_ = get_schools_tree(int(school_id), int(branch_id), int(promo_id))
     # _tree_ = get_schools_tree_cached(int(school_id), int(branch_id), int(promo_id))
@@ -421,12 +421,16 @@ def get_options_by_promo(promo):
     options = ''
     semesters = get_semesters_not_in_promo(promo)
     next_semester_to_create = promo.get_next_semester()
+    historic = True
     for semester in semesters:
         selected = ''
         if semester == next_semester_to_create:
-            selected = 'selected' 
+            selected = 'selected'
+            historic = False
         val = str(semester.id)
         opt = str(semester.get_nbr()) + ' - ' + semester.name
+        if historic == True:
+            opt += ' (Historic)'
         options += '<option value='+val+' '+selected+'>'+opt+'</option>'
     return options
 

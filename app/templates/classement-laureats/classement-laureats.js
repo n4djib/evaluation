@@ -65,6 +65,27 @@ var columns = [
   { data: 'avr_classement_s', type: 'numeric', /*width: 3,*/ readOnly: true },
 ];
 
+
+customBorders = [
+  {
+    range: {
+      from: { row: 0, col: 1 },
+      to: { row: 5, col: 28 }
+    },
+    top: { width: 2, color: '#5292F7' },
+    left: { width: 2, color: 'orange' },
+    bottom: { width: 2, color: 'red' },
+    right: { width: 2, color: 'magenta' }
+  },
+  {
+    row: 2, col: 2,
+    left: { width: 2, color: 'red' },
+    right: { width: 1, color: 'green' }
+  }
+];
+
+
+
 container.innerHTML = ""; 
 
 hot = new Handsontable(container, {
@@ -94,48 +115,7 @@ hot = new Handsontable(container, {
     indicators: false
   },
 
-  customBorders: [
-  {
-    range: {
-      from: {
-        row: 0,
-        col: 1
-      },
-      to: {
-        row: 5,
-        col: 28
-      }
-    },
-    top: {
-      width: 2,
-      color: '#5292F7'
-    },
-    left: {
-      width: 2,
-      color: 'orange'
-    },
-    bottom: {
-      width: 2,
-      color: 'red'
-    },
-    right: {
-      width: 2,
-      color: 'magenta'
-    }
-  },
-  // {
-  //   row: 2,
-  //   col: 2,
-  //   left: {
-  //     width: 2,
-  //     color: 'red'
-  //   },
-  //   right: {
-  //     width: 1,
-  //     color: 'green'
-  //   }
-  // }
-  ]
+  // customBorders: customBorders,
 
 
 });

@@ -1,13 +1,13 @@
 var options_arr = {{ (options_arr | safe) if options_arr else []  }};
-var promos_with_options = get_promos_with_options();
+// var promos_with_options = get_promos_with_options();
 
-function get_promos_with_options() {
-  promos = [];
-  for(const opt of options_arr){
-    promos.push(opt[0]);
-  }
-  return promos;
-}
+// function get_promos_with_options() {
+//   promos = [];
+//   for(const opt of options_arr){
+//     promos.push(opt[0]);
+//   }
+//   return promos;
+// }
 
 var setting = {
   view: {
@@ -149,8 +149,7 @@ function onClick(e,treeId, treeNode, clickFlag) {
   if ( Number.isInteger(promo_id) ) {
     // console.log("promo_id = " + promo_id);
     
-    launch_create_session_modal(promo_id);
-
+    modal_create_session(promo_id);
 
   }
 
@@ -170,7 +169,7 @@ function get_options(promo_id) {
 
 
 function launch_create_session_modal(promo_id) {
-    const ipAPI = 'http://localhost:5001/create-session-api/';
+    const ipAPI = '/create-session-api/';
 
     console.log("1 promo_id = " + promo_id);
 
@@ -184,27 +183,65 @@ function launch_create_session_modal(promo_id) {
 
     console.log("2 promo_id = " + promo_id);
 
-    Swal.queue([{
-      title: 'create new session semester',
-      confirmButtonText: 'create',
-      text: 'session will be created via AJAX request',
-      showLoaderOnConfirm: true,
-      preConfirm: () => {
-        return fetch(ipAPI, fetchData)
-          .then(response => response.json())
-          .then(data => Swal.insertQueueStep(data.ip))
-          .catch(() => {
-            Swal.insertQueueStep({
-              icon: 'error',
-              title: 'Unable to get your public IP'
-            })
-          })
-      }
-    }]);
+    // Swal
 
     console.log("3 promo_id = " + promo_id);
     
 }
+
+
+
+
+function modal_create_session(promo_id) {
+
+  // var options = get_options(promo_id);
+  options = get_options(promo_id);
+
+  options = '<div style="margin: 10px;" class="row control-group">  <select class="form-control" id="modal_options_'+promo_id+'">  ' + options + '  </select> </div>';
+
+  Swal.queue([{
+    title: 'create new session semester',
+    confirmButtonText: 'create',
+    text: 'session will be created via AJAX request',
+    html: options,
+    showLoaderOnConfirm: true,
+    // cancelButtonAriaLabel: 'Thumbs down',
+    preConfirm: () => {
+
+      select = $('#modal_options_'+promo_id);
+      semester_id = select.val();
+
+      return fetch("/create-session-api/", {
+        method: 'post',
+        body: JSON.stringify({
+          'promo_id': promo_id, 
+          'semester_id': semester_id
+        })
+      }).then(response => response.json())
+        .then((data) => {
+          // console.log('fetched');
+          // Swal.insertQueueStep(data.ip);
+          // window.location.reload(false);
+          window.location.href = data.rediret_to_url;
+        })
+        .catch(() => {
+          Swal.insertQueueStep({
+            icon: 'error',
+            title: 'Unable to create the Session',
+            onClose: () => {
+              // window.location.reload(false); 
+              window.location.href = '/tree';
+            }
+          });
+          // window.location.reload(false); 
+      })
+
+    } // preConfirm
+  }]);
+
+}//function
+
+
 
 
 
@@ -217,15 +254,19 @@ function addDiyDom(treeId, treeNode) {
     // get options
     var options = get_options(promo_id);
 
+    // console.log(get_options);
 
     if(options != '') {
       // treeDemo_ 8 _a
       // treeDemo_ 47 _a
-      var editStr = "<select id='diyBtn_" +treeNode.id+ "'>"+options+"</select>";
+      var editStr = '<select id="diyBtn_' +treeNode.id+ '"">'+options+'</select>';
       var aObj = $("#" + treeNode.tId + "_a");
       aObj.after(editStr);
 
       var btn = $("#diyBtn_"+treeNode.id);
+
+
+      console.log('-----addDiyDom-----');
 
       if (btn) btn.bind("change", function() {
         var href = aObj.attr("href");
