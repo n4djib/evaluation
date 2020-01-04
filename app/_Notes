@@ -36,6 +36,11 @@
 	when updating check for duplications and show messages
 	show by color if the username is allready taken
 - run background jobs in Docker
+- add some Logging 
+	like session created or deleted
+	user added or removed
+	this or that created
+	grid of session of module modified at ...
 -- 
 -- Security
 -- Celery
@@ -44,6 +49,11 @@
 -- Mail
 -- Waitress
 -- 
+- add last update (last data entry) to  
+	ModuleSession ???????
+	an session table  &&  StudentSession
+- disable Authentication When in debug Mode
+	by checking the Decorator    @app.before_request
 - make the app installable
 - port it to MySql
 - i desabled the checking in the Tree

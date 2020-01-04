@@ -1474,10 +1474,8 @@ class ModuleSession(db.Model):
 
 class Attendance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    module_session_id = db.Column(db.Integer, db.ForeignKey('module_session.id'))
+    module_calendar_id = db.Column(db.Integer, db.ForeignKey('module_calendar.id'))
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
-    from_ = db.Column(db.DateTime)
-    to_ = db.Column(db.DateTime)
     attended = db.Column(db.Boolean, default=False)
     create_time = db.Column(db.DateTime, default=datetime.utcnow)
     update_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -1486,12 +1484,19 @@ class TeacherAttendance(db.Model):
     __tablename__ = 'teacher_attendance'
     id = db.Column(db.Integer, primary_key=True)
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
-    module_session_id = db.Column(db.Integer, db.ForeignKey('module_session.id'))
+    module_calendar_id = db.Column(db.Integer, db.ForeignKey('module_calendar.id'))
     from_ = db.Column(db.DateTime)
     to_ = db.Column(db.DateTime)
     attended = db.Column(db.Boolean, default=False)
     create_time = db.Column(db.DateTime, default=datetime.utcnow)
     update_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class ModuleCalendar(db.Model):
+    __tablename__ = 'module_calendar'
+    id = db.Column(db.Integer, primary_key=True)
+    module_session_id = db.Column(db.Integer, db.ForeignKey('module_session.id'))
+    from_ = db.Column(db.DateTime)
+    to_ = db.Column(db.DateTime)
 
 ############################## 
 

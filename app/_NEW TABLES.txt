@@ -1,22 +1,41 @@
-﻿ 
-= check if they corrected the names
-	when you find the name in App you can tell where it it in the Excel
-= check if they saved Students in Excel and Eval
-= shorten longer modules name
-
-
-= RUN THE SERVER BY
-	flask run --host=0.0.0.0 --port=5000
-	START /B lt-win -p 5000 --subdomain evaluation
-
-= remove --host=0.0.0.0 and see if it becomes fast
-	access through 127.0.0.1
-
-
-
-
-
+﻿
 = add To "Promo" "sub_tree" Text
+
+
+= add table "module_calendar"
+	CREATE TABLE module_calendar (
+	    id INTEGER  PRIMARY KEY,
+	    module_session_id INTEGER,
+	    from_ DATETIME,
+	    to_ DATETIME,
+	    FOREIGN KEY ( module_session_id )
+	    REFERENCES module_session (id) 
+	);
+
+
+= remove FK from table "attandance" to "student_session"
+= remove 'module_session_id' from table "attandance"
+
+= add 'module_calendar_id' to table "attandance"
+	= add FK from table "attandance" to "module_calendar"
+	= add FK from table "attandance" to "student"
+
+= remove FK from table "teacher_attandance" to "module_session"
+	= remove 'module_session_id' from table "teacher_attandance"
+	= add 'module_calendar_id' to table "teacher_attandance"
+		= add FK from table "teacher_attandance" to "module_calendar"
+
+= add 'module_session_id' to table "teacher_calendar"
+	= add FK from table "module_calendar" to "module_session"
+
+= remove 'from_' & 'to_' from "attendance"
+
+= 
+
+
+= 
+
+
 
 
 = 
