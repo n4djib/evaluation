@@ -213,6 +213,9 @@ def grade_save(type=''):
     if type == 'student':
         student_id = int(data_arr[0]['id'])
 
+    
+    CURRENT_DATE_TIME = datetime.now()
+
     for i, data in enumerate(data_arr, start=0):
         grade = Grade.query.filter_by(id = int(data['id'])).first()
 
@@ -233,7 +236,14 @@ def grade_save(type=''):
         # grade.average = data['average']
         # grade.credit = data['credit']
 
+
+        # save 'last_entry' in "module_session" & "student_session"
+        ss = grade.student_session
+        ss.last_entry = CURRENT_DATE_TIME
+
         db.session.commit()
+
+
 
     # if type is student return : Annual and Semestre Average and Credit
     # NOTE: it calculate everytime

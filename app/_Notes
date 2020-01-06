@@ -19,19 +19,6 @@
 
 == PRIORITY 1 ==
 ----------------
-			- check if students are consistant between the two semesters
-			- check_students_ratt_are_in_semesters
-				in ratt session
-			- add date to bultin
-			- add title to Teachers table
-			- Make the Tree faster
-					https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-x-email-support
-				just disabled the errors checking
-			- session page name Title
-			- Historic is crashing
-			- in Massive Editing
-				in grid allow copy and paste
-			- enable deleting Historique sessions
 - in Massive Editing
 	when updating check for duplications and show messages
 	show by color if the username is allready taken
@@ -845,6 +832,19 @@
 			- a button to calculate all Open Sessions
 			- show a progress bar like a WiFi in Tree
 			- link from Annual to Student Grades
+			- check if students are consistant between the two semesters
+			- check_students_ratt_are_in_semesters
+				in ratt session
+			- add date to bultin
+			- add title to Teachers table
+			- Make the Tree faster
+					https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-x-email-support
+				just disabled the errors checking
+			- session page name Title
+			- Historic is crashing
+			- in Massive Editing
+				in grid allow copy and paste
+			- enable deleting Historique sessions
 
 
 

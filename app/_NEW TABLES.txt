@@ -1,7 +1,6 @@
 ﻿
 = add To "Promo" "sub_tree" Text
 
-
 = add table "module_calendar"
 	CREATE TABLE module_calendar (
 	    id INTEGER  PRIMARY KEY,
@@ -11,7 +10,6 @@
 	    FOREIGN KEY ( module_session_id )
 	    REFERENCES module_session (id) 
 	);
-
 
 = remove FK from table "attandance" to "student_session"
 = remove 'module_session_id' from table "attandance"
@@ -32,8 +30,8 @@
 
 
 
-= 
-= 
+= add 'last_entry' datetime to table "module_session"
+= add 'last_entry' datetime to table "student_session"
 
 
 = 
