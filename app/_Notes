@@ -35,7 +35,6 @@
 - in Massive Editing
 	when updating check for duplications and show messages
 	show by color if the username is allready taken
-- run background jobs in Docker
 - add some Logging 
 	like session created or deleted
 	user added or removed
@@ -67,6 +66,14 @@
 - in justification
 	show how the credit is calculated
 	http://localhost:5000/session/55/student/134/
+- use SocketIO 
+	to notify other users that this grid is being modified by another user
+- 
+- 
+- 
+- 
+- 
+- 
 - 
 - 
 
