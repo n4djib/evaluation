@@ -617,6 +617,7 @@ class StudentSession(db.Model):
     session = db.relationship('Session', back_populates='student_sessions')
     grades = db.relationship('Grade', back_populates='student_session')
     grade_units = db.relationship('GradeUnit', back_populates='student_session')
+    last_entry = db.Column(db.DateTime)
     def units_fond_aquired(self):
         for grade_unit in self.grade_units:
             if grade_unit.unit.is_fondamental == True:
@@ -1467,6 +1468,7 @@ class ModuleSession(db.Model):
     results_delivered_date = db.Column(db.Date)
     exam_surveyors = db.Column(db.Text)
     saving_enabled = db.Column(db.Boolean, default=False)
+    last_entry = db.Column(db.DateTime)
     def has_teacher(self):
         if self.teacher_id == None:
             return True
