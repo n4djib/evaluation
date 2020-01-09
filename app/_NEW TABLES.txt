@@ -1,9 +1,11 @@
-﻿
+
 = add 'last_entry' datetime to table "student_session"
 = add 'last_entry' datetime to table "module_session"
 
 
-= 
+= Rattrapage (3) - SF class 2015/2020 (douf3at ABANOU) 
+	SF-2015-30 - SLAMA Halima	8.99	46
+	it can't be more then 30
 
 = 
 
