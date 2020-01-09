@@ -27,7 +27,17 @@
 	user added or removed
 	this or that created
 	grid of session of module modified at ...
--- 
+- before closing the session or any problem
+	show the printables Semester result and annual in dotted lines
+- show warnings in resultat
+- ERROR in Historic Annual 2 class2015/2020 
+	SF-2015-30 	SLAMA Halima  Obs  is not showing
+- Annual Historic 
+	do not allow the enterence of wrong notes
+	you can't enter a credit more than 30
+- 
+- 
+
 -- Security
 -- Celery
 -- SweetAlerts
@@ -35,6 +45,9 @@
 -- Mail
 -- Waitress
 -- 
+
+- 
+- 
 - add last update (last data entry) to  
 	ModuleSession ???????
 	an session table  &&  StudentSession
@@ -55,6 +68,7 @@
 	http://localhost:5000/session/55/student/134/
 - use SocketIO 
 	to notify other users that this grid is being modified by another user
+- 
 - 
 - 
 - 

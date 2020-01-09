@@ -199,8 +199,8 @@ def grade_going_to_change(grade, data):
         return True
     if grade.stage != data['stage']:
         return True
-    if grade.saving_grade != data['saving_grade']:
-        return True
+    # if grade.saving_grade != data['saving_grade']:
+    #     return True
 
     return False
 
@@ -222,8 +222,18 @@ def grade_save(type=''):
         if grade_going_to_change(grade, data) == True:
             grade.is_dirty = True
 
-        # saved fields must be according to the Permission
+        # save 'last_entry' in "module_session" & "student_session"
+        ss = grade.student_session
+        if grade.is_dirty is True:
+            ss.last_entry = CURRENT_DATE_TIME
+            session_id = ss.session.id
+            module_id = grade.module_id
+            module_session = ModuleSession.query.filter_by(
+                session_id=session_id, module_id=module_id).first()
+            module_session.last_entry = CURRENT_DATE_TIME
+
         #
+        # saved fields must be according to the Permission
         grade.cour = data['cour']
         grade.td = data['td']
         grade.tp = data['tp']
@@ -235,11 +245,6 @@ def grade_save(type=''):
         ## commented this to not save Null Averages
         # grade.average = data['average']
         # grade.credit = data['credit']
-
-
-        # save 'last_entry' in "module_session" & "student_session"
-        ss = grade.student_session
-        ss.last_entry = CURRENT_DATE_TIME
 
         db.session.commit()
 

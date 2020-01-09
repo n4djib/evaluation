@@ -1,56 +1,19 @@
 ﻿
-= add To "Promo" "sub_tree" Text
-
-= add table "module_calendar"
-	CREATE TABLE module_calendar (
-	    id INTEGER  PRIMARY KEY,
-	    module_session_id INTEGER,
-	    from_ DATETIME,
-	    to_ DATETIME,
-	    FOREIGN KEY ( module_session_id )
-	    REFERENCES module_session (id) 
-	);
-
-= remove FK from table "attandance" to "student_session"
-= remove 'module_session_id' from table "attandance"
-
-= add 'module_calendar_id' to table "attandance"
-	= add FK from table "attandance" to "module_calendar"
-	= add FK from table "attandance" to "student"
-
-= remove FK from table "teacher_attandance" to "module_session"
-	= remove 'module_session_id' from table "teacher_attandance"
-	= add 'module_calendar_id' to table "teacher_attandance"
-		= add FK from table "teacher_attandance" to "module_calendar"
-
-= add 'module_session_id' to table "teacher_calendar"
-	= add FK from table "module_calendar" to "module_session"
-
-= remove 'from_' & 'to_' from "attendance"
-
-
-
-= add 'last_entry' datetime to table "module_session"
 = add 'last_entry' datetime to table "student_session"
+= add 'last_entry' datetime to table "module_session"
 
 
 = 
 
+= 
 
 = 
 
+= 
 
 = 
 
-
 = 
-
-
-= 
-
-
-= 
-
 
 = 
 
