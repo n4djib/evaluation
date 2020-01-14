@@ -30,6 +30,11 @@
 				you can't enter a credit more than 30
 			- go to a new page when creating a new session
 				open a Modal box and give the choices
+- Authentication
+	https://flask-authorize.readthedocs.io/en/latest/
+	https://www.google.com/search?q=flask+authorization&ie=utf-8&oe=utf-8&client=firefox-b-ab
+	http://flask-user.readthedocs.io/en/latest/authorization.html
+
 - in Massive Editing
 	when updating check for duplications and show messages
 	show by color if the username is allready taken
@@ -45,7 +50,11 @@
 
 -- Security
 -- Celery
+	to calculate
+	to save database
 -- SweetAlerts
+	for calendar
+	for forms of basic tables
 -- Blueprint
 -- Mail
 -- Waitress
