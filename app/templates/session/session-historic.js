@@ -16,8 +16,8 @@ var message = document.getElementById("message");
 var columns = [
   { data: 'id', type: 'text', width: 0.1, readOnly: true },
   { data: 'name', type: 'text', readOnly: true },
-  { data: 'average', type: 'numeric', {{ 'readOnly: true' if session.is_closed }} },
-  { data: 'credit', type: 'numeric', {{ 'readOnly: true' if session.is_closed }}},
+  { data: 'average', type: 'numeric', validator: averageValidator, {{ 'readOnly: true' if session.is_closed }} },
+  { data: 'credit', type: 'numeric', validator: creditValidator, {{ 'readOnly: true' if session.is_closed }}},
 ];
 
 container.innerHTML = ""; 
@@ -145,3 +145,27 @@ function filter(search) {
   hot.loadData(array);
   hot.validateCells(function() { hot.render(); });
 }
+
+
+
+/******** validation **********/
+
+function averageValidator(value, callback) {
+  if ( value < 0 || value > 20 || isNaN(value) )
+    callback(false);
+  else
+    callback(true);
+}
+
+function  creditValidator(value, callback) {
+  if ( value < 0 || value > 30 || isNaN(value) )
+    callback(false);
+  else
+    callback(true);
+}
+
+hot.validateCells(function() {
+  hot.render();
+});
+
+/*******************************/

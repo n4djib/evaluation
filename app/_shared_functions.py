@@ -54,7 +54,7 @@ def check_grades_status(grades):
             'EMPTY': EMPTY, 'nbr_empty': nbr_cells - nbr_filled, 
             'ERRS': ERRS, 'nbr_errs': nbr_errs, 'CALC': CALC}
 
-def check_session_is_complite(grades, session):
+def check_session_status(grades, session):
     CONF = session.is_config_changed()
     status = check_grades_status(grades)
     status['CONF'] = CONF

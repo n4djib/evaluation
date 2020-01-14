@@ -19,6 +19,17 @@
 
 == PRIORITY 1 ==
 ----------------
+			- before closing the session or if any problem exists
+				show the printables Semester result and annual in dotted lines
+			- show warnings in resultat
+			- ERROR in Historic Annual 2 class2015/2020 
+				SF-2015-30 	SLAMA Halima  Obs  is not showing
+			- hide navbar when loged-out
+			- Annual Historic 
+				do not allow the enterence of wrong notes
+				you can't enter a credit more than 30
+			- go to a new page when creating a new session
+				open a Modal box and give the choices
 - in Massive Editing
 	when updating check for duplications and show messages
 	show by color if the username is allready taken
@@ -27,14 +38,8 @@
 	user added or removed
 	this or that created
 	grid of session of module modified at ...
-- before closing the session or any problem
-	show the printables Semester result and annual in dotted lines
-- show warnings in resultat
-- ERROR in Historic Annual 2 class2015/2020 
-	SF-2015-30 	SLAMA Halima  Obs  is not showing
-- Annual Historic 
-	do not allow the enterence of wrong notes
-	you can't enter a credit more than 30
+- 
+- 
 - 
 - 
 
@@ -44,30 +49,27 @@
 -- Blueprint
 -- Mail
 -- Waitress
--- 
+-- use SocketIO 
+	to notify other users that this grid is being modified by another user
+-- port it to MySql
+-- make the app installable
+-- permissions finish it to allow multi-user-entering of Historic
 
-- 
-- 
+
 - add last update (last data entry) to  
 	ModuleSession ???????
 	an session table  &&  StudentSession
-- disable Authentication When in debug Mode
-	by checking the Decorator    @app.before_request
-- make the app installable
-- port it to MySql
-- i desabled the checking in the Tree
-- go to a new page when creating a new session
-	open a Modal box and give the choices
 - add last modification
 	and put it in field in Session (studentSession) table
 	la dernière modification
+- disable Authentication When in debug Mode
+	by checking the Decorator    @app.before_request
+-NOTE: i desabled the checking in the Tree
 - Annual PRINT
 	before and after rattrapage
 - in justification
 	show how the credit is calculated
 	http://localhost:5000/session/55/student/134/
-- use SocketIO 
-	to notify other users that this grid is being modified by another user
 - 
 - 
 - 
@@ -78,27 +80,15 @@
 - 
 - 
 
-- lock semester Historic
+			- lock semester Historic
 - lockout login after many failed attempts
 - brut force pass cracking
 - find a way to allow registration
 	enable & disabled Users
 - in historic session make the message stay in the box for a while
 - Add notes for users
-	- RATT: la note finale retenue pour la matiere sera la meilleure des moyennes entre les 2 sessions
+	RATT: la note finale retenue pour la matiere sera la meilleure des moyennes entre les 2 sessions
 
-== Progrission et Classement ==
-	- Average and credit in Classement is shown in Bultin and Annual like Decision
-	- in Promo decide wich Classement and Progression formula
-	- in classement-laurieate
-		give the option to consider saved students as rattrapage
-	- when you transfer students to the next year
-		they have to qualify
-		transfaire from annual, not from semester
-		Only Admit & Admit avec dette
-
-
-- finish permissions to allow multi-user-entering of Historic
 
 
 - in AnnualSession show a Tree
@@ -118,9 +108,6 @@
 
 
 
-- make check_grid_is_complite() universal in routesSession.py
-		pass grades and check them
-
 
 
 - TAGS FOR EXAM SURVIORS
@@ -137,6 +124,17 @@
 
 == QUESTIONS: 
 	- what about the students who need to pass some modules (avec dette)
+
+
+== Progrission et Classement ==
+	- Average and credit in Classement is shown in Bultin and Annual like Decision
+	- in Promo decide wich Classement and Progression formula
+	- in classement-laurieate
+		give the option to consider saved students as rattrapage
+	- when you transfer students to the next year
+		they have to qualify
+		transfaire from annual, not from semester
+		Only Admit & Admit avec dette
 
 
 == Potential Bugs ==
@@ -252,7 +250,10 @@
 		to avoid changing them in many places
 	- REFACTORING: turn all calculation to calcule by student
 		session.calculate() -> session.student_sessions.calculate
-	- 
+	- make check_grid_is_complite() universal in routesSession.py
+		pass grades and check them
+
+
 
 
 == GRID ==

@@ -73,19 +73,20 @@
          placeholder="Type here...">
       </div>
       <div style="margin: 2px; float: left">
-        <a id="print-semester-result" class="input-group btn btn-warning"
+        <a id="print-semester-result" class="input-group btn btn-warning {{'disabled' if check['CONF'] or check['CALC'] or check['ERRS'] else ''}}"
            href ="{{ url_for('semester_result_print', session_id=session.id) }}"
            target="_blank" role="button">Print Resultat</a>
       </div>
       <div style="margin: 2px; float: left">
         <a href ="{{ url_for('bultin_semester_print_all', session_id=session.id) }}"
-           target="_blank" class="input-group btn btn-success" role="button">Print All Bultins</a>
+           target="_blank" class="input-group btn btn-success {{'disabled' if check['CONF'] or check['CALC'] or check['ERRS'] else ''}}" role="button">Print All Bultins</a>
       </div>
       <div style="margin: 2px; float: left">
         <!-- <a href ="{{url_for('classement', session_id=session.id)}}"
            target="_blank" class="input-group btn btn-primary" role="button">Classement</a> -->
         <a href ="{{ url_for('classement_print', session_id=session.id) }}"
-            class="btn btn-primary" target="_blank" role="button">Print Classement</a>
+            class="btn btn-primary {{'disabled' if check['CONF'] or check['CALC'] or check['ERRS'] else ''}}" target="_blank" role="button">Print Classement</a>
+
         <input id="checkbox-session" type="checkbox" name="selected"
             value="session" class="products" > Show Session<br>
       </div>

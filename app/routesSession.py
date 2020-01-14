@@ -10,7 +10,7 @@ from ast import literal_eval
 # from sqlalchemy import or_
 from datetime import datetime
 from app.routesCalculation import init_all, reinitialize_session, update_session_configuraton
-from app._shared_functions import extract_fields, check_session_is_complite
+from app._shared_functions import extract_fields, check_session_status
 
 
 
@@ -169,7 +169,7 @@ def session(session_id=0):
             icons_student.append(icon)
 
         grades = Grade.query.join(StudentSession).filter_by(session_id=session_id).all()
-        check = check_session_is_complite(grades, session)
+        check = check_session_status(grades, session)
         # title = 'Session ()'
         
         title = session.get_title()
@@ -2552,7 +2552,6 @@ def semester_result(session_id=0):
         'URL_PRINT': url_for('semester_result_print', session_id=session_id)
     }
 
-
     global URL_PRINT
     URL_PRINT = True
 
@@ -2561,11 +2560,19 @@ def semester_result(session_id=0):
 
     # 1 - change URL in browser
     # 2 - change href in print button
+
+
+    # Check Status
+    grades = Grade.query.join(StudentSession).filter_by(session_id=session_id).all()
+    check = check_session_status(grades, session)
+    # show flash and Button to redirect to session and disable buttons
+    if check['CONF'] or check['CALC'] or check['ERRS']:
+        flash('need to Re(Init) or Re(Calculate)', 'alert-danger')
     
 
     return render_template('session/semester-result.html',
         title='Semester ' + str(session.semester.semester) + ' Result', 
-        t_head=t_head, data_arr=data_arr, session=session, params=params)
+        t_head=t_head, data_arr=data_arr, session=session, params=params, check=check)
 
 
 def get_semester_result_print_header(session):
@@ -2627,9 +2634,14 @@ def semester_result_print(session_id=0):
     header = get_semester_result_print_header(session)
     title = make_title_semester_print(session, 'Releve')
 
+
+    # Check Status
+    grades = Grade.query.join(StudentSession).filter_by(session_id=session_id).all()
+    check = check_session_status(grades, session)
+
     return render_template('session/semester-result-print.html',
         title=title, header=header, t_head=t_head, data_arr=data_arr, 
-        session=session, params=params)
+        session=session, params=params, check=check)
 
 
 #######################################
