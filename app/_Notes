@@ -19,6 +19,14 @@
 
 == PRIORITY 1 ==
 ----------------
+			- use is_dirty to optimize calculation time
+			- calculate average from Saving
+			- lock semester Historic
+- Start creating the Notifications Table
+	js to check if a notification exists
+	print as a special flash
+- Calendar
+	SweetAlert + DatePicker
 - in Massive Editing
 	when updating check for duplications and show messages
 	show by color if the username is allready taken
@@ -77,7 +85,6 @@
 - 
 - 
 
-			- lock semester Historic
 - lockout login after many failed attempts
 - brut force pass cracking
 - find a way to allow registration
@@ -226,21 +233,22 @@
 
 
 == PRINTABLES ==
+	- a location to print all Printables
 	- all Printables in one PDF of a Session | Annual | Promo 
 		for all or for one Student
 	- one PDF contains all Annual Printables
 	- one PDF contains all Semester Printables
-	- add Print: list of rattrapage students without modules to pass
-	- Ratt list by module
-	- add last_modification to printables
-		last entry in the database tables Grade
+	- add Print: 
+		list of rattrapage students without modules to pass
+		Ratt list by module
+				- add last_modification to printables
+					last entry in the database tables Grade
 	- add Thumbnail to Preview print
 	- print Zerbia (Ratt + normal)
 		and show session 1 or 2
 	- add diolog box to print Module to choose
 	- annual Ratt print must show only when there is two semesters
-	- a location to print all Printables
-	- finish Progrission Etat
+	- finish Progression Etat
 
 
 
@@ -255,8 +263,10 @@
 		to avoid changing them in many places
 	- REFACTORING: turn all calculation to calcule by student
 		session.calculate() -> session.student_sessions.calculate
-	- make check_grid_is_complite() universal in routesSession.py
+	- make check_grid_status() universal in routesSession.py
 		pass grades and check them
+	- change table names
+		student_session --> grade_semester
 
 
 
@@ -311,14 +321,12 @@
 	(self, commit=True):
 		if commit==True:
 			db.session.commit()
-- use is_dirty to optimize calculation time
 - add "no-validate" attribute to each form using javascript/jquery, like this: 
 	$(document).ready(function() {
 	    $("form").attr('novalidate', 'novalidate');
 	});
 - NOTE in module config it calculates when i change save_enabled
 	add redirect page for a better UX
-			- calculate average from Saving
 - fix cursor when it is open
 - Scanner
 	https://gitlab.gnome.org/World/OpenPaperwork/libinsane#readme
@@ -341,7 +349,7 @@
 	& is_fondamental
 		i think i added them for Historic Config
 - add sorter in UEF unit
-- indecate the need to calculate in Annual
+			- indecate the need to calculate in Annual
 - duplicate Semester from FlaskAdmin
 - upload files to a free Static website
 - add filter to rattrapage
@@ -353,7 +361,7 @@
 	init and calcul
 - when you modify Module in Table Base
 	set semester last_update
-- Smester update should be accessed from Config
+- Semester update should be accessed from Config
 	and add return URL
 - Session Config
 	remove Config String
@@ -370,10 +378,10 @@
 - add a place to run checkups on everything by buttons
 	* use ajax
 	like naming errors
-	missing filds
+	missing fields
 	errors
 - in ratt check the data - FLASHES
-	is the grades are Consistent
+	are the grades are Consistent
 	is the grade hiegher
 - MSG - do you want to create Ratt before finishing the filling
 	-- i chose to disable the button
@@ -386,7 +394,7 @@
 - upload PDF automaticaly to Google Drive
 	How to Upload Files to Google Drive using Google Drive API V3
 	https://codingshiksha.com/how-to-upload-files-to-google-drive-in-javascript-using-google-drive-rest-api-v3
-- pre-populate a table of bultin
+- pre-populate a table of builtin
 - rename the session when creating it
 	and fill the start and finish dates from promo
 - trim names in Wilaya when saving
@@ -431,12 +439,10 @@
 	https://fullcalendar.io/docs#toc
 	https://www.webslesson.info/2017/12/jquery-fullcalandar-integration-with-php-and-mysql.html
 	
-- make names into CamelCase
+			- make names into CamelCase
 - table (grid) group by
-	http://jsfiddle.net/byv2pk24/89/
-- change table names
-	student_session --> grade_semester
 - maybe remove table Type
+	???????????????
 - gamafication
 	check ZURMO
 		https://www.youtube.com/watch?v=_ItTT2d7Ww4
@@ -464,8 +470,8 @@
 - always check the correctness of the Data  before calculating
 	raise an exception
 - Audits
-- Authorization
 - Authentication
+- Authorization
 	https://www.google.com/search?q=flask+authorization&ie=utf-8&oe=utf-8&client=firefox-b-ab
 	http://flask-user.readthedocs.io/en/latest/authorization.html
 - 
