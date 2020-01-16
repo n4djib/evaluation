@@ -199,10 +199,29 @@ def grade_going_to_change(grade, data):
         return True
     if grade.stage != data['stage']:
         return True
-    # if grade.saving_grade != data['saving_grade']:
-    #     return True
+
+    if grade.saving_grade != data['saving_grade']:
+        return True
 
     return False
+
+def set_last_entry_to_current_datate_time(grade):
+    CURRENT_DATE_TIME = datetime.now()
+
+    ss = grade.student_session
+    ss.last_entry = CURRENT_DATE_TIME
+
+    session = ss.session
+    session.last_entry = CURRENT_DATE_TIME
+
+    session_id = session.id
+    module_id = grade.module_id
+    module_session = ModuleSession.query.filter_by(
+        session_id=session_id, module_id=module_id).first()
+    module_session.last_entry = CURRENT_DATE_TIME
+
+
+
 
 @app.route('/grade/save/type/<type>/', methods = ['GET', 'POST'])
 @app.route('/grade/save/', methods = ['GET', 'POST'])
@@ -214,23 +233,17 @@ def grade_save(type=''):
         student_id = int(data_arr[0]['id'])
 
     
-    CURRENT_DATE_TIME = datetime.now()
 
     for i, data in enumerate(data_arr, start=0):
         grade = Grade.query.filter_by(id = int(data['id'])).first()
 
+        is_dirty = False
         if grade_going_to_change(grade, data) == True:
-            grade.is_dirty = True
+            is_dirty = True
 
         # save 'last_entry' in "module_session" & "student_session"
-        ss = grade.student_session
-        if grade.is_dirty is True:
-            ss.last_entry = CURRENT_DATE_TIME
-            session_id = ss.session.id
-            module_id = grade.module_id
-            module_session = ModuleSession.query.filter_by(
-                session_id=session_id, module_id=module_id).first()
-            module_session.last_entry = CURRENT_DATE_TIME
+        if is_dirty == True:
+            set_last_entry_to_current_datate_time(grade)
 
         #
         # saved fields must be according to the Permission
@@ -242,7 +255,10 @@ def grade_save(type=''):
 
         grade.saving_grade = data['saving_grade']
 
-        ## commented this to not save Null Averages
+        if is_dirty == True:
+            grade.is_dirty = True
+
+        # commented this to not save Null Averages
         # grade.average = data['average']
         # grade.credit = data['credit']
 
@@ -260,10 +276,9 @@ def grade_save(type=''):
 
         # return str(student_session.session.id) + ' - ' + str(student_session.student.id)
         return calculate_student(student_session.session, student_session.student)
-        return 'Annual and Semestre Average and Credit'
+        # return 'Annual and Semestre Average and Credit'
 
-
-    return 'data saved hhhhhhh'
+    return 'data saved'
 
 
 

@@ -354,6 +354,8 @@ class Session(db.Model):
     is_historic = db.Column(db.Boolean, default=False)
 
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_entry = db.Column(db.DateTime)
+    
     configuration = db.Column(db.Text)
     semester_id = db.Column(db.Integer, db.ForeignKey('semester.id'))
     promo_id = db.Column(db.Integer, db.ForeignKey('promo.id'))

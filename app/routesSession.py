@@ -14,6 +14,7 @@ from app._shared_functions import extract_fields, check_session_status
 
 
 
+
 @app.route('/session/<session_id>/relation/', methods=['GET', 'POST'])
 def show_relation(session_id=0):
     session = Session.query.filter_by(id=session_id).first()
@@ -422,7 +423,7 @@ def init_classement_laureats(promo_id):
                 # 
                 ##### disabled it to avoid creating classement_year
                 # 
-                # db.session.add(classement_year)
+                db.session.add(classement_year)
                 # 
                 # 
 
@@ -512,7 +513,7 @@ def calculate_cumul_field(classement_years):
     db.session.commit()
     return 'calculate_cumul_field'
 
-def calulate_avr_classement(promo_id):
+def calculate_avr_classement(promo_id):
     promo = Promo.query.get_or_404(promo_id)
     classement_years = ClassementYear.query.join(Classement).filter_by(promo_id=promo_id)\
         .join(Student).order_by(Student.username, ClassementYear.year).all()
@@ -674,11 +675,27 @@ def create_classement_data_grid(classements, years, semesters):
              + semester + average_s + average_app_s + credit_s + credit_app_s \
              + b + b_app + d + d_app + s + s_app + '}, '
 
-    return '[ ' + data_arr + ' ]'
+    return '[' + data_arr + ']'
 
+
+@app.route('/init_and_fill_classement_laureats/promo/<promo_id>')
+def init_and_fill_classement_laureats_(promo_id):
+    msg1 = init_classement_laureats(promo_id)
+    msg2 = fill_classement_laureats_data(promo_id)
+    return redirect(url_for('classement_laureats', promo_id=promo_id))
+
+# @app.route('/fill_classement_laureats_data/promo/<promo_id>')
+# def fill_classement_laureats_data_(promo_id):
+#     msg = fill_classement_laureats_data(promo_id)
+#     return redirect(url_for('classement_laureats', promo_id=promo_id))
+
+@app.route('/calculate_avr_classement/promo/<promo_id>')
+def calculate_avr_classement_(promo_id):
+    msg = calculate_avr_classement(promo_id)
+    return redirect(url_for('classement_laureats', promo_id=promo_id))
 
 @app.route('/classement-laureats/promo/<promo_id>/mode/<mode>', methods=['GET'])
-@app.route('/classement-laureats/promo/<promo_id>/', methods=['GET'])
+@app.route('/classement-laureats/promo/<promo_id>', methods=['GET'])
 @register_breadcrumb(app, '.tree_promo.classement_laureats', 'Classement Laureats')
 def classement_laureats(promo_id=0, type_id=0, mode=''):
     # now it init if it doesn't exist
@@ -687,8 +704,8 @@ def classement_laureats(promo_id=0, type_id=0, mode=''):
     # 
     # 
     # 
-    msg2 = fill_classement_laureats_data(promo_id)
-    msg3 = calulate_avr_classement(promo_id)
+    # msg2 = fill_classement_laureats_data(promo_id)
+    # msg3 = calculate_avr_classement(promo_id)
 
     promo = Promo.query.get_or_404(promo_id)
     years = promo.branch.years_from_config()
@@ -704,15 +721,17 @@ def classement_laureats(promo_id=0, type_id=0, mode=''):
 
     mergeCells = create_classement_merge_arr(classements, years, semesters)
     data_arr = create_classement_data_grid(classements, years, semesters)
-    
 
-    # decisions_list = ['', 'Rattrapage', 'Admis avec dettes', 'Ajournée', 'Admis', 'Admis apres Ratt.']
+    # return str(data_arr)
+    # return str(len(data_arr))
+    # if len(data_arr) > 2:
+    #     return redirect(url_for('init_classement_laureats_', promo_id=promo_id))
+    
     decisions_list = get_desions_list()
 
-
-    return render_template( 'classement-laureats/classement-laureats.html', 
+    return render_template('classement-laureats/classement-laureats.html', 
         data_arr=data_arr, mergeCells=mergeCells, 
-        years=years, decisions_list=decisions_list, mode=mode)
+        years=years, decisions_list=decisions_list, mode=mode, promo_id=promo_id)
 
 @app.route('/classement-laureats/save/', methods = ['POST'])
 def classement_laureats_save():

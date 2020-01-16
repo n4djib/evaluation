@@ -19,22 +19,6 @@
 
 == PRIORITY 1 ==
 ----------------
-			- before closing the session or if any problem exists
-				show the printables Semester result and annual in dotted lines
-			- show warnings in resultat
-			- ERROR in Historic Annual 2 class2015/2020 
-				SF-2015-30 	SLAMA Halima  Obs  is not showing
-			- hide navbar when loged-out
-			- Annual Historic 
-				do not allow the enterence of wrong notes
-				you can't enter a credit more than 30
-			- go to a new page when creating a new session
-				open a Modal box and give the choices
-- Authentication
-	https://flask-authorize.readthedocs.io/en/latest/
-	https://www.google.com/search?q=flask+authorization&ie=utf-8&oe=utf-8&client=firefox-b-ab
-	http://flask-user.readthedocs.io/en/latest/authorization.html
-
 - in Massive Editing
 	when updating check for duplications and show messages
 	show by color if the username is allready taken
@@ -43,12 +27,23 @@
 	user added or removed
 	this or that created
 	grid of session of module modified at ...
-- 
+
+-- BUG --
+	in grid when you enter a shrinked cell
+	you shoold escape it programaticaly
+	it happens when you move with the Arrows
+- BUG -
+	check that Semester Result Printable time is correct
 - 
 - 
 - 
 
+-- permissions finish it to allow multi-user-entering of Historic
 -- Security
+	Authentication
+		https://flask-authorize.readthedocs.io/en/latest/
+		https://www.google.com/search?q=flask+authorization&ie=utf-8&oe=utf-8&client=firefox-b-ab
+		http://flask-user.readthedocs.io/en/latest/authorization.html
 -- Celery
 	to calculate
 	to save database
@@ -62,15 +57,8 @@
 	to notify other users that this grid is being modified by another user
 -- port it to MySql
 -- make the app installable
--- permissions finish it to allow multi-user-entering of Historic
 
 
-- add last update (last data entry) to  
-	ModuleSession ???????
-	an session table  &&  StudentSession
-- add last modification
-	and put it in field in Session (studentSession) table
-	la dernière modification
 - disable Authentication When in debug Mode
 	by checking the Decorator    @app.before_request
 -NOTE: i desabled the checking in the Tree
@@ -97,21 +85,19 @@
 - in historic session make the message stay in the box for a while
 - Add notes for users
 	RATT: la note finale retenue pour la matiere sera la meilleure des moyennes entre les 2 sessions
-
-
-
 - in AnnualSession show a Tree
+	to the semesters
 - module config - add datepicker 
 - give the ability to open all fields in rattrapage session
 	naaaah: you can force a student to enter ratt by reducing his grades
-	then generate ratt and after that correct thyem back
+	then generate ratt and after that correct them back
 - promo year should be got from promo start_year and current and last session 
 	(start + current date + last session)
 	and indecate errors
 
 - add Tasks(TODO list) as notification
 	make Home Page a todo List
-- deleting rattrapage is deleting even when connected to annual
+- NOTE: deleting rattrapage is deleting even when connected to annual
 	change it later in  def delete_session(session_id):
 	and session.html {{' s' if module.is_savable == True}}
 
@@ -131,8 +117,11 @@
 
 
 
+
 == QUESTIONS: 
 	- what about the students who need to pass some modules (avec dette)
+
+
 
 
 == Progrission et Classement ==
@@ -146,43 +135,40 @@
 		Only Admit & Admit avec dette
 
 
+
+
 == Potential Bugs ==
 	- WARNING: if SF average is under 10 in a semester 
 		that does not mean necisseraly it will enter RATT.
+		because the Annual saved it
 	- WARNING:
 		when i duplicate the Semester
 		is the Modules duplicated too ??????
 			yes modules are duplicated
 			and this causes problems
-				i have to treet Config as a String
+				i have to treat Config as a String
 	- WARNING: add/remove Student order in Chrome
 
 
+
+
 == Result ==
-	- add checking in the result
 	- Note: i am grabing Semester Result Informations from the Config String
-	- show init and calcule Warnings in Releve-Result
-		and in annual
-	- link from semester result Module -> to Module Grid
 	- Semester Result add the option to close module width
-		??????????1
-	- Resultat print is stretching to end of page
-	- you have to show session (normal or ratt) in printables
-		result & bultin
+		??????????
 	- in Result Be carful of long Module Names
-	- in result header    on the left is centering
-	- Don't forget to Comment 
-		get_semester_result_data in routesSession.py
+
+
 
 
 == Tree ==
-	- Tree load only at depth requested
-		don't load promos when branches are closed
 	- add create new branch and school and promo
 		and add url_return to go back to tree after creation
 	- in Tree check annual session need to caclulate
 	- add create annual link to tree
 	- use tabs to organize tree each school
+
+
 
 
 == ANNUAL ==
@@ -191,9 +177,12 @@
 		maybe no need because you calculate all the time
 		and maybe lock it to not allow recalculating 
 	- add sort to annual
+	- add some colors to annual
 	- in ratt annual indicate students who entered the rattrapage
 		at least one module
 		who is already generated and who is not
+
+
 
 
 == Student ==
@@ -225,11 +214,15 @@
 	- in add/remove Student - Gliphcon Not appearig when internet is Off
 
 
+
+
 == make the navigation easier ==
 	- navigate between semesters
 	- add a button to navigate between a session(semester) and its ratt
 	and the notion of URL_RETURN
 		you can add a flash of url_return
+
+
 
 
 == PRINTABLES ==
@@ -248,6 +241,9 @@
 	- annual Ratt print must show only when there is two semesters
 	- a location to print all Printables
 	- finish Progrission Etat
+
+
+
 
 
 == Refactoring ==
@@ -281,6 +277,8 @@
 	-
 
 
+
+
 == Promo ==
 	- show errors in Promo Form
 	- init date in Promo
@@ -292,6 +290,7 @@
 		like in Promo
 	- in Basic Table Promos group by School/Branch
 	- enforce Promo naming
+
 
 
 
@@ -364,13 +363,6 @@
 	flask-admin echos some warnings about missing fields
 - test Tunneling from the internet
 - check init_all() and exclude grades and unit
-		
-
-
-
-
-
-
 - make the filter in Handsontale like the one in in _filter.js
 - use Python to retrive data from google forms
 - NOTE : in module session
@@ -869,6 +861,39 @@
 			- in Massive Editing
 				in grid allow copy and paste
 			- enable deleting Historique sessions
+			- before closing the session or if any problem exists
+				show the printables Semester result and annual in dotted lines
+			- show warnings in resultat
+			- ERROR in Historic Annual 2 class2015/2020 
+				SF-2015-30 	SLAMA Halima  Obs  is not showing
+			- hide navbar when loged-out
+			- Annual Historic 
+				do not allow the enterence of wrong notes
+				you can't enter a credit more than 30
+			- go to a new page when creating a new session
+				open a Modal box and give the choices
+			- add last update (last data entry) to  
+				ModuleSession ???????
+				an session table  &&  StudentSession
+				session
+			- add last modification
+				in resulta semester
+			-- BUG --
+				when saving last entry
+				it updates all students to the last entry
+				it should modify only the changed ones
+			- add checking in the result
+			- show init and calcule Warnings in Releve-Result
+				and in annual
+			- link from semester result Module -> to Module Grid
+			- Resultat print is stretching to end of page
+			- you have to show session (normal or ratt) in printables
+				result & bultin
+			- in result header    on the left is centering
+			- Don't forget to Comment 
+				get_semester_result_data in routesSession.py
+			- Tree load only at depth requested
+				don't load promos when branches are closed
 
 
 

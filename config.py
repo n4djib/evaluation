@@ -11,4 +11,3 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     WKHTMLTOPDF_PATH = "C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"
     RBAC_USE_WHITE = True
-    
