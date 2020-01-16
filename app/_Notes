@@ -22,6 +22,8 @@
 			- use is_dirty to optimize calculation time
 			- calculate average from Saving
 			- lock semester Historic
+- Error returned when creating a new session from tree
+	ISP class 2017/2020
 - Start creating the Notifications Table
 	js to check if a notification exists
 	print as a special flash
