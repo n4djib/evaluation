@@ -1551,6 +1551,13 @@ class ClassementSemester(db.Model):
 
 ############################## 
 
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(45))
+    notification = db.Column(db.String(225))
+    complite = db.Column(db.Boolean, default=False)
+
+
 # class Role(db.Model, RoleMixin):
 #     id = db.Column(db.Integer(), primary_key=True)
 #     name = db.Column(db.String(80), unique=True)

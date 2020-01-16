@@ -1,6 +1,6 @@
 from app import app, db
 from flask import render_template, redirect, url_for, flash, request
-from app.models import Student, AnnualSession, User
+from app.models import Student, AnnualSession, User, Notification
 from app.forms import LoginForm, RegistrationForm
 # from werkzeug.urls import url_parse
 from flask_login import current_user, login_user, logout_user, login_required
@@ -82,6 +82,18 @@ def slow_redirect():
         url=url, message=message, gif=gif)
 
 
+# def generate_notifications_flash():
+#     # alert-danger
+#     # alert-warning
+
+#     flash('--------')
+#     return
+
+#     notifications = Notification.query.all()
+#     for notification in notifications:
+#         msg = str(notification.title) + ' - ' + str(notification.notification)
+#         flash( str(len(notifications)) + ' ---- ' + msg)
+
 #######################################
 #######################################
 #######################################
@@ -95,6 +107,10 @@ def before_request():
     if not current_user.is_authenticated:
         if request.endpoint not in _insecure_views:
             return redirect(url_for('login'))
+
+    # generate_notifications_flash()
+
+
 
 def login_not_required(fn):
     '''decorator to disable user authentication'''

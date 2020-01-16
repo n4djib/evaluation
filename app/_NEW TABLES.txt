@@ -9,9 +9,9 @@
 	SF-2015-30 - SLAMA Halima	8.99	46
 	it can't be more then 30
 
-= 
+= Change 'is_historic' in "session" to boolean
 
-= 
+= change 'unit_id' to integer in "grade_unit"
 
 = 
 

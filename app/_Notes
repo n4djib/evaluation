@@ -27,6 +27,12 @@
 	print as a special flash
 - Calendar
 	SweetAlert + DatePicker
+- Dynamic Select Box: Replace Options Onchange
+	https://www.dyn-web.com/tutorials/forms/select/paired.php
+- if there is no students in a session
+	return an arrary of empty record
+	or output the grid without error
+
 - in Massive Editing
 	when updating check for duplications and show messages
 	show by color if the username is allready taken
@@ -42,7 +48,6 @@
 	it happens when you move with the Arrows
 - BUG -
 	check that Semester Result Printable time is correct
-- 
 - 
 - 
 
