@@ -376,8 +376,6 @@ def session_historic_save():
     return 'data saved'
 
 
-
-
 #####################################################################################
 #####                                                                           #####
 #####    ######  ##          ###     ######   ######  ######## ##     ##        #####
@@ -1130,10 +1128,10 @@ def create_session_api():
     promo_id = data['promo_id']
     semester_id = data['semester_id']
 
-    print('')
-    print('promo_id: ' + str(promo_id))
-    print('semester_id: ' + str(semester_id))
-    print('')
+    # print('')
+    # print('promo_id: ' + str(promo_id))
+    # print('semester_id: ' + str(semester_id))
+    # print('')
 
     session = create_session__(promo_id, semester_id)
     # if :

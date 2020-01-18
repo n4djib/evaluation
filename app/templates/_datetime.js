@@ -32,7 +32,7 @@ function get_current_datetime() {
 	    day_str = d.getDate().toString().length == 1 ? '0'+(d.getDate()) : (d.getDate()),
 	    month_str = (d.getMonth()+1).toString().length == 1 ? '0'+(d.getMonth()+1) : (d.getMonth()+1);
 
-	var msg = 'Imprimer : '
+	var msg = 'Imprimer: '
 	return msg + days[d.getDay()]
 		// +' '+months[d.getMonth()]
 		+' '+day_str+'/'+month_str+'/'+d.getFullYear()

@@ -55,7 +55,9 @@ def collect_student_data_grid(grades, session, SHOW_SAVING_GRADE):
             is_savable = 'is_savable: true, '
 
         data += '{' + data_part + is_savable +'}, '
- 
+    
+    if data == '':
+        return '[[]]'
     return '[ ' + data + ' ]'
    
 def collect_module_data_grid(grades, session, SHOW_SAVING_GRADE):
@@ -73,6 +75,8 @@ def collect_module_data_grid(grades, session, SHOW_SAVING_GRADE):
 
         data += '{' + data_part + is_savable +'}, '
  
+    if data == '':
+        return '[[]]'
     return '[ ' + data + ' ]'
 
 def grade_dlc(*args, **kwargs):
@@ -107,7 +111,7 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
 
     grid_title = F' *********** '
     grades = None
-    data = '[]'
+    data = '[[]]'
     type = ''
     SHOW_SAVING_GRADE = False
 

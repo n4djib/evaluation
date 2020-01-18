@@ -7,15 +7,33 @@ from flask_login import LoginManager
 # from flask_admin import Admin, BaseView, expose
 # from flask_admin.contrib.sqla import ModelView
 from flask_breadcrumbs import Breadcrumbs
+from celery import Celery
+from redis import Redis
 # from flask_rbac import RBAC
 
 # from flask_principal import Principal
 # from flask_caching import Cache
 
 
+# def make_celery(app):
+# 	celery = Celery(
+# 		app.import_name,
+#         broker=app.config['CELERY_BROKER_URL'],
+#         backend=app.config['CELERY_RESULT_BACKEND']
+#     )
+# 	return celery
+
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# celery = Celery(
+# 		app.import_name,
+#         broker=app.config['CELERY_BROKER_URL'],
+#         backend=app.config['CELERY_RESULT_BACKEND']
+#     )
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 bootstrap = Bootstrap(app)

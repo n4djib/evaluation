@@ -45,7 +45,6 @@ var setting = {
     onAsyncSuccess: onAsyncSuccess,
     onAsyncError: onAsyncError
   }
-
 }; 
 
 

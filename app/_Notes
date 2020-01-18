@@ -22,11 +22,13 @@
 			- use is_dirty to optimize calculation time
 			- calculate average from Saving
 			- lock semester Historic
-- Error returned when creating a new session from tree
-	ISP class 2017/2020
-- Start creating the Notifications Table
-	js to check if a notification exists
-	print as a special flash
+			- Error returned when creating a new session from tree
+				ISP class 2017/2020
+			- Start creating the Notifications Table
+				js to check if a notification exists
+				print as a special flash
+			- BUG -
+				check that Semester Result Printable time is correct
 - Calendar
 	SweetAlert + DatePicker
 - Dynamic Select Box: Replace Options Onchange
@@ -34,7 +36,6 @@
 - if there is no students in a session
 	return an arrary of empty record
 	or output the grid without error
-
 - in Massive Editing
 	when updating check for duplications and show messages
 	show by color if the username is allready taken
@@ -48,12 +49,12 @@
 	in grid when you enter a shrinked cell
 	you shoold escape it programaticaly
 	it happens when you move with the Arrows
-- BUG -
-	check that Semester Result Printable time is correct
+- 
+- 
 - 
 - 
 
--- permissions finish it to allow multi-user-entering of Historic
+-- permissions: finish it to allow multi-user-entering of Historic
 -- Security
 	Authentication
 		https://flask-authorize.readthedocs.io/en/latest/
@@ -76,7 +77,7 @@
 
 - disable Authentication When in debug Mode
 	by checking the Decorator    @app.before_request
--NOTE: i desabled the checking in the Tree
+- NOTE: i desabled the checking in the Tree
 - Annual PRINT
 	before and after rattrapage
 - in justification
@@ -494,6 +495,9 @@
 		https://www.jqueryscript.net/other/Message-Toaster-For-jQuery.html
 	- jQuery & Bootstrap Based Toast Notification Plugin - toaster
 		https://www.jqueryscript.net/other/jQuery-Bootstrap-Based-Toast-Notification-Plugin-toaster.html
+	- Minimal Toast Notification Plugin with jQuery and Bootstrap - Simply Toast
+		https://www.jqueryscript.net/other/Minimal-Toast-Notification-Plugin-with-jQuery-Bootstrap-Simply-Toast.html
+
 	- Emoji-Rating-Plugin-jQuery-Emotion-Ratings
 		https://www.jqueryscript.net/other/Emoji-Rating-Plugin-jQuery-Emotion-Ratings.html
 	- Export Html Table To Excel Spreadsheet using jQuery - table2excel

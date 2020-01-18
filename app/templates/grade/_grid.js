@@ -15,7 +15,7 @@ function Save(){
   // console.log(data_arr);
 
   $.ajax({
-    // url: '/grade/save/',
+    // url: '/grade/save/<type>',
     url: '{{ url_for("grade_save", type=type) if type == "student" else url_for("grade_save") }}', 
     type: 'POST',
     data: JSON.stringify( nullifyData(data_arr) ),
@@ -370,7 +370,7 @@ var hot = new Handsontable(hotElement, {
   ],
 });
 
-
+document.getElementById('hot-display-license-info').remove();
 
 
 
@@ -641,36 +641,12 @@ function centerRenderer(instance, td) {
   return td;
 }
 
-
 function nameRenderer(instance, td) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);
   //td.style.backgroundColor = 'yellow';
   td.innerHTML = '<b>' + td.innerHTML + '</b>';
   return td;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function gradeRenderer(instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);
@@ -748,8 +724,6 @@ function creditRenderer(instance, td, row, col, prop, value, cellProperties) {
   td.innerHTML = '<b>' + td.innerHTML + '</b>';
   return td;
 }
-
-
 
 function formulaRenderer(instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);
