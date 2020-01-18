@@ -11,7 +11,7 @@ from flask import flash
 
 # FIX:  = db.Column(db.String(64), index=True, unique=True)
 
-# add cascade to forign keys
+# add cascade to foreign keys
 #   https://stackoverflow.com/questions/5033547/sqlalchemy-cascade-delete
 
 # 
@@ -1556,6 +1556,8 @@ class Notification(db.Model):
     title = db.Column(db.String(45))
     notification = db.Column(db.String(225))
     complite = db.Column(db.Boolean, default=False)
+    timestamp = db.Column(db.Float, index=True, default=datetime.utcnow)
+    delete_url = db.Column(db.String(225))
 
 
 # class Role(db.Model, RoleMixin):

@@ -18,6 +18,7 @@
         href="{{ url_for('static', filename='bootstrap3/css/bootstrap.min.css') }}">
     <!-- - -->
 
+
     <style type="text/css">
         .error { color: red }
 
@@ -75,18 +76,29 @@
 
     <div class="container">
         {% include '_breadcrumbs.html' %}
+
+        <div id='notifications'></div>
         
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
                 {% if category != 'message' %}
                     {% if category == 'success' %}
-                    <div class="alert alert-success" role="alert">{{ message | safe }}</div>
+                    <div class="alert alert-success alert-dismissible" role="alert">
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                        {{ message | safe }}
+                    </div>
                     {% else %}
-                    <div class="alert {{ category }}" role="alert">{{ message | safe }}</div>
+                    <div class="alert {{ category }} alert-dismissible" role="alert">
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                        {{ message | safe }}
+                    </div>
                     {% endif %}
                 {% else %}
-                <div class="alert alert-info" role="alert">{{ message | safe }}</div>
+                <div class="alert alert-info alert-dismissible" role="alert">
+                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                    {{ message | safe }}
+                </div>
                 {% endif %}
             {% endfor %}
         {% endif %}
@@ -105,10 +117,113 @@
 {% block scripts %}
     {{ super() }}
 
+    <script src="{{ url_for('static', filename='toaster-notification/jquery.toaster.js') }}"></script>
+
     <script>
-        // // this is supposed to stop resubmition
-        // if ( window.history.replaceState ) {
-        //     window.history.replaceState( null, null, window.location.href );
-        // }
+
+
+        function grab_and_display_notifications(){
+            $.ajax('{{ url_for("notifications") }}')
+              .done(function(notifications) {
+
+
+
+                /* collect notifications Alerts */
+                var notifs = '';
+                for (var i = 0; i < notifications.length; i++) {
+                    var url = notifications[i]['delete_url'];
+                    var message = notifications[i]['notification'];
+                    var id = 'toaster_'+notifications[i]['id'];
+                    // var timeout = 1000;
+
+                    var margin_top = 1;
+                    if(i == 0) {
+                        // margin_top = 45;
+                    }
+
+                    notifs = notifs +
+                        `<div id="`+id+`" style="margin-top:`+margin_top+`px; margin-bottom: 3px;" class="alert alert-danger alert-dismissable">
+                          <a href="#" onclick="on_click_link(event, '`+url+`')" 
+                            class="close" data-dismiss="alert" aria-label="close">×</a>
+                          <strong>`+message+`</strong>
+                        </div>`;
+                }
+
+                // display like a flash
+                // $('#notifications').html(notifs);
+
+
+                /* insert the parent Toaster DIV */
+                var toaster = $('#toaster');
+                if( toaster.length == 0 ) {
+                  $.toaster({
+                    priority: 'success', 
+                    title: 'Title', 
+                    message: 'ffff',
+                    settings: {
+                      'toast': {
+                        'template': `<div>-----TOASTER-----</div>`,
+                      },
+                      'toaster': {
+                        // 'template': '<div></div>',
+                        'css': {
+                          'top': '56px',
+                        }
+                      },
+                      // 'timeout': 2000,
+                      'donotdismiss': ['success'],
+                    } 
+                  });
+                } // if( toaster.length == 0 )
+
+                $('#toaster').html(notifs);
+
+      
+
+              });
+        };
+
+        function on_click_link(e, url) {
+            // prevent the default action, in this case the following of a link
+            e.preventDefault();
+
+            // capture the href attribute of the a element
+            // var url = $(this).attr('href');
+
+            console.log('-------deleted Clicked--------'+url);
+
+            // perform a delete request using ajax to the captured href value
+            $.ajax({
+                url: url,
+                type: 'DELETE',
+                success: function(result) {
+                    // Do something with the result
+                    console.log('-------deleted-------------');
+                }
+            });
+        }
+
+
+        // ...
+        {% if current_user.is_authenticated %}
+
+        // $(function() {
+        //     // grab_and_display_notifications();
+
+        //     setInterval(function() {
+        //         grab_and_display_notifications();
+        //     }, 3000);
+        // });
+
+        $( document ).ready(function() {
+            grab_and_display_notifications();
+            
+            setInterval(function() {
+                grab_and_display_notifications();
+            }, 3000);
+        });
+
+        {% endif %}
+
     </script>
 {% endblock %}

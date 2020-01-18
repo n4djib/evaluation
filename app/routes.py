@@ -1,5 +1,5 @@
 from app import app, db
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, jsonify
 from app.models import Student, AnnualSession, User, Notification
 from app.forms import LoginForm, RegistrationForm
 # from werkzeug.urls import url_parse
@@ -15,25 +15,25 @@ from app.permissions_and_roles import *
 # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # #
 
+# _insecure_views = ['login', 'register']
+_insecure_views = []
 
-# from app.models import Session
-# # from app.routesCalculation import init_all, calculate_all
+@app.before_request
+def before_request():
+    if not current_user.is_authenticated:
+        if request.endpoint not in _insecure_views:
+            return redirect(url_for('login'))
 
-# @app.route('/code-fill-is_historic/')
-# def run_fill_is_historic():
-#     sessions = Session.query.all()
-#     for session in sessions:
-#         if session.type == "historic" or session.type == "historique":
-#             session.is_historic = True
-#     db.session.commit()
-#     return 'excuted code-fill-is_historic'
+
+def login_not_required(fn):
+    '''decorator to disable user authentication'''
+    endpoint = fn.__name__
+    _insecure_views.append(endpoint)
+    return fn
 
 
 # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # 
-# # # # # # # # # # # # # # # # # # # # # 
-# # # # # # # # # # # # # # # # # # # # # 
-
 
 
 @app.route('/')
@@ -42,15 +42,8 @@ from app.permissions_and_roles import *
 # @login_required
 @register_breadcrumb(app, '.', 'Home')
 def index():
-    # return redirect(url_for('tree'))
     return render_template('index.html', title='Welcome Page')
 
-
-
-
-# @app.route('/calendar/')
-# def calendar():
-#     return render_template('calendar.html', title='Welcome Page')
 
 
 # @app.route('/')
@@ -63,9 +56,6 @@ def index():
 
 
 
-
-#######################################
-#######################################
 #######################################
 #######################################
 
@@ -82,42 +72,48 @@ def slow_redirect():
         url=url, message=message, gif=gif)
 
 
-# def generate_notifications_flash():
-#     # alert-danger
-#     # alert-warning
+#######################################
 
-#     flash('--------')
-#     return
+@app.route('/notifications', methods=['GET'])
+@login_not_required
+def notifications():
+    notifications = Notification.query.all()
 
-#     notifications = Notification.query.all()
-#     for notification in notifications:
-#         msg = str(notification.title) + ' - ' + str(notification.notification)
-#         flash( str(len(notifications)) + ' ---- ' + msg)
+    msg = []
+    for notification in notifications:
+        # remove this later and add the correct url when inserting
+        make_delete_url(notification)
+
+        msg.append({
+            'id': notification.id, 
+            'title': notification.title, 
+            'notification': notification.notification,
+            'delete_url': notification.delete_url
+        })
+
+    return jsonify(msg)
+
+@app.route('/notifications-remove/<int:id>/', methods=['GET', 'DELETE'])
+def remove_notification(id):
+    print('')
+    print('remove_notification')
+    notification = Notification.query.get(id)
+    db.session.delete(notification)
+    print('deleted '+ str(id))
+    print('')
+    db.session.commit()
+    return 'removed'
+
+def make_delete_url(notification):
+    notification.delete_url = url_for('remove_notification', id=notification.id)
+    db.session.commit()
+    return notification.delete_url
 
 #######################################
 #######################################
 #######################################
 #######################################
 
-# _insecure_views = ['login', 'register']
-_insecure_views = []
-
-@app.before_request
-def before_request():
-    if not current_user.is_authenticated:
-        if request.endpoint not in _insecure_views:
-            return redirect(url_for('login'))
-
-    # generate_notifications_flash()
-
-
-
-def login_not_required(fn):
-    '''decorator to disable user authentication'''
-    endpoint = fn.__name__
-    _insecure_views.append(endpoint)
-    # print( "\n\n--- "+str(fn.__name__)+"\n---" )
-    return fn
 
 @app.route('/login/', methods=['GET', 'POST'])
 @login_not_required

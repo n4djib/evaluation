@@ -1,17 +1,25 @@
 
-= add 'last_entry' datetime to table "student_session"
-= add 'last_entry' datetime to table "module_session"
+CREATE TABLE notification (
+    id           INTEGER NOT NULL,
+    title        VARCHAR (45),
+    notification VARCHAR (255),
+    complite     BOOLEAN,
+    timestamp    DATETIME,
+    delete_url   VARCHAR (255),
+    user_id      INTEGER,
+    PRIMARY KEY (
+        id
+    )
+);
 
-= add 'last_entry' datetime to table "session"
 
+= 
 
-= Rattrapage (3) - SF class 2015/2020 (douf3at ABANOU) 
-	SF-2015-30 - SLAMA Halima	8.99	46
-	it can't be more then 30
+= 
 
-= Change 'is_historic' in "session" to boolean
+= 
 
-= change 'unit_id' to integer in "grade_unit"
+= 
 
 = 
 
