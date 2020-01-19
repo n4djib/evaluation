@@ -34,6 +34,12 @@
 - Dynamic Select Box: Replace Options Onchange
 	https://www.dyn-web.com/tutorials/forms/select/paired.php
 	https://www.codexworld.com/dynamic-dependent-select-box-using-jquery-ajax-php/
+<<<<<<< HEAD
+=======
+	
+	select-list-module-calendar.html
+
+>>>>>>> 8720ef47fd76a8afaeb1792fcf9ace3dcd43bfce
 - if there is no students in a session
 	return an arrary of empty record
 	or output the grid without error

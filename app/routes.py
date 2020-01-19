@@ -55,6 +55,31 @@ def index():
 #     return render_template('test-form-builder.html', title='test-form-builder')
 
 
+from app.models import School, Branch, Semester, Module
+
+# @app.route('/get-list-select/school/<school_id>')
+# def get_list_select(school_id):
+#     # schools = School.query.all()
+#     schools = School.query.filter_by(id=school_id).all()
+#     list_select = ''
+#     for school in schools:
+#         branches = school.branches
+#         for branch in branches:
+#             semesters = branch.
+
+#     return list_select
+
+# @app.route('/get-list-select//<>')
+# def get_list_select(annual_id):
+#     # schools = School.query.all()
+#     schools = School.query.filter_by(id=school_id).all()
+#     list_select = ''
+#     for school in schools:
+#         branches = school.branches
+#         for branch in branches:
+#             semesters = branch.
+
+#     return list_select
 
 #######################################
 #######################################

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+	<select name="school">
+        <option value="js">JavaScripts</option>
+        <option value="php">PHP Scripts</option>
+        <option value="tuts">Tutorials</option> 
+    </select>
+
+	<select name="branch" id="branch">
+        <option value="">Select school first</option>
+    </select>
+
+	<select name="promo" id="promo">
+        <option value="">Select branch first</option>
+    </select>
+
+	<select name="semester" id="semester">
+        <option value="">Select promo first</option>
+    </select>
+
+	<select name="module" id="module">
+        <option value="">Select semester first</option>
+    </select>
+
+
+
+    <script>
+
+    function change_select_options_on_change(_thisId, url, _this, _nextId, ) {
+
+	    $('#'+_thisId).on('change', function(){
+	        var countryID = $(this).val();
+	        if(countryID){
+	            $.ajax({
+	                type: 'POST',
+	                url: url,
+	                data: 'school_id='+schoolID,
+	                success:function(html){
+	                    $('#branch').html(html);
+	                    $('#city').html('<option value="">Select branch first</option>'); 
+	                }
+	            }); 
+	        }else{
+	            $('#branch').html('<option value="">Select '+_thisId+' first</option>');
+	            // $('#city').html('<option value="">Select branch first</option>'); 
+	        }
+	    });
+
+    }
+
+
+	$(document).ready(function(){
+
+	    $('#school').on('change', function(){
+	        var countryID = $(this).val();
+	        if(countryID){
+	            $.ajax({
+	                type:'POST',
+	                url:'ajaxData.php',
+	                data:'school_id='+schoolID,
+	                success:function(html){
+	                    $('#branch').html(html);
+	                    $('#city').html('<option value="">Select branch first</option>'); 
+	                }
+	            }); 
+	        }else{
+	            $('#branch').html('<option value="">Select school first</option>');
+	            // $('#city').html('<option value="">Select branch first</option>'); 
+	        }
+	    });
+	    
+	    $('#branch').on('change', function(){
+	        var stateID = $(this).val();
+	        if(stateID){
+	            $.ajax({
+	                type:'POST',
+	                url:'ajaxData.php',
+	                data:'branch_id='+branchID,
+	                success:function(html){
+	                    $('#city').html(html);
+	                }
+	            }); 
+	        }else{
+	            // $('#city').html('<option value="">Select branch first</option>'); 
+	        }
+	    });
+
+	});
+	</script>
+
+</body>
+</html>
