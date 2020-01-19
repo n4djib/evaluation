@@ -13,6 +13,6 @@ class Config(object):
     # WKHTMLTOPDF_PATH = "C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"
     # RBAC_USE_WHITE = True
 
-	# CELERY_BROKER_URL = 'redis:////localhost:6379//0'
-	# CELERY_RESULT_BACKEND = 'redis:////localhost:6379//0'
+    CELERY_BROKER_URL = 'redis:///localhost:6379/0'
+    CELERY_RESULT_BACKEND = 'redis:///localhost:6379/0'
 

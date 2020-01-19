@@ -33,6 +33,10 @@
 	SweetAlert + DatePicker
 - Dynamic Select Box: Replace Options Onchange
 	https://www.dyn-web.com/tutorials/forms/select/paired.php
+	https://www.codexworld.com/dynamic-dependent-select-box-using-jquery-ajax-php/
+	
+	select-list-module-calendar.html
+
 - if there is no students in a session
 	return an arrary of empty record
 	or output the grid without error

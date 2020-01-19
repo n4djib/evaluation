@@ -1,28 +1,10 @@
 
-CREATE TABLE notification (
-    id           INTEGER NOT NULL,
-    title        VARCHAR (45),
-    notification VARCHAR (255),
-    complite     BOOLEAN,
-    timestamp    DATETIME,
-    delete_url   VARCHAR (255),
-    user_id      INTEGER,
-    PRIMARY KEY (
-        id
-    )
-);
 
-
-= install
-pip install gevent
-pip install celery
-pip install redis
-
-==_run_celery.bat
+== _run_celery.bat
 color 06
 cmd /k "env\Scripts\activate && celery -A app:celery worker --loglevel=info -P gevent"
 
-=evaluation.bat
+== evaluation.bat
 color 05
 set flask_app=app.py
 set flask_debug=0
@@ -32,24 +14,18 @@ cmd /k "env\Scripts\activate && flask run"
 
 
 
-= add to Config.py
-    CELERY_BROKER_URL = 'redis://localhost:6379/0'
-    CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+                    #### Add the path of your Redis folder as a Windows ‘environment variable.’
+                    # install redis server
+                    $ redis-server --service-install
 
+                    # start redis server
+                    $ redis-server --service-start
 
-# Add the path of your Redis folder as a Windows ‘environment variable.’
+                    # save and stop the Redis database
+                    $ redis-server shutdown save
 
-# install redis server
-$ redis-server --service-install
-
-# start redis server
-$ redis-server --service-start
-
-# save and stop the Redis database
-$ redis-server shutdown save
-
-# from command line please check if redis is up
-$ redis-cli ping
+                    # from command line please check if redis is up
+                    $ redis-cli ping
 
 
 
