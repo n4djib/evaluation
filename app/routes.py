@@ -55,31 +55,54 @@ def index():
 #     return render_template('test-form-builder.html', title='test-form-builder')
 
 
-from app.models import School, Branch, Semester, Module
+from app.models import School, Branch, Semester, Module, Promo, Session, ModuleSession
 
-# @app.route('/get-list-select/school/<school_id>')
-# def get_list_select(school_id):
-#     # schools = School.query.all()
-#     schools = School.query.filter_by(id=school_id).all()
-#     list_select = ''
-#     for school in schools:
-#         branches = school.branches
-#         for branch in branches:
-#             semesters = branch.
+@app.route('/select-list/')
+def select_list_calendar():
+    return render_template('select-list-calendar.html')
 
-#     return list_select
+def make_html_options(_list, name):
+    html_options = '<option value="">Select '+name+'</option>'
+    for l in _list:
+        html_options += '<option value="'+str(l.id)+'">'+str(l.name)+'</option>'
+    return html_options
 
-# @app.route('/get-list-select//<>')
-# def get_list_select(annual_id):
-#     # schools = School.query.all()
-#     schools = School.query.filter_by(id=school_id).all()
-#     list_select = ''
-#     for school in schools:
-#         branches = school.branches
-#         for branch in branches:
-#             semesters = branch.
 
-#     return list_select
+@app.route('/select-options-branches-by-school/<school_id>', methods=['GET'])
+def get_branches_by_school(school_id):
+    school = School.query.get_or_404(school_id)
+    return make_html_options(school.branches, 'Branch')
+
+@app.route('/select-options-promos-by-branch/<branch_id>', methods=['GET'])
+def get_promos_by_branch(branch_id):
+    branch = Branch.query.get_or_404(branch_id)
+    return make_html_options(branch.promos, 'Promo')
+
+@app.route('/select-options-session-by-promo/<promo_id>', methods=['GET'])
+def get_semesters_by_promo(promo_id):
+    sessions = Session.query.filter_by(promo_id=promo_id)\
+        .join(Semester).order_by(Semester.display_name, Session.timestamp).all()
+
+    html_options = '<option value="">Select Semester</option>'
+    for session in sessions:
+        id = str(session.id)
+        display_name = str(session.semester.display_name)
+        historic = ' (historic)' if session.is_historic else ''
+        if session.is_historic == True:
+            continue
+        html_options += '<option value="'+id+'">'+display_name+historic+'</option>'
+    return html_options
+
+@app.route('/select-options-module-by-session/<session_id>', methods=['GET'])
+def get_modules_by_session(session_id):
+    # session = Session.query.get_or_404(session_id)
+    modules = Module.query.join(ModuleSession)\
+        .filter_by(session_id=session_id).order_by(Module.code).all()
+
+    html_options = '<option value="">Select Module</option>'
+    for module in modules:
+        html_options += '<option value="'+str(module.id)+'">'+module.code+' - '+module.name+'</option>'
+    return html_options
 
 #######################################
 #######################################

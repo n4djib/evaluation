@@ -29,6 +29,7 @@
 				print as a special flash
 			- BUG -
 				check that Semester Result Printable time is correct
+- init ModuleSession when creating the Session
 - Calendar
 	SweetAlert + DatePicker
 - Dynamic Select Box: Replace Options Onchange
