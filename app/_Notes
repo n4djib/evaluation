@@ -33,15 +33,21 @@
 	don't create it for historic
 - attendance
 	http://localhost:5001/attendance/session/94/module/38/
+- timepicker
+	http://www.jonthornton.com/jquery-timepicker/
+	http://www.jonthornton.com/Datepair.js/
 - you can add/remove students from a closed session
+- make table header stick
+	in student
 - Calendar
 	SweetAlert + DatePicker
-- Dynamic Select Box: Replace Options Onchange
-	https://www.dyn-web.com/tutorials/forms/select/paired.php
-	https://www.codexworld.com/dynamic-dependent-select-box-using-jquery-ajax-php/
+			- Dynamic Select Box: Replace Options Onchange
+				https://www.dyn-web.com/tutorials/forms/select/paired.php
+				https://www.codexworld.com/dynamic-dependent-select-box-using-jquery-ajax-php/
 	
 	select-list-module-calendar.html
-
+- in modules list
+	display only modules in latest semester Config
 - if there is no students in a session
 	return an arrary of empty record
 	or output the grid without error
