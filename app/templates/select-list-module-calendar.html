@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <!-- bootstrap 3.3.7 -->
+    <script src="{{ url_for('static', filename='bootstrap3/js/bootstrap.min.js') }}"></script>
+    <link rel="stylesheet" type="text/css" 
+        href="{{ url_for('static', filename='bootstrap3/css/bootstrap.min.css') }}">
+
+</head>
+<body>
+
+	<select name="school" id="school" disabled>
+		{% if school != None %}
+		<option value="{{ school.id }}">{{ school.name }}</option>
+		{% endif %}
+    </select>
+
+	<select name="branch" id="branch" disabled>
+		{% if branch != None %}
+		<option value="{{ branch.id }}">{{ branch.name }}</option>
+		{% endif %}
+    </select>
+
+	<select name="promo" id="promo" disabled>
+		{% if promo != None %}
+		<option value="{{ promo.id }}">{{ promo.name }}</option>
+		{% endif %}
+    </select>
+
+	<select name="session" id="session" disabled>
+		{% if session != None %}
+		<option value="{{ session.id }}">{{ session.semester.display_name }}</option>
+		{% endif %}
+    </select>
+
+	<select name="module" id="module" disabled>
+    </select>
+
+
+
+    <script>
+
+
+    function init_school_select(url, followingIds) {
+		$.ajax({
+	        type: 'GET',
+	        url: url,
+	        success:function(html){
+	        	console.log('success');
+	            $('#school').html(html);
+	            $('#school').prop('disabled', false);
+	            for(i=0; i < followingIds.length; i++){
+	            	$('#'+followingIds[i]).html('');
+	            	$('#'+followingIds[i]).prop('disabled', 'disabled');
+	            }
+	        },
+		    error: function(XMLHttpRequest, textStatus, errorThrown) {
+		        console.log('some error in school');
+		    }
+	    });
+    }/**/
+
+
+    function call_ajax(url, followingIds) {
+    	$.ajax({
+            // type: 'POST', url: url, data: 'id='+ID,
+            type: 'GET',
+            url: url,
+            success:function(html){
+            	console.log('success');
+                $('#'+followingIds[0]).html(html);
+                $('#'+followingIds[0]).prop('disabled', false);
+                for(i=1; i < followingIds.length; i++){
+                	$('#'+followingIds[i]).html('');
+                	$('#'+followingIds[i]).prop('disabled', 'disabled');
+                }
+            },
+		    error: function(XMLHttpRequest, textStatus, errorThrown) {
+		        console.log('some error in on change');
+		    }
+        });
+    }
+
+    function on_change_select_options(thisId, name, url, followingIds) {
+    	console.log('on_change_select_options '+name);
+	    $('#'+thisId).on('change', function(){
+
+	    	console.log('change');
+	        var ID = $(this).val();
+	        console.log('ID: '+ID);
+	        if(ID){
+	        	console.log('ajax '+url+ID);
+	            call_ajax(url+ID, followingIds);
+	        }else{
+	            console.log('no id in '+name);
+
+                for(i=0; i < followingIds.length; i++){
+                	$('#'+followingIds[i]).html('')
+                	$('#'+followingIds[i]).prop('disabled', 'disabled');
+	            }
+	        }
+
+	    });
+    }
+
+
+	$(document).ready(function(){
+
+		/* init school */
+		{% if school == None %}
+		init_school_select('/select-options-schools', 
+			['branch','promo','session','module']);
+		{% endif %}
+
+		/* init when there is default values */
+		{% if session != None %}
+		var url = '/select-options-module-by-session/'+{{session.id}}
+		call_ajax(url, ['module'])
+		{% endif %}
+
+		{% if session == None and promo != None %}
+		var url = '/select-options-session-by-promo/'+{{promo.id}}
+		call_ajax(url, ['session', 'module'])
+		{% endif %}
+
+		{% if promo == None and branch != None %}
+		var url = '/select-options-promos-by-branch/'+{{branch.id}}
+		call_ajax(url, ['promo', 'session', 'module'])
+		{% endif %}
+
+		{% if branch == None and school != None %}
+		var url = '/select-options-branches-by-school/'+{{school.id}}
+		call_ajax(url, ['branch', 'promo', 'session', 'module'])
+		{% endif %}
+
+		/* on change */
+		on_change_select_options('school', 'School', 
+			'/select-options-branches-by-school/', 
+			['branch','promo','session','module']);
+
+		on_change_select_options('branch', 'Branch', 
+			'/select-options-promos-by-branch/', 
+			['promo','session','module']);
+
+		on_change_select_options('promo', 'Promo', 
+			'/select-options-session-by-promo/', 
+			['session','module']);
+
+		on_change_select_options('session', 'Session', 
+			'/select-options-module-by-session/', 
+			['module']);
+
+	});
+	</script>
+
+</body>
+</html>

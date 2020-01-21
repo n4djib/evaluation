@@ -57,9 +57,32 @@ def index():
 
 from app.models import School, Branch, Semester, Module, Promo, Session, ModuleSession
 
+# @app.route('/select-list/')
+# @app.route('/select-list/sc/<sc_id>/bra/<bra_id>/pr/<pr_id>/sem/<sem_id>')
 @app.route('/select-list/')
-def select_list_calendar():
-    return render_template('select-list-calendar.html')
+@app.route('/select-list/school/<school_id>')
+@app.route('/select-list/branch/<branch_id>')
+@app.route('/select-list/promo/<promo_id>')
+@app.route('/select-list/session/<session_id>')
+def select_list_calendar(school_id=0, branch_id=0, promo_id=0, session_id=0):
+    school = branch = promo = session = None
+
+    # from semester conclude annual and bring both semesters
+    if session_id != 0:
+        session = Session.query.get_or_404(session_id)
+        promo_id = session.promo_id
+    if promo_id != 0:
+        promo = Promo.query.get_or_404(promo_id)
+        branch_id = promo.branch_id
+    if branch_id != 0:
+        branch = Branch.query.get_or_404(branch_id)
+        school_id = branch.school_id
+    if school_id != 0:
+        school = School.query.get_or_404(school_id)
+
+    return render_template('select-list-module-calendar.html',
+        school=school, branch=branch, promo=promo, session=session)
+
 
 def make_html_options(_list, name):
     html_options = '<option value="">Select '+name+'</option>'
@@ -67,6 +90,10 @@ def make_html_options(_list, name):
         html_options += '<option value="'+str(l.id)+'">'+str(l.name)+'</option>'
     return html_options
 
+@app.route('/select-options-schools', methods=['GET'])
+def get_schools():
+    schools = School.query.all()
+    return make_html_options(schools, 'School')
 
 @app.route('/select-options-branches-by-school/<school_id>', methods=['GET'])
 def get_branches_by_school(school_id):
@@ -95,9 +122,15 @@ def get_semesters_by_promo(promo_id):
 
 @app.route('/select-options-module-by-session/<session_id>', methods=['GET'])
 def get_modules_by_session(session_id):
-    # session = Session.query.get_or_404(session_id)
-    modules = Module.query.join(ModuleSession)\
-        .filter_by(session_id=session_id).order_by(Module.code).all()
+    session = Session.query.get_or_404(session_id)
+    # modules = Module.query.join(ModuleSession)\
+    #     .filter_by(session_id=session_id).order_by(Module.code).all()
+
+    units = session.semester.units
+    modules = []
+    for unit in units:
+        for mod in unit.modules:
+            modules.append(mod)
 
     html_options = '<option value="">Select Module</option>'
     for module in modules:
