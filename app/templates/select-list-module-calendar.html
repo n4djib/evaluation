@@ -1,16 +1,25 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title></title>
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
-    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+
+{% block styles %}
+  {{super()}}
+
+  <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
     <!-- bootstrap 3.3.7 -->
-    <script src="{{ url_for('static', filename='bootstrap3/js/bootstrap.min.js') }}"></script>
-    <link rel="stylesheet" type="text/css" 
+  <script src="{{ url_for('static', filename='bootstrap3/js/bootstrap.min.js') }}"></script>
+  <link rel="stylesheet" type="text/css" 
         href="{{ url_for('static', filename='bootstrap3/css/bootstrap.min.css') }}">
 
-</head>
-<body>
+  <style type="text/css">
+  </style>
+
+{% endblock %}
+
+
+
+
+{% block app_content %}
 
 	<select name="school" id="school" disabled>
 		{% if school != None %}
@@ -40,8 +49,31 @@
     </select>
 
 
+	</br>
+	</br>
+	</br>
+	</br>
 
-    <script>
+
+    <button id="cancel" class="btn btn-warning ">Cancel</button>
+    <button id="save" class="btn btn-success btn-lg">Save</button>
+    <span>            </span>
+    <button id="attendance" class="btn btn-primary">Attendace</button>
+    <span>      </span>
+    <button id="delete" class="btn btn-danger btn-xs">Delete</button>
+
+
+
+{% endblock %}
+
+
+
+
+
+{% block scripts %}
+  {{ super() }}
+
+  <SCRIPT type="text/javascript">
 
 
     function init_school_select(url, followingIds) {
@@ -154,7 +186,7 @@
 			['module']);
 
 	});
-	</script>
+  </SCRIPT>
 
-</body>
-</html>
+{% endblock %}
+

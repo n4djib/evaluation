@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+
+{% block styles %}
+  {{super()}}
+
+  <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <!-- bootstrap 3.3.7 -->
+  <script src="{{ url_for('static', filename='bootstrap3/js/bootstrap.min.js') }}"></script>
+  <link rel="stylesheet" type="text/css" 
+        href="{{ url_for('static', filename='bootstrap3/css/bootstrap.min.css') }}">
+
+  <style type="text/css">
+
+	th {
+	  background-color: lightgrey;
+	}
+
+  </style>
+
+{% endblock %}
+
+
+
+
+{% block app_content %}
+
+<table class="table table-bordered" id="tblData">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Matricule</th>
+      <th scope="col">Nom</th>
+      <th scope="col">Prenom</th>
+      <th scope="col"><input type="checkbox" id="chkParent" /> Présent</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">1</th>
+      <td>sf/2019/01</td>
+      <td>Otto</td>
+      <td>mdo</td>
+      <td><input type="checkbox" name="students[]" value="" /></td>
+    </tr>
+    <tr>
+      <th scope="row">2</th>
+      <td>sf/2019/02</td>
+      <td>Thornton</td>
+      <td>fat</td>
+      <td><input type="checkbox" name="students[]" value="" /></td>
+    </tr>
+  </tbody>
+</table>
+
+
+        <!-- { % for student in students %}
+          <tr>
+            <td>{ { loop.index }}</td>
+            { % set name = student.student.get_student_long_name() %}
+            <td>{ { name | replace(' ', ' ') }}</td>
+            <td>{ { student.average | replace('None', '') }}</td>
+            <td>{ { student.credit | replace('None', '') }}</td>
+            <td>{ { student.get_ratt_modules_list_semester_html() | safe }}</td>
+            <td><center><input type="checkbox" name="students[]"
+                       value="{ { student.student.id }}" checked ></center>
+            </td>
+          </tr>
+        { % endfor %} -->
+
+{% endblock %}
+
+
+
+
+
+{% block scripts %}
+  {{ super() }}
+
+  <SCRIPT type="text/javascript">
+
+
+	$(document).ready(function() {
+
+	  $('#chkParent').click(function() {
+	    var isChecked = $(this).prop("checked");
+	    $('#tblData tr:has(td)').find('input[type="checkbox"]').prop(
+	    'checked', isChecked);
+	  });
+
+	  $('#tblData tr:has(td)').find('input[type="checkbox"]').click(function() {
+	    var isChecked = $(this).prop("checked");
+	    var isHeaderChecked = $("#chkParent").prop("checked");
+	    if (isChecked == false && isHeaderChecked)
+	      $("#chkParent").prop('checked', isChecked);
+	    else {
+	      $('#tblData tr:has(td)').find('input[type="checkbox"]').each(function() {
+	        if ($(this).prop("checked") == false)
+	          isChecked = false;
+	      });
+	      console.log(isChecked);
+	      $("#chkParent").prop('checked', isChecked);
+	    }
+	  });
+
+	});
+
+
+  </SCRIPT>
+
+{% endblock %}
+

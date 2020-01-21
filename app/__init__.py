@@ -51,6 +51,7 @@ Breadcrumbs(app=app)
 
 
 
-from app import routes, routesAdmin, routesSession, routesGrade, routesTree,\
-	routesStudent, routesBasicTables, routesConfig, routesCalculation, models, errors
+from app import routes, routesAdmin, routesSession, routesGrade, \
+	routesTree, routesStudent, routesBasicTables, routesConfig, \
+	routesCalculation, routesCalendar, models, errors
 

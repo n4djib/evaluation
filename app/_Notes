@@ -30,6 +30,7 @@
 			- BUG -
 				check that Semester Result Printable time is correct
 - init ModuleSession when creating the Session
+- you can add/remove students from a closed session
 - Calendar
 	SweetAlert + DatePicker
 - Dynamic Select Box: Replace Options Onchange
