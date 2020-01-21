@@ -30,6 +30,9 @@
 			- BUG -
 				check that Semester Result Printable time is correct
 - init ModuleSession when creating the Session
+	don't create it for historic
+- attendance
+	http://localhost:5001/attendance/session/94/module/38/
 - you can add/remove students from a closed session
 - Calendar
 	SweetAlert + DatePicker
