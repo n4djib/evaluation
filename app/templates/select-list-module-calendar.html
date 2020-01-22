@@ -5,7 +5,7 @@
 {% block styles %}
   {{super()}}
 
-    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <!-- <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script> -->
 
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/lib/bootstrap-datepicker.css') }}" />
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/jquery.timepicker.css') }}" />
@@ -59,8 +59,8 @@
 
 	<p id="basicExample">
 	    Date: <input type="text" class="date start" placeholder="yyyy-mm-dd" /><span>      </span>
-	    Start: <input type="text" class="time start" placeholder="hh:mm" /> to
-	    End: <input type="text" class="time end" placeholder="hh:mm" />
+	    Start: <input type="text" class="time start time_start" placeholder="hh:mm" />
+	      End: <input type="text" class="time end time_end" placeholder="hh:mm" />
 	    <input type="text" class="date end" placeholder="yyyy-mm-dd" style="display: none" />
 	</p>
 
@@ -97,15 +97,20 @@
   <script type="text/javascript">
 
     // initialize input widgets first
-    $('#basicExample .time').timepicker({
+    $('#basicExample .time_start').timepicker({
+        'showDuration': false,
+        'timeFormat': 'g:ia',
+		'minTime': '7:00am',
+		'maxTime': '7:30pm',
+		'step': 15,
+    });
+
+    $('#basicExample .time_end').timepicker({
         'showDuration': true,
         'timeFormat': 'g:ia',
-        'disableTimeRanges': [
-			['0am', '7am'],
-			['9pm', '12am']
-		],
+		'minTime': '7:00am',
+		'maxTime': '7:30pm',
 		'step': 15,
-		// 'show2400': true,
     });
 
     $('#basicExample .date').datepicker({

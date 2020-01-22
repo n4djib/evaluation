@@ -29,6 +29,9 @@
 				print as a special flash
 			- BUG -
 				check that Semester Result Printable time is correct
+- ERROR:
+	ben messouda is not saving grades
+	and her fields in rattrapage are closed
 - init ModuleSession when creating the Session
 	don't create it for historic
 - attendance
