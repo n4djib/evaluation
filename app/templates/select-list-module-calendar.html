@@ -5,20 +5,19 @@
 {% block styles %}
   {{super()}}
 
-  <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
-    <!-- bootstrap 3.3.7 -->
-  <script src="{{ url_for('static', filename='bootstrap3/js/bootstrap.min.js') }}"></script>
-  <link rel="stylesheet" type="text/css" 
-        href="{{ url_for('static', filename='bootstrap3/css/bootstrap.min.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/lib/bootstrap-datepicker.css') }}" />
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/jquery.timepicker.css') }}" />
+
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/lib/site.css') }}" />
+	<!-- <script type="text/javascript" src="{{ url_for('static', filename='timepicker/lib/site.js') }}"></script> -->
 
 
-  <!-- include input widgets; this is independent of Datepair.js -->
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/bootstrap-datepicker.css') }}" />
-  <link rel="styleshee" type="text/css" href="{{ url_for('static', filename='timepicker/jquery.timepicker.css') }}" />
 
-  <script type="text/javascript" src="{{ url_for('static', filename='timepicker/datepair.js') }}"></script>
 
   <style type="text/css">
+
   </style>
 
 {% endblock %}
@@ -59,10 +58,10 @@
 	</br></br></br></br>
 
 	<p id="basicExample">
-	    <input type="text" class="date start" />
-	    <input type="text" class="time start" /> to
-	    <input type="text" class="time end" />
-	    <input type="text" class="date end" style="display:none" />
+	    Date: <input type="text" class="date start" placeholder="yyyy-mm-dd" /><span>      </span>
+	    Start: <input type="text" class="time start" placeholder="hh:mm" /> to
+	    End: <input type="text" class="time end" placeholder="hh:mm" />
+	    <input type="text" class="date end" placeholder="yyyy-mm-dd" style="display: none" />
 	</p>
 
 	</br></br></br></br>
@@ -85,19 +84,32 @@
 
 {% block scripts %}
   {{ super() }}
-  <script type="text/javascript" src="{{ url_for('static', filename='timepicker/jquery.timepicker.js') }}"></script>
-  <script type="text/javascript" src="{{ url_for('static', filename='timepicker/bootstrap-datepicker.js') }}"></script>
+
+  <script type="text/javascript" 
+  	src="{{ url_for('static', filename='timepicker/jquery.timepicker.js') }}"></script>
+  <script type="text/javascript" 
+  	src="{{ url_for('static', filename='timepicker/lib/bootstrap-datepicker.js') }}"></script>
+
+  <script type="text/javascript" 
+  	src="{{ url_for('static', filename='timepicker/datepair.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='timepicker/jquery.datepair.js') }}"></script>
 
   <script type="text/javascript">
 
     // initialize input widgets first
     $('#basicExample .time').timepicker({
         'showDuration': true,
-        'timeFormat': 'g:ia'
+        'timeFormat': 'g:ia',
+        'disableTimeRanges': [
+			['0am', '7am'],
+			['9pm', '12am']
+		],
+		'step': 15,
+		// 'show2400': true,
     });
 
     $('#basicExample .date').datepicker({
-        'format': 'm/d/yyyy',
+        'format': 'yyyy-mm-dd',
         'autoclose': true
     });
 
@@ -147,14 +159,14 @@
     }
 
     function on_change_select_options(thisId, name, url, followingIds) {
-    	console.log('on_change_select_options '+name);
+    	// console.log('on_change_select_options '+name);
 	    $('#'+thisId).on('change', function(){
 
 	    	console.log('change');
 	        var ID = $(this).val();
 	        console.log('ID: '+ID);
 	        if(ID){
-	        	console.log('ajax '+url+ID);
+	        	// console.log('ajax '+url+ID);
 	            call_ajax(url+ID, followingIds);
 	        }else{
 	            console.log('no id in '+name);
@@ -177,10 +189,25 @@
 			['branch','promo','session','module']);
 		{% endif %}
 
+
 		/* init when there is default values */
 		{% if session != None %}
 		var url = '/select-options-module-by-session/'+{{session.id}}
+		  {% if module != None %}
+		  url = url + '/module/'+{{module.id}}
+		  {% endif %}
 		call_ajax(url, ['module'])
+		//set module choice
+		  // { % if module != None %}
+		  // console.log('aaaaaaaa module != None aaaaaaaaa');
+		  // // option = $('#module option[value={ { module.id }}]');
+		  // // option.attr('selected', "true");
+		  // $('#module option')
+		  //   .removeAttr('selected')
+		  // 	.filter('[value={ { module.id }}]')
+		  // 	.attr('selected', true)
+		  // console.log('bbbbbbbbbb ');
+		  // { % endif %}
 		{% endif %}
 
 		{% if session == None and promo != None %}
