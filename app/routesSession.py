@@ -1338,6 +1338,18 @@ def get_student_annual_list(annual_session, annual_dict):
     return student_ids
 
 
+
+def init_student_annual_grade(annual_session, student_id):
+    annual_grade = AnnualGrade.query\
+        .filter_by(annual_session_id=annual_session.id, student_id=student_id)\
+        .first()
+    if annual_grade == None:
+        annual_grade = AnnualGrade( annual_session_id=annual_session.id, student_id=student_id )
+        db.session.add(annual_grade)
+
+    return annual_grade
+
+
 # call this after creating a new session and 
 # and creating a new 
 def init_annual_grade(annual_session):
@@ -1346,12 +1358,7 @@ def init_annual_grade(annual_session):
     student_ids = get_student_annual_list(annual_session, annual_dict)
     # then fill annual grade if the record does not exist
     for student_id in student_ids:
-        annual_grade = AnnualGrade.query\
-            .filter_by(annual_session_id=annual_session.id, student_id=student_id)\
-            .first()
-        if annual_grade == None:
-            annual_grade = AnnualGrade( annual_session_id=annual_session.id, student_id=student_id )
-            db.session.add(annual_grade)
+        ag = init_student_annual_grade(annual_session, student_id)
     db.session.commit()
 
     # NOTE:

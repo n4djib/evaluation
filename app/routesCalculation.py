@@ -4,8 +4,8 @@ from app.models import Session, StudentSession, AnnualGrade, Grade, GradeUnit, S
 import copy
 from ast import literal_eval
 from flask_breadcrumbs import register_breadcrumb
-# from app.routesSession import fetch_data_annual_grade
-
+# from app.routesSession import fetch_data_annual_grade    circular import
+# from app.routesSession import init_student_annual_grade
 
 
 
@@ -139,7 +139,15 @@ def init_all(session):
     return F'init all : {message1} - {message2} - {message3}'
 
 
+
+
 def calculate_student(session, student):
+    # ss = StudentSession.query.filter_by(session_id=session.id, student_id=student.id).first()
+    # # return str(len(ss))
+
+    # return 'StudentSession ' + str(ss.id)
+    # return 'session ' + str(session.id) + ' student ' + str(student .id)
+
     grades = Grade.query.join(StudentSession)\
         .filter_by(session_id=session.id, student_id=student.id).all()
 
@@ -167,13 +175,23 @@ def calculate_student(session, student):
 
         if student_session.session.semester.has_fondamental():
             calc += ' (f: '+str( ss.units_fond_aquired() )+')'
-        
 
         annual_session =  ss.session.annual_session
         if annual_session != None:
             ag = AnnualGrade.query\
                 .filter_by(annual_session_id=annual_session.id, student_id=student.id)\
                 .first()
+
+            if ag == None:
+                ag = app.routesSession.init_student_annual_grade(
+                    annual_session, student.id)
+                # print(str(ag.id))
+                # print()
+                db.session.commit()
+
+            print()
+            print(ag.id)
+            print()
 
             # i have to fetch the data first
             ag.fetch_data()
@@ -182,7 +200,6 @@ def calculate_student(session, student):
             # calculate
             ag.calculate()
             db.session.commit()
-
 
             calc += '</br>'
 
@@ -200,7 +217,6 @@ def calculate_student(session, student):
                 calc += 'R{} (Moy: {} - Cr: {}) -- '.format(second_sem, ag.avr_r_2, ag.cr_r_2)
             calc = calc[:-4]
             calc = calc.replace('None', '')
-
 
             calc += '</br>'
 
@@ -344,3 +360,4 @@ def justification(session_id, student_id):
 #     justs.append( get_semester_justification(student_session, conf_dict) )
 #     return render_template('session/justification-print.html', title='Session', justs=justs)
     
+import app.routesSession

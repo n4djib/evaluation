@@ -236,8 +236,6 @@ def grade_save(type=''):
     if type == 'student':
         student_id = int(data_arr[0]['id'])
 
-    
-
     for i, data in enumerate(data_arr, start=0):
         grade = Grade.query.filter_by(id = int(data['id'])).first()
 
@@ -278,9 +276,8 @@ def grade_save(type=''):
             return 'type student but Grade not found'
         student_session = grade.student_session
 
-        # return str(student_session.session.id) + ' - ' + str(student_session.student.id)
         return calculate_student(student_session.session, student_session.student)
-        # return 'Annual and Semestre Average and Credit'
+        # return 'data saved --- '+str(student_session.session.id)+' --- '+str(student_session.student)
 
     return 'data saved'
 

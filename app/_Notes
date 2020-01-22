@@ -32,6 +32,10 @@
 - ERROR:
 	ben messouda is not saving grades
 	and her fields in rattrapage are closed
+	-
+		do not allow addition in rattrapage
+		add them from normal session
+	i have to init annual_grade
 - init ModuleSession when creating the Session
 	don't create it for historic
 - attendance
