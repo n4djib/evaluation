@@ -1103,6 +1103,9 @@ def create_session__(promo_id, semester_id):
     # to fill configuration at creation
     update_session_configuraton(session)
 
+    ## create if doesn't exist
+    # get_module_session(session, module)
+
     return session
 
 
@@ -1113,15 +1116,7 @@ def create_session_api():
     promo_id = data['promo_id']
     semester_id = data['semester_id']
 
-    # print('')
-    # print('promo_id: ' + str(promo_id))
-    # print('semester_id: ' + str(semester_id))
-    # print('')
-
     session = create_session__(promo_id, semester_id)
-    # if :
-    # flash('Semester: {} was created'.format( session.semester.get_nbr() ))
-
 
     promo = Promo.query.get(promo_id)
     branch_id = promo.branch.id

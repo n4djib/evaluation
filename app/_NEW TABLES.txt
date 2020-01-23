@@ -1,5 +1,7 @@
 
 
+======== grab these ========
+
 == _run_celery.bat
 color 06
 cmd /k "env\Scripts\activate && celery -A app:celery worker --loglevel=info -P gevent"

@@ -564,7 +564,7 @@ def student_session(session_id=0, _all=''):
 
     students_previous = []
     students_candidates = []
-    if session.is_rattrapage != True:
+    if session.is_rattrapage != True or session.is_historic == True:
         students_previous = get_students_previous(session)
         students_candidates = get_students_candidates(session, _all)
     students_session = Student.query.order_by(Student.username)\

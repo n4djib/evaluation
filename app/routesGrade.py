@@ -309,7 +309,8 @@ def grade_save(type=''):
 @app.route('/session/<session_id>/module/<module_id>/module-session/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree_session.session.grade.module_session', 'Module Session')
 def module_session_config(session_id, module_id):
-    module_session = ModuleSession.query.filter_by(session_id=session_id, module_id=module_id).first()
+    module_session = ModuleSession.query.filter_by(
+        session_id=session_id, module_id=module_id).first()
 
     form = ModuleSessionForm(module_session.id)
     if form.validate_on_submit():
@@ -337,7 +338,6 @@ def module_session_config(session_id, module_id):
         form.results_delivered_date.data = module_session.results_delivered_date
         form.exam_surveyors.data = module_session.exam_surveyors
         form.saving_enabled.data = module_session.saving_enabled
-
 
     return render_template('grade/module_session.html', title='module_session', form=form)
 
@@ -495,7 +495,7 @@ def get_module_print_header(session, module):
 
     teacher_name = '#é$/&?|[+{#%*#$='
     if teacher != None:
-        teacher_name = str(teacher.title).replace("None", "") + ' ' + teacher.last_name + ' ' + teacher.first_name
+        teacher_name = str(teacher.title).replace("None", "") + ' ' + teacher.last_name + ' ' + str(teacher.first_name).replace("None", "")
 
     header = F"""
       <div class="container" style="display: flex;">

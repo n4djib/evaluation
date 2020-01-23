@@ -35,25 +35,32 @@
 			- timepicker
 				http://www.jonthornton.com/jquery-timepicker/
 				http://www.jonthornton.com/Datepair.js/
-- ERROR:
+			- ERROR:
 				ben messouda is not saving grades
 				i have to init annual_grade
-	- do not allow addition in rattrapage
-		add them from normal session
-		and her fields in rattrapage are closed
-		def transfer_student_session() ======
-		def transfer_grades(session_id, ratt_id, student_session_ratt.id, student_id) ======
+				do not allow addition in rattrapage
+					add them from normal session
+					and her fields in rattrapage are closed
+					def transfer_student_session() ======
+					def transfer_grades(session_id, ratt_id, student_session_ratt.id, student_id) ======
+			- you can add/remove students from a closed session
+				no you can't
 - init ModuleSession when creating the Session
 	don't create it for historic
+	DEF get_module_session(session, module) in routesGrade.py
+		from app.routesGrade import get_module_session
 - attendance
 	http://localhost:5001/attendance/session/94/module/38/
-- you can add/remove students from a closed session
-- make table header stick
-	in students list
 - Calendar
 	SweetAlert
 	select-list-module-calendar.html
-
+- in Student Profile
+	add annual & printabales
+- in Module session Config
+	fix the title
+	add tags for survayors
+- make table header stick
+	in students list
 - in modules list
 	display only modules in latest semester Config
 - if there is no students in a session

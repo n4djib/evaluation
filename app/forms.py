@@ -236,7 +236,8 @@ class TeacherFormBase(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     title = StringField('Title', validators=[Optional()])
     last_name = StringField('Last Name', validators=[DataRequired()])
-    first_name = StringField('First Name', validators=[DataRequired()])
+    # first_name = StringField('First Name', validators=[DataRequired()])
+    first_name = StringField('First Name')
     email = StringField('Email', validators=[Optional(), Email()])
     birth_date = DateField('Birth Date', validators=[Optional()])
     birth_place = StringField('Birth Place')
@@ -275,7 +276,11 @@ class TeacherFormUpdate(TeacherFormBase):
 ################## ModuleSession
 class ModuleSessionForm(FlaskForm):
     teacher_id = SelectField('Teacher', coerce=int, validators=[Optional()], 
-        choices = [(-1, '')]+[(t.id, t.last_name+' - '+t.first_name) for t in Teacher.query.order_by('last_name', 'last_name')
+        choices = [(-1, '')]+[
+            (t.id, 
+             str(t.title).replace("None", "")\
+             +' - '+t.last_name+' '+str(t.first_name)
+            ) for t in Teacher.query.order_by('last_name', 'last_name')
     ])
     start_date = DateField('Start Date', format='%Y-%m-%d', validators=[Optional()])
     finish_date = DateField('Finish Date', validators=[Optional()])

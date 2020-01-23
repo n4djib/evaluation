@@ -117,11 +117,11 @@
 
   <script type="text/javascript">
 
-    {% if session.is_rattrapage %}
+    {% if session.is_rattrapage and session.is_historic != True %}
       var bg_col = "lightgrey";
       var select = $('#left_select #select');
       select.click(function() { 
-        alert('you can\'t add student to rattrapage session'); 
+        alert('you can\'t add student to Rattrapage Session'); 
       });
       select.css("background-color", bg_col);
       // $("#filter_left").css("background-color", bg_col);

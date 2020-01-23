@@ -15,7 +15,6 @@ from flask import flash
 #   https://stackoverflow.com/questions/5033547/sqlalchemy-cascade-delete
 
 # 
-
 #
 
 class Promo(db.Model):
@@ -1423,8 +1422,8 @@ class Student(db.Model):
         return username_start + username_end
     def get_sessions_ordered(self):
         sessions = Session.query.join(StudentSession).filter_by(student_id=self.id)\
-            .join(Semester).join(Annual)\
-            .order_by(Annual.annual, Semester.semester).all()
+            .join(Semester).join(Promo).join(Annual)\
+            .order_by(Promo.name, Annual.annual, Semester.semester).all()
         return sessions
 
 class Phone(db.Model):
