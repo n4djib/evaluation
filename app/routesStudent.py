@@ -460,6 +460,7 @@ def update_many_name_case(promo_id, case=''):
 
 #######################################
 #             Add/Remove              #
+
 def update_student_session(students_from, students_to, session_id):
     session = Session.query.filter_by(id=session_id).first()
 
@@ -474,6 +475,7 @@ def update_student_session(students_from, students_to, session_id):
             db.session.add( student_session )
             dirty_add = True
     db.session.commit()
+
 
     message_add = 'No One added to Session: ' + str(session_id)
     if dirty_add == True:
@@ -557,12 +559,14 @@ def student_session(session_id=0, _all=''):
             msg2 = init_all(session)
             msg3 = session.calculate()
             
-
         return redirect(url_for('session', session_id=session_id))
 
 
-    students_previous = get_students_previous(session)
-    students_candidates = get_students_candidates(session, _all)
+    students_previous = []
+    students_candidates = []
+    if session.is_rattrapage != True:
+        students_previous = get_students_previous(session)
+        students_candidates = get_students_candidates(session, _all)
     students_session = Student.query.order_by(Student.username)\
         .join(StudentSession).filter_by(session_id=session_id).all()
 

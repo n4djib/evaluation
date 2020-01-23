@@ -29,30 +29,31 @@
 				print as a special flash
 			- BUG -
 				check that Semester Result Printable time is correct
+			- Dynamic Select Box: Replace Options Onchange
+				https://www.dyn-web.com/tutorials/forms/select/paired.php
+				https://www.codexworld.com/dynamic-dependent-select-box-using-jquery-ajax-php/
+			- timepicker
+				http://www.jonthornton.com/jquery-timepicker/
+				http://www.jonthornton.com/Datepair.js/
 - ERROR:
-	ben messouda is not saving grades
-	and her fields in rattrapage are closed
-	-
-		do not allow addition in rattrapage
+				ben messouda is not saving grades
+				i have to init annual_grade
+	- do not allow addition in rattrapage
 		add them from normal session
-	i have to init annual_grade
+		and her fields in rattrapage are closed
+		def transfer_student_session() ======
+		def transfer_grades(session_id, ratt_id, student_session_ratt.id, student_id) ======
 - init ModuleSession when creating the Session
 	don't create it for historic
 - attendance
 	http://localhost:5001/attendance/session/94/module/38/
-- timepicker
-	http://www.jonthornton.com/jquery-timepicker/
-	http://www.jonthornton.com/Datepair.js/
 - you can add/remove students from a closed session
 - make table header stick
-	in student
+	in students list
 - Calendar
-	SweetAlert + DatePicker
-			- Dynamic Select Box: Replace Options Onchange
-				https://www.dyn-web.com/tutorials/forms/select/paired.php
-				https://www.codexworld.com/dynamic-dependent-select-box-using-jquery-ajax-php/
-	
+	SweetAlert
 	select-list-module-calendar.html
+
 - in modules list
 	display only modules in latest semester Config
 - if there is no students in a session

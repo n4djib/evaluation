@@ -967,15 +967,6 @@ def create_rattrapage_sem(session_id, students):
     # 
     # 
     # 
-    # 
-    # 
-    # 
-    # 
-    # 
-    # 
-    # 
-    # 
-    # 
     # transfer module_session_s
     module_session_s_sem = session.module_sessions
     for module_session_sem in module_session_s_sem:
@@ -992,9 +983,7 @@ def create_rattrapage_sem(session_id, students):
             module_session_ratt.teacher_id = module_session_sem.teacher_id
             #
             #
-            #
             # module_session_ratt.saving_enabled = module_session_sem.saving_enabled
-            #
             #
             #
     db.session.commit()
@@ -1009,13 +998,9 @@ def create_rattrapage_sem(session_id, students):
                 #
                 #
                 #
-                #
-                #
                 transfer_grades(session_id, ratt_id, student_session_ratt.id, student_id)
                 # student = Student.query.get(student_id)
                 # transfer_grades(session, student_session_ratt, student)
-                #
-                #
                 #
                 #
                 #

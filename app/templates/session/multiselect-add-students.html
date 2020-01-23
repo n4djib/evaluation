@@ -39,8 +39,8 @@
 
       <form id="form" action="{{url_for('student_session', session_id=session.id)}}" method="post">
 
-        <div class="col-xs-5">
-          <select name="from[]" id="select" class="form-control" size="15" multiple="multiple">
+        <div id='left_select' class="col-xs-5">
+          <select name="from[]" id="select" class="form-control" size="15" multiple="multiple" >
             {% for student in students_previous %}
             <option value="{{ student.id }}">
               {{ student.username }} - {{ student.last_name }} - {{ student.first_name }}
@@ -116,11 +116,26 @@
   <script src="{{ url_for('static', filename='multiselect/multiselect.min.js') }}"></script>
 
   <script type="text/javascript">
+
+    {% if session.is_rattrapage %}
+      var bg_col = "lightgrey";
+      var select = $('#left_select #select');
+      select.click(function() { 
+        alert('you can\'t add student to rattrapage session'); 
+      });
+      select.css("background-color", bg_col);
+      // $("#filter_left").css("background-color", bg_col);
+    {% endif %}
+
+
+
     $(document).ready(function() {
+
       window.prettyPrint && prettyPrint();
+
       $('#select').multiselect({
         search: {
-          left: '<input type="text" name="q" class="form-control" placeholder="Search..." autocomplete="off" />',
+          left: '<input id="filter_left" type="text" name="q" class="form-control" placeholder="Search..." autocomplete="off" />',
           right: '<input type="text" name="q" class="form-control" placeholder="Search..." autocomplete="off" />',
         },
         fireSearch: function(value) {
