@@ -103,6 +103,14 @@ def init_grade(session):
 
     return 'init grade '
 
+def init_module_session(session):
+    units = session.semester.units
+    for unit in units:
+        modules = unit.modules
+        for module in modules:
+            app.routesGrade.create_module_session(session, module)
+    return 'init module session '
+
 def get_copied_grade(copied_grades, student_session_id, module_id):
     for copied_grade in copied_grades:
         if copied_grade.student_session_id == student_session_id and copied_grade.module_id == module_id:
@@ -136,6 +144,7 @@ def init_all(session):
     message1 = init_session(session)
     message2 = init_grade_unit(session)
     message3 = init_grade(session)
+    message4 = init_module_session(session)
     return F'init all : {message1} - {message2} - {message3}'
 
 
@@ -361,3 +370,4 @@ def justification(session_id, student_id):
 #     return render_template('session/justification-print.html', title='Session', justs=justs)
     
 import app.routesSession
+import app.routesGrade

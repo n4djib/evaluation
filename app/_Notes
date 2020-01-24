@@ -19,36 +19,10 @@
 
 == PRIORITY 1 ==
 ----------------
-			- use is_dirty to optimize calculation time
-			- calculate average from Saving
-			- lock semester Historic
-			- Error returned when creating a new session from tree
-				ISP class 2017/2020
-			- Start creating the Notifications Table
-				js to check if a notification exists
-				print as a special flash
-			- BUG -
-				check that Semester Result Printable time is correct
-			- Dynamic Select Box: Replace Options Onchange
-				https://www.dyn-web.com/tutorials/forms/select/paired.php
-				https://www.codexworld.com/dynamic-dependent-select-box-using-jquery-ajax-php/
-			- timepicker
-				http://www.jonthornton.com/jquery-timepicker/
-				http://www.jonthornton.com/Datepair.js/
-			- ERROR:
-				ben messouda is not saving grades
-				i have to init annual_grade
-				do not allow addition in rattrapage
-					add them from normal session
-					and her fields in rattrapage are closed
-					def transfer_student_session() ======
-					def transfer_grades(session_id, ratt_id, student_session_ratt.id, student_id) ======
-			- you can add/remove students from a closed session
-				no you can't
-- init ModuleSession when creating the Session
-	don't create it for historic
-	DEF get_module_session(session, module) in routesGrade.py
-		from app.routesGrade import get_module_session
+			- init ModuleSession when creating the Session
+				don't create it for historic
+				DEF get_module_session(session, module) in routesGrade.py
+					from app.routesGrade import get_module_session
 - attendance
 	http://localhost:5001/attendance/session/94/module/38/
 - Calendar
@@ -958,6 +932,32 @@
 			- Tree load only at depth requested
 				don't load promos when branches are closed
 
+			- use is_dirty to optimize calculation time
+			- calculate average from Saving
+			- lock semester Historic
+			- Error returned when creating a new session from tree
+				ISP class 2017/2020
+			- Start creating the Notifications Table
+				js to check if a notification exists
+				print as a special flash
+			- BUG -
+				check that Semester Result Printable time is correct
+			- Dynamic Select Box: Replace Options Onchange
+				https://www.dyn-web.com/tutorials/forms/select/paired.php
+				https://www.codexworld.com/dynamic-dependent-select-box-using-jquery-ajax-php/
+			- timepicker
+				http://www.jonthornton.com/jquery-timepicker/
+				http://www.jonthornton.com/Datepair.js/
+			- ERROR:
+				ben messouda is not saving grades
+				i have to init annual_grade
+				do not allow addition in rattrapage
+					add them from normal session
+					and her fields in rattrapage are closed
+					def transfer_student_session() ======
+					def transfer_grades(session_id, ratt_id, student_session_ratt.id, student_id) ======
+			- you can add/remove students from a closed session
+				no you can't
 
 
 

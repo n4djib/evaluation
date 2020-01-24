@@ -9,9 +9,39 @@ from app.routesCalculation import calculate_student
 
 
 
+# create_module_session
+# return create_module_session
+# 
+def create_module_session(session, module):
+    if session.is_historic or session.is_rattrapage:
+        flash('you can\'t create module_session for historic and rattrapage')
+        return None
 
-def create_module_session(session_id, module_id):
-    module_session = ModuleSession(session_id=session_id, module_id=module_id)
+    # a small test to check that module_session is only created once
+    module_session_ssssss = ModuleSession.query.filter_by(
+        promo_id=session.promo_id, module_code=module.code, module_name=module.name)\
+        .all()
+    if len(module_session_ssssss) > 1:
+        raise Exception("too many module_session ")
+
+    module_session = ModuleSession.query.filter_by(
+        promo_id=session.promo_id, module_code=module.code, module_name=module.name)\
+        .first()
+
+    if module_session == None:
+        # create a new one
+        module_session = ModuleSession(
+            promo_id=session.promo_id, 
+            module_id=module.id,
+            module_code=module.code, 
+            module_name=module.name,
+            # 
+            # 
+        )
+    else:
+        # if found update module_id
+        module_session.module_id = module.id
+
     db.session.add(module_session)
     db.session.commit()
     return module_session
@@ -50,7 +80,7 @@ def collect_student_data_grid(grades, session, SHOW_SAVING_GRADE):
         data_part = collect_data_from_grade(grade)
         is_savable = 'is_savable: false, '
 
-        module_session = get_module_session(session, grade.module)
+        module_session = create_module_session(session, grade.module)
         if module_session.saving_enabled == True:
             is_savable = 'is_savable: true, '
 
@@ -116,7 +146,7 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
     SHOW_SAVING_GRADE = False
 
     if module_id != 0:
-        module_session = get_module_session(session, module)
+        module_session = create_module_session(session, module)
         SHOW_SAVING_GRADE = module_session.saving_enabled
         type = 'module'
         grid_title = F'Module: {module.code} - {module.display_name}'
@@ -134,7 +164,7 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
         grades = Grade.query.join(StudentSession)\
             .filter_by(session_id=session_id, student_id=student_id).all()
         for grade in grades:
-            module_session = get_module_session(session, grade.module)
+            module_session = create_module_session(session, grade.module)
             if module_session != None and module_session.saving_enabled == True:
                 SHOW_SAVING_GRADE = True
                 # comment this if you wan't it to create all module_sessions
@@ -148,13 +178,6 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
         session=session, module=module, student=student, 
         module_session=module_session, SHOW_SAVING_GRADE=SHOW_SAVING_GRADE)
 
-
-def get_module_session(session, module):
-    module_session = ModuleSession.query.\
-        filter_by(session_id=session.id, module_id=module.id).first()
-    if module_session == None:
-        module_session = create_module_session(session.id, module.id)
-    return module_session
 
 def get_hidden_values_flash(grades, session, module):
     cols = get_module_cols(module)
@@ -309,8 +332,11 @@ def grade_save(type=''):
 @app.route('/session/<session_id>/module/<module_id>/module-session/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree_session.session.grade.module_session', 'Module Session')
 def module_session_config(session_id, module_id):
-    module_session = ModuleSession.query.filter_by(
-        session_id=session_id, module_id=module_id).first()
+    session = Session.query.get_or_404(session_id)
+    module = Module.query.get_or_404(module_id)
+    # module_session = ModuleSession.query.filter_by(
+    #     promo_id=session.promo.id, module_id=module_id).first()
+    module_session = create_module_session(session, module)
 
     form = ModuleSessionForm(module_session.id)
     if form.validate_on_submit():

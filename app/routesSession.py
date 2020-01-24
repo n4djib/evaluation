@@ -226,6 +226,98 @@ def lock_session(session_id):
     db.session.commit()
     return redirect(url_for('session', session_id=session.id))
 
+
+@app.route('/create-next-session/promo/<promo_id>/', methods=['GET', 'POST'])
+def create_next_session(promo_id=0):
+    promo = Promo.query.get_or_404(promo_id)
+    next_semester = promo.get_next_semester()
+
+    url = url_for('create_session', promo_id=promo.id, semester_id=next_semester.id)
+    return redirect( url_for('slow_redirect', url=url) )
+
+    return ' *** create_next_session *** '
+
+def has_next(promo_id, semester_id):
+    sessions = Session.query.filter_by(promo_id=promo_id).join(Semester)\
+        .join(Annual).order_by(Annual.annual, Semester.semester).all()
+
+    existing_sem_nbrs = []
+    for session in sessions:
+        existing_sem_nbrs.append( session.semester.get_nbr() )
+
+    semester = Semester.query.get_or_404(semester_id)
+    current_nbr = semester.get_nbr()
+
+    for exist_nbrs in existing_sem_nbrs:
+        if exist_nbrs > current_nbr:
+            return True
+    
+    return False
+
+def create_session__(promo_id, semester_id):
+    session = None
+
+    sessions = Session.query.filter_by(
+        promo_id=promo_id, semester_id=semester_id, is_rattrapage=False).all()
+    if len(sessions) > 0:
+        # check if the session of this semester exists
+        session = Session.query\
+            .filter_by(promo_id=promo_id, semester_id=semester_id, is_rattrapage=False)\
+            .first()
+        if session is not None:
+            flash('Semester (' + str(session.semester.get_nbr()) + ') already exist', 'alert-warning')
+    else:
+        is_historic = False
+        if has_next(promo_id, semester_id):  
+           is_historic = True
+
+
+        session = Session(promo_id=promo_id, semester_id=semester_id, is_historic=is_historic)
+        db.session.add(session)
+        db.session.commit()
+
+        init_annual_session_id(session.id)
+        flash('Semester (' + str(session.semester.get_nbr()) + ') created', 'alert-success')
+
+    # transfair students
+    previous_normal = session.get_previous_normal()
+    if previous_normal != None:
+        for student in previous_normal.student_sessions:
+            transfer_student_session(previous_normal.id, session.id, student.student_id)
+        init_all(session)
+
+    # to fill configuration at creation
+    update_session_configuraton(session)
+
+    return session
+
+@app.route('/create-session-api/', methods=['POST'])
+def create_session_api():
+    data = request.get_json(force=True) 
+
+    promo_id = data['promo_id']
+    semester_id = data['semester_id']
+
+    session = create_session__(promo_id, semester_id)
+
+    promo = Promo.query.get(promo_id)
+    branch_id = promo.branch.id
+    school_id = promo.branch.school.id
+    url = url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id)
+
+    return {"session_id": session.id, "rediret_to_url": url}
+
+
+@app.route('/create-session/promo/<promo_id>/semester/<semester_id>/', methods=['GET', 'POST'])
+def create_session(promo_id=0, semester_id=0):
+    session = create_session__(promo_id, semester_id)
+    
+    school_id = session.promo.branch.school_id
+    branch_id = session.promo.branch_id
+    promo_id = session.promo_id
+    return redirect( url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id) )
+
+
 # WARNING: i have to check before i delete
 # check that the session is not closed
 @app.route('/session/<session_id>/delete-session/', methods=['GET', 'POST'])
@@ -1037,103 +1129,6 @@ def create_rattrapage_semester(session_id=0):
     session_rattrapage = create_rattrapage_sem(session_id, students)
     flash("Rattrapage was created", 'alert-success')
     return redirect(url_for('session', session_id=session_rattrapage.id))
-
-@app.route('/create-next-session/promo/<promo_id>/', methods=['GET', 'POST'])
-def create_next_session(promo_id=0):
-    promo = Promo.query.get_or_404(promo_id)
-    next_semester = promo.get_next_semester()
-
-    url = url_for('create_session', promo_id=promo.id, semester_id=next_semester.id)
-    return redirect( url_for('slow_redirect', url=url) )
-
-    return ' *** create_next_session *** '
-
-def has_next(promo_id, semester_id):
-    sessions = Session.query.filter_by(promo_id=promo_id).join(Semester)\
-        .join(Annual).order_by(Annual.annual, Semester.semester).all()
-
-    existing_sem_nbrs = []
-    for session in sessions:
-        existing_sem_nbrs.append( session.semester.get_nbr() )
-
-    semester = Semester.query.get_or_404(semester_id)
-    current_nbr = semester.get_nbr()
-
-    for exist_nbrs in existing_sem_nbrs:
-        if exist_nbrs > current_nbr:
-            return True
-    
-    return False
-
-
-
-
-def create_session__(promo_id, semester_id):
-    session = None
-
-    sessions = Session.query.filter_by(
-        promo_id=promo_id, semester_id=semester_id, is_rattrapage=False).all()
-    if len(sessions) > 0:
-        # check if the session of this semester exists
-        session = Session.query\
-            .filter_by(promo_id=promo_id, semester_id=semester_id, is_rattrapage=False)\
-            .first()
-        if session is not None:
-            flash('Semester (' + str(session.semester.get_nbr()) + ') already exist', 'alert-warning')
-    else:
-        is_historic = False
-        if has_next(promo_id, semester_id):  
-           is_historic = True
-
-
-        session = Session(promo_id=promo_id, semester_id=semester_id, is_historic=is_historic)
-        db.session.add(session)
-        db.session.commit()
-
-        init_annual_session_id(session.id)
-        flash('Semester (' + str(session.semester.get_nbr()) + ') created', 'alert-success')
-
-    # transfair students
-    previous_normal = session.get_previous_normal()
-    if previous_normal != None:
-        for student in previous_normal.student_sessions:
-            transfer_student_session(previous_normal.id, session.id, student.student_id)
-        init_all(session)
-
-    # to fill configuration at creation
-    update_session_configuraton(session)
-
-    ## create if doesn't exist
-    # get_module_session(session, module)
-
-    return session
-
-
-@app.route('/create-session-api/', methods=['POST'])
-def create_session_api():
-    data = request.get_json(force=True) 
-
-    promo_id = data['promo_id']
-    semester_id = data['semester_id']
-
-    session = create_session__(promo_id, semester_id)
-
-    promo = Promo.query.get(promo_id)
-    branch_id = promo.branch.id
-    school_id = promo.branch.school.id
-    url = url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id)
-
-    return {"session_id": session.id, "rediret_to_url": url}
-
-
-@app.route('/create-session/promo/<promo_id>/semester/<semester_id>/', methods=['GET', 'POST'])
-def create_session(promo_id=0, semester_id=0):
-    session = create_session__(promo_id, semester_id)
-    
-    school_id = session.promo.branch.school_id
-    branch_id = session.promo.branch_id
-    promo_id = session.promo_id
-    return redirect( url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id) )
 
 
 ######################

@@ -29,6 +29,7 @@ class Promo(db.Model):
     sessions = db.relationship('Session', backref='promo')
     annual_session = db.relationship('AnnualSession', back_populates='promo')
     classement = db.relationship("Classement", uselist=False, back_populates="promo")
+    module_sessions = db.relationship('ModuleSession', backref='promo')
     def __repr__(self):
         return '<{} - {}>'.format(self.id, self.name)
     def get_next_semester(self):
@@ -346,22 +347,16 @@ class Session(db.Model):
     finish_date = db.Column(db.Date)
     is_rattrapage = db.Column(db.Boolean, default=False)
     is_closed = db.Column(db.Boolean, default=False)
-    
-    #   historic  or  historique
-    #   None  or  ''  or  Standard
-    # type = db.Column(db.String(20))
     is_historic = db.Column(db.Boolean, default=False)
-
+    configuration = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow, onupdate=datetime.utcnow)
     last_entry = db.Column(db.DateTime)
-    
-    configuration = db.Column(db.Text)
+
     semester_id = db.Column(db.Integer, db.ForeignKey('semester.id'))
     promo_id = db.Column(db.Integer, db.ForeignKey('promo.id'))
     annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
     annual_session = db.relationship('AnnualSession', back_populates='sessions')
     student_sessions = db.relationship('StudentSession', back_populates='session')
-    module_sessions = db.relationship('ModuleSession', backref='session')
     def __repr__(self):
         return '<Session {}>'.format(self.id)
         # return '<{} - {}>'.format(self.id, self.name)
@@ -1460,8 +1455,10 @@ class Teacher(db.Model):
 class ModuleSession(db.Model):
     __tablename__ = 'module_session'
     id = db.Column(db.Integer, primary_key=True)
+    promo_id = db.Column(db.Integer, db.ForeignKey('promo.id'))
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'))
-    session_id = db.Column(db.Integer, db.ForeignKey('session.id'))
+    module_code = db.Column(db.String(20))
+    module_name = db.Column(db.String(255))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
     start_date = db.Column(db.Date)
     finish_date = db.Column(db.Date)

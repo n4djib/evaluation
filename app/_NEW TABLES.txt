@@ -1,4 +1,16 @@
 
+= avoiding "module_session" deletion when "session" is deleted
+			remove link to "session"
+			remove 'session_id' from "module_session"
+			add 'promo_id' from "module_session" cascade
+			from calendar to module_session cascade
+			add link to "promo"
+			add 'module_code' varchar(20)
+			add 'module_name' varchar(255)
+				after 'module_id'
+
+
+
 
 ======== grab these ========
 
