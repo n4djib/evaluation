@@ -1,7 +1,7 @@
 from app import app
 from flask import render_template
 from app.models import School, Branch, Semester, Module, Promo,\
-     Session, ModuleSession
+     Session, ModuleSession, Attendance, ModuleCalendar, Student
 
 
 
@@ -104,7 +104,11 @@ def get_modules_by_session(session_id, module_id=0):
 
 @app.route('/attendance/session/<session_id>/module/<module_id>/')
 def attendance(session_id, module_id):
-	return render_template('attendance.html', 
-		session_id=session_id, module_id=module_id)
+    session = Session.query.get_or_404(session_id)
+    attendances = Attendance.query.join(ModuleCalendar)\
+        .join(ModuleSession).filter_by(promo_id=session.promo_id, module_id=module_id)\
+        .all()
+    return render_template('attendance.html', 
+        session_id=session_id, module_id=module_id, attendances=attendances)
 
 

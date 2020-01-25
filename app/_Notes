@@ -25,6 +25,7 @@
 					from app.routesGrade import get_module_session
 - attendance
 	http://localhost:5001/attendance/session/94/module/38/
+	http://localhost:5001/attendance/session/94/module/1/
 - Calendar
 	SweetAlert
 	select-list-module-calendar.html

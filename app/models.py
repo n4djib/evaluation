@@ -1367,6 +1367,7 @@ class Student(db.Model):
     student_sessions = db.relationship('StudentSession', back_populates='student')
     annual_grades = db.relationship('AnnualGrade', backref='student')
     classement = db.relationship("Classement", uselist=False, back_populates="student")
+    attendance = db.relationship('Attendance', backref='student') #, order_by="Attendance."
     def __repr__(self):
         return '<{} - {} - {}>'.format(self.id, self.username, self.last_name)
     # @staticmethod

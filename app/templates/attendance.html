@@ -50,20 +50,16 @@
     </tr>
   </thead>
   <tbody class="searchable">
+    {% for att in attendances %}
     <tr>
-      <th scope="row">1</th>
-      <td>sf/2019/01</td>
-      <td>Otto</td>
-      <td>mdo</td>
-      <td><input type="checkbox" name="students[]" value="" /></td>
+      <th scope="row">{{ loop.index }}</th>
+      <td>{{ att.student.username }}</td>
+      <td>{{ att.student.last_name }}</td>
+      <td>{{ att.student.first_name }}</td>
+      <td><input type="checkbox" name="students[]" 
+        value="{{ att.id }}" {{ 'checked' if att.attended else '' }}/></td>
     </tr>
-    <tr>
-      <th scope="row">2</th>
-      <td>sf/2019/02</td>
-      <td>Thornton</td>
-      <td>fat</td>
-      <td><input type="checkbox" name="students[]" value="" /></td>
-    </tr>
+    {% endfor %}
   </tbody>
 </table>
 
