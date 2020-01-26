@@ -1496,8 +1496,11 @@ class ModuleCalendar(db.Model):
     __tablename__ = 'module_calendar'
     id = db.Column(db.Integer, primary_key=True)
     module_session_id = db.Column(db.Integer, db.ForeignKey('module_session.id'))
-    from_ = db.Column(db.DateTime)
-    to_ = db.Column(db.DateTime)
+    name = db.Column(db.String(255))
+    start_event = db.Column(db.DateTime)
+    end_event = db.Column(db.DateTime)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 
 ############################## 
 

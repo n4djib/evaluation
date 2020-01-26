@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+
+{% block styles %}
+  {{super()}}
+
+  <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <!-- bootstrap 3.3.7 -->
+  <script src="{{ url_for('static', filename='bootstrap3/js/bootstrap.min.js') }}"></script>
+  <link rel="stylesheet" type="text/css" 
+        href="{{ url_for('static', filename='bootstrap3/css/bootstrap.min.css') }}">
+
+  <style type="text/css">
+
+  	th {
+  	  background-color: lightgrey;
+  	}
+
+    .filter_w {
+      max-width: 500px;
+      float: left;
+    }
+
+
+  </style>
+
+{% endblock %}
+
+
+
+
+{% block app_content %}
+
+<div class="input-group filter_w"> 
+  <span class="input-group-addon">Filter</span>
+  <input id="filter" type="text" class="form-control" placeholder="Type here...">
+</div>
+</br>
+</br>
+
+<table class="table table-bordered" id="tblData">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Matricule</th>
+      <th scope="col">Nom</th>
+      <th scope="col">Prenom</th>
+      <th scope="col"><input type="checkbox" id="chkParent" /> Présent</th>
+    </tr>
+  </thead>
+  <tbody class="searchable">
+    {% for att in attendances %}
+    <tr>
+      <th scope="row">{{ loop.index }}</th>
+      <td>{{ att.student.username }}</td>
+      <td>{{ att.student.last_name }}</td>
+      <td>{{ att.student.first_name }}</td>
+      <td><input type="checkbox" name="students[]" 
+        value="{{ att.id }}" {{ 'checked' if att.attended else '' }}/></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+        <!-- { % for student in students %}
+          <tr>
+            <td>{ { loop.index }}</td>
+            { % set name = student.student.get_student_long_name() %}
+            <td>{ { name | replace(' ', ' ') }}</td>
+            <td>{ { student.average | replace('None', '') }}</td>
+            <td>{ { student.credit | replace('None', '') }}</td>
+            <td>{ { student.get_ratt_modules_list_semester_html() | safe }}</td>
+            <td><center><input type="checkbox" name="students[]"
+                       value="{ { student.student.id }}" checked ></center>
+            </td>
+          </tr>
+        { % endfor %} -->
+
+{% endblock %}
+
+
+
+
+
+{% block scripts %}
+  {{ super() }}
+
+  <SCRIPT type="text/javascript">
+
+	{% include "_filter.js" %}
+
+	$(document).ready(function() {
+
+	  $('#chkParent').click(function() {
+	    var isChecked = $(this).prop("checked");
+	    $('#tblData tr:has(td)').find('input[type="checkbox"]').prop(
+	    'checked', isChecked);
+	  });
+
+	  $('#tblData tr:has(td)').find('input[type="checkbox"]').click(function() {
+	    var isChecked = $(this).prop("checked");
+	    var isHeaderChecked = $("#chkParent").prop("checked");
+	    if (isChecked == false && isHeaderChecked)
+	      $("#chkParent").prop('checked', isChecked);
+	    else {
+	      $('#tblData tr:has(td)').find('input[type="checkbox"]').each(function() {
+	        if ($(this).prop("checked") == false)
+	          isChecked = false;
+	      });
+	      console.log(isChecked);
+	      $("#chkParent").prop('checked', isChecked);
+	    }
+	  });
+
+	});
+
+
+  </SCRIPT>
+
+{% endblock %}
+

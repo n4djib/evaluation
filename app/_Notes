@@ -26,6 +26,10 @@
 - attendance
 	http://localhost:5001/attendance/session/94/module/38/
 	http://localhost:5001/attendance/session/94/module/1/
+	- functions
+		init Module_Session					done
+		create event for calendar
+		fill attendance table
 - Calendar
 	SweetAlert
 	select-list-module-calendar.html

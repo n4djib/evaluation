@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+	<meta charset='utf-8' />
+	<title>***Calendar***</title>
+
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='fullcalendar.3.4.0/fullcalendar.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='fullcalendar.3.4.0/bootstrap.4.0.0.css') }}" />
+
+  <script src="{{ url_for('static', filename='fullcalendar.3.4.0/jquery.3.2.1.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='fullcalendar.3.4.0/jquery-ui.1.12.1.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='fullcalendar.3.4.0/moment.2.18.1.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='fullcalendar.3.4.0/fullcalendar.min.js') }}"></script>
+
+  <script src="{{ url_for('static', filename='sweetalert2/sweetalert2@9.js') }}"></script>
+
+
+  <script>
+
+  $(document).ready(function() {
+   var calendar = $('#calendar').fullCalendar({
+    editable:true,
+    defaultView: 'agendaWeek',
+    // defaultView: 'basicWeek',
+    header:{
+     left:'prev,next today',
+     center:'title',
+     // right:'month,agendaWeek,agendaDay'
+     right:''
+    },
+    events: "{{ url_for('load_event') }}",
+    selectable:true,
+    selectHelper:true,
+
+    select: function(start, end, allDay)
+    {
+     var title = prompt("Enter Event Title");
+
+     console.log('select '+title);
+
+     if(title)
+     {
+      var start = $.fullCalendar.formatDate(start, "Y-MM-DD HH:mm:ss");
+      var end = $.fullCalendar.formatDate(end, "Y-MM-DD HH:mm:ss");
+      $.ajax({
+       url:"{{ url_for('insert_event') }}",
+       type:"POST",
+       data: JSON.stringify({title:title, start:start, end:end}),
+       dataType: 'text',
+       success:function()
+       {
+        calendar.fullCalendar('refetchEvents');
+        alert("Added Successfully");
+       }
+      })
+     } 
+    },
+
+
+    eventResize:function(event)
+    {
+     var start = $.fullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
+     var end = $.fullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
+     var title = event.title;
+     var id = event.id;
+
+     console.log('eventResize '+start);
+
+     $.ajax({
+      url:"{{ url_for('update_event') }}",
+      type:"POST",
+      // data:{title:title, start:start, end:end, id:id},
+       data: JSON.stringify({title:title, start:start, end:end, id:id}),
+       dataType: 'text',
+      success:function(){
+       calendar.fullCalendar('refetchEvents');
+       // alert('Event Update');
+      }
+     })
+    },
+
+    eventDrop:function(event)
+    {
+     var start = $.fullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
+     var end = $.fullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
+     var title = event.title;
+     var id = event.id;
+     
+     console.log('eventDrop '+start);
+
+     $.ajax({
+      url:"{{ url_for('update_event') }}",
+      type:"POST",
+      // data:{title:title, start:start, end:end, id:id},
+       data: JSON.stringify({title:title, start:start, end:end, id:id}),
+       dataType: 'text',
+      success:function()
+      {
+       calendar.fullCalendar('refetchEvents');
+       // alert("Event Updated");
+      }
+     });
+    },
+
+    eventClick:function(event)
+    {
+
+      console.log('eventClick ');
+      
+      Swal.fire({
+        title: 'Custom animation with Animate.css',
+        showClass: {
+          popup: null,
+        },
+        hideClass: {
+          popup: null,
+        }
+      })
+
+
+     // if(confirm("Are you sure you want to remove it?"))
+     // {
+     //  var id = event.id;
+     //  $.ajax({
+     //   url: "{{ url_for('delete_event') }}",
+     //   type: "POST",
+     //   // data: {id:id},
+     //   data: JSON.stringify({id:id}),
+     //   dataType: 'text',
+     //   success: function() {
+     //    calendar.fullCalendar('refetchEvents');
+     //    // alert("Event Removed");
+     //   }
+     //  })
+     // }
+    },
+
+    // eventRender: function(event, element) {
+    //   element.append( "<span class='closeon'>X</span>" );
+    //   element.find(".closeon").click(function() {
+    //      $('#calendar').fullCalendar('removeEvents',event._id);
+    //      alert('eeee');
+    //   });
+    // }
+
+   });
+  });
+   
+  </script>
+
+</head>
+<body>
+	<h2 align="center"><a href="#">Jquery Fullcalendar</a></h2>
+	<br />
+	<div class="container">
+		<div id="calendar"></div>
+	</div>
+</body>
+</html>
