@@ -109,7 +109,7 @@ def attendance(session_id, module_id):
     attendances = Attendance.query.join(ModuleCalendar)\
         .join(ModuleSession).filter_by(promo_id=session.promo_id, module_id=module_id)\
         .all()
-    return render_template('attendance.html', 
+    return render_template('attendance/attendance.html', 
         session_id=session_id, module_id=module_id, attendances=attendances)
 
 
@@ -132,7 +132,6 @@ def load_event():
     # return str( len(events) )
     # return str( events[0].id )
 
-
     data = []
     for event in events:
         # return str(  event['id']  )
@@ -141,10 +140,11 @@ def load_event():
             'title': event.name,
             'start': event.start_event.strftime('%Y-%m-%d %H:%M:%S'),
             'end': event.end_event.strftime('%Y-%m-%d %H:%M:%S'),
+            # 'description': 'description for Long Event',
             'color': 'lightgreen',
             'type': '1',
             'modalContent': generate_modal(event.id),
-      # rendering: 'background'
+            # rendering: 'background'
         }]
     
     return jsonify(data)

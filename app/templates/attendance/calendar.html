@@ -20,23 +20,22 @@
 
   $(document).ready(function() {
    var calendar = $('#calendar').fullCalendar({
-    editable:true,
+    editable: true,
     defaultView: 'agendaWeek',
     // defaultView: 'basicWeek',
-    header:{
-     left:'prev,next today',
-     center:'title',
+    header: {
+     left: 'prev,next today',
+     center: 'title',
      // right:'month,agendaWeek,agendaDay'
-     right:''
+     right: ''
     },
     events: "{{ url_for('load_event') }}",
-    selectable:true,
-    selectHelper:true,
+    selectable: true,
+    selectHelper: true,
 
     select: function(start, end, allDay)
     {
      var title = prompt("Enter Event Title");
-
      console.log('select '+title);
 
      if(title)
@@ -54,9 +53,8 @@
         alert("Added Successfully");
        }
       })
-     } 
+     }
     },
-
 
     eventResize:function(event)
     {
@@ -108,14 +106,31 @@
 
       console.log('eventClick ');
       
+      // Swal.fire({
+      //   title: 'Custom animation with Animate.css',
+      //   showClass: {
+      //     popup: null,
+      //   },
+      //   hideClass: {
+      //     popup: null,
+      //   }
+      // })
+
       Swal.fire({
-        title: 'Custom animation with Animate.css',
-        showClass: {
-          popup: null,
-        },
-        hideClass: {
-          popup: null,
-        }
+        title: '<strong>HTML <u>example</u></strong>',
+        icon: 'info',
+        html:
+          'You can use <b>bold text</b>, ' +
+          '<a href="//sweetalert2.github.io">links</a> ' +
+          'and other HTML tags',
+        // showCloseButton: true,
+        showCancelButton: true,
+        focusConfirm: false,
+        confirmButtonText:
+          'Save',
+        // confirmButtonAriaLabel: 'Save',
+        cancelButtonText: 'Cancel',
+        cancelButtonAriaLabel: 'Thumbs down'
       })
 
 
@@ -135,7 +150,16 @@
      //  })
      // }
     },
+    // eventRender: function(event, element) {
+    //     element.attr('id', 'event_'+element.id);
 
+    //     // var tooltip = new Tooltip(info.el, {
+    //     //   title: info.event.extendedProps.description,
+    //     //   placement: 'top',
+    //     //   trigger: 'hover',
+    //     //   container: 'body'
+    //     // });
+    // },
     // eventRender: function(event, element) {
     //   element.append( "<span class='closeon'>X</span>" );
     //   element.find(".closeon").click(function() {
