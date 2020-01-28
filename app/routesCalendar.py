@@ -10,9 +10,9 @@ from datetime import datetime
 @app.route('/select-list/school/<school_id>')
 @app.route('/select-list/branch/<branch_id>')
 @app.route('/select-list/promo/<promo_id>')
-@app.route('/select-list/session/<session_id>')
 @app.route('/select-list/school/<school_id>/module/<module_id>')
 @app.route('/select-list/branch/<branch_id>/module/<module_id>')
+@app.route('/select-list/session/<session_id>')
 @app.route('/select-list/promo/<promo_id>/module/<module_id>')
 @app.route('/select-list/session/<session_id>/module/<module_id>')
 def select_list_calendar(school_id=0, branch_id=0, promo_id=0, session_id=0, module_id=0):

@@ -37,6 +37,8 @@
 		https://codepen.io/pen/?&editable=true&editors=001
 - in Student Profile
 	add annual & printabales
+- WARNING: in grade_grid_save
+	do not save to closed sessions
 - in Module session Config
 	fix the title
 	add tags for survayors
