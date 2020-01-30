@@ -138,14 +138,22 @@ def get_modules_by_session(session_id, module_id=0):
 #########################################
 #########################################
 
+
+def init_attendance(session, module):
+    pass
+
 @app.route('/attendance/session/<session_id>/module/<module_id>/')
 def attendance(session_id, module_id):
     session = Session.query.get_or_404(session_id)
+    module = Module.query.get_or_404(module_id)
+
+    init_attendance(session, module)
+
     attendances = Attendance.query.join(ModuleCalendar)\
         .join(ModuleSession).filter_by(promo_id=session.promo_id, module_id=module_id)\
         .all()
     return render_template('attendance/attendance.html', 
-        session_id=session_id, module_id=module_id, attendances=attendances)
+        attendances=attendances)
 
 
 
