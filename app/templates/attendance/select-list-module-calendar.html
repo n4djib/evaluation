@@ -1,31 +1,29 @@
-{% extends "base.html" %}
-{% import 'bootstrap/wtf.html' as wtf %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
 
-
-{% block styles %}
-  {{super()}}
-
-    <!-- <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script> -->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
 
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/lib/bootstrap-datepicker.css') }}" />
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/jquery.timepicker.css') }}" />
-
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/lib/site.css') }}" />
-	<!-- <script type="text/javascript" src="{{ url_for('static', filename='timepicker/lib/site.js') }}"></script> -->
 
 
+  <script type="text/javascript" 
+  	src="{{ url_for('static', filename='timepicker/jquery.timepicker.js') }}"></script>
+  <script type="text/javascript" 
+  	src="{{ url_for('static', filename='timepicker/lib/bootstrap-datepicker.js') }}"></script>
 
+	<style type="text/css">
+		.datepicker { 
+		    z-index: 9998 !important;
+		}
+	</style>
 
-  <style type="text/css">
+</head>
+<body>
 
-  </style>
-
-{% endblock %}
-
-
-
-
-{% block app_content %}
 
 	<select name="school" id="school" disabled>
 		{% if school != None %}
@@ -67,28 +65,17 @@
 	</br></br></br></br>
 
 
-    <button id="cancel" class="btn btn-warning ">Cancel</button>
-    <button id="save" class="btn btn-success btn-lg">Save</button>
+    <!-- <button id="cancel" class="btn btn-warning ">Cancel</button> -->
+    <!-- <button id="save" class="btn btn-success btn-lg">Save</button> -->
     <span>            </span>
-    <button id="attendance" class="btn btn-primary">Attendace</button>
+    <span>            </span>
+    <button id="attendance" class="btn btn-warning">Attendace</button>
     <span>      </span>
     <button id="delete" class="btn btn-danger btn-xs">Delete</button>
 
 
 
-{% endblock %}
 
-
-
-
-
-{% block scripts %}
-  {{ super() }}
-
-  <script type="text/javascript" 
-  	src="{{ url_for('static', filename='timepicker/jquery.timepicker.js') }}"></script>
-  <script type="text/javascript" 
-  	src="{{ url_for('static', filename='timepicker/lib/bootstrap-datepicker.js') }}"></script>
 
   <script type="text/javascript" 
   	src="{{ url_for('static', filename='timepicker/datepair.js') }}"></script>
@@ -115,7 +102,8 @@
 
     $('#basicExample .date').datepicker({
         'format': 'yyyy-mm-dd',
-        'autoclose': true
+        'autoclose': true,
+        'zIndexOffset': 9999
     });
 
     // initialize datepair
@@ -250,5 +238,12 @@
 
   </script>
 
-{% endblock %}
+
+
+
+</body>
+</html>
+
+
+
 

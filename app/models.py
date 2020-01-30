@@ -1468,6 +1468,8 @@ class ModuleSession(db.Model):
     exam_surveyors = db.Column(db.Text)
     saving_enabled = db.Column(db.Boolean, default=False)
     last_entry = db.Column(db.DateTime)
+    # module_sessions = db.relationship('ModuleSession', backref='teacher')
+    module_calendars = db.relationship('ModuleCalendar', backref='module_session')
     def has_teacher(self):
         if self.teacher_id == None:
             return True

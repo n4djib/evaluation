@@ -16,6 +16,21 @@
   <script src="{{ url_for('static', filename='sweetalert2/sweetalert2@9.js') }}"></script>
 
 
+
+<!-- 
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/lib/bootstrap-datepicker.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/jquery.timepicker.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/lib/site.css') }}" />
+
+  
+  <script type="text/javascript" 
+    src="{{ url_for('static', filename='timepicker/jquery.timepicker.js') }}"></script>
+  <script type="text/javascript" 
+    src="{{ url_for('static', filename='timepicker/lib/bootstrap-datepicker.js') }}"></script>
+ -->
+
+
+
   <script>
 
   $(document).ready(function() {
@@ -117,19 +132,17 @@
       // })
 
       Swal.fire({
-        title: '<strong>HTML <u>example</u></strong>',
-        icon: 'info',
-        html:
-          'You can use <b>bold text</b>, ' +
-          '<a href="//sweetalert2.github.io">links</a> ' +
-          'and other HTML tags',
+        // title: '<strong>HTML <u>example</u></strong>',
+        // icon: 'info',
+        html: get_select_list_html(event),
+        // html: 'eee'+event.id,
         // showCloseButton: true,
         showCancelButton: true,
         focusConfirm: false,
         confirmButtonText: 'Save',
         // confirmButtonAriaLabel: 'Save',
         cancelButtonText: 'Cancel',
-        cancelButtonAriaLabel: 'Thumbs down'
+        // cancelButtonAriaLabel: 'Thumbs down'
       })
 
 
@@ -169,6 +182,28 @@
 
    });
   });
+
+  function get_select_list_html(event) {
+
+    var html = `<div id='sweet_alert' >Calling "select-list/api" with Ajax ...<div>`;
+
+    var url = '/select-list/api/event/'+event.id;
+
+    $.ajax({
+      url: url,
+      type: "GET",
+      success:function(return_select_list)
+      { 
+        // console.log(return_select_list)
+        // html = return_select_list;
+        $('#sweet_alert').html(return_select_list);
+      },
+      // failure: 
+    });
+
+    return html;
+  }
+
    
   </script>
 

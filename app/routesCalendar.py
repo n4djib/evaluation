@@ -6,6 +6,40 @@ from app.models import School, Branch, Semester, Module, Promo,\
 from datetime import datetime
 
 
+
+@app.route('/select-list/api/event/<event_id>')
+def select_list_calendar_api(event_id=0):
+
+    module_calendar = ModuleCalendar.query.get(event_id)
+
+    if module_calendar == None:
+        return 'Event Not Found ...'
+
+    session_id = 0
+    module_id = 0
+
+    module_session = module_calendar.module_session
+
+    if module_session == None:
+        return 'No module_session is related'
+
+    # return 'aqaaaaaaaa '+str(module_session)
+
+    sessions = Session.query.filter_by(
+        promo_id=module_session.promo_id, 
+        semester_id=module_session.module.unit.semester_id
+    ).all()
+
+    if len(sessions) != 1:
+        raise Exception('it should return only one session')
+
+    session_id = sessions[0].id
+    module_id = module_session.module.id
+
+    html = select_list_calendar(0, 0, 0, session_id, module_id)
+    return html
+
+
 @app.route('/select-list/')
 @app.route('/select-list/school/<school_id>')
 @app.route('/select-list/branch/<branch_id>')
@@ -37,6 +71,7 @@ def select_list_calendar(school_id=0, branch_id=0, promo_id=0, session_id=0, mod
 
     return render_template('attendance/select-list-module-calendar.html',
         school=school, branch=branch, promo=promo, session=session, module=module)
+
 
 
 def make_html_options(_list, name):
