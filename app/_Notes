@@ -23,6 +23,12 @@
 				don't create it for historic
 				DEF get_module_session(session, module) in routesGrade.py
 					from app.routesGrade import get_module_session
+- Historic ratt
+	http://localhost:5001/annual-session/20/create-rattrapage/
+	remove module_sessio from session
+	generate ratt from sessoion for ISP
+- make printables Auto Landscape & Portrait
+	@media print{ @page {size: landscape} }
 - attendance
 	http://localhost:5001/attendance/session/94/module/38/
 	http://localhost:5001/attendance/session/94/module/1/

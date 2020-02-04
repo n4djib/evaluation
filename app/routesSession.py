@@ -1056,11 +1056,17 @@ def create_rattrapage_sem(session_id, students):
     session_rattrapage = create_rattrapage(session_id)
     ratt_id = session_rattrapage.id
 
-    # 
-    # 
-    # 
-    # transfer module_session_s
-    module_session_s_sem = session.module_sessions
+    # # 
+    # # 
+    # # 
+    # # transfer module_session_s
+    # module_session_s_sem = session.module_sessions
+
+    
+    module_session_s_sem = ModuleSession.query.join(Module).join(Unit)\
+        .join(Semester).join(Session).filter_by(id=session.id).all()
+
+
     for module_session_sem in module_session_s_sem:
         # if it exists transfer it
         if module_session_sem != None:

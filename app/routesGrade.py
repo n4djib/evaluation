@@ -1,6 +1,6 @@
 from app import app, db
 from flask import render_template, request, redirect, url_for, flash
-from app.models import StudentSession, Grade, Module, Session, Student, Type, ModuleSession
+from app.models import StudentSession, Grade, Semester, Unit, Module, Session, Student, Type, ModuleSession
 from app.forms import ModuleSessionForm
 from flask_breadcrumbs import register_breadcrumb
 from datetime import datetime
@@ -510,10 +510,12 @@ def get_module_print_header(session, module):
     time = '#é$/&?|[+{#%*#$='
     if module.time != None: time = module.time
 
-    module_session = ModuleSession.query\
-        .filter_by(module_id=module.id)\
-        .join(Session).filter_by(id=session.id)\
-        .first()
+    # module_session = ModuleSession.query\
+    #     .filter_by(module_id=module.id)\
+    #     .join(Session).filter_by(id=session.id)\
+    #     .first()
+    module_session = ModuleSession.query.join(Module).filter_by(id=module.id)\
+        .join(Unit).join(Semester).join(Session).filter_by(id=session.id).first()
 
     teacher = None
     if module_session != None:
