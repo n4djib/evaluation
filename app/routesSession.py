@@ -2543,6 +2543,7 @@ def semester_result(session_id=0):
     sort = request.args.get('sort', default=0, type=int)
     order = request.args.get('order', default='desc', type=str)
     cols = request.args.get('cols', default=2, type=int)
+    layout = request.args.get('layout', default='landscape', type=str)
 
     cols_per_module = 2
     if cols == 2 or cols == 3:
@@ -2554,7 +2555,8 @@ def semester_result(session_id=0):
         'order': order, 
         'cols': cols,
         'URL': url_for('semester_result', session_id=session_id),
-        'URL_PRINT': url_for('semester_result_print', session_id=session_id)
+        'URL_PRINT': url_for('semester_result_print', session_id=session_id),
+        'layout': layout,
     }
 
     global URL_PRINT
@@ -2616,6 +2618,7 @@ def semester_result_print(session_id=0):
     sort = request.args.get('sort', default=0, type=int)
     order = request.args.get('order', default='desc', type=str)
     cols = request.args.get('cols', default=2, type=int)
+    layout = request.args.get('layout', default='', type=str)
 
     cols_per_module = 2
     if cols == 2 or cols == 3:
@@ -2627,7 +2630,8 @@ def semester_result_print(session_id=0):
         'order': order, 
         'cols': cols, 
         'URL': url_for('semester_result', session_id=session_id),
-        'URL_PRINT': url_for('semester_result_print', session_id=session_id)
+        'URL_PRINT': url_for('semester_result_print', session_id=session_id),
+        'layout': layout,
     }
 
     global URL_PRINT
@@ -2638,7 +2642,6 @@ def semester_result_print(session_id=0):
 
     header = get_semester_result_print_header(session)
     title = make_title_semester_print(session, 'Releve')
-
 
     # Check Status
     grades = Grade.query.join(StudentSession).filter_by(session_id=session_id).all()

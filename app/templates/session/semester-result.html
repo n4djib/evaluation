@@ -88,14 +88,16 @@
             class="btn btn-primary {{'disabled' if check['CONF'] or check['CALC'] or check['ERRS'] else ''}}" target="_blank" role="button">Print Classement</a>
 
         <input id="checkbox-session" type="checkbox" name="selected"
-            value="session" class="products" > Show Session<br>
+            value="session" class="products" > Show Session  
+        <input id="checkbox-landscape" type="checkbox" name="landscape"
+            value="landscape" class="products" checked> Landscape
       </div>
 
-      </br>
+
+
 
       <table id="sort" class="">
-        <thead>{{ t_head | replace('None', '') | 
-          replace('((img))', 'src="/static/img/sort-icons.png"') | safe }}
+        <thead>{{ t_head | replace('None', '') | replace('((img))', 'src="/static/img/sort-icons.png"') | safe }}
         </thead>
           
         <tbody id="sort_tbody" class="searchable">

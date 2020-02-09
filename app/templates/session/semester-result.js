@@ -3,6 +3,8 @@ var filter_word = "{{ params['filter_word'] }}";
 var sort = {{ params['sort'] }};
 var order = "{{ params['order'] }}";
 var cols = {{ params['cols'] }};
+var layout = "{{ params['layout'] }}";
+
 var URL = "{{ params['URL'] }}";
 var URL_PRINT = "{{ params['URL_PRINT'] }}";
 
@@ -14,26 +16,32 @@ sortTable( {{ params['sort'] }} , "{{ params['order'] }}" );
 search ();
 
 $('#filter').keyup(
-  function () { search () }
-)
+  function () {
+    search();
+  }
+);
 
 
 
+if(layout === "landscape") {
+  $('#checkbox-landscape').prop("checked", true);
+} else {
+  $('#checkbox-landscape').prop("checked", false);
+}
 
 if(cols == 3) {
-  $('#checkbox-session').prop( "checked", true );
+  $('#checkbox-session').prop("checked", true);
 }
 if(cols == 2) {
-  $('#checkbox-session').prop( "checked", false );
+  $('#checkbox-session').prop("checked", false);
 }
 
 $('#checkbox-session').change(function() {
-    if(this.checked) {
-        cols = 3;
-    }
-    else {
+    if(this.checked)
+      cols = 3;
+    else
       cols = 2;
-    }
+
 
     _params = change_url_params();
 
@@ -56,21 +64,60 @@ change_url_params();
 function change_url_params() {
   var _params = '';
 
+  // if(filter_word != "" && sort == 0 && cols == 2)
+  //   _params = '?filter_word='+filter_word;
 
-  if(filter_word != "" && sort == 0 && cols == 2)
-    _params = '?filter_word='+filter_word;
+  // if(filter_word == "" && sort != 0 && cols == 2)
+  //   _params = '?cols='+cols;
 
-  if(filter_word == "" && sort != 0 && cols == 2)
-    _params = '?cols='+cols;
+  // if(sort === 0 && filter_word == "" && cols == 2)
+  //   _params = ''
+  // else
+  //   if(sort === 0)
+  //     _params = '?filter_word='+filter_word+'&cols='+cols;
+  //   else
+  //      _params = '?filter_word='+filter_word+'&cols='+cols+'&sort='+sort+'&order='+order;
+  
+  var param_obj = {
+    filter_word: filter_word,
+    cols: cols,
+    sort: sort,
+    order: order,
+    layout: layout,
+  };
 
-  if(sort === 0 && filter_word == "" && cols == 2)
-    _params = ''
-  else
-    if(sort === 0)
-      _params = '?filter_word='+filter_word+'&cols='+cols;
-    else
-       _params = '?filter_word='+filter_word+'&cols='+cols+'&sort='+sort+'&order='+order;
-        
+  // _params = $.param(param_obj);
+
+  // var filter_word = "", sort = 0, order = "desc", cols = 2, layout = "";  
+
+  // console.log('filter_word '+param_obj['filter_word'].length);
+  // console.log(param_obj['filter_word'])
+
+  var array = [];
+  if (param_obj['filter_word'].length > 0)
+    array.push('filter_word='+param_obj['filter_word']);
+  if (param_obj['sort'] !== 0)
+    array.push('sort='+param_obj['sort']);
+  if (param_obj['order'] !== "desc")
+    array.push('order='+param_obj['order']);
+  if (param_obj['cols'] !== 2)
+    array.push('cols='+param_obj['cols']);
+  if (param_obj['layout'] !== "landscape")
+    array.push('layout='+param_obj['layout']);
+
+  console.log('array');
+  console.log(array);
+  // console.log('filter_word');
+  // console.log(param_obj['filter_word']);
+
+  for(var i=0; i<array.length; i++) {
+    _params += array[i]+'&';
+  }
+
+  if(_params !== '')
+    _params = '?'+_params
+
+
 
   // change url params
   window.history.pushState('*', '***', URL + _params);
@@ -83,9 +130,10 @@ function change_url_params() {
   if(print_btn !== null)
     print_btn.href = URL_PRINT + _params;
 
-
   return _params;
 }
+
+
 
 function init_icons() {
   //find all sort- and loop through
