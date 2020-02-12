@@ -2618,7 +2618,7 @@ def semester_result_print(session_id=0):
     sort = request.args.get('sort', default=0, type=int)
     order = request.args.get('order', default='desc', type=str)
     cols = request.args.get('cols', default=2, type=int)
-    layout = request.args.get('layout', default='', type=str)
+    layout = request.args.get('layout', default='landscape', type=str)
 
     cols_per_module = 2
     if cols == 2 or cols == 3:

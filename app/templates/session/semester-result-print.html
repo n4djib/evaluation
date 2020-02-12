@@ -59,16 +59,18 @@
     tbody > tr:nth-child(even) { background-color: #f7f7ff; }
     tbody > tr:hover { background-color: #f5f5f5; }
 
+    {% if params['layout']=='landscape' %}
     @media print{
       @page {size: landscape}
     }
+    {% endif %}
 
   </style>
 </head>
 
 
 <body>
-
+{{params['layout']}}
 
   <div style="display: none; margin: 2px; float: left" class="input-group filter_w"> 
     <span class="input-group-addon">Filter</span>

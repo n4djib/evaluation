@@ -27,10 +27,11 @@
 				http://localhost:5001/annual-session/20/create-rattrapage/
 				remove module_session from session
 				generate ratt from sessoion for ISP
-- make printables Auto Landscape & Portrait
-	@media print{ @page {size: landscape} }
-- add checkbox to force lansscape in Resulta
-- an app to organize Courses
+			- make printables Auto Landscape & Portrait
+				@media print{ @page {size: landscape} }
+			- add checkbox to force lansscape in Resulta
+- it's time to fix student list search by branch and Promo
+- an app to organize and plan Courses
 	after creating the Calendar
 	teachers can access and check and annul the programing of the cours
 		and request to teach at that Hour
@@ -44,7 +45,7 @@
 - Calendar
 	SweetAlert
 	select-list-module-calendar.html
-- who previous entry versions of the grid 
+- show previous entry versions of the grid 
 	like firebase access rules style
 		https://codepen.io/pen/?&editable=true&editors=001
 - in Student Profile

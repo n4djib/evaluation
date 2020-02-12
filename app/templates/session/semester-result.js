@@ -54,6 +54,21 @@ $('#checkbox-session').change(function() {
 });
 
 
+
+
+$('#checkbox-landscape').change(function() {
+
+  if(this.checked)
+    layout = 'landscape';
+  else
+    layout = 'portrait';
+
+  _params = change_url_params();
+  console.log(_params);
+});
+
+
+
 change_url_params();
 
 
