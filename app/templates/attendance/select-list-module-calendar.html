@@ -24,7 +24,6 @@
 </head>
 <body>
 
-
 	<select name="school" id="school" disabled>
 		{% if school != None %}
 		<option value="{{ school.id }}">{{ school.name }}</option>
@@ -69,7 +68,7 @@
     <!-- <button id="save" class="btn btn-success btn-lg">Save</button> -->
     <span>            </span>
     <span>            </span>
-    <button id="attendance" class="btn btn-warning">Attendace</button>
+    <a id="attendance" href="{{ url_for('attendance', session_id=session.id, module_id=module.id) }}" class="btn btn-warning" target="_blank">Attendace</a>
     <span>      </span>
     <button id="delete" class="btn btn-danger btn-xs">Delete</button>
 
@@ -82,6 +81,33 @@
   <script type="text/javascript" src="{{ url_for('static', filename='timepicker/jquery.datepair.js') }}"></script>
 
   <script type="text/javascript">
+
+
+	$( "#delete" ).click(function() {
+		//alert( "delete delete delete." );
+
+	    if(confirm("Are you sure you want to remove it?"))
+	    {
+			var id = {{ event_id }};
+			calendar_refetchEvents();
+
+			$.ajax({
+				url: "{{ url_for('delete_event') }}",
+				type: "POST",
+				data: JSON.stringify({id:id}),
+				dataType: 'text',
+				success: function() {
+					calendar.fullCalendar('refetchEvents');
+					// alert("Event Removed");
+				}
+			});
+
+	    }
+
+	});
+
+
+
 
     // initialize input widgets first
     $('#basicExample .time_start').timepicker({

@@ -15,26 +15,13 @@
 
   <script src="{{ url_for('static', filename='sweetalert2/sweetalert2@9.js') }}"></script>
 
-
-
-<!-- 
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/lib/bootstrap-datepicker.css') }}" />
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/jquery.timepicker.css') }}" />
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/lib/site.css') }}" />
-
-  
-  <script type="text/javascript" 
-    src="{{ url_for('static', filename='timepicker/jquery.timepicker.js') }}"></script>
-  <script type="text/javascript" 
-    src="{{ url_for('static', filename='timepicker/lib/bootstrap-datepicker.js') }}"></script>
- -->
-
-
-
   <script>
 
+
+  var calendar = null;
+
   $(document).ready(function() {
-   var calendar = $('#calendar').fullCalendar({
+    calendar = $('#calendar').fullCalendar({
     editable: true,
     defaultView: 'agendaWeek',
     // defaultView: 'basicWeek',
@@ -65,7 +52,8 @@
        success:function()
        {
         calendar.fullCalendar('refetchEvents');
-        alert("Added Successfully");
+        // alert("Added Successfully");
+        console.log("Added Successfully");
        }
       })
      }
@@ -162,6 +150,7 @@
      //  })
      // }
     },
+
     // eventRender: function(event, element) {
     //     element.attr('id', 'event_'+element.id);
 
@@ -181,8 +170,16 @@
     // }
 
    });
+
+
   });
 
+  function calendar_refetchEvents () {
+    // alert('calendar_refetchEvents');
+    calendar.fullCalendar('refetchEvents');
+    console.log('refetchEvents');
+  }
+ 
   function get_select_list_html(event) {
 
     var html = `<div id='sweet_alert' >Calling "select-list/api" with Ajax ...<div>`;
@@ -204,7 +201,6 @@
     return html;
   }
 
-   
   </script>
 
 </head>

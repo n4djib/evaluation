@@ -58,7 +58,7 @@ class Promo(db.Model):
         if latest_annual is None:
             return 0
         return latest_annual.annual
-    
+
 class AnnualSession(db.Model):
     __tablename__ = 'annual_session'
     id = db.Column(db.Integer, primary_key=True)

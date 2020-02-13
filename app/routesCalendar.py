@@ -21,9 +21,7 @@ def select_list_calendar_api(event_id=0):
     module_session = module_calendar.module_session
 
     if module_session == None:
-        return 'No module_session is related'
-
-    # return 'aqaaaaaaaa '+str(module_session)
+        return 'No module_session is related (event: '+str(event_id)+')'
 
     sessions = Session.query.filter_by(
         promo_id=module_session.promo_id, 
@@ -36,7 +34,8 @@ def select_list_calendar_api(event_id=0):
     session_id = sessions[0].id
     module_id = module_session.module.id
 
-    html = select_list_calendar(0, 0, 0, session_id, module_id)
+    # html = select_list_calendar(0, 0, 0, session_id, module_id)
+    html = select_list_calendar(0, 0, 0, session_id, module_id, event_id)
     return html
 
 
@@ -49,7 +48,9 @@ def select_list_calendar_api(event_id=0):
 @app.route('/select-list/session/<session_id>')
 @app.route('/select-list/promo/<promo_id>/module/<module_id>')
 @app.route('/select-list/session/<session_id>/module/<module_id>')
-def select_list_calendar(school_id=0, branch_id=0, promo_id=0, session_id=0, module_id=0):
+@app.route('/select-list/session/<session_id>/module/<module_id>/event/<event_id>')
+def select_list_calendar(school_id=0, branch_id=0, promo_id=0, 
+        session_id=0, module_id=0, event_id=0):
     school = branch = promo = session = module = None
 
     # from semester conclude annual and bring both semesters
@@ -70,7 +71,7 @@ def select_list_calendar(school_id=0, branch_id=0, promo_id=0, session_id=0, mod
         module = Module.query.get_or_404(module_id)
 
     return render_template('attendance/select-list-module-calendar.html',
-        school=school, branch=branch, promo=promo, session=session, module=module)
+        school=school, branch=branch, promo=promo, session=session, module=module, event_id=event_id)
 
 
 
@@ -244,11 +245,12 @@ def update_event():
 def delete_event():
     data = request.get_json(force=True) 
 
-    # print('-------1--------')
-    # print('-------2--------')
-    # print( str(data['id']) )
-    # print('-------3--------')
-    # print('-------4--------')
+    print('-------1--------')
+    print( str(data) )
+    print('-------2--------')
+    print( str(data['id']) )
+    print('-------3--------')
+    print('-------4--------')
 
     event = ModuleCalendar.query.get( data['id'] )
     db.session.delete(event)
