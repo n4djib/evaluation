@@ -17,9 +17,7 @@ function search () {
       return t;
     }).show();
   }
-
 }
-
 
 $('#filter').keyup(
   function () { search () }

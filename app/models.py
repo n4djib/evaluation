@@ -58,6 +58,9 @@ class Promo(db.Model):
         if latest_annual is None:
             return 0
         return latest_annual.annual
+    # def get_latest_of_semesters_list(self):
+    #     semester = self.sessions.semester
+    #     latest_of_semesters_list = semester.get_latest_of_semesters_list()
 
 class AnnualSession(db.Model):
     __tablename__ = 'annual_session'

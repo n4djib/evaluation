@@ -37,7 +37,7 @@
 
     select: function(start, end, allDay)
     {
-     var title = prompt("Enter Event Title");
+     var title = 'Untitled'; // prompt("Enter Event Title");
      console.log('select '+title);
 
      if(title)
@@ -54,6 +54,7 @@
         calendar.fullCalendar('refetchEvents');
         // alert("Added Successfully");
         console.log("Added Successfully");
+        // sweet_alert_fire(event);
        }
       })
      }
@@ -109,29 +110,8 @@
 
       console.log('eventClick ');
       
-      // Swal.fire({
-      //   title: 'Custom animation with Animate.css',
-      //   showClass: {
-      //     popup: null,
-      //   },
-      //   hideClass: {
-      //     popup: null,
-      //   }
-      // })
+      sweet_alert_fire(event);
 
-      Swal.fire({
-        // title: '<strong>HTML <u>example</u></strong>',
-        // icon: 'info',
-        html: get_select_list_html(event),
-        // html: 'eee'+event.id,
-        // showCloseButton: true,
-        showCancelButton: true,
-        focusConfirm: false,
-        confirmButtonText: 'Save',
-        // confirmButtonAriaLabel: 'Save',
-        cancelButtonText: 'Cancel',
-        // cancelButtonAriaLabel: 'Thumbs down'
-      })
 
 
      // if(confirm("Are you sure you want to remove it?"))
@@ -173,6 +153,29 @@
 
 
   });
+
+
+  
+  function sweet_alert_fire(event) {
+    Swal.fire({
+      // title: '<strong>HTML <u>example</u></strong>',
+      // icon: 'info',
+      html: get_select_list_html(event),
+      // html: 'eee'+event.id,
+      // showCloseButton: true,
+      showCancelButton: true,
+      focusConfirm: false,
+      confirmButtonText: 'Save',
+      // confirmButtonAriaLabel: 'Save',
+      cancelButtonText: 'Cancel',
+      // cancelButtonAriaLabel: 'Thumbs down'
+    }).then((result) => {
+      if (result.value) {
+        alert('szssss');
+      }
+    });
+  }
+
 
   function calendar_refetchEvents () {
     // alert('calendar_refetchEvents');

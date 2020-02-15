@@ -43,10 +43,10 @@ def select_list_calendar_api(event_id=0):
 @app.route('/select-list/school/<school_id>')
 @app.route('/select-list/branch/<branch_id>')
 @app.route('/select-list/promo/<promo_id>')
-@app.route('/select-list/school/<school_id>/module/<module_id>')
-@app.route('/select-list/branch/<branch_id>/module/<module_id>')
 @app.route('/select-list/session/<session_id>')
-@app.route('/select-list/promo/<promo_id>/module/<module_id>')
+# @app.route('/select-list/school/<school_id>/module/<module_id>')
+# @app.route('/select-list/branch/<branch_id>/module/<module_id>')
+# @app.route('/select-list/promo/<promo_id>/module/<module_id>')
 @app.route('/select-list/session/<session_id>/module/<module_id>')
 @app.route('/select-list/session/<session_id>/module/<module_id>/event/<event_id>')
 def select_list_calendar(school_id=0, branch_id=0, promo_id=0, 
@@ -106,9 +106,10 @@ def get_semesters_by_promo(promo_id):
         id = str(session.id)
         display_name = str(session.semester.display_name)
         historic = ' (historic)' if session.is_historic else ''
+        rattrapage = ' (rattrapage)' if session.is_rattrapage else ''
         if session.is_historic == True:
             continue
-        html_options += '<option value="'+id+'">'+display_name+historic+'</option>'
+        html_options += '<option value="'+id+'">'+display_name+historic+rattrapage+'</option>'
     return html_options
 
 @app.route('/select-options-module-by-session/<session_id>', methods=['GET'])
@@ -143,12 +144,15 @@ def get_modules_by_session(session_id, module_id=0):
 def init_attendance(session, module):
     pass
 
+def init_module_session(promo, module):
+    pass
+
 @app.route('/attendance/session/<session_id>/module/<module_id>/')
 def attendance(session_id, module_id):
     session = Session.query.get_or_404(session_id)
     module = Module.query.get_or_404(module_id)
 
-    init_attendance(session, module)
+    # init_attendance(session, module)
 
     attendances = Attendance.query.join(ModuleCalendar)\
         .join(ModuleSession).filter_by(promo_id=session.promo_id, module_id=module_id)\
@@ -207,6 +211,7 @@ def insert_event():
     # print('-------4--------')
 
     event = ModuleCalendar(
+        # module_session_id=*****,
         name=data['title'],
         start_event=datetime.strptime(data['start'], "%Y-%m-%d %H:%M:%S"),
         end_event=datetime.strptime(data['end'], "%Y-%m-%d %H:%M:%S"),

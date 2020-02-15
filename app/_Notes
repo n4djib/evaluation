@@ -30,12 +30,7 @@
 			- make printables Auto Landscape & Portrait
 				@media print{ @page {size: landscape} }
 			- add checkbox to force lansscape in Resulta
-- it's time to fix student list search by branch and Promo
-- an app to organize and plan Courses
-	after creating the Calendar
-	teachers can access and check and annul the programing of the cours
-		and request to teach at that Hour
-- attendance
+- Attendance
 	http://localhost:5001/attendance/session/94/module/38/
 	http://localhost:5001/attendance/session/94/module/1/
 	- functions
@@ -48,6 +43,11 @@
 - show previous entry versions of the grid 
 	like firebase access rules style
 		https://codepen.io/pen/?&editable=true&editors=001
+- it's time to fix student list search by branch and Promo
+- an Phone app to organize and plan Courses
+	after creating the Calendar
+	teachers can access and check and annul the programing of the cours
+		and request to teach at that Hour
 - in Student Profile
 	add annual & printabales
 - WARNING: in grade_grid_save
