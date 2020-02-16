@@ -112,23 +112,6 @@
       
       sweet_alert_fire(event);
 
-
-
-     // if(confirm("Are you sure you want to remove it?"))
-     // {
-     //  var id = event.id;
-     //  $.ajax({
-     //   url: "{{ url_for('delete_event') }}",
-     //   type: "POST",
-     //   // data: {id:id},
-     //   data: JSON.stringify({id:id}),
-     //   dataType: 'text',
-     //   success: function() {
-     //    calendar.fullCalendar('refetchEvents');
-     //    // alert("Event Removed");
-     //   }
-     //  })
-     // }
     },
 
     // eventRender: function(event, element) {
@@ -184,16 +167,14 @@
   }
  
   function get_select_list_html(event) {
-
     var html = `<div id='sweet_alert' >Calling "select-list/api" with Ajax ...<div>`;
-
     var url = '/select-list/api/event/'+event.id;
 
     $.ajax({
       url: url,
       type: "GET",
       success:function(return_select_list)
-      { 
+      {
         // console.log(return_select_list)
         // html = return_select_list;
         $('#sweet_alert').html(return_select_list);
