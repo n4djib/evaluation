@@ -18,10 +18,11 @@
   <script>
 
 
-  var calendar = null;
+  // var calendar = null;
+  var session_id = {{ session_id }};
 
   $(document).ready(function() {
-    calendar = $('#calendar').fullCalendar({
+    var calendar = $('#calendar').fullCalendar({
     editable: true,
     defaultView: 'agendaWeek',
     // defaultView: 'basicWeek',
@@ -162,13 +163,14 @@
 
   function calendar_refetchEvents () {
     // alert('calendar_refetchEvents');
-    calendar.fullCalendar('refetchEvents');
-    console.log('refetchEvents');
+    // calendar.fullCalendar('refetchEvents');
+    console.log('refetchEvents--------calendar_refetchEvents');
   }
  
   function get_select_list_html(event) {
     var html = `<div id='sweet_alert' >Calling "select-list/api" with Ajax ...<div>`;
-    var url = '/select-list/api/event/'+event.id;
+    // var url = '/select-list/api/event/'+event.id;
+    var url = '/select-list/api/event/'+event.id+'/session/'+session_id;
 
     $.ajax({
       url: url,
@@ -189,6 +191,7 @@
 
 </head>
 <body>
+  Session: {{ session_id }}
 	<h2 align="center"><a href="#">Jquery Fullcalendar</a></h2>
 	<br />
 	<div class="container">

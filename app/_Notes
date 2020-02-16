@@ -30,6 +30,12 @@
 			- make printables Auto Landscape & Portrait
 				@media print{ @page {size: landscape} }
 			- add checkbox to force lansscape in Resulta
+
+
+	http://localhost:5001/calendar/session/78
+	http://localhost:5001/select-list/session/78
+
+
 - Attendance
 	http://localhost:5001/attendance/session/94/module/38/
 	http://localhost:5001/attendance/session/94/module/1/

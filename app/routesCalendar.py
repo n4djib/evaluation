@@ -8,17 +8,19 @@ from datetime import datetime
 
 
 @app.route('/select-list/api/event/<event_id>')
-def select_list_calendar_api(event_id=0):
-
+@app.route('/select-list/api/event/<event_id>/session/<session_id>')
+def select_list_calendar_api(event_id=0, session_id=0):
     module_calendar = ModuleCalendar.query.get(event_id)
 
     if module_calendar == None:
         return 'Event Not Found ...'
 
-    session_id = 0
     module_id = 0
 
     module_session = module_calendar.module_session
+
+    if session_id != 0:
+        return select_list_calendar(session_id=session_id, event_id=event_id)
 
     if module_session == None:
         # return 'No module_session is related (event: '+str(event_id)+')'
@@ -44,14 +46,13 @@ def select_list_calendar_api(event_id=0):
 @app.route('/select-list/promo/<promo_id>') ###########################
 @app.route('/select-list/school/<school_id>')
 @app.route('/select-list/branch/<branch_id>')
-@app.route('/select-list/session/<session_id>')
+@app.route('/select-list/session/<session_id>') ###########################
 # @app.route('/select-list/school/<school_id>/module/<module_id>')
 # @app.route('/select-list/branch/<branch_id>/module/<module_id>')
 # @app.route('/select-list/promo/<promo_id>/module/<module_id>')
 @app.route('/select-list/session/<session_id>/module/<module_id>') ########
 @app.route('/select-list/session/<session_id>/module/<module_id>/event/<event_id>')
-def select_list_calendar(school_id=0, branch_id=0, promo_id=0, 
-        session_id=0, module_id=0, event_id=0):
+def select_list_calendar(school_id=0, branch_id=0, promo_id=0, session_id=0, module_id=0, event_id=0):
     school = branch = promo = session = module = None
 
     # from semester conclude annual and bring both semesters
@@ -165,8 +166,9 @@ def attendance(session_id, module_id):
 
 
 @app.route('/calendar')
-def calendar():
-    return render_template('attendance/calendar.html')
+@app.route('/calendar/session/<session_id>')
+def calendar(session_id=0):
+    return render_template('attendance/calendar.html', session_id=session_id)
 
 
 
