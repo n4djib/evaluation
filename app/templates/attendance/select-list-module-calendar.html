@@ -97,7 +97,8 @@
 				data: JSON.stringify({id:id}),
 				dataType: 'text',
 				success: function() {
-					// calendar.fullCalendar('refetchEvents');
+					calendar.fullCalendar('refetchEvents');
+					swal.close();
 					console.log("Event Removed");
 
 				}

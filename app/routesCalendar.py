@@ -18,8 +18,11 @@ def select_list_calendar_api(event_id=0, session_id=0):
     module_id = 0
     module_session = module_calendar.module_session
 
+    if module_session != None:
+        module_id = module_session.module.id
+
     if session_id != 0:
-        return select_list_calendar(session_id=session_id, event_id=event_id)
+        return select_list_calendar(session_id=session_id, module_id=module_id, event_id=event_id)
 
     if module_session == None:
         # return 'No module_session is related (event: '+str(event_id)+')'
