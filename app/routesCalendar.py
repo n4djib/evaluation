@@ -16,7 +16,6 @@ def select_list_calendar_api(event_id=0, session_id=0):
         return 'Event Not Found ...'
 
     module_id = 0
-
     module_session = module_calendar.module_session
 
     if session_id != 0:
@@ -42,6 +41,15 @@ def select_list_calendar_api(event_id=0, session_id=0):
     return html
 
 
+
+
+@app.route('/save-select-list', methods=['POST'])
+def save_select_list_calendar():
+    data = request.get_json(force=True) 
+    print(str(data))
+    return 'save_select_list_calendar'
+
+
 @app.route('/select-list/')
 @app.route('/select-list/promo/<promo_id>') ###########################
 @app.route('/select-list/school/<school_id>')
@@ -54,6 +62,12 @@ def select_list_calendar_api(event_id=0, session_id=0):
 @app.route('/select-list/session/<session_id>/module/<module_id>/event/<event_id>')
 def select_list_calendar(school_id=0, branch_id=0, promo_id=0, session_id=0, module_id=0, event_id=0):
     school = branch = promo = session = module = None
+
+    event = None
+
+    if event_id != 0:
+        event = ModuleCalendar.query.get_or_404(event_id)
+
 
     # from semester conclude annual and bring both semesters
     if session_id != 0:
@@ -72,8 +86,13 @@ def select_list_calendar(school_id=0, branch_id=0, promo_id=0, session_id=0, mod
     if session != None and module_id != 0:
         module = Module.query.get_or_404(module_id)
 
+    print(' ')
+    print(str(module))
+    print(str(module_id))
+    print(' ')
+
     return render_template('attendance/select-list-module-calendar.html',
-        school=school, branch=branch, promo=promo, session=session, module=module, event_id=event_id)
+        school=school, branch=branch, promo=promo, session=session, module=module, event=event)
 
 
 
@@ -185,10 +204,17 @@ def load_event():
 
     data = []
     for event in events:
-        # return str(  event['id']  )
+        module_session = event.module_session
+        title = 'Untitled'
+        if module_session != None:
+            module = module_session.module
+            if module != None:
+                title = module.name
+
         data += [{
             'id': event.id,
-            'title': event.name,
+            # 'title': event.name,
+            'title': title,
             'start': event.start_event.strftime('%Y-%m-%d %H:%M:%S'),
             'end': event.end_event.strftime('%Y-%m-%d %H:%M:%S'),
             # 'description': 'description for Long Event',
@@ -229,17 +255,7 @@ def insert_event():
 @app.route('/update-event-calendar', methods=['POST'])
 def update_event():
     data = request.get_json(force=True) 
-
-    # print('-------1--------')
-    # print('-------2--------')
-    # print( str(data['id']) )
-    # print('-------3--------')
-    # print('-------4--------')
-
     event = ModuleCalendar.query.get( data['id'] )
-    # print(str(event.id))
-    # print('-------5--------')
-    # print('-------6--------')
     
     event.name = data['title']
     event.start_event = datetime.strptime(data['start'], "%Y-%m-%d %H:%M:%S")
@@ -247,6 +263,18 @@ def update_event():
     db.session.commit()
 
     return 'updated'
+
+# @app.route('/update-event-calendar-and-module', methods=['POST'])
+# def update_event_and_module():
+#     data = request.get_json(force=True) 
+#     event = ModuleCalendar.query.get( data['id'] )
+    
+#     event.name = data['title']
+#     event.start_event = datetime.strptime(data['start'], "%Y-%m-%d %H:%M:%S")
+#     event.end_event = datetime.strptime(data['end'], "%Y-%m-%d %H:%M:%S")
+#     db.session.commit()
+
+#     return 'updated'
 
 
 @app.route('/delete-event-calendar', methods=['POST'])

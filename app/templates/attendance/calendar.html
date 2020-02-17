@@ -22,7 +22,7 @@
   var session_id = {{ session_id }};
 
   $(document).ready(function() {
-    var calendar = $('#calendar').fullCalendar({
+   var calendar = $('#calendar').fullCalendar({
     editable: true,
     defaultView: 'agendaWeek',
     // defaultView: 'basicWeek',
@@ -96,8 +96,8 @@
       url:"{{ url_for('update_event') }}",
       type:"POST",
       // data:{title:title, start:start, end:end, id:id},
-       data: JSON.stringify({title:title, start:start, end:end, id:id}),
-       dataType: 'text',
+      data: JSON.stringify({title:title, start:start, end:end, id:id}),
+      dataType: 'text',
       success:function()
       {
        calendar.fullCalendar('refetchEvents');
@@ -108,11 +108,8 @@
 
     eventClick:function(event)
     {
-
       console.log('eventClick ');
-      
-      sweet_alert_fire(event);
-
+      sweet_alert_fire(event, calendar);
     },
 
     // eventRender: function(event, element) {
@@ -134,13 +131,11 @@
     // }
 
    });
-
-
-  });
+  }); // end $(document).ready(function() {
 
 
   
-  function sweet_alert_fire(event) {
+  function sweet_alert_fire(event, calendar) {
     Swal.fire({
       // title: '<strong>HTML <u>example</u></strong>',
       // icon: 'info',
@@ -153,23 +148,52 @@
       // confirmButtonAriaLabel: 'Save',
       cancelButtonText: 'Cancel',
       // cancelButtonAriaLabel: 'Thumbs down'
-    }).then((result) => {
+    })
+    .then((result) => {
       if (result.value) {
-        alert('szssss');
+        // school_id  = $('#school').val();
+        // branch_id  = $('#branch').val();
+        // promo_id   = $('#promo').val();
+        // session_id = $('#session').val();
+        module_id  = $('#module').val();
+
+        console.log('session_id: '+session_id+' - module_id: '+module_id);
+
+        // send saved data
+        $.ajax({
+          url:"{{ url_for('save_select_list_calendar') }}",
+          type:"POST",
+          data: JSON.stringify({ 
+            id: event.id, 
+            school_id: $('#school').val(),
+            branch_id: $('#branch').val(),
+            promo_id: $('#promo').val(),
+            session_id: $('#session').val(),
+            module_id: module_id,
+            start_date: $('#start_date').val(),
+            end_date: $('#end_date').val(),
+            start_time: $('#start_time').val(),
+            end_time: $('#end_time').val()
+          }),
+          dataType: 'text',
+          success:function()
+          {
+           calendar.fullCalendar('refetchEvents');
+           console.log("Event Updated and saved");
+          }
+        });
+
       }
     });
   }
 
 
   function calendar_refetchEvents () {
-    // alert('calendar_refetchEvents');
-    // calendar.fullCalendar('refetchEvents');
     console.log('refetchEvents--------calendar_refetchEvents');
   }
  
   function get_select_list_html(event) {
     var html = `<div id='sweet_alert' >Calling "select-list/api" with Ajax ...<div>`;
-    // var url = '/select-list/api/event/'+event.id;
     var url = '/select-list/api/event/'+event.id+'/session/'+session_id;
 
     $.ajax({
@@ -178,7 +202,6 @@
       success:function(return_select_list)
       {
         // console.log(return_select_list)
-        // html = return_select_list;
         $('#sweet_alert').html(return_select_list);
       },
       // failure: 

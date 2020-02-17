@@ -3,7 +3,7 @@
 <head>
 	<title></title>
 
-    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <!-- <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script> -->
 
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/lib/bootstrap-datepicker.css') }}" />
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/jquery.timepicker.css') }}" />
@@ -54,12 +54,14 @@
 
 	</br></br></br></br>
 
+
 	<p id="basicExample">
-	    Date: <input type="text" class="date start" placeholder="yyyy-mm-dd" /><span>      </span>
-	    Start: <input type="text" class="time start time_start" placeholder="hh:mm" />
-	      End: <input type="text" class="time end time_end" placeholder="hh:mm" />
-	    <input type="text" class="date end" placeholder="yyyy-mm-dd" style="display: none" />
+	    Date: <input id="start_date" type="text" class="date start" placeholder="yyyy-mm-dd" value="{{ event.start_event.strftime('%Y-%m-%d') }}" /><span>      </span>
+	    Start: <input id="start_time" type="text" class="time start time_start" placeholder="hh:mm" value="{{ event.start_event.strftime('%H:%M') }}" />
+	      End: <input id="end_time" type="text" class="time end time_end" placeholder="hh:mm" value="{{ event.end_event.strftime('%H:%M') }}" />
+	    <input id="end_date" type="text" class="date end" placeholder="yyyy-mm-dd" value="{{ event.end_event.strftime('%Y-%m-%d') }}" style="display: none" />
 	</p>
+
 
 	</br></br></br></br>
 
@@ -71,8 +73,6 @@
     <a id="attendance" href="{{ url_for('attendance', session_id=session.id, module_id=module.id) }}" class="btn btn-warning" target="_blank"><img width="30" height="30" src="/static/img/calendar2.png"> Attendace</a>
     <span>      </span>
     <button id="delete" class="btn btn-danger btn-xs">Delete</button>
-
-
 
 
 
@@ -88,7 +88,7 @@
 
 	    if(confirm("Are you sure you want to remove it?"))
 	    {
-			var id = {{ event_id }};
+			var id = {{ event.id if event != None else 0 }};
 			calendar_refetchEvents();
 
 			$.ajax({
@@ -97,16 +97,13 @@
 				data: JSON.stringify({id:id}),
 				dataType: 'text',
 				success: function() {
-					calendar.fullCalendar('refetchEvents');
-					// alert("Event Removed");
+					// calendar.fullCalendar('refetchEvents');
+					console.log("Event Removed");
+
 				}
 			});
-
 	    }
-
 	});
-
-
 
 
     // initialize input widgets first
@@ -136,13 +133,12 @@
     var basicExampleEl = document.getElementById('basicExample');
     var datepair = new Datepair(basicExampleEl);
 
-
     //
     function init_school_select(url, followingIds) {
 		$.ajax({
 	        type: 'GET',
 	        url: url,
-	        success:function(html){
+	        success: function(html){
 	        	console.log('success');
 	            $('#school').html(html);
 	            $('#school').prop('disabled', false);
@@ -155,7 +151,7 @@
 		        console.log('some error in school');
 		    }
 	    });
-    }/**/
+    }
 
     function call_ajax(url, followingIds) {
     	$.ajax({
@@ -189,7 +185,6 @@
 	            call_ajax(url+ID, followingIds);
 	        }else{
 	            console.log('no id in '+name);
-
                 for(i=0; i < followingIds.length; i++){
                 	$('#'+followingIds[i]).html('')
                 	$('#'+followingIds[i]).prop('disabled', 'disabled');
@@ -197,7 +192,8 @@
 	        }
 
 	    });
-    }
+    }  /**/
+
 
 
 	$(document).ready(function(){
@@ -261,6 +257,7 @@
 			'/select-options-module-by-session/', 
 			['module']);
 	});
+
 
   </script>
 
