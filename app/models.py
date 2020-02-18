@@ -1477,6 +1477,8 @@ class ModuleSession(db.Model):
         if self.teacher_id == None:
             return True
         return False
+    # def get_session(self):
+    #     promo = self.promo
 
 class Attendance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -1505,6 +1507,7 @@ class ModuleCalendar(db.Model):
     start_event = db.Column(db.DateTime)
     end_event = db.Column(db.DateTime)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow, onupdate=datetime.utcnow)
+    attendances = db.relationship('Attendance', backref='module_calendar')
 
 
 ############################## 

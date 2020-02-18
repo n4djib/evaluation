@@ -49,7 +49,51 @@ def select_list_calendar_api(event_id=0, session_id=0):
 @app.route('/save-select-list', methods=['POST'])
 def save_select_list_calendar():
     data = request.get_json(force=True) 
-    print(str(data))
+    print(' ')
+    print( str(data) )
+    print(' ')
+
+    event_id = data['id']
+    # school_id = data['school_id']
+    # branch_id = data['branch_id']
+    promo_id = data['promo_id']
+    session_id = data['session_id']
+    module_id = data['module_id']
+    start_date = data['start_date']
+    end_date = data['end_date']
+    start_time = data['start_time']
+    end_time = data['end_time']
+
+    module_calendar = ModuleCalendar.query.get_or_404(event_id)
+    module_session = module_calendar.module_session
+    print('------')
+    print('------')
+    if module_session == None and promo_id != 0 and module_id != 0:
+        module = Module.query.get_or_404(module_id)
+        module_session = ModuleSession(
+            promo_id=promo_id,
+            module_id=module_id,
+            module_code=module.code,
+            module_name=module.name
+        )
+
+        db.session.add(module_session)
+        db.session.commit()
+        module_calendar.module_session_id = module_session.id
+        db.session.commit()
+        print('++++++ ' + str(module))
+        print('++++++ ' + str(module_session.id))
+        print('++++++ ' + str(module_session.module_code))
+        print('++++++ ' + str(module_calendar.module_session_id))
+
+
+    if module_session != None and promo_id != 0 and module_id != 0:
+        module = Module.query.get_or_404(module_id)
+        module_session.module_id = module_id
+        module_session.module_code = module.code
+        module_session.module_name = module.name
+        db.session.commit()
+
     return 'save_select_list_calendar'
 
 
@@ -65,7 +109,6 @@ def save_select_list_calendar():
 @app.route('/select-list/session/<session_id>/module/<module_id>/event/<event_id>')
 def select_list_calendar(school_id=0, branch_id=0, promo_id=0, session_id=0, module_id=0, event_id=0):
     school = branch = promo = session = module = None
-
     event = None
 
     if event_id != 0:
@@ -140,8 +183,6 @@ def get_semesters_by_promo(promo_id):
 @app.route('/select-options-module-by-session/<session_id>/module/<module_id>', methods=['GET'])
 def get_modules_by_session(session_id, module_id=0):
     session = Session.query.get_or_404(session_id)
-    # modules = Module.query.join(ModuleSession)\
-    #     .filter_by(session_id=session_id).order_by(Module.code).all()
 
     units = session.semester.units
     modules = []
@@ -149,7 +190,11 @@ def get_modules_by_session(session_id, module_id=0):
         for mod in unit.modules:
             modules.append(mod)
 
-    html_options = '<option value="">Select Module</option>'
+    html_options = ''
+    ### if there is a module_session
+    if module_id == 0:
+        html_options += '<option value="">Select Module</option>'
+
     for module in modules:
         selected = ''
         if str(module.id) == str(module_id):
@@ -165,26 +210,49 @@ def get_modules_by_session(session_id, module_id=0):
 #########################################
 
 
-def init_attendance(session, module):
-    pass
+def init_attendance(module_calendar):
+    module_session = module_calendar.module_session
+    # if module_session != None:
+    #     # promo = Session.query.filter_by(promo_id=module_session.promo_id).first()
+    #     promo = module_session.promo
 
-def init_module_session(promo, module):
-    pass
 
-@app.route('/attendance/session/<session_id>/module/<module_id>/')
-def attendance(session_id, module_id):
-    session = Session.query.get_or_404(session_id)
-    module = Module.query.get_or_404(module_id)
+def init_module_session(module_calendar):
+    module_session = module_calendar.module_session
+    # if module_session != None:
+    #     pass
 
-    # init_attendance(session, module)
 
-    attendances = Attendance.query.join(ModuleCalendar)\
-        .join(ModuleSession).filter_by(promo_id=session.promo_id, module_id=module_id)\
-        .all()
+
+
+
+
+# @app.route('/attendance/session/<session_id>/module/<module_id>/')
+# def attendance(session_id, module_id):
+#     session = Session.query.get_or_404(session_id)
+#     module = Module.query.get_or_404(module_id)
+
+#     # init_attendance(session, module)
+
+#     attendances = Attendance.query.join(ModuleCalendar)\
+#         .join(ModuleSession).filter_by(promo_id=session.promo_id, module_id=module_id)\
+#         .all()
+#     return render_template('attendance/attendance.html', 
+#         attendances=attendances)
+
+@app.route('/attendance/calendar/<calendar_id>')
+def attendance(calendar_id=0):
+    # init_attendance(module_calendar)
+
+    module_calendar = ModuleCalendar.query.get_or_404(calendar_id)
+    
+    init_module_session(module_calendar)
+    init_attendance(module_calendar)
+
+    attendances = module_calendar.attendances
+
     return render_template('attendance/attendance.html', 
         attendances=attendances)
-
-
 
 
 @app.route('/calendar')
@@ -192,12 +260,9 @@ def attendance(session_id, module_id):
 def calendar(session_id=0):
     return render_template('attendance/calendar.html', session_id=session_id)
 
-
-
 def generate_modal(event_id):
     event = ModuleCalendar.query.get(event_id)
     return '<h1>Modal for Event id: '+str(event.id)+'</h1>'
-
 
 @app.route('/load-event-calendar')
 def load_event():
@@ -212,7 +277,7 @@ def load_event():
         if module_session != None:
             module = module_session.module
             if module != None:
-                title = module.name
+                title = module.code + ' - ' + module.name
 
         data += [{
             'id': event.id,
@@ -253,7 +318,6 @@ def insert_event():
     db.session.commit()
 
     return 'event inserted'
-
 
 @app.route('/update-event-calendar', methods=['POST'])
 def update_event():

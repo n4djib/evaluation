@@ -70,7 +70,7 @@
     <!-- <button id="save" class="btn btn-success btn-lg">Save</button> -->
     <span>            </span>
     <span>            </span>
-    <a id="attendance" href="{{ url_for('attendance', session_id=session.id, module_id=module.id) }}" class="btn btn-warning" target="_blank"><img width="30" height="30" src="/static/img/calendar2.png"> Attendace</a>
+    <a id="attendance" href="{{ url_for('attendance', calendar_id=event.id) }}" class="btn btn-warning {{ 'disabled' if module == None }}" target="_blank" ><img width="30" height="30" src="/static/img/calendar2.png"> Attendace</a>
     <span>      </span>
     <button id="delete" class="btn btn-danger btn-xs">Delete</button>
 
@@ -129,6 +129,25 @@
         'autoclose': true,
         'zIndexOffset': 9999
     });
+
+    // module
+    $('#module').on('change', function(){
+    	console.log('change module');
+
+    	var module_id = $(this).val();
+    	console.log('module '+module_id);
+    	if (module_id != '') {
+    		/*******************/
+    		/*******************/
+    		/*******************/
+    		/*******************/
+    		$('#attendance').removeClass("disabled")
+    	} else {
+    		$('#attendance').addClass("disabled")
+    	}
+
+    });
+
 
     // initialize datepair
     var basicExampleEl = document.getElementById('basicExample');
@@ -213,6 +232,7 @@
 		  url = url + '/module/'+{{module.id}}
 		  {% endif %}
 		call_ajax(url, ['module'])
+
 		//set module choice
 		  // { % if module != None %}
 		  // console.log('aaaaaaaa module != None aaaaaaaaa');
