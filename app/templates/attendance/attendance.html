@@ -22,6 +22,11 @@
       float: left;
     }
 
+    .shrink {
+       width:0.1%; 
+       white-space: nowrap;
+    }
+
 
   </style>
 
@@ -39,44 +44,35 @@
 </br>
 </br>
 
-<table class="table table-bordered" id="tblData">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Matricule</th>
-      <th scope="col">Nom</th>
-      <th scope="col">Prenom</th>
-      <th scope="col"><input type="checkbox" id="chkParent" /> Présent</th>
-    </tr>
-  </thead>
-  <tbody class="searchable">
-    {% for att in attendances %}
-    <tr>
-      <th scope="row">{{ loop.index }}</th>
-      <td>{{ att.student.username }}</td>
-      <td>{{ att.student.last_name }}</td>
-      <td>{{ att.student.first_name }}</td>
-      <td><input type="checkbox" name="students[]" 
-        value="{{ att.id }}" {{ 'checked' if att.attended else '' }}/></td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<form id="target" action="{{ url_for('save_attendance') }}"
+    method="post" class="form" role="form">
+  <table class="table table-bordered" id="tblData" >
+    <thead>
+      <tr>
+        <th scope="col" class="shrink" >#</th>
+        <th scope="col" class="shrink" >Matricule</th>
+        <th scope="col">Nom</th>
+        <th scope="col">Prenom</th>
+        <th scope="col" class="shrink" ><input type="checkbox" id="chkParent" /> Présent</th>
+      </tr>
+    </thead>
+    <tbody class="searchable">
+      {% for att in attendances %}
+      <tr>
+        <th scope="row"> {{ loop.index }} </th>
+        <td> {{ att.student.username }} </td>
+        <td>{{ att.student.last_name }}</td>
+        <td>{{ att.student.first_name }}</td>
+        <td><input type="checkbox" name="students[]" 
+          value="{{ att.id }}" {{ 'checked' if att.attended else '' }}/></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
+</form>
 
-        <!-- { % for student in students %}
-          <tr>
-            <td>{ { loop.index }}</td>
-            { % set name = student.student.get_student_long_name() %}
-            <td>{ { name | replace(' ', ' ') }}</td>
-            <td>{ { student.average | replace('None', '') }}</td>
-            <td>{ { student.credit | replace('None', '') }}</td>
-            <td>{ { student.get_ratt_modules_list_semester_html() | safe }}</td>
-            <td><center><input type="checkbox" name="students[]"
-                       value="{ { student.student.id }}" checked ></center>
-            </td>
-          </tr>
-        { % endfor %} -->
+<button id="save" class="btn btn-success" >  Save  </button>
 
 {% endblock %}
 
@@ -91,6 +87,37 @@
 
 	{% include "_filter.js" %}
 
+
+  // save
+  function Save(e) {
+    console.log('Saved');
+    $( "#target" ).submit(function( event ) {
+      // 
+      // 
+      // 
+      event.preventDefault();
+    });
+  }
+
+
+  $("#save").click(function(e){
+    Save(e);
+  });
+
+  $(document).on('keydown', function(e){
+    console.log( e.type + ": " +  e.which );
+    if(e.ctrlKey && e.which === 83){ 
+      // Check for the Ctrl key being pressed, and if the key = [S] (83)
+      console.log('Ctrl+S!!!!!!!!!');
+      $("#save").click();
+      return false;
+    }
+  });
+
+
+
+
+  // check uncheck all
 	$(document).ready(function() {
 
 	  $('#chkParent').click(function() {

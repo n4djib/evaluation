@@ -1,6 +1,6 @@
 from app import app, db
 from flask import render_template, jsonify, request
-from app.models import School, Branch, Semester, Module, Promo,\
+from app.models import School, Branch, Annual, Semester, Module, Promo,\
      Session, ModuleSession, Attendance, ModuleCalendar, Student
 
 from datetime import datetime
@@ -104,6 +104,25 @@ def save_select_list_calendar():
     db.session.commit()
 
     return 'save_select_list_calendar'
+
+
+
+
+@app.route('/save-attendance', methods=['POST'])
+def save_attendance():
+    print(' ')
+    print(' ')
+    print(' ')
+    print(' ')
+
+
+
+
+#######################
+#######################
+#######################
+#######################
+
 
 
 @app.route('/select-list/')
@@ -219,43 +238,59 @@ def get_modules_by_session(session_id, module_id=0):
 #########################################
 
 
+def make_student_ids_list(attendances):
+    student_ids = []
+    for attendance in attendances:
+        student_ids.append(attendance.student_id)
+
+    return student_ids
+
+
 def init_attendance(module_calendar):
     module_session = module_calendar.module_session
-    # if module_session != None:
-    #     # promo = Session.query.filter_by(promo_id=module_session.promo_id).first()
-    #     promo = module_session.promo
+
+    if module_session == None:
+        return
+
+    # pin point the session
+    semester = module_session.module.unit.semester
+
+    session = Session.query.filter(Session.is_rattrapage==False)\
+        .join(Semester).filter_by(semester=semester.semester)\
+        .join(Annual).filter_by(annual=semester.annual.annual).first()
+
+    # students in attendance
+    attendances = module_calendar.attendances
+    attendance_student_ids = make_student_ids_list(attendances)
+
+    # add students to attendance
+    student_sessions = session.student_sessions
+    for ss in student_sessions:
+        if ss.student_id not in attendance_student_ids:
+            # add
+            attendance = Attendance(
+                module_calendar_id=module_calendar.id,
+                student_id=ss.student_id
+            )
+            db.session.add(attendance)
+
+    db.session.commit()
+
+    # remove students from attendance
+    # for attendance in attendances:
+
+    return 'init_attendance'
 
 
-def init_module_session(module_calendar):
-    module_session = module_calendar.module_session
-    # if module_session != None:
-    #     pass
 
 
 
 
-
-
-# @app.route('/attendance/session/<session_id>/module/<module_id>/')
-# def attendance(session_id, module_id):
-#     session = Session.query.get_or_404(session_id)
-#     module = Module.query.get_or_404(module_id)
-
-#     # init_attendance(session, module)
-
-#     attendances = Attendance.query.join(ModuleCalendar)\
-#         .join(ModuleSession).filter_by(promo_id=session.promo_id, module_id=module_id)\
-#         .all()
-#     return render_template('attendance/attendance.html', 
-#         attendances=attendances)
 
 @app.route('/attendance/calendar/<calendar_id>')
 def attendance(calendar_id=0):
-    # init_attendance(module_calendar)
-
     module_calendar = ModuleCalendar.query.get_or_404(calendar_id)
     
-    init_module_session(module_calendar)
     init_attendance(module_calendar)
 
     attendances = module_calendar.attendances
@@ -276,8 +311,6 @@ def generate_modal(event_id):
 @app.route('/load-event-calendar')
 def load_event():
     events = ModuleCalendar.query.all()
-    # return str( len(events) )
-    # return str( events[0].id )
 
     data = []
     for event in events:
@@ -288,15 +321,17 @@ def load_event():
             if module != None:
                 title = module.code + ' - ' + module.name
 
+        color = 'lightgreen'
+        if event.module_session == None:
+            color = 'lightblue'
+
         data += [{
             'id': event.id,
-            # 'title': event.name,
             'title': title,
             'start': event.start_event.strftime('%Y-%m-%d %H:%M:%S'),
             'end': event.end_event.strftime('%Y-%m-%d %H:%M:%S'),
             # 'description': 'description for Long Event',
-            'color': 'lightgreen',
-            # 'border-color': 'black',
+            'color': color,
             'type': '1',
             'modalContent': generate_modal(event.id),
             # rendering: 'background'

@@ -30,29 +30,25 @@
 			- make printables Auto Landscape & Portrait
 				@media print{ @page {size: landscape} }
 			- add checkbox to force lansscape in Resulta
-
-
-
-http://localhost:5001/calendar/session/78
-http://localhost:5001/select-list/session/78
+			- Attendance
+				- functions
+					init Module_Session					done
+					create event for calendar			done
+					fill attendance table				done
+			- Calendar
+				SweetAlert
+				select-list-module-calendar.html
 
 
 - when deleting module_session
 	delete module_calendar and attendance
-
-- Attendance
-	- functions
-		init Module_Session					done
-		create event for calendar
-		fill attendance table
-- Calendar
-	SweetAlert
-	select-list-module-calendar.html
+- init_attendance
+	remove from students from attendance
 - show previous entry versions of the grid 
 	like firebase access rules style
 		https://codepen.io/pen/?&editable=true&editors=001
 - it's time to fix student list search by branch and Promo
-- an Phone app to organize and plan Courses
+- make a Phone app to organize and plan Courses
 	after creating the Calendar
 	teachers can access and check and annul the programing of the cours
 		and request to teach at that Hour
