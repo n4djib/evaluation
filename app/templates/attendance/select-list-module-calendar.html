@@ -52,7 +52,7 @@
     </select>
 
 
-	</br></br></br></br>
+	</br></br></br></br></br>
 
 
 	<p id="basicExample">
@@ -63,16 +63,14 @@
 	</p>
 
 
-	</br></br></br></br>
+	</br></br>
 
 
-    <!-- <button id="cancel" class="btn btn-warning ">Cancel</button> -->
-    <!-- <button id="save" class="btn btn-success btn-lg">Save</button> -->
-    <span>            </span>
-    <span>            </span>
-    <a id="attendance" href="{{ url_for('attendance', calendar_id=event.id) }}" class="btn btn-warning {{ 'disabled' if module == None }}" target="_blank" ><img width="30" height="30" src="/static/img/calendar2.png"> Attendace</a>
-    <span>      </span>
+    <button id="save" class="btn btn-success" >   Save   </button>
+    <a id="attendance" href="{{ url_for('attendance', calendar_id=event.id) }}" class="btn btn-warning {{ 'disabled' if module == None }}" target="_blank" 
+    	><img width="21" height="21" src="/static/img/calendar2.png"> Attendace</a>
     <button id="delete" class="btn btn-danger btn-xs">Delete</button>
+    <button id="cancel" class="btn btn-default"> Cancel </button>
 
 
 
@@ -81,54 +79,6 @@
   <script type="text/javascript" src="{{ url_for('static', filename='timepicker/jquery.datepair.js') }}"></script>
 
   <script type="text/javascript">
-
-
-	$( "#delete" ).click(function() {
-		// alert( "delete delete delete." );
-
-	    if(confirm("Are you sure you want to remove it?"))
-	    {
-			var id = {{ event.id if event != None else 0 }};
-			calendar_refetchEvents();
-
-			$.ajax({
-				url: "{{ url_for('delete_event') }}",
-				type: "POST",
-				data: JSON.stringify({id:id}),
-				dataType: 'text',
-				success: function() {
-					calendar.fullCalendar('refetchEvents');
-					swal.close();
-					console.log("Event Removed");
-
-				}
-			});
-	    }
-	});
-
-
-    // initialize input widgets first
-    $('#basicExample .time_start').timepicker({
-        'showDuration': false,
-        'timeFormat': 'g:ia',
-		'minTime': '7:00am',
-		'maxTime': '7:30pm',
-		'step': 15,
-    });
-
-    $('#basicExample .time_end').timepicker({
-        'showDuration': true,
-        'timeFormat': 'g:ia',
-		'minTime': '7:00am',
-		'maxTime': '7:30pm',
-		'step': 15,
-    });
-
-    $('#basicExample .date').datepicker({
-        'format': 'yyyy-mm-dd',
-        'autoclose': true,
-        'zIndexOffset': 9999
-    });
 
     // module
     $('#module').on('change', function(){
@@ -145,9 +95,69 @@
     	} else {
     		$('#attendance').addClass("disabled")
     	}
-
     });
 
+    $('#save').on('click', function(){
+    	console.log('click');
+    	save_swal( {{ event.id }} );
+    	swal.close();
+    });
+
+    $('#attendance').on('click', function(){
+    	console.log('click');
+    	save_swal( {{ event.id }} );
+    });
+    
+	$( "#delete" ).click(function() {
+	    if(confirm("Are you sure you want to remove it?"))
+	    {
+			var id = {{ event.id if event != None else 0 }};
+			calendar_refetchEvents();
+			$.ajax({
+				url: "{{ url_for('delete_event') }}",
+				type: "POST",
+				data: JSON.stringify({id:id}),
+				dataType: 'text',
+				success: function() {
+					calendar.fullCalendar('refetchEvents');
+					swal.close();
+					console.log("Event Removed");
+				}
+			});
+	    }
+	});
+
+    $('#cancel').on('click', function(){
+    	console.log('click');
+    	swal.close();
+    });
+
+
+
+    // initialize input widgets first
+    $('#basicExample .time_start').timepicker({
+        'showDuration': false,
+        // 'timeFormat': 'g:ia',
+        'timeFormat': 'H:i',
+		'minTime': '7:00am',
+		'maxTime': '7:30pm',
+		'step': 15,
+    });
+
+    $('#basicExample .time_end').timepicker({
+        'showDuration': true,
+        // 'timeFormat': 'g:ia',
+        'timeFormat': 'H:i',
+		'minTime': '7:00am',
+		'maxTime': '7:30pm',
+		'step': 15,
+    });
+
+    $('#basicExample .date').datepicker({
+        'format': 'yyyy-mm-dd',
+        'autoclose': true,
+        'zIndexOffset': 9999
+    });
 
     // initialize datepair
     var basicExampleEl = document.getElementById('basicExample');

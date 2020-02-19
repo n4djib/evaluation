@@ -276,12 +276,7 @@ class TeacherFormUpdate(TeacherFormBase):
 ################## ModuleSession
 class ModuleSessionForm(FlaskForm):
     teacher_id = SelectField('Teacher', coerce=int, validators=[Optional()], 
-        choices = [(-1, '')]+[
-            (t.id, 
-             str(t.title).replace("None", "")\
-             +' - '+t.last_name+' '+str(t.first_name)
-            ) for t in Teacher.query.order_by('last_name', 'last_name')
-    ])
+        choices = [])
     start_date = DateField('Start Date', format='%Y-%m-%d', validators=[Optional()])
     finish_date = DateField('Finish Date', validators=[Optional()])
     exam_date = DateField('Exam Date', validators=[Optional()])

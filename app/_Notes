@@ -37,9 +37,10 @@ http://localhost:5001/calendar/session/78
 http://localhost:5001/select-list/session/78
 
 
+- when deleting module_session
+	delete module_calendar and attendance
+
 - Attendance
-	http://localhost:5001/attendance/session/94/module/38/
-	http://localhost:5001/attendance/session/94/module/1/
 	- functions
 		init Module_Session					done
 		create event for calendar

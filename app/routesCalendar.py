@@ -48,10 +48,7 @@ def select_list_calendar_api(event_id=0, session_id=0):
 
 @app.route('/save-select-list', methods=['POST'])
 def save_select_list_calendar():
-    data = request.get_json(force=True) 
-    print(' ')
-    print( str(data) )
-    print(' ')
+    data = request.get_json(force=True)
 
     event_id = data['id']
     # school_id = data['school_id']
@@ -64,35 +61,47 @@ def save_select_list_calendar():
     start_time = data['start_time']
     end_time = data['end_time']
 
-    module_calendar = ModuleCalendar.query.get_or_404(event_id)
-    module_session = module_calendar.module_session
-    print('------')
-    print('------')
-    if module_session == None and promo_id != 0 and module_id != 0:
-        module = Module.query.get_or_404(module_id)
-        module_session = ModuleSession(
-            promo_id=promo_id,
-            module_id=module_id,
-            module_code=module.code,
-            module_name=module.name
-        )
+    d_start = datetime.strptime(start_date, "%Y-%m-%d")
+    t_start = datetime.strptime(start_time, "%H:%M")
+    new_d_start = datetime(d_start.year, d_start.month, d_start.day, t_start.hour, t_start.minute)
 
+    d_end = datetime.strptime(end_date, "%Y-%m-%d")
+    t_end = datetime.strptime(end_time, "%H:%M")
+    new_d_end = datetime(d_end.year, d_end.month, d_end.day, t_end.hour, t_end.minute)
+
+    module_calendar = ModuleCalendar.query.get(event_id)
+    if module_calendar == None:
+        return 'ERROR: module_calendar: ' + str(event_id) + ' not found'
+    
+    module_session = module_calendar.module_session
+
+    # save datetime
+    module_calendar.start_event = new_d_start
+    module_calendar.end_event = new_d_end
+    db.session.commit()
+
+    module = Module.query.get(module_id)
+    promo = Promo.query.get(promo_id)
+
+    if module == None or promo == None:
+        return 'ERROR: module or promo not found'
+
+    if module_session == None and promo_id != 0 and module_id != 0:
+        module_session = ModuleSession(promo_id=promo_id, module_id=module_id)
         db.session.add(module_session)
         db.session.commit()
-        module_calendar.module_session_id = module_session.id
-        db.session.commit()
-        print('++++++ ' + str(module))
-        print('++++++ ' + str(module_session.id))
-        print('++++++ ' + str(module_session.module_code))
-        print('++++++ ' + str(module_calendar.module_session_id))
 
+    if module_session == None:
+        return 'ERROR: module_session not found'
 
-    if module_session != None and promo_id != 0 and module_id != 0:
-        module = Module.query.get_or_404(module_id)
-        module_session.module_id = module_id
-        module_session.module_code = module.code
-        module_session.module_name = module.name
-        db.session.commit()
+    # connect module_session
+    module_calendar.module_session_id = module_session.id
+
+    # changing module
+    module_session.module_id = module_id
+    module_session.module_code = module.code
+    module_session.module_name = module.name
+    db.session.commit()
 
     return 'save_select_list_calendar'
 
@@ -273,7 +282,7 @@ def load_event():
     data = []
     for event in events:
         module_session = event.module_session
-        title = 'Untitled'
+        title = '<Untitled>'
         if module_session != None:
             module = module_session.module
             if module != None:
@@ -287,6 +296,7 @@ def load_event():
             'end': event.end_event.strftime('%Y-%m-%d %H:%M:%S'),
             # 'description': 'description for Long Event',
             'color': 'lightgreen',
+            # 'border-color': 'black',
             'type': '1',
             'modalContent': generate_modal(event.id),
             # rendering: 'background'

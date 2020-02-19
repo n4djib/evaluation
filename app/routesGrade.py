@@ -1,6 +1,6 @@
 from app import app, db
 from flask import render_template, request, redirect, url_for, flash
-from app.models import StudentSession, Grade, Semester, Unit, Module, Session, Student, Type, ModuleSession
+from app.models import StudentSession, Grade, Semester, Unit, Module, Session, Student, Teacher, Type, ModuleSession
 from app.forms import ModuleSessionForm
 from flask_breadcrumbs import register_breadcrumb
 from datetime import datetime
@@ -326,6 +326,14 @@ def grade_save(type=''):
 
 
 
+def get_teacher_choices():
+    choices = [('-1', '')]
+    teachers = Teacher.query.all()
+    for t in teachers:
+        teacher = str(t.username) + ' - ' + str(t.title) + ' ' + str(t.last_name) + ' ' + str(t.first_name)
+        choices.append( (t.id, teacher)  )
+    return choices
+
 #
 # it only allow one teacher
 #
@@ -339,6 +347,15 @@ def module_session_config(session_id, module_id):
     module_session = create_module_session(session, module)
 
     form = ModuleSessionForm(module_session.id)
+
+    form.teacher_id.choices = get_teacher_choices()
+    # (-1, '')]+[
+    #         (t.id, 
+    #          str(t.title).replace("None", "")\
+    #          +' - '+t.last_name+' '+str(t.first_name)
+    #         ) for t in Teacher.query.order_by('last_name', 'last_name')
+    
+
     if form.validate_on_submit():
         remember_savable = module_session.saving_enabled
         module_session.teacher_id = None if form.teacher_id.data == -1 else form.teacher_id.data
