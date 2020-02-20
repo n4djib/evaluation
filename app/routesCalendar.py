@@ -314,6 +314,19 @@ def modify_end_time(start, end):
     # 10:00 - 11:30
     # 13:30 - 15:00
     # 15:00 - 16:30
+    print(' ')
+    start = start.strftime('%H:%M')
+    end = end.strftime('%H:%M')
+    print(str( start ))
+    if start == '8:30' and end == '10:00':
+        print('8:30 - 10:00')
+    if start == '10:00' and end == '11:30':
+        print('10:00 - 11:30')
+    if start == '13:30' and end == '15:00':
+        print('13:30 - 15:00')
+    if start == '15:00' and end == '16:30':
+        print('15:00 - 16:30')
+    print(' ')
     return end
 
 
@@ -334,18 +347,19 @@ def load_event():
         if event.module_session == None:
             color = 'lightblue'
 
-        start = event.start_event.strftime('%Y-%m-%d %H:%M')
-        end = event.end_event.strftime('%Y-%m-%d %H:%M')
 
-        end = modify_end_time(start, end)
+        # event.end_event = 
+        modify_end_time(event.start_event, event.end_event)
+
+        start_event = event.start_event.strftime('%Y-%m-%d %H:%M')
+        end_event = event.end_event.strftime('%Y-%m-%d %H:%M')
+
 
         data += [{
             'id': event.id,
             'title': title,
-            # 'start': event.start_event.strftime('%Y-%m-%d %H:%M:%S'),
-            # 'end': event.end_event.strftime('%Y-%m-%d %H:%M:%S'),
-            'start': start,
-            'end': end,
+            'start': start_event,
+            'end': end_event,
             # 'description': 'description for Long Event',
             'color': color,
             'type': '1',
@@ -355,30 +369,51 @@ def load_event():
     
     return jsonify(data)
 
+
+def calculate_diff(start, end, time_format):
+    diff = datetime.strptime(end, time_format) - datetime.strptime(start, time_format)
+    return diff.seconds / 60
+
+
 @app.route('/insert-event-calendar', methods=['POST'])
 def insert_event():
-    # data = request.json
-    data = request.get_json(force=True) 
+    data = request.get_json(force=True)
 
-    # print('-------1--------')
-    # print('-------2--------')
-    # print( str(data['start']) )
-    # print( type(data['start']) )
-    # print( type( datetime.strptime(data['start'], "%Y-%m-%d %H:%M:%S")  ) )
-    # print('-------3--------')
-    # print('-------4--------')
+    time_format = "%Y-%m-%d %H:%M:%S" 
+
+    # to avoid inserting events by one click (30 minutes)
+    diff_seconds = calculate_diff(data['start'], data['end'], time_format)
+    if diff_seconds == 30:
+        return 'not inserted to avoid 30 minutes '
+
+    start_event = datetime.strptime(data['start'], time_format)
+    end_event = datetime.strptime(data['end'], time_format)
 
     event = ModuleCalendar(
         # module_session_id=*****,
         name=data['title'],
-        start_event=datetime.strptime(data['start'], "%Y-%m-%d %H:%M:%S"),
-        end_event=datetime.strptime(data['end'], "%Y-%m-%d %H:%M:%S"),
+        start_event=start_event,
+        end_event=end_event,
     )
-    # title, start:start, end:end
+
     db.session.add(event)
     db.session.commit()
 
     return 'event inserted'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @app.route('/update-event-calendar', methods=['POST'])
 def update_event():
