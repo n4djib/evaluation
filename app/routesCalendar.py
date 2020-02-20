@@ -308,6 +308,15 @@ def generate_modal(event_id):
     event = ModuleCalendar.query.get(event_id)
     return '<h1>Modal for Event id: '+str(event.id)+'</h1>'
 
+def modify_end_time(start, end):
+    # if it falls into any knon combination of start and end time
+    # 8:30 - 10:00
+    # 10:00 - 11:30
+    # 13:30 - 15:00
+    # 15:00 - 16:30
+    return end
+
+
 @app.route('/load-event-calendar')
 def load_event():
     events = ModuleCalendar.query.all()
@@ -325,11 +334,18 @@ def load_event():
         if event.module_session == None:
             color = 'lightblue'
 
+        start = event.start_event.strftime('%Y-%m-%d %H:%M')
+        end = event.end_event.strftime('%Y-%m-%d %H:%M')
+
+        end = modify_end_time(start, end)
+
         data += [{
             'id': event.id,
             'title': title,
-            'start': event.start_event.strftime('%Y-%m-%d %H:%M:%S'),
-            'end': event.end_event.strftime('%Y-%m-%d %H:%M:%S'),
+            # 'start': event.start_event.strftime('%Y-%m-%d %H:%M:%S'),
+            # 'end': event.end_event.strftime('%Y-%m-%d %H:%M:%S'),
+            'start': start,
+            'end': end,
             # 'description': 'description for Long Event',
             'color': color,
             'type': '1',

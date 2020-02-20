@@ -17,16 +17,24 @@ def create_module_session(session, module):
         flash('you can\'t create module_session for historic and rattrapage')
         return None
 
-    # a small test to check that module_session is only created once
-    module_session_ssssss = ModuleSession.query.filter_by(
-        promo_id=session.promo_id, module_code=module.code, module_name=module.name)\
-        .all()
-    if len(module_session_ssssss) > 1:
-        raise Exception("too many module_session ")
+    # # a small test to check that module_session is only created once
+    # module_session_ssssss = ModuleSession.query.filter_by(
+    #     promo_id=session.promo_id, module_code=module.code, module_name=module.name)\
+    #     .all()
+    # if len(module_session_ssssss) > 1:
+    #     raise Exception("too many module_session ")
 
-    module_session = ModuleSession.query.filter_by(
-        promo_id=session.promo_id, module_code=module.code, module_name=module.name)\
-        .first()
+    module_session = None
+
+    if module.code != None:
+        module_session = ModuleSession.query.filter_by(
+            promo_id=session.promo_id, module_code=module.code, module_name=module.name)\
+            .first()
+    else:
+        module_session = ModuleSession.query.filter_by(
+            promo_id=session.promo_id, module_name=module.name)\
+            .first()
+
 
     if module_session == None:
         # create a new one
@@ -128,9 +136,9 @@ def grade_dlc(*args, **kwargs):
 
     # return [{'text': '***', 'url': '']
 
-@app.route('/session/<session_id>/module/<module_id>/<_all>/', methods=['GET', 'POST']) 
+# @app.route('/session/<session_id>/module/<module_id>/<_all>/', methods=['GET', 'POST']) 
 @app.route('/session/<session_id>/module/<module_id>/', methods=['GET', 'POST'])
-@app.route('/session/<session_id>/student/<student_id>/<_all>/', methods=['GET', 'POST'])
+# @app.route('/session/<session_id>/student/<student_id>/<_all>/', methods=['GET', 'POST'])
 @app.route('/session/<session_id>/student/<student_id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree_session.session.grade', '*** Grades by ***', dynamic_list_constructor=grade_dlc)
 def grade(session_id=0, module_id=0, student_id=0, _all=''):
@@ -146,32 +154,42 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
     SHOW_SAVING_GRADE = False
 
     if module_id != 0:
-        module_session = create_module_session(session, module)
-        SHOW_SAVING_GRADE = module_session.saving_enabled
-        type = 'module'
-        grid_title = F'Module: {module.code} - {module.display_name}'
-        grades = Grade.query.filter_by(module_id=module_id)\
-            .join(StudentSession).filter_by(session_id=session_id).all()
-        #
-        data = collect_module_data_grid(grades, session, SHOW_SAVING_GRADE)
+        print(' ')
+        print('111')
+        print('session_id: '+str(session_id))
+        print('module_id: '+str(module_id))
+        print('student_id: '+str(student_id))
+        print('module.code: '+str(module.code))
+        print('module: '+str(module))
+        # module_session = create_module_session(session, module)
+        print('222')
+        print(' ')
 
-        # what about type = 'student'
-        get_hidden_values_flash(grades, session, module)
+        # SHOW_SAVING_GRADE = module_session.saving_enabled
+        # type = 'module'
+        # grid_title = F'Module: {module.code} - {module.display_name}'
+        # grades = Grade.query.filter_by(module_id=module_id)\
+        #     .join(StudentSession).filter_by(session_id=session_id).all()
+        # #
+        # data = collect_module_data_grid(grades, session, SHOW_SAVING_GRADE)
 
-    if student_id != 0:
-        type = 'student'
-        grid_title = F'Student: {student.username} - {student.last_name} - {student.first_name}'
-        grades = Grade.query.join(StudentSession)\
-            .filter_by(session_id=session_id, student_id=student_id).all()
-        for grade in grades:
-            module_session = create_module_session(session, grade.module)
-            if module_session != None and module_session.saving_enabled == True:
-                SHOW_SAVING_GRADE = True
-                # comment this if you wan't it to create all module_sessions
-                # commented it to aviod looping all grades(modules)
-                break
-        #
-        data = collect_student_data_grid(grades, session, SHOW_SAVING_GRADE)
+        # # what about type = 'student'
+        # get_hidden_values_flash(grades, session, module)
+
+    # if student_id != 0:
+    #     type = 'student'
+    #     grid_title = F'Student: {student.username} - {student.last_name} - {student.first_name}'
+    #     grades = Grade.query.join(StudentSession)\
+    #         .filter_by(session_id=session_id, student_id=student_id).all()
+    #     for grade in grades:
+    #         module_session = create_module_session(session, grade.module)
+    #         if module_session != None and module_session.saving_enabled == True:
+    #             SHOW_SAVING_GRADE = True
+    #             # comment this if you wan't it to create all module_sessions
+    #             # commented it to aviod looping all grades(modules)
+    #             break
+    #     #
+    #     data = collect_student_data_grid(grades, session, SHOW_SAVING_GRADE)
 
     return render_template('grade/grade.html', title='Grade Edit', 
         data=data, _all=_all.lower(), grid_title=grid_title, type=type, 
@@ -252,16 +270,24 @@ def set_last_entry_to_current_datate_time(grade):
 
 @app.route('/grade/save/type/<type>/', methods = ['GET', 'POST'])
 @app.route('/grade/save/', methods = ['GET', 'POST'])
-def grade_save(type=''):
+def grade_save(type=''):    
+    print(' ')
+    print('00000000000')
+
     data_arr = request.json
 
     student_id = None
     if type == 'student':
         student_id = int(data_arr[0]['id'])
 
+    print(' ')
+    print('111111111111111')
+
     for i, data in enumerate(data_arr, start=0):
         grade = Grade.query.filter_by(id = int(data['id'])).first()
 
+        print(' ')
+        print('222222222')
         is_dirty = False
         if grade_going_to_change(grade, data) == True:
             is_dirty = True
@@ -270,6 +296,8 @@ def grade_save(type=''):
         if is_dirty == True:
             set_last_entry_to_current_datate_time(grade)
 
+        print(' ')
+        print('3333333333')
         #
         # saved fields must be according to the Permission
         grade.cour = data['cour']
@@ -283,6 +311,8 @@ def grade_save(type=''):
         if is_dirty == True:
             grade.is_dirty = True
 
+        print(' ')
+        print('44444444')
         # commented this to not save Null Averages
         # grade.average = data['average']
         # grade.credit = data['credit']
