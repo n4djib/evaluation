@@ -39,7 +39,8 @@
 				SweetAlert
 				select-list-module-calendar.html
 
-
+- continue at modify_end_time(start, end)
+-  disabled in base.html - grab_and_display_notifications();
 - when deleting module_session
 	delete module_calendar and attendance
 - init_attendance

@@ -485,38 +485,6 @@ function move_cursor_in_grid(){
     // // skip right
     return {row: 0, col: 1};
 
-    // if (type == 'module') {
-    //   //skip 3 start cells
-    //   if (col == 0) return {row: 0, col: 3};
-    //   if (col == 1) return {row: 0, col: 2};
-    //   if (col == 2) return {row: 0, col: 1};
-    //   //skip 3 end cells
-    //   if (col == count-4-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-0};
-    //   if (col == count-3-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-1};
-    //   if (col == count-2-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-2};
-    //   if (col == count-1-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-3};
-    //   if (col == count-0-skip_f)  return {row: 1, col: -(nbr_cols-1-skip_f)-4};
-    //   // // skip right
-    //   return {row: 0, col: 1};
-    // } else {
-    //   // skip the first & the seperator
-    //   if(col === 0) return {row: 0, col: 2};
-    //   // skip last 3
-    //   if (col === count-4-skip_f)
-    //     return {row: 1, col: -(nbr_cols-skip_f)};
-    //   if (col === count-3-skip_f)
-    //     return {row: 1, col: -(nbr_cols-skip_f)-1};
-    //   if (col === count-2-skip_f)
-    //     return {row: 1, col: -(nbr_cols-skip_f)-2};
-    //   if (col === count-1-skip_f)
-    //     return {row: 1, col: -(nbr_cols-skip_f)-3};
-
-    //   if (col === count-0-skip_f)
-    //     return {row: 1, col: -(nbr_cols-skip_f)-4};
-
-    //   // skip right
-    //   return {row: 0, col: 1};
-    // }
 
 }
 

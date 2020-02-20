@@ -6,9 +6,6 @@
   {{super()}}
   <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/sheetclip.0.3.js') }}"></script>
-<!--   <link rel="stylesheet" type="text/css" 
-        href="{{ url_for('static', filename='handsontable/handsontable.full.2.0.0.min.css') }}">
-  <script src="{{ url_for('static', filename='handsontable/handsontable.full.2.0.0.min.js') }}"></script> -->
   <script src="{{ url_for('static', filename='handsontable/handsontable.full.7.0.3.min.js') }}"></script>
   <link rel="stylesheet" type="text/css" 
         href="{{ url_for('static', filename='handsontable/handsontable.full.7.0.3.min.css') }}">
@@ -90,7 +87,14 @@
           {% set href = url_for('grade', session_id=session.id, student_id=student.id) %}
           {% set label = 'Hide Fields' %}
         {% else %}
+
           {% set href = url_for('grade', session_id=session.id, student_id=student.id, _all='all') %}
+
+
+
+
+
+
           {% set label = 'Show All Fields' %}
         {% endif %}
       {% endif %}
@@ -140,9 +144,7 @@
     </pre>
 
 
-
-
-    <pre id="calcul" style="display: none; color: green;" class=""><b>Save to get Results</b></pre>
+    <pre id="calcul" style="display:none; color:green;"><b>Save to get Results</b></pre>
 
 
 
@@ -185,10 +187,9 @@
     {% include "grade/_grid.js" %}
 
     
-    // document.getElementById('hot-display-license-info').remove();
+    document.getElementById('hot-display-license-info').remove();
 
     function make_print_url(){
-
       var original_url = "{{ url_for('module_print', session_id=session.id, module_id=module.id) }}";
 
       var elem_empty = $("#checkbox-empty");
@@ -216,7 +217,6 @@
       var link = document.getElementById("link");
       if(link !== null)
         link.setAttribute("href", url);
-
     } 
 
     make_print_url();

@@ -12,6 +12,7 @@
   <script src="{{ url_for('static', filename='fullcalendar.3.4.0/jquery-ui.1.12.1.min.js') }}"></script>
   <script src="{{ url_for('static', filename='fullcalendar.3.4.0/moment.2.18.1.min.js') }}"></script>
   <script src="{{ url_for('static', filename='fullcalendar.3.4.0/fullcalendar.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='fullcalendar.3.4.0/lang-all.min.js') }}"></script>
 
   <script src="{{ url_for('static', filename='sweetalert2/sweetalert2@9.js') }}"></script>
 
@@ -26,6 +27,10 @@
     editable: true,
     defaultView: 'agendaWeek',
     // defaultView: 'basicWeek',
+
+    allDaySlot: false,
+    locale: 'fr',
+    firstDay: 0,
 
     minTime: "07:00:00",
     maxTime: "19:00:00",
@@ -194,9 +199,6 @@
 
 </head>
 <body>
-  Session: {{ session_id }}
-	<h2 align="center"><a href="#">Jquery Fullcalendar</a></h2>
-	<br />
 	<div class="container">
 		<div id="calendar"></div>
 	</div>

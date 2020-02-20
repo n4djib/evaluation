@@ -24,9 +24,17 @@ def create_module_session(session, module):
     if len(module_session_ssssss) > 1:
         raise Exception("too many module_session ")
 
-    module_session = ModuleSession.query.filter_by(
-        promo_id=session.promo_id, module_code=module.code, module_name=module.name)\
-        .first()
+    module_session = None
+
+    if module.code != None:
+        module_session = ModuleSession.query.filter_by(
+            promo_id=session.promo_id, module_code=module.code, module_name=module.name)\
+            .first()
+    else:
+        module_session = ModuleSession.query.filter_by(
+            promo_id=session.promo_id, module_name=module.name)\
+            .first()
+
 
     if module_session == None:
         # create a new one
@@ -128,9 +136,9 @@ def grade_dlc(*args, **kwargs):
 
     # return [{'text': '***', 'url': '']
 
-@app.route('/session/<session_id>/module/<module_id>/<_all>/', methods=['GET', 'POST']) 
+# @app.route('/session/<session_id>/module/<module_id>/<_all>/', methods=['GET', 'POST']) 
 @app.route('/session/<session_id>/module/<module_id>/', methods=['GET', 'POST'])
-@app.route('/session/<session_id>/student/<student_id>/<_all>/', methods=['GET', 'POST'])
+# @app.route('/session/<session_id>/student/<student_id>/<_all>/', methods=['GET', 'POST'])
 @app.route('/session/<session_id>/student/<student_id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree_session.session.grade', '*** Grades by ***', dynamic_list_constructor=grade_dlc)
 def grade(session_id=0, module_id=0, student_id=0, _all=''):
@@ -146,7 +154,17 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
     SHOW_SAVING_GRADE = False
 
     if module_id != 0:
+        # print(' ')
+        # print('111')
+        # print('session_id: '+str(session_id))
+        # print('module_id: '+str(module_id))
+        # print('student_id: '+str(student_id))
+        # print('module.code: '+str(module.code))
+        # print('module: '+str(module))
         module_session = create_module_session(session, module)
+        # print('222')
+        # print(' ')
+
         SHOW_SAVING_GRADE = module_session.saving_enabled
         type = 'module'
         grid_title = F'Module: {module.code} - {module.display_name}'
@@ -241,10 +259,12 @@ def set_last_entry_to_current_datate_time(grade):
     session = ss.session
     session.last_entry = CURRENT_DATE_TIME
 
-    session_id = session.id
-    module_id = grade.module_id
+    # session_id = session.id
+    module= grade.module
     module_session = ModuleSession.query.filter_by(
-        session_id=session_id, module_id=module_id).first()
+        promo_id=session.promo.id, 
+        module_code=module.code, 
+        module_name=module.name).first()
     module_session.last_entry = CURRENT_DATE_TIME
 
 
@@ -283,6 +303,8 @@ def grade_save(type=''):
         if is_dirty == True:
             grade.is_dirty = True
 
+        # print(' ')
+        # print('44444444')
         # commented this to not save Null Averages
         # grade.average = data['average']
         # grade.credit = data['credit']
