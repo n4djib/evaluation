@@ -83,14 +83,9 @@
     // module
     $('#module').on('change', function(){
     	console.log('change module');
-
     	var module_id = $(this).val();
     	console.log('module '+module_id);
     	if (module_id != '') {
-    		/*******************/
-    		/*******************/
-    		/*******************/
-    		/*******************/
     		$('#attendance').removeClass("disabled")
     	} else {
     		$('#attendance').addClass("disabled")

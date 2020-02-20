@@ -128,7 +128,6 @@
 
   function save_swal(event_id) {
     module_id  = $('#module').val();
-
     console.log('session_id: '+session_id+' - module_id: '+module_id);
 
     // send saved data
@@ -163,22 +162,9 @@
       // title: '<strong>HTML <u>example</u></strong>',
       // icon: 'info',
       html: get_select_list_html(event),
-      // html: 'eee'+event.id,
       showCloseButton: true,
-      // showCancelButton: true,
-      // focusConfirm: false,
-      // confirmButtonText: 'Save',
-      // // confirmButtonAriaLabel: 'Save',
       showConfirmButton: false,
-      // cancelButtonText: 'Cancel',
-      // // cancelButtonAriaLabel: 'Thumbs down'
     })
-    // .then((result) => {
-    //   if (result.value) {
-    //     save_swal(event.id);
-    //     swal.close();
-    //   }
-    // });
   }
 
 

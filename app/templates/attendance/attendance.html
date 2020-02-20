@@ -49,7 +49,7 @@
   <table class="table table-bordered" id="tblData" >
     <thead>
       <tr>
-        <th scope="col" class="shrink" >#</th>
+        <th scope="col" class="shrink" > # </th>
         <th scope="col" class="shrink" >Matricule</th>
         <th scope="col">Nom</th>
         <th scope="col">Prenom</th>
@@ -67,12 +67,13 @@
           value="{{ att.id }}" {{ 'checked' if att.attended else '' }}/></td>
       </tr>
       {% endfor %}
+      <input type="submit" id="save" class="btn btn-success" value="Save" />
     </tbody>
   </table>
 
 </form>
 
-<button id="save" class="btn btn-success" >  Save  </button>
+<!-- <button id="save" class="btn btn-success" >  Save  </button> -->
 
 {% endblock %}
 
@@ -91,28 +92,40 @@
   // save
   function Save(e) {
     console.log('Saved');
-    $( "#target" ).submit(function( event ) {
-      // 
-      // 
-      // 
+    $( "#target" ).submit(function(event) {
       event.preventDefault();
+      // 
+      // 
+      // $.ajax({
+      //   url:"{{ url_for('save_select_list_calendar') }}",
+      //   type:"POST",
+      //   data: JSON.stringify({ id: event_id }),
+      //   dataType: 'text',
+      //   success:function()
+      //   {
+      //    calendar.fullCalendar('refetchEvents');
+      //    console.log("Event Updated and saved");
+         
+      //   }
+      // });
+      // 
     });
   }
 
 
-  $("#save").click(function(e){
-    Save(e);
-  });
+  // $("#save").click(function(e){
+  //   Save(e);
+  // });
 
-  $(document).on('keydown', function(e){
-    console.log( e.type + ": " +  e.which );
-    if(e.ctrlKey && e.which === 83){ 
-      // Check for the Ctrl key being pressed, and if the key = [S] (83)
-      console.log('Ctrl+S!!!!!!!!!');
-      $("#save").click();
-      return false;
-    }
-  });
+  // $(document).on('keydown', function(e){
+  //   console.log( e.type + ": " +  e.which );
+  //   if(e.ctrlKey && e.which === 83){ 
+  //     // Check for the Ctrl key being pressed, and if the key = [S] (83)
+  //     console.log('Ctrl+S!!!!!!!!!');
+  //     $("#save").click();
+  //     return false;
+  //   }
+  // });
 
 
 

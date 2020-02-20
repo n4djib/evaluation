@@ -110,11 +110,14 @@ def save_select_list_calendar():
 
 @app.route('/save-attendance', methods=['POST'])
 def save_attendance():
+    # data = request.get_json(force=True)
+    students = request.form.getlist('students[]')
     print(' ')
-    print(' ')
+    print(str(students))
     print(' ')
     print(' ')
 
+    return 'save_attendance'
 
 
 
