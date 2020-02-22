@@ -11,7 +11,7 @@ from celery import Celery
 from redis import Redis
 # from flask_rbac import RBAC
 
-# from flask_principal import Principal
+from flask_principal import Principal
 # from flask_caching import Cache
 
 
@@ -39,7 +39,7 @@ migrate = Migrate(app, db)
 bootstrap = Bootstrap(app)
 login = LoginManager(app)
 login.login_view = 'login'
-# principals = Principal(app)
+principals = Principal(app)
 
 Breadcrumbs(app=app)
 
@@ -47,8 +47,6 @@ Breadcrumbs(app=app)
 # cache.init_app(app)
 
 # admin = Admin(app, template_mode='bootstrap3')
-
-
 
 
 from app import routes, routesAdmin, routesSession, routesGrade, \

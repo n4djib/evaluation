@@ -86,7 +86,9 @@ def students_create():
             branch_id=form.branch_id.data,
             wilaya_id=form.wilaya_id.data,
             sex=form.sex.data,
-            residency=form.residency.data)
+            residency=form.residency.data,
+            ccp=form.ccp.data
+        )
         if student.email == '':
             student.email = None 
 
@@ -146,6 +148,7 @@ def student_update(id):
         student.wilaya_id = form.wilaya_id.data
         student.sex = form.sex.data
         student.residency = form.residency.data
+        student.ccp = form.ccp.data
         db.session.commit()
         flash('Your changes have been saved.')
         # return redirect(url_for('student_index'))
@@ -164,6 +167,7 @@ def student_update(id):
         form.wilaya_id.data = student.wilaya_id
         form.sex.data = student.sex
         form.residency.data = student.residency
+        form.ccp.data = student.ccp
     return render_template('student/update.html', title='Student Update', form=form)
 
 @app.route('/student/view/<id>/', methods=['GET', 'POST'])

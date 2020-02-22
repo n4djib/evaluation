@@ -3,7 +3,7 @@ from flask import render_template, jsonify, request
 from app.models import School, Branch, Annual, Semester, Module, Promo,\
      Session, ModuleSession, Attendance, ModuleCalendar, Student
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 
@@ -110,13 +110,17 @@ def save_select_list_calendar():
 
 @app.route('/save-attendance', methods=['POST'])
 def save_attendance():
-    # data = request.get_json(force=True)
-    students = request.form.getlist('students[]')
+    data_array = request.get_json(force=True)
+
     print(' ')
-    print(str(students))
-    print(' ')
+    print( str(data_array) )
     print(' ')
 
+    for data in data_array:
+        attendance = Attendance.query.get(data['id'])
+        attendance.attended = data['checked']
+
+    db.session.commit()
     return 'save_attendance'
 
 
@@ -248,7 +252,6 @@ def make_student_ids_list(attendances):
 
     return student_ids
 
-
 def init_attendance(module_calendar):
     module_session = module_calendar.module_session
 
@@ -286,10 +289,6 @@ def init_attendance(module_calendar):
 
 
 
-
-
-
-
 @app.route('/attendance/calendar/<calendar_id>')
 def attendance(calendar_id=0):
     module_calendar = ModuleCalendar.query.get_or_404(calendar_id)
@@ -311,27 +310,25 @@ def generate_modal(event_id):
     event = ModuleCalendar.query.get(event_id)
     return '<h1>Modal for Event id: '+str(event.id)+'</h1>'
 
-def modify_end_time(start, end):
+
+def modify_end_time(start_event, end_event):
     # if it falls into any knon combination of start and end time
     # 8:30 - 10:00
     # 10:00 - 11:30
     # 13:30 - 15:00
     # 15:00 - 16:30
-    print(' ')
-    start = start.strftime('%H:%M')
-    end = end.strftime('%H:%M')
-    print(str( start ))
-    if start == '8:30' and end == '10:00':
-        print('8:30 - 10:00')
-    if start == '10:00' and end == '11:30':
-        print('10:00 - 11:30')
-    if start == '13:30' and end == '15:00':
-        print('13:30 - 15:00')
-    if start == '15:00' and end == '16:30':
-        print('15:00 - 16:30')
-    print(' ')
-    return end
+    
+    start = start_event.strftime('%H:%M')
+    end = end_event.strftime('%H:%M')
+    
+    if (start == '08:30' and end == '10:00') \
+        or (start == '10:00' and end == '11:30') \
+        or (start == '13:30' and end == '15:00') \
+        or (start == '15:00' and end == '16:30'):
+        end_time = end_event - timedelta(minutes=2)
+        return end_time
 
+    return end_event
 
 @app.route('/load-event-calendar')
 def load_event():
@@ -340,7 +337,8 @@ def load_event():
     data = []
     for event in events:
         module_session = event.module_session
-        title = '<Untitled>'
+        # title = '<Untitled>'
+        title = ''
         if module_session != None:
             module = module_session.module
             if module != None:
@@ -351,8 +349,7 @@ def load_event():
             color = 'lightblue'
 
 
-        # event.end_event = 
-        modify_end_time(event.start_event, event.end_event)
+        event.end_event = modify_end_time(event.start_event, event.end_event)
 
         start_event = event.start_event.strftime('%Y-%m-%d %H:%M')
         end_event = event.end_event.strftime('%Y-%m-%d %H:%M')
@@ -376,7 +373,6 @@ def load_event():
 def calculate_diff(start, end, time_format):
     diff = datetime.strptime(end, time_format) - datetime.strptime(start, time_format)
     return diff.seconds / 60
-
 
 @app.route('/insert-event-calendar', methods=['POST'])
 def insert_event():
@@ -403,18 +399,6 @@ def insert_event():
     db.session.commit()
 
     return 'event inserted'
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

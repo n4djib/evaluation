@@ -47,7 +47,7 @@
 
     select: function(start, end, allDay)
     {
-     var title = 'Untitled'; // prompt("Enter Event Title");
+     var title = ' '; // prompt("Enter Event Title");
      console.log('select '+title);
 
      if(title)
@@ -61,10 +61,8 @@
        dataType: 'text',
        success:function()
        {
-        calendar.fullCalendar('refetchEvents');
-        // alert("Added Successfully");
-        console.log("Added Successfully");
-        // sweet_alert_fire(event);
+         calendar.fullCalendar('refetchEvents');
+         console.log("saved");
        }
       })
      }

@@ -33,6 +33,7 @@ class StudentFormBase(FlaskForm):
     address = StringField('Address')
     sex = SelectField('Sex', choices = [('', ''), ('F', 'F'), ('M', 'M')])
     residency = SelectField('Residency', choices = [('', ''), ('intern', 'Intern'), ('extern', 'Extern')])
+    ccp = StringField('CCP')
 
 class StudentFormCreate(StudentFormBase):
     submit = SubmitField('Create')
@@ -247,6 +248,7 @@ class TeacherFormBase(FlaskForm):
     address = StringField('Address')
     sex = SelectField('Sex', choices = [('', ''), ('F', 'F'), ('M', 'M')])
     phone = StringField('Phone')
+    ccp = StringField('CCP')
 
 class TeacherFormCreate(TeacherFormBase):
     submit = SubmitField('Create')

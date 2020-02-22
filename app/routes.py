@@ -1,11 +1,13 @@
 from app import app, db
-from flask import render_template, redirect, url_for, flash, request, jsonify
+from flask import render_template, redirect, url_for, flash, request, jsonify,   session, g
 from app.models import Student, AnnualSession, User, Notification
 from app.forms import LoginForm, RegistrationForm
 # from werkzeug.urls import url_parse
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_breadcrumbs import register_breadcrumb
+
 from flask_principal import Identity, AnonymousIdentity, identity_changed
+
 from app.permissions_and_roles import *
 
 
@@ -23,6 +25,15 @@ def before_request():
     if not current_user.is_authenticated:
         if request.endpoint not in _insecure_views:
             return redirect(url_for('login'))
+    else:
+        check_request_permission()
+
+
+def check_request_permission():
+    with admin_permission.require(http_exception=403):
+        pass
+    
+
 
 
 def login_not_required(fn):
@@ -38,12 +49,19 @@ def login_not_required(fn):
 
 @app.route('/')
 @app.route('/index/')
-# @admin_permission.require()
 # @login_required
+# @admin_permission.require(http_exception=403)
 @register_breadcrumb(app, '.', 'Home')
 def index():
     return render_template('index.html', title='Welcome Page')
 
+
+
+# @app.route('/aaa/')
+# @login_required
+# def aaa():
+#     with admin_permission.require(http_exception=403):
+#         return "aaaaaaaaaaaa"
 
 
 # @app.route('/')
@@ -125,16 +143,25 @@ def login():
             flash('Invalid username or password')
             return redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
+        
         # Tell Flask-Principal the identity changed
-        # identity_changed.send(app, identity=Identity(user.id))
+        identity_changed.send(app, identity=Identity(user.id))
 
-        return redirect(url_for('index'))
+        return redirect(request.args.get('next') or '/')
     return render_template('user/login.html', title='Sign In', form=form)
 
 @app.route('/logout/')
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    
+    # Remove session keys set by Flask-Principal
+    for key in ('identity.name', 'identity.auth_type'):
+        session.pop(key, None)
+
+    # Tell Flask-Principal the user is anonymous
+    identity_changed.send(app, identity=AnonymousIdentity())
+
+    return redirect(request.args.get('next') or '/')
 
 @app.route('/register/', methods=['GET', 'POST'])
 # @login_not_required

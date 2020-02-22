@@ -11,6 +11,8 @@ from datetime import datetime
 
 admin = Admin(app, template_mode='bootstrap3')
 
+
+
 def make_button(model, action, _type, label, btn='btn-success'):
 	js = """
 	  <script>

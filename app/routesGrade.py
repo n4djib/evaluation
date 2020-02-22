@@ -136,9 +136,9 @@ def grade_dlc(*args, **kwargs):
 
     # return [{'text': '***', 'url': '']
 
-# @app.route('/session/<session_id>/module/<module_id>/<_all>/', methods=['GET', 'POST']) 
+@app.route('/session/<session_id>/module/<module_id>/<_all>/', methods=['GET', 'POST']) 
 @app.route('/session/<session_id>/module/<module_id>/', methods=['GET', 'POST'])
-# @app.route('/session/<session_id>/student/<student_id>/<_all>/', methods=['GET', 'POST'])
+@app.route('/session/<session_id>/student/<student_id>/<_all>/', methods=['GET', 'POST'])
 @app.route('/session/<session_id>/student/<student_id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree_session.session.grade', '*** Grades by ***', dynamic_list_constructor=grade_dlc)
 def grade(session_id=0, module_id=0, student_id=0, _all=''):

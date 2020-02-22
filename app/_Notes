@@ -38,13 +38,22 @@
 			- Calendar
 				SweetAlert
 				select-list-module-calendar.html
+			- teacher and student CCP
 
-- continue at modify_end_time(start, end)
--  disabled in base.html - grab_and_display_notifications();
-- when deleting module_session
-	delete module_calendar and attendance
+
+
+- Don't allow deleting Events
+	when you saved Attendance
+	unless you uncheck all attendances
+	maybe delete button in attendance
+- find a way to close Events
+- change delete Event confirmation to a bootstrap style
+- open attendance in a sweet alert
+- NOTE: disabled in base.html - grab_and_display_notifications();
+			- when deleting module_session
+				delete module_calendar and attendance
 - init_attendance
-	remove from students from attendance
+	removed students from attendance
 - show previous entry versions of the grid 
 	like firebase access rules style
 		https://codepen.io/pen/?&editable=true&editors=001

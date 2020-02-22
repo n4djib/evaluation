@@ -1367,6 +1367,7 @@ class Student(db.Model):
     update_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     branch_id = db.Column(db.Integer, db.ForeignKey('branch.id'))
     wilaya_id = db.Column(db.Integer, db.ForeignKey('wilaya.id'))
+    ccp = db.Column(db.String(150))
     student_sessions = db.relationship('StudentSession', back_populates='student')
     annual_grades = db.relationship('AnnualGrade', backref='student')
     classement = db.relationship("Classement", uselist=False, back_populates="student")
@@ -1451,6 +1452,7 @@ class Teacher(db.Model):
     photo = db.Column(db.String(250))
     phone = db.Column(db.String(20))
     sex = db.Column(db.String(20))
+    ccp = db.Column(db.String(150))
     create_time = db.Column(db.DateTime, default=datetime.utcnow)
     update_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     module_sessions = db.relationship('ModuleSession', backref='teacher')
@@ -1581,12 +1583,29 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     create_time = db.Column(db.DateTime, default=datetime.utcnow)
     update_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    roles = db.relationship('Role', secondary='user_roles',
+            backref=db.backref('users', lazy='dynamic'))
     def __repr__(self):
         return '<User: id = {} | username = {} | email = {}>'.format(self.id, self.username, self.email)
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+
+# Define Role model
+class Role(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+    # def __repr__(self):
+    #     return '<Role: id = {} | name = {}>'.format(self.id, self.username)
+
+# Define UserRoles model
+class UserRoles(db.Model):
+    # __tablename__ = 'user_roles'
+    id = db.Column(db.Integer(), primary_key=True)
+    user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'))
+    role_id = db.Column(db.Integer(), db.ForeignKey('role.id', ondelete='CASCADE'))
 
 @login.user_loader
 def load_user(id):

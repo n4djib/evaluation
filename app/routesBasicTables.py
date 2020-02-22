@@ -11,12 +11,15 @@ from flask_breadcrumbs import register_breadcrumb
 from datetime import datetime
 from sqlalchemy import or_
 
+# from app.permissions_and_roles import *
+
 
 
 #######################################
 #####            INDEX            #####
 
 @app.route('/basic-tables/')
+# @admin_permission.require(http_exception=403)
 @register_breadcrumb(app, '.basic', 'Basic Tables')
 def basic_index():
     return render_template('basic-forms/index.html', title='Basic Tables List')
@@ -649,7 +652,8 @@ def teacher_create():
             address=form.address.data,
             wilaya_id=form.wilaya_id.data,
             sex=form.sex.data,
-            phone=form.phone.data
+            phone=form.phone.data,
+            ccp=form.ccp.data
         )
         db.session.add(teacher)
         db.session.commit()
@@ -677,6 +681,7 @@ def teacher_update(id):
         teacher.wilaya_id = form.wilaya_id.data
         teacher.sex = form.sex.data
         teacher.phone = form.phone.data
+        teacher.ccp = form.ccp.data
         db.session.commit()
         flash('Your changes have been saved.', 'alert-success')
         return redirect(url_for('teacher_view', id=teacher.id))
@@ -694,6 +699,7 @@ def teacher_update(id):
         form.wilaya_id.data = teacher.wilaya_id
         form.sex.data = teacher.sex
         form.phone.data = teacher.phone
+        form.ccp.data = teacher.ccp
     return render_template('basic-forms/teacher/update.html', title='Teacher Update', form=form)
 
 @app.route('/teacher/<int:id>/', methods=['GET', 'POST'])

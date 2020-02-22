@@ -1,18 +1,34 @@
 
-= avoiding "module_session" deletion when "session" is deleted
-	remove link to "session"
-	remove 'session_id' from "module_session"
-	add 'promo_id' from "module_session" cascade
-	from calendar to module_session cascade
-	add link to "promo"
-	add 'module_code' varchar(20)
-	add 'module_name' varchar(255)
-		after 'module_id'
+= make FK attendance to module_calendar cascade
 
-= change ModuleCalendar
-     add 'name' varchar(255)
-     from_     ->   start_event
-     to_       ->   end_event
+= add 'ccp' varchar 150
+     to Table "teacher" & "student"
+
+= create tables
+CREATE TABLE role (
+    id INTEGER PRIMARY KEY,
+    name VARCHAR (50) 
+);
+
+CREATE TABLE user_roles (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER,
+    role_id INTEGER,
+    FOREIGN KEY (user_id)
+    REFERENCES user (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (role_id)
+    REFERENCES role (id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+= add records to table "user_roles"
+4    3    1
+5    2    1
+
+= 
+
+= 
+
 
 
 ======== grab these ========
