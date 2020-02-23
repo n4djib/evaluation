@@ -41,7 +41,8 @@
 			- teacher and student CCP
 
 
-
+- create Form for the admi to create New users and asign them Permissions
+- add is_active to user to create is not active
 - Don't allow deleting Events
 	when you saved Attendance
 	unless you uncheck all attendances

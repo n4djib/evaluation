@@ -4,15 +4,23 @@ from flask_login import current_user
 from flask_principal import identity_loaded, Permission
 from flask_principal import RoleNeed, UserNeed
 
+
+
+
+
+
 # Create a permission with a single Need, in this case a RoleNeed.
 be_admin = RoleNeed('admin')
 admin_permission = Permission(be_admin)
 admin_permission.description = "Admin's permissions"
 
+be_manager = RoleNeed('manager')
+manager_permission = Permission(be_manager)
+manager_permission.description = "Manager's permissions"
 
 
-apps_needs = [be_admin]
-apps_permissions = [admin_permission]
+# apps_needs = [be_admin]
+# apps_permissions = [admin_permission]
 
 
 # def current_privileges():

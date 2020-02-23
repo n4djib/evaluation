@@ -4,12 +4,12 @@
   {% if g.identity.name == 'anon' %}
     <h2>You must log in to access this page</h2>
   {% else %}
-    <h2>Your current privileges</h2>
+    <h2>Your current Roles</h2>
   {% endif %}
 
   <ul>
-    {% for p in priv %}
-      <li>{{ p }}</li>
+    {% for role in roles %}
+      <li>{{ role.name }}</li>
     {% endfor %}
   </ul>
 {% endblock %}

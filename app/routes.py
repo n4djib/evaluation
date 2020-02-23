@@ -25,16 +25,14 @@ def before_request():
     if not current_user.is_authenticated:
         if request.endpoint not in _insecure_views:
             return redirect(url_for('login'))
-    else:
-        check_request_permission()
+    # else:
+    #     check_request_permission()
 
 
-def check_request_permission():
-    with admin_permission.require(http_exception=403):
-        pass
+# def check_request_permission():
+#     with admin_permission.require(http_exception=403):
+#         pass
     
-
-
 
 def login_not_required(fn):
     '''decorator to disable user authentication'''
@@ -57,11 +55,16 @@ def index():
 
 
 
-# @app.route('/aaa/')
-# @login_required
-# def aaa():
-#     with admin_permission.require(http_exception=403):
-#         return "aaaaaaaaaaaa"
+admin_manager_permission = admin_permission.union(manager_permission)
+
+@app.route('/aaa/')
+@login_required
+# @admin_permission.require(http_exception=403)
+# @manager_permission.require(http_exception=403)
+@admin_manager_permission.require(http_exception=403)
+def aaa():
+    # with admin_permission.require(http_exception=403):
+    return "aaaaaaaaaaaa"
 
 
 # @app.route('/')
@@ -151,6 +154,7 @@ def login():
     return render_template('user/login.html', title='Sign In', form=form)
 
 @app.route('/logout/')
+@login_not_required
 def logout():
     logout_user()
     
