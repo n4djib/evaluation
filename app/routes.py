@@ -47,11 +47,15 @@ def aaa():
 
 @app.route('/permission/')
 @login_required
-# @RolePermission('admin')
-# @AnyRolePermission(['admin', 'manager'])
-@EveryRolePermission(['admin'])
+# @RolesAcceptedPermission(['admin', 'manager', 'grader'])
+# @RolesRequiredPermission(['admin', 'manager', 'grader'])
+@RolePermission('manager')
+@RolePermission('admin')
 def permission():
-    return "permission"
+    roles = '</br>'
+    for role in current_user.roles:
+        roles = roles + '</br> - '+role.name
+    return "permission" + roles
 
 
 

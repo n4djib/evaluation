@@ -12,6 +12,55 @@ from permission import Rule, Permission
 # student	
 # teacher
 
+
+class RolesAcceptedRule(Rule):
+	def __init__(self, roles):
+		self.roles = roles
+		super(RolesAcceptedRule, self).__init__()
+	def check(self):
+		current_user_roles = [role.name for role in current_user.roles]
+		for role in self.roles:
+			if role in current_user_roles:
+				return True
+		return False
+	def deny(self):
+		flash("you need to have at least one of the permissions "+str(self.roles))
+		abort(403)
+
+class RolesAcceptedPermission(Permission):
+	def __init__(self, roles):
+		self.roles = roles
+		super(RolesAcceptedPermission, self).__init__()
+	def rule(self):
+		return RolesAcceptedRule(self.roles)
+
+
+class RolesRequiredRule(Rule):
+	def __init__(self, roles):
+		self.roles = roles
+		super(RolesRequiredRule, self).__init__()
+	def check(self):
+		if len(self.roles) == 0:
+			return False
+		current_user_roles = [role.name for role in current_user.roles]
+		for role in self.roles:
+			if role not in current_user_roles:
+				return False
+		return True
+	def deny(self):
+		flash("you need to have all permissions "+str(self.roles))
+		abort(403)
+
+class RolesRequiredPermission(Permission):
+	def __init__(self, roles):
+		self.roles = roles
+		super(RolesRequiredPermission, self).__init__()
+	def rule(self):
+		return RolesRequiredRule(self.roles)
+
+
+############
+
 class RoleRule(Rule):
 	def __init__(self, role):
 		self.role = role
@@ -20,9 +69,9 @@ class RoleRule(Rule):
 		for r in current_user.roles:
 			if self.role == r.name:
 				return True
-			return False
+		return False
 	def deny(self):
-		flash("you don't have the needed permissions to perform this operation")
+		flash("you don't have the needed permissions ["+str(self.role)+"]")
 		abort(403)
 
 class RolePermission(Permission):
@@ -32,76 +81,8 @@ class RolePermission(Permission):
 	def rule(self):
 		return RoleRule(self.role)
 
-class AnyRolePermission(Permission):
-	def __init__(self, roles=[]):
-		self.roles = roles
-		super(AnyRolePermission, self).__init__()
-	def rule(self):
-		r = RoleRule(self.roles[0])
-		for x in range(len(self.roles)-1):
-			r = r | RoleRule(self.roles[x + 1])
-		return r
+############
 
-
-# class EveryRoleRule(Rule):
-# 	def __init__(self, roles):
-# 		self.roles = roles
-# 		super(EveryRoleRule, self).__init__()
-# 	def check(self):
-# 		print(' ')
-# 		print('---')
-# 		e = True
-# 		for role in self.roles:
-# 			# print('1: ' + str(e))
-# 			# r = RoleRule(role)
-# 			# if r != True:
-# 			# 	return False
-# 			e = e & RoleRule(role)
-# 			print('2: ' + str(e))
-# 		print('---')
-# 		print(' ')
-# 		return e
-# 	def deny(self):
-# 		flash("ggggggg EveryRoleRule ggggggg")
-# 		abort(403)
-
-class EveryRolePermission(Permission):
-	def __init__(self, roles=[]):
-		self.roles = roles
-		super(EveryRolePermission, self).__init__()
-	def rule(self):
-		r = None
-		# r = RoleRule(self.roles[0])
-		# for x in range(len(self.roles)-1):
-		# 	r = r & RoleRule(self.roles[x + 1])
-		# return r
-		for x in range(len(self.roles)):
-			if x == 0:
-				r = RoleRule(self.roles[x])
-			else:
-				r = r & RoleRule(self.roles[x])
-		print(' ')
-		print(str(r))
-		print(' ')
-		return r
-		# return EveryRoleRule(self.roles)
 
 
 ############
-
-# class AdminRule(Rule):
-# 	def check(self):
-# 		for role in current_user.roles:
-# 			if 'admin' == role.name:
-# 				return True
-# 			return False
-
-# 	def deny(self):
-# 		flash('you have to be an Admin')
-# 		abort(403)
-
-# class AdminPermission(Permission):
-# 	def rule(self):
-# 		return AdminRule()
-
-
