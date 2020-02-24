@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-  {% if g.identity.name == 'anon' %}
+  {% if current_user.name == 'anon' %}
     <h2>You must log in to access this page</h2>
   {% else %}
     <h2>Your current Roles</h2>

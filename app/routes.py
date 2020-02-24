@@ -1,14 +1,57 @@
 from app import app, db
-from flask import render_template, redirect, url_for, flash, request, jsonify,   session, g
+from flask import render_template, redirect, url_for, flash, request, jsonify #, session, g
 from app.models import Student, AnnualSession, User, Notification
 from app.forms import LoginForm, RegistrationForm
 # from werkzeug.urls import url_parse
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_breadcrumbs import register_breadcrumb
 
-from flask_principal import Identity, AnonymousIdentity, identity_changed
+# from flask_principal import Identity, AnonymousIdentity, identity_changed
 
-from app.permissions_and_roles import *
+# from app.prencipal import *
+from app.permissions_and_rules import *
+
+
+
+
+
+# # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # 
+
+
+@app.route('/')
+@app.route('/index/')
+# @login_required
+# @admin_permission.require(http_exception=403)
+@register_breadcrumb(app, '.', 'Home')
+def index():
+    return render_template('index.html', title='Welcome Page')
+
+
+
+# admin_manager_permission = admin_permission.union(manager_permission)
+
+@app.route('/aaa/')
+@login_required
+# @admin_permission.require(http_exception=403)
+# @manager_permission.require(http_exception=403)
+# @admin_manager_permission.require(http_exception=403)
+def aaa():
+    return "aaaaaaaaaaaa"
+    # with admin_permission.require(http_exception=403):
+    # print('')
+    # print(str(session))
+    # print('')
+    # return str(session['user_id'])
+
+
+@app.route('/permission/')
+@login_required
+# @RolePermission('admin')
+# @AnyRolePermission(['admin', 'manager'])
+@EveryRolePermission(['admin'])
+def permission():
+    return "permission"
 
 
 
@@ -41,40 +84,6 @@ def login_not_required(fn):
     return fn
 
 
-# # # # # # # # # # # # # # # # # # # # # 
-# # # # # # # # # # # # # # # # # # # # # 
-
-
-@app.route('/')
-@app.route('/index/')
-# @login_required
-# @admin_permission.require(http_exception=403)
-@register_breadcrumb(app, '.', 'Home')
-def index():
-    return render_template('index.html', title='Welcome Page')
-
-
-
-admin_manager_permission = admin_permission.union(manager_permission)
-
-@app.route('/aaa/')
-@login_required
-# @admin_permission.require(http_exception=403)
-# @manager_permission.require(http_exception=403)
-@admin_manager_permission.require(http_exception=403)
-def aaa():
-    # with admin_permission.require(http_exception=403):
-    return "aaaaaaaaaaaa"
-
-
-# @app.route('/')
-# @app.route('/form-builder/')
-# # @admin_permission.require()
-# # @login_required
-# # @register_breadcrumb(app, '.', 'Home')
-# def form_builder():
-#     return render_template('test-form-builder.html', title='test-form-builder')
-
 #######################################
 #######################################
 
@@ -92,6 +101,7 @@ def slow_redirect():
 
 
 #######################################
+#######################################
 
 @app.route('/notifications', methods=['GET'])
 @login_not_required
@@ -101,7 +111,7 @@ def notifications():
     msg = []
     for notification in notifications:
         # remove this later and add the correct url when inserting
-        make_delete_url(notification)
+        make_delete_notificaion_url(notification)
 
         msg.append({
             'id': notification.id, 
@@ -123,13 +133,11 @@ def remove_notification(id):
     db.session.commit()
     return 'removed'
 
-def make_delete_url(notification):
+def make_delete_notificaion_url(notification):
     notification.delete_url = url_for('remove_notification', id=notification.id)
     db.session.commit()
     return notification.delete_url
 
-#######################################
-#######################################
 #######################################
 #######################################
 
@@ -147,8 +155,8 @@ def login():
             return redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
         
-        # Tell Flask-Principal the identity changed
-        identity_changed.send(app, identity=Identity(user.id))
+        # # Tell Flask-Principal the identity changed
+        # identity_changed.send(app, identity=Identity(user.id))
 
         return redirect(request.args.get('next') or '/')
     return render_template('user/login.html', title='Sign In', form=form)
@@ -162,8 +170,8 @@ def logout():
     for key in ('identity.name', 'identity.auth_type'):
         session.pop(key, None)
 
-    # Tell Flask-Principal the user is anonymous
-    identity_changed.send(app, identity=AnonymousIdentity())
+    # # Tell Flask-Principal the user is anonymous
+    # identity_changed.send(app, identity=AnonymousIdentity())
 
     return redirect(request.args.get('next') or '/')
 

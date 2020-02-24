@@ -1584,7 +1584,7 @@ class User(UserMixin, db.Model):
     create_time = db.Column(db.DateTime, default=datetime.utcnow)
     update_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     roles = db.relationship('Role', secondary='user_roles',
-            backref=db.backref('users', lazy='dynamic'))
+            backref=db.backref('users', lazy='dynamic'), order_by='Role.id')
     def __repr__(self):
         return '<User: id = {} | username = {} | email = {}>'.format(self.id, self.username, self.email)
     def set_password(self, password):

@@ -11,7 +11,7 @@ from flask_breadcrumbs import register_breadcrumb
 from datetime import datetime
 from sqlalchemy import or_
 
-# from app.permissions_and_roles import *
+# from app.prencipal import *
 
 
 
@@ -19,7 +19,6 @@ from sqlalchemy import or_
 #####            INDEX            #####
 
 @app.route('/basic-tables/')
-# @admin_permission.require(http_exception=403)
 @register_breadcrumb(app, '.basic', 'Basic Tables')
 def basic_index():
     return render_template('basic-forms/index.html', title='Basic Tables List')

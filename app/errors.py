@@ -1,5 +1,6 @@
 from app import app, db
 from flask import render_template, g, flash
+from flask_login import current_user
 # from app.permissions_and_roles import current_privileges
 
 @app.errorhandler(404)
@@ -17,8 +18,14 @@ def authentication_failed(error):
     flash('Authenticated failed.')
     return redirect(url_for('login'))
 
+# @app.errorhandler(403)
+# def authorisation_failed(error):
+#     flash(('Your current identity is "{id}". You need special privileges to'
+#            ' access this page').format(id=g.identity.user.username))
+#     return render_template('errors/403.html', roles=g.identity.user.roles)
+
 @app.errorhandler(403)
 def authorisation_failed(error):
     flash(('Your current identity is "{id}". You need special privileges to'
-           ' access this page').format(id=g.identity.user.username))
-    return render_template('errors/403.html', roles=g.identity.user.roles)
+           ' access this page').format(id=current_user.username))
+    return render_template('errors/403.html', roles=current_user.roles)

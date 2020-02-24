@@ -26,6 +26,8 @@ CREATE TABLE user_roles (
 5    2    1
 
 = 
+    pip install flask-principal
+    pip install permission
 
 = 
 
