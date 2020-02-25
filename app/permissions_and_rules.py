@@ -13,6 +13,31 @@ from permission import Rule, Permission
 # teacher
 
 
+class RoleRule(Rule):
+	def __init__(self, role):
+		self.role = role
+		super(RoleRule, self).__init__()
+	def check(self):
+		print(' ')
+		print(str(current_user))
+		print(' ')
+		for r in current_user.roles:
+			if self.role == r.name:
+				return True
+		return False
+	def deny(self):
+		flash("you don't have the needed permissions ["+str(self.role)+"]")
+		abort(403)
+
+class RolePermission(Permission):
+	def __init__(self, role):
+		self.role = role
+		super(RolePermission, self).__init__()
+	def rule(self):
+		return RoleRule(self.role)
+
+############
+
 class RolesAcceptedRule(Rule):
 	def __init__(self, roles):
 		self.roles = roles
@@ -56,33 +81,37 @@ class RolesRequiredPermission(Permission):
 		self.roles = roles
 		super(RolesRequiredPermission, self).__init__()
 	def rule(self):
+		# if current_user == None:
+		# 	print('')
+		# 	print('aaaaaaaaaaaaaaaaaaaaaaaaaaa')
+		# 	print('aaaaaaaaaaaaaaaaaaaaaaaaaaa')
+		# 	print('')
+		# current_user_roles = [role.name for role in current_user.roles]
+		# r = None
+		# for x in range(len(self.roles)):
+		# 	if x == 0:
+		# 		r = RoleRule(self.roles[x])
+		# 	else:
+		# 		r = r & RoleRule(self.roles[x])
+		# return r
 		return RolesRequiredRule(self.roles)
 
 
 ############
 
-class RoleRule(Rule):
-	def __init__(self, role):
-		self.role = role
-		super(RoleRule, self).__init__()
-	def check(self):
-		for r in current_user.roles:
-			if self.role == r.name:
-				return True
-		return False
-	def deny(self):
-		flash("you don't have the needed permissions ["+str(self.role)+"]")
-		abort(403)
+# class BranchRule(Rule):
+# 	def check():
+# 		pass
+# 	def deny():
+# 		pass
 
-class RolePermission(Permission):
-	def __init__(self, role):
-		self.role = role
-		super(RolePermission, self).__init__()
-	def rule(self):
-		return RoleRule(self.role)
+# class BranchPermission(Permission):
+# 	def rule():
+# 		pass
 
-############
+# class Branch
 
 
 
 ############
+

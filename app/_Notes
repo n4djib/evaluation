@@ -44,7 +44,7 @@
 
 - permission:
 	https://pypi.org/project/permission/
-	add group notion
+	add group notion -- NO NEED - ROLES ARE SUFFICIENT
 	http://localhost:5001/permission/
 - create Form for the admin to create New users and asign them Permissions
 - add is_active to user to create them in "not active" mode

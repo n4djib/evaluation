@@ -19,6 +19,13 @@ from app.permissions_and_rules import *
 # # # # # # # # # # # # # # # # # # # # # 
 
 
+
+# @app.route('/run-code')
+# def run():
+#     users = User.query.all()
+
+
+
 @app.route('/')
 @app.route('/index/')
 # @login_required
@@ -31,31 +38,34 @@ def index():
 
 # admin_manager_permission = admin_permission.union(manager_permission)
 
-@app.route('/aaa/')
-@login_required
-# @admin_permission.require(http_exception=403)
-# @manager_permission.require(http_exception=403)
-# @admin_manager_permission.require(http_exception=403)
-def aaa():
-    return "aaaaaaaaaaaa"
-    # with admin_permission.require(http_exception=403):
-    # print('')
-    # print(str(session))
-    # print('')
-    # return str(session['user_id'])
+# @app.route('/aaa/')
+# @login_required
+# # @admin_permission.require(http_exception=403)
+# # @manager_permission.require(http_exception=403)
+# # @admin_manager_permission.require(http_exception=403)
+# def aaa():
+#     return "aaaaaaaaaaaa"
+#     # with admin_permission.require(http_exception=403):
+#     # print('')
+#     # print(str(session))
+#     # print('')
+#     # return str(session['user_id'])
 
 
 @app.route('/permission/')
 @login_required
+# @RolePermission('manager')
+# @RolePermission('admin')
 # @RolesAcceptedPermission(['admin', 'manager', 'grader'])
-# @RolesRequiredPermission(['admin', 'manager', 'grader'])
-@RolePermission('manager')
-@RolePermission('admin')
+@RolesRequiredPermission(['admin', 'manager', 'grader'])
 def permission():
     roles = '</br>'
     for role in current_user.roles:
         roles = roles + '</br> - '+role.name
     return "permission" + roles
+
+
+
 
 
 
@@ -152,7 +162,9 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     form = LoginForm()
+    print('1111111111111')
     if form.validate_on_submit():
+        print('22222222222222')
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
@@ -170,9 +182,9 @@ def login():
 def logout():
     logout_user()
     
-    # Remove session keys set by Flask-Principal
-    for key in ('identity.name', 'identity.auth_type'):
-        session.pop(key, None)
+    # # Remove session keys set by Flask-Principal
+    # for key in ('identity.name', 'identity.auth_type'):
+    #     session.pop(key, None)
 
     # # Tell Flask-Principal the user is anonymous
     # identity_changed.send(app, identity=AnonymousIdentity())

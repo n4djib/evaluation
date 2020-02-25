@@ -1368,6 +1368,7 @@ class Student(db.Model):
     branch_id = db.Column(db.Integer, db.ForeignKey('branch.id'))
     wilaya_id = db.Column(db.Integer, db.ForeignKey('wilaya.id'))
     ccp = db.Column(db.String(150))
+    is_active = db.Column(db.Boolean, default=True)
     student_sessions = db.relationship('StudentSession', back_populates='student')
     annual_grades = db.relationship('AnnualGrade', backref='student')
     classement = db.relationship("Classement", uselist=False, back_populates="student")
@@ -1453,6 +1454,7 @@ class Teacher(db.Model):
     phone = db.Column(db.String(20))
     sex = db.Column(db.String(20))
     ccp = db.Column(db.String(150))
+    is_active = db.Column(db.Boolean, default=True)
     create_time = db.Column(db.DateTime, default=datetime.utcnow)
     update_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     module_sessions = db.relationship('ModuleSession', backref='teacher')
@@ -1581,6 +1583,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
+    # is_active = db.Column(db.Boolean, default=True)
     create_time = db.Column(db.DateTime, default=datetime.utcnow)
     update_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     roles = db.relationship('Role', secondary='user_roles',
