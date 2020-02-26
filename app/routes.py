@@ -57,8 +57,13 @@ def index():
 # @RolePermission('manager')
 # @RolePermission('admin')
 # @RolesAcceptedPermission(['admin', 'manager', 'grader'])
-@RolesRequiredPermission(['admin', 'manager', 'grader'])
+# @RolesRequiredPermission(['admin', 'manager', 'grader'])
 def permission():
+    session_id = 78
+    permission = AttendancePermission(session_id)
+    if not permission.check():
+        return permission.deny()
+
     roles = '</br>'
     for role in current_user.roles:
         roles = roles + '</br> - '+role.name

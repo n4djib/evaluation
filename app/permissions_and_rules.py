@@ -1,5 +1,6 @@
 from flask import flash, url_for, abort
  #, session, redirect
+from app.models import AttendanceSupervisor
 from flask_login import current_user
 from permission import Rule, Permission
 
@@ -81,36 +82,31 @@ class RolesRequiredPermission(Permission):
 		self.roles = roles
 		super(RolesRequiredPermission, self).__init__()
 	def rule(self):
-		# if current_user == None:
-		# 	print('')
-		# 	print('aaaaaaaaaaaaaaaaaaaaaaaaaaa')
-		# 	print('aaaaaaaaaaaaaaaaaaaaaaaaaaa')
-		# 	print('')
-		# current_user_roles = [role.name for role in current_user.roles]
-		# r = None
-		# for x in range(len(self.roles)):
-		# 	if x == 0:
-		# 		r = RoleRule(self.roles[x])
-		# 	else:
-		# 		r = r & RoleRule(self.roles[x])
-		# return r
 		return RolesRequiredRule(self.roles)
-
+ 
 
 ############
 
-# class BranchRule(Rule):
-# 	def check():
-# 		pass
-# 	def deny():
-# 		pass
+class AttendanceRule(Rule):
+	def __init__(self, session_id):
+		self.session_id = session_id
+		super(AttendanceRule, self).__init__()
+	def check(self):
+		supervisors = AttendanceSupervisor.query.filter_by(
+		 	session_id=self.session_id, user_id=current_user.id).all()
+		if len(supervisors) > 0:
+			return True
+		return False
+	def deny(self):
+		flash("you don't have the permissions to enter Absences for this session")
+		abort(403)
 
-# class BranchPermission(Permission):
-# 	def rule():
-# 		pass
-
-# class Branch
-
+class AttendancePermission(Permission):
+	def __init__(self, session_id):
+		self.session_id = session_id
+		super(AttendancePermission, self).__init__()
+	def rule(self):
+		return RolesAcceptedRule(["admin", "manager"]) | AttendanceRule(self.session_id)
 
 
 ############

@@ -36,7 +36,17 @@ pip install permission
 
 = change is_active to "1" in user table
 
-= 
+= TABLES
+    CREATE TABLE attendance_supervisor (
+        id INTEGER PRIMARY KEY,
+        session_id INTEGER,
+        user_id INTEGER,
+        FOREIGN KEY (session_id)
+        REFERENCES session (id),
+        FOREIGN KEY (user_id)
+        REFERENCES user (id) 
+    );
+
 
 = 
 

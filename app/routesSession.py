@@ -11,7 +11,7 @@ from ast import literal_eval
 from datetime import datetime
 from app.routesCalculation import init_all, reinitialize_session, update_session_configuraton
 from app._shared_functions import extract_fields, check_session_status
-
+from app.permissions_and_rules import AttendancePermission
 
 
 
@@ -142,17 +142,10 @@ def session(session_id=0):
                 # 
                 # 
                 # 
-                # 
-                # 
                 module.is_savable = False
                 module_session = ModuleSession.query.filter_by(module_id=module.id).first()
                 if module_session != None:
                     module.is_savable = module_session.saving_enabled
-                # 
-                # 
-                # 
-                # 
-                # 
                 # 
                 # 
                 # 
@@ -171,7 +164,11 @@ def session(session_id=0):
 
         grades = Grade.query.join(StudentSession).filter_by(session_id=session_id).all()
         check = check_session_status(grades, session)
-        # title = 'Session ()'
+        
+        check['access_calendar'] = False
+        permission = AttendancePermission(session_id)
+        if permission.check():
+            check['access_calendar'] = True
         
         title = session.get_title()
         return render_template('session/session.html', 

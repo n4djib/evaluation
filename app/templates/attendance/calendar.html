@@ -1,23 +1,44 @@
-<!DOCTYPE html>
-<html lang='en'>
-<head>
-	<meta charset='utf-8' />
-	<title>***Calendar***</title>
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
+
+{% block styles %}
+  {{super()}}
 
   <link rel="stylesheet" href="{{ url_for('static', filename='fullcalendar.3.4.0/fullcalendar.css') }}" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='fullcalendar.3.4.0/bootstrap.4.0.0.css') }}" />
+  <!-- <link rel="stylesheet" href="{{ url_for('static', filename='fullcalendar.3.4.0/bootstrap.4.0.0.css') }}" /> -->
 
-  <script src="{{ url_for('static', filename='fullcalendar.3.4.0/jquery.3.2.1.min.js') }}"></script>
+  <!-- <script src="{{ url_for('static', filename='fullcalendar.3.4.0/jquery.3.2.1.min.js') }}"></script> -->
   <script src="{{ url_for('static', filename='fullcalendar.3.4.0/jquery-ui.1.12.1.min.js') }}"></script>
+
+{% endblock %}
+
+
+
+
+{% block app_content %}
+
+  <div class="container">
+    <div id="calendar"></div>
+  </div>
+
+{% endblock %}
+
+
+
+
+
+{% block scripts %}
+  {{ super() }}
+
   <script src="{{ url_for('static', filename='fullcalendar.3.4.0/moment.2.18.1.min.js') }}"></script>
   <script src="{{ url_for('static', filename='fullcalendar.3.4.0/fullcalendar.min.js') }}"></script>
   <script src="{{ url_for('static', filename='fullcalendar.3.4.0/lang-all.min.js') }}"></script>
 
   <script src="{{ url_for('static', filename='sweetalert2/sweetalert2@9.js') }}"></script>
 
-  <script>
 
+  <script>
 
   var calendar = null;
   var session_id = {{ session_id }};
@@ -159,7 +180,6 @@
     });
   }
 
-  
   function sweet_alert_fire(event, calendar) {
     Swal.fire({
       // title: '<strong>HTML <u>example</u></strong>',
@@ -167,6 +187,7 @@
       html: get_select_list_html(event),
       showCloseButton: true,
       showConfirmButton: false,
+      width: 600,
     })
   }
 
@@ -191,14 +212,11 @@
     });
 
     return html;
-  }
+  }/**/
 
   </script>
 
-</head>
-<body>
-	<div class="container">
-		<div id="calendar"></div>
-	</div>
-</body>
-</html>
+
+{% endblock %}
+
+

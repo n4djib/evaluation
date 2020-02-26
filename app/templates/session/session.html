@@ -61,8 +61,7 @@
           ><img src='/static/img/config-session.png'></a>
 
         <a href="{{url_for('conf_session', session_id=session.id, semester_id=session.semester_id)}}" class="btn btn-default" role="button"
-          ><img src='/static/img/treant.ico'
-          ></a>
+          ><img src='/static/img/treant.ico'></a>
           <!-- Config. of {{ session.semester.display_name }}</a> -->
 
         {% set init_url = url_for('reinitialize_session', session_id=session.id) %}
@@ -75,6 +74,10 @@
            class="btn btn-{{'warning shake-slow shake-constant' if check['CALC'] and not check['ERRS'] else 'primary'}} 
            {{'disabled' if session.is_closed or check['ERRS'] else ''}}" 
            role="button" style="z-index:9999;">(Re)Calculate</a>
+
+        <a href="{{url_for('calendar', session_id=session.id)}}"
+          class="btn btn-success {{'disabled' if not check['access_calendar']}}" role="button" style="z-index:9999;"><img src='/static/img/calendar 2.png'> Calendar</a>
+
       </div>
 
       <div style="float:right; max-width:300px;" class="input-group filter_w"> 

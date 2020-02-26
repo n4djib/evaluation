@@ -63,3 +63,5 @@ def check_session_status(grades, session):
         and len(session.student_sessions) > 0):
         status['need_init'] = True
     return status
+
+#

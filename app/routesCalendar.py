@@ -2,6 +2,7 @@ from app import app, db
 from flask import render_template, jsonify, request
 from app.models import School, Branch, Annual, Semester, Module, Promo,\
      Session, ModuleSession, Attendance, ModuleCalendar, Student
+from app.permissions_and_rules import AttendancePermission
 
 from datetime import datetime, timedelta
 
@@ -132,10 +133,10 @@ def save_attendance():
 
 
 
-@app.route('/select-list/')
-@app.route('/select-list/promo/<promo_id>') ###########################
-@app.route('/select-list/school/<school_id>')
-@app.route('/select-list/branch/<branch_id>')
+# @app.route('/select-list/')
+# @app.route('/select-list/promo/<promo_id>') ###########################
+# @app.route('/select-list/school/<school_id>')
+# @app.route('/select-list/branch/<branch_id>')
 @app.route('/select-list/session/<session_id>') ###########################
 # @app.route('/select-list/school/<school_id>/module/<module_id>')
 # @app.route('/select-list/branch/<branch_id>/module/<module_id>')
@@ -167,10 +168,10 @@ def select_list_calendar(school_id=0, branch_id=0, promo_id=0, session_id=0, mod
     if session != None and module_id != 0:
         module = Module.query.get_or_404(module_id)
 
-    print(' ')
-    print(str(module))
-    print(str(module_id))
-    print(' ')
+    # print(' ')
+    # print(str(module))
+    # print(str(module_id))
+    # print(' ')
 
     return render_template('attendance/select-list-module-calendar.html',
         school=school, branch=branch, promo=promo, session=session, module=module, event=event)
@@ -301,9 +302,12 @@ def attendance(calendar_id=0):
         attendances=attendances)
 
 
-@app.route('/calendar')
+# @app.route('/calendar')
 @app.route('/calendar/session/<session_id>')
 def calendar(session_id=0):
+    permission = AttendancePermission(session_id)
+    if not permission.check():
+        return permission.deny()
     return render_template('attendance/calendar.html', session_id=session_id)
 
 def generate_modal(event_id):
@@ -362,6 +366,7 @@ def load_event():
             'end': end_event,
             # 'description': 'description for Long Event',
             'color': color,
+            'textColor': 'black',
             'type': '1',
             'modalContent': generate_modal(event.id),
             # rendering: 'background'

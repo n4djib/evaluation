@@ -342,7 +342,6 @@ class AnnualGrade(db.Model):
 
         return 'AnnualGrade calculated'
 
-
 class Session(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250))
@@ -1600,6 +1599,7 @@ class User(UserMixin, db.Model):
 class Role(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(50), unique=True)
+    description = db.Column(db.String(150))
     # def __repr__(self):
     #     return '<Role: id = {} | name = {}>'.format(self.id, self.username)
 
@@ -1609,6 +1609,14 @@ class UserRoles(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'))
     role_id = db.Column(db.Integer(), db.ForeignKey('role.id', ondelete='CASCADE'))
+
+
+class AttendanceSupervisor(db.Model):
+    # __tablename__ = 'attendance_supervisor'
+    id = db.Column(db.Integer(), primary_key=True)
+    session_id = db.Column(db.Integer(), db.ForeignKey('session.id', ondelete='CASCADE'))
+    user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'))
+ 
 
 @login.user_loader
 def load_user(id):
