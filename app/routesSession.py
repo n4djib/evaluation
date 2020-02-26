@@ -100,6 +100,7 @@ def get_config_changed_flash(session):
         btn = '<a href="'+url+'" class="btn btn-warning" role="button">(Re)initialize</a>'
         flash('Configuration has changed, you need to Reinitialized  '+btn, 'alert-warning')
 
+
 def session_dlc(*args, **kwargs):
     session_id = request.view_args['session_id']
     session = Session.query.get_or_404(session_id)

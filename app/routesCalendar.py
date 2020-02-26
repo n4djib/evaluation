@@ -2,6 +2,7 @@ from app import app, db
 from flask import render_template, jsonify, request
 from app.models import School, Branch, Annual, Semester, Module, Promo,\
      Session, ModuleSession, Attendance, ModuleCalendar, Student
+from flask_breadcrumbs import register_breadcrumb
 from app.permissions_and_rules import AttendancePermission
 
 from datetime import datetime, timedelta
@@ -302,13 +303,26 @@ def attendance(calendar_id=0):
         attendances=attendances)
 
 
+# def calendar_dlc(*args, **kwargs):
+#     session_id = request.view_args['session_id']
+#     session = Session.query.get_or_404(session_id)
+#     nbr = session.semester.get_nbr()
+#     text = 'Semester'
+#     if session.is_rattrapage:
+#         text = 'Rattrapage'
+#     return [{'text': text+' ('+str(nbr)+')', 
+#         'url': url_for('session', session_id=session_id)}]
+
 # @app.route('/calendar')
 @app.route('/calendar/session/<session_id>')
+# @register_breadcrumb(app, '.tree_session.session.calendar', '***', dynamic_list_constructor=calendar_dlc)
+@register_breadcrumb(app, '.tree_session.session.calendar', 'Calendar')
 def calendar(session_id=0):
     permission = AttendancePermission(session_id)
     if not permission.check():
         return permission.deny()
-    return render_template('attendance/calendar.html', session_id=session_id)
+    title = 'Calendar for ***'
+    return render_template('attendance/calendar.html', title=title, session_id=session_id)
 
 def generate_modal(event_id):
     event = ModuleCalendar.query.get(event_id)
