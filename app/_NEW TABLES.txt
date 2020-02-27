@@ -1,24 +1,40 @@
 
+= add field 'is_rattrapage' boolean in 'module_session'
+
+= add 'tmp_session_id' to module_session
+= COPY DATA
+    
+
+= fill by running code
+    fill 'promo_id'
+    fill 'is_rattrapage'
+    fill 'module_code' & 'module_name'
+
+
+
+
 = make FK attendance to module_calendar cascade
 
 = add 'ccp' varchar 150
      to Table "teacher" & "student"
 
-= create tables
-CREATE TABLE role (
-    id INTEGER PRIMARY KEY,
-    name VARCHAR (50) 
-);
 
-CREATE TABLE user_roles (
-    id INTEGER PRIMARY KEY,
-    user_id INTEGER,
-    role_id INTEGER,
-    FOREIGN KEY (user_id)
-    REFERENCES user (id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (role_id)
-    REFERENCES role (id) ON DELETE CASCADE ON UPDATE CASCADE
-);
+
+= create tables
+    CREATE TABLE role (
+        id INTEGER PRIMARY KEY,
+        name VARCHAR (50) 
+    );
+
+    CREATE TABLE user_roles (
+        id INTEGER PRIMARY KEY,
+        user_id INTEGER,
+        role_id INTEGER,
+        FOREIGN KEY (user_id)
+        REFERENCES user (id) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY (role_id)
+        REFERENCES role (id) ON DELETE CASCADE ON UPDATE CASCADE
+    );
 
 
 = add records to table "user_roles"

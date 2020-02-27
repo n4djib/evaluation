@@ -1,38 +1,91 @@
 {% extends "base.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
-{% block app_content %}
 
+
+
+
+{% block styles %}
+  {{super()}}
+
+
+  <style type="text/css">
+
+    .icon-delete {
+        color: red;
+        float: right;
+        cursor: pointer;
+    }
+
+  </style>
+
+{% endblock %}
+
+
+{% block app_content %}
 
     <h1>Update Session Config</h1>
 
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-5 col-sm-4 col-xs-3">
         <!-- { { wtf.quick_form(form) } } -->
 
-		{{ form.hidden_tag() }}
-		{{ wtf.form_errors(form, hiddens="only") }}
+    		{{ form.hidden_tag() }}
+    		{{ wtf.form_errors(form, hiddens="only") }}
 
-		{{ wtf.form_field(form.name) }}
-		{{ wtf.form_field(form.start_date) }}
-		{{ wtf.form_field(form.finish_date) }}
+    		{{ wtf.form_field(form.name) }}
+    		{{ wtf.form_field(form.start_date) }}
+    		{{ wtf.form_field(form.finish_date) }}
+    		{{ wtf.form_field(form.is_historic) }}
 
+    		{{ wtf.form_field(form.submit) }}
 
-   		<ul class="list-group" style="border:1px solid #ddd; padding:10px; ">
-   		  <b style="margin-bottom: 15px; ">List of Users that can modify Attendance for this Session:</b>
-   		  {% if supervisors|list|length > 0 %}
-   		    {% for supervisor in supervisors %}
-		    <li class="list-group-item">{{ supervisor.user.username }}</li>
-   		    {% endfor %}
-   		  {% endif %}
-		</ul>
-
-		{{ wtf.form_field(form.is_historic) }}
-
-		{{ wtf.form_field(form.submit) }}
+        </br></br>
 
       </div>
+
+
+      <div class="col-md-1 col-sm-1 col-xs-1">
+      </div>
+
+      <div class="col-md-6  col-sm-5 col-xs-5">
+        </br>
+        <ul class="list-group" style="border:1px solid #ddd; padding:10px; ">
+            <b style="margin-bottom: 15px; ">List of Users that can modify Attendance for this Session:</b></br></br>
+            <div id="user_list">
+              {% if supervisors|list|length > 0 %}
+                {% for u in supervisors %}
+                <li id="{{ u.id }}" class="list-group-item"
+                  >{{ u.user.username }} <span class="glyphicon glyphicon-remove icon-delete" onclick="_delete({{ u.id }});"></span></li>
+                {% endfor %}
+              {% endif %}
+            </div>
+        </ul>
+
+      </div>
+
     </div>
     </br>
     </br> 
+{% endblock %}
+
+
+
+
+
+{% block scripts %}
+  {{ super() }}
+
+
+
+
+  <script type="text/javascript">
+
+    function _delete(supervisor_id){
+      // $.ajax()
+      alert('aaaaaa '+supervisor_id);
+    }
+
+  </script>
+
 {% endblock %}

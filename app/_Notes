@@ -42,6 +42,12 @@
 			- when deleting module_session
 				delete module_calendar and attendance
 
+- add 'is_rattrapage' to ModuleSession 
+	
+
+- BUG:
+	module_session is double because 
+		normal + rattrapage
 - permission:
 	https://pypi.org/project/permission/
 	add group notion -- NO NEED - ROLES ARE SUFFICIENT

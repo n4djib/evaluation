@@ -1514,7 +1514,6 @@ class ModuleCalendar(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow, onupdate=datetime.utcnow)
     attendances = db.relationship('Attendance', backref='module_calendar')
 
-
 ############################## 
 
 class Classement(db.Model):
@@ -1597,7 +1596,6 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
     
-
 # Define Role model
 class Role(db.Model):
     id = db.Column(db.Integer(), primary_key=True)

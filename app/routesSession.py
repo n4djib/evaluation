@@ -428,9 +428,8 @@ def session_config(session_id=0):
         # form.type.data = session.type
         form.is_historic.data = session.is_historic
 
-    supervisors = AttendanceSupervisor.query.filter_by(
-        session_id=session_id).all()
-    # supervisors = []
+    supervisors = AttendanceSupervisor.query.filter_by(session_id=session_id).all()
+
     return render_template('session/session-config.html', 
         title='Session Config', form=form, supervisors=supervisors)
 
@@ -470,6 +469,13 @@ def session_historic_save():
     db.session.commit()
 
     return 'data saved'
+
+#######################################
+#######################################
+
+@app.route('///', methods = ['GET', 'POST'])
+def aaaaaaaaaaaaaaaaaa():
+    pass 
 
 
 #####################################################################################

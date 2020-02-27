@@ -19,17 +19,28 @@ def create_module_session(session, module):
 
     # a small test to check that module_session is only created once
     module_session_ssssss = ModuleSession.query.filter_by(
-        promo_id=session.promo_id, module_code=module.code, module_name=module.name)\
-        .all()
+        promo_id=session.promo_id, 
+        module_code=module.code, 
+        module_name=module.name,
+        # is_rattrapage=session.is_rattr apage
+        ).all()
     if len(module_session_ssssss) > 1:
+        print(' ')
+        print(' ')
+        print(str(module_session_ssssss))
+        print(' ')
+        print(' ')
         raise Exception("too many module_session ")
 
     module_session = None
 
     if module.code != None:
         module_session = ModuleSession.query.filter_by(
-            promo_id=session.promo_id, module_code=module.code, module_name=module.name)\
-            .first()
+            promo_id=session.promo_id, 
+            module_code=module.code, 
+            module_name=module.name,
+            # is_rattrapage=session.is_rattrapage
+            ).first()
     else:
         module_session = ModuleSession.query.filter_by(
             promo_id=session.promo_id, module_name=module.name)\
