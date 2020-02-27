@@ -359,6 +359,8 @@ class Session(db.Model):
     annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
     annual_session = db.relationship('AnnualSession', back_populates='sessions')
     student_sessions = db.relationship('StudentSession', back_populates='session')
+
+    # attendance_supervisors = db.relationship('AttendanceSupervisor', backref='session')
     def __repr__(self):
         return '<Session {}>'.format(self.id)
         # return '<{} - {}>'.format(self.id, self.name)
@@ -1587,6 +1589,7 @@ class User(UserMixin, db.Model):
     update_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     roles = db.relationship('Role', secondary='user_roles',
             backref=db.backref('users', lazy='dynamic'), order_by='Role.id')
+    attendance_supervisors = db.relationship('AttendanceSupervisor', backref='user')
     def __repr__(self):
         return '<User: id = {} | username = {} | email = {}>'.format(self.id, self.username, self.email)
     def set_password(self, password):

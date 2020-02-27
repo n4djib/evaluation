@@ -2,7 +2,7 @@ from app import app, db
 from flask import render_template, request, redirect, url_for, flash
 from app.models import Promo, Session, StudentSession, Grade, GradeUnit, Unit, Semester,\
      School, Module, Student, Type, AnnualSession, AnnualGrade, Grade, Annual,\
-     Classement, ClassementYear, ModuleSession, ClassementSemester
+     Classement, ClassementYear, ModuleSession, ClassementSemester, AttendanceSupervisor
 from app.forms import SessionConfigForm
 from flask_breadcrumbs import register_breadcrumb
 from decimal import *
@@ -12,6 +12,7 @@ from datetime import datetime
 from app.routesCalculation import init_all, reinitialize_session, update_session_configuraton
 from app._shared_functions import extract_fields, check_session_status
 from app.permissions_and_rules import AttendancePermission
+from flask_login import current_user
 
 
 
@@ -398,6 +399,7 @@ def delete_session(session_id):
     return redirect(url_for('tree', school_id=school_id, branch_id=branch_id, promo_id=promo_id))
 
 #######################################
+#######################################
 
 @app.route('/session/<session_id>/config/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree_session.session.config', 'Session Config' )
@@ -425,8 +427,12 @@ def session_config(session_id=0):
         # form.semester_id.data = session.semester_id
         # form.type.data = session.type
         form.is_historic.data = session.is_historic
+
+    supervisors = AttendanceSupervisor.query.filter_by(
+        session_id=session_id).all()
+    # supervisors = []
     return render_template('session/session-config.html', 
-        title='Session Config', form=form)
+        title='Session Config', form=form, supervisors=supervisors)
 
 def create_data_session_historic(session):
     data_arr = ''

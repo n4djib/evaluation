@@ -7,9 +7,31 @@
     <h1>Update Session Config</h1>
 
     <div class="row">
-        <div class="col-md-6">
-          {{ wtf.quick_form(form) }}
-        </div>
+      <div class="col-md-6">
+        <!-- { { wtf.quick_form(form) } } -->
+
+		{{ form.hidden_tag() }}
+		{{ wtf.form_errors(form, hiddens="only") }}
+
+		{{ wtf.form_field(form.name) }}
+		{{ wtf.form_field(form.start_date) }}
+		{{ wtf.form_field(form.finish_date) }}
+
+
+   		<ul class="list-group" style="border:1px solid #ddd; padding:10px; ">
+   		  <b style="margin-bottom: 15px; ">List of Users that can modify Attendance for this Session:</b>
+   		  {% if supervisors|list|length > 0 %}
+   		    {% for supervisor in supervisors %}
+		    <li class="list-group-item">{{ supervisor.user.username }}</li>
+   		    {% endfor %}
+   		  {% endif %}
+		</ul>
+
+		{{ wtf.form_field(form.is_historic) }}
+
+		{{ wtf.form_field(form.submit) }}
+
+      </div>
     </div>
     </br>
     </br> 
