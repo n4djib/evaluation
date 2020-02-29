@@ -1468,6 +1468,7 @@ class ModuleSession(db.Model):
     module_id = db.Column(db.Integer, db.ForeignKey('module.id'))
     module_code = db.Column(db.String(20))
     module_name = db.Column(db.String(255))
+    is_rattrapage = db.Column(db.Boolean)
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
     start_date = db.Column(db.Date)
     finish_date = db.Column(db.Date)
@@ -1476,14 +1477,20 @@ class ModuleSession(db.Model):
     exam_surveyors = db.Column(db.Text)
     saving_enabled = db.Column(db.Boolean, default=False)
     last_entry = db.Column(db.DateTime)
-    # module_sessions = db.relationship('ModuleSession', backref='teacher')
     module_calendars = db.relationship('ModuleCalendar', backref='module_session')
     def has_teacher(self):
         if self.teacher_id == None:
             return True
         return False
-    # def get_session(self):
-    #     promo = self.promo
+    def get_session(self):
+        module = self.module
+        semester = self.module.unit.semester
+        
+        session = Session.query.filter(
+            is_rattrapage=self.is_rattrapage,
+            promo_id=self.promo.id,
+            semester_id=semester.id
+        ).all()
 
 class Attendance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -1583,7 +1590,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    # is_active = db.Column(db.Boolean, default=True)
+    is_active = db.Column(db.Boolean, default=True)
     create_time = db.Column(db.DateTime, default=datetime.utcnow)
     update_time = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     roles = db.relationship('Role', secondary='user_roles',
@@ -1610,7 +1617,6 @@ class UserRoles(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'))
     role_id = db.Column(db.Integer(), db.ForeignKey('role.id', ondelete='CASCADE'))
-
 
 class AttendanceSupervisor(db.Model):
     # __tablename__ = 'attendance_supervisor'

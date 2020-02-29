@@ -26,45 +26,47 @@
 
     <h1>Update Session Config</h1>
 
-    <div class="row">
-      <div class="col-md-5 col-sm-4 col-xs-3">
-        <!-- { { wtf.quick_form(form) } } -->
+    <form class="form form-virtical" method="post" role="form">
+      <div class="row">
+        <div class="col-md-5 col-sm-4 col-xs-3">
+          <!-- { { wtf.quick_form(form) } } -->
 
-    		{{ form.hidden_tag() }}
-    		{{ wtf.form_errors(form, hiddens="only") }}
+      		{{ form.hidden_tag() }}
+          <!-- { { form.csrf_token }} -->
+      		{{ wtf.form_errors(form, hiddens="only") }}
 
-    		{{ wtf.form_field(form.name) }}
-    		{{ wtf.form_field(form.start_date) }}
-    		{{ wtf.form_field(form.finish_date) }}
-    		{{ wtf.form_field(form.is_historic) }}
+      		{{ wtf.form_field(form.name) }}
+      		{{ wtf.form_field(form.start_date) }}
+      		{{ wtf.form_field(form.finish_date) }}
+      		{{ wtf.form_field(form.is_historic) }}
 
-    		{{ wtf.form_field(form.submit) }}
+      		{{ wtf.form_field(form.submit) }}
 
-        </br></br>
+          </br></br>
 
-      </div>
+        </div>
 
 
-      <div class="col-md-1 col-sm-1 col-xs-1">
-      </div>
+        <div class="col-md-1 col-sm-1 col-xs-1">
+        </div>
 
-      <div class="col-md-6  col-sm-5 col-xs-5">
-        </br>
-        <ul class="list-group" style="border:1px solid #ddd; padding:10px; ">
-            <b style="margin-bottom: 15px; ">List of Users that can modify Attendance for this Session:</b></br></br>
-            <div id="user_list">
-              {% if supervisors|list|length > 0 %}
-                {% for u in supervisors %}
-                <li id="{{ u.id }}" class="list-group-item"
-                  >{{ u.user.username }} <span class="glyphicon glyphicon-remove icon-delete" onclick="_delete({{ u.id }});"></span></li>
-                {% endfor %}
-              {% endif %}
+        <div class="col-md-6  col-sm-5 col-xs-5">
+          </br>
+          <ul class="list-group" style="border:1px solid #ddd; padding:10px;">
+            <b style="margin-bottom: 15px; ">List of Users that can modify Attendance for this Session:</b>
+
+            </br></br>
+
+            <div id="supervisors_list">
+              <!-- the list is inserted here -->
             </div>
-        </ul>
+
+          </ul>
+
+        </div>
 
       </div>
-
-    </div>
+    </form>
     </br>
     </br> 
 {% endblock %}
@@ -81,10 +83,59 @@
 
   <script type="text/javascript">
 
-    function _delete(supervisor_id){
-      // $.ajax()
-      alert('aaaaaa '+supervisor_id);
+    function _user_delete(supervisor_id){
+      $.ajax({
+        url: '/user-attendance-supervisor/delete', 
+        type: 'POST',
+        data: JSON.stringify( {'id': supervisor_id} ),
+        dataType: 'text',
+        success: function(msg) {
+          console.log(msg);
+          _get_list_html({{ session.id }});
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+          console.log('some error in /user-attendance-supervisor/delete');
+        }
+      });
     }
+
+    function _get_list_html(session_id) {
+      $.ajax({
+        url: '/user-attendance-supervisor/'+session_id, 
+        type: 'GET',
+        dataType: 'text',
+        success: function(html) {
+          // console.log(html);
+          $('#supervisors_list').html(html);
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+          console.log('some error');
+        }
+      });
+    }
+
+    function _user_select_add(user_id){
+      $.ajax({
+        url: '/user-attendance-supervisor/add', 
+        type: 'POST',
+        data: JSON.stringify( {'user_id': user_id, 'session_id': {{ session.id }}} ),
+        dataType: 'text',
+        success: function(msg) {
+          console.log(msg);
+          _get_list_html({{ session.id }});
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+          console.log('some error in /user-attendance-supervisor/add');
+        }
+      });
+    }
+
+    //on load
+    $( document ).ready(function() {
+      _get_list_html({{ session.id }});
+      
+    });
+
 
   </script>
 

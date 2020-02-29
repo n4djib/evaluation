@@ -22,7 +22,7 @@ def create_module_session(session, module):
         promo_id=session.promo_id, 
         module_code=module.code, 
         module_name=module.name,
-        # is_rattrapage=session.is_rattr apage
+        is_rattrapage=session.is_rattrapage
         ).all()
     if len(module_session_ssssss) > 1:
         print(' ')
@@ -39,12 +39,14 @@ def create_module_session(session, module):
             promo_id=session.promo_id, 
             module_code=module.code, 
             module_name=module.name,
-            # is_rattrapage=session.is_rattrapage
+            is_rattrapage=session.is_rattrapage
             ).first()
     else:
         module_session = ModuleSession.query.filter_by(
-            promo_id=session.promo_id, module_name=module.name)\
-            .first()
+            promo_id=session.promo_id, 
+            module_name=module.name, 
+            is_rattrapage=session.is_rattrapage
+        ).first()
 
 
     if module_session == None:
@@ -53,9 +55,8 @@ def create_module_session(session, module):
             promo_id=session.promo_id, 
             module_id=module.id,
             module_code=module.code, 
-            module_name=module.name,
-            # 
-            # 
+            module_name=module.name, 
+            is_rattrapage=session.is_rattrapage
         )
     else:
         # if found update module_id
@@ -275,7 +276,8 @@ def set_last_entry_to_current_datate_time(grade):
     module_session = ModuleSession.query.filter_by(
         promo_id=session.promo.id, 
         module_code=module.code, 
-        module_name=module.name).first()
+        module_name=module.name,
+        is_rattrapage=session.is_rattrapage).first()
     module_session.last_entry = CURRENT_DATE_TIME
 
 
@@ -375,19 +377,10 @@ def get_teacher_choices():
 def module_session_config(session_id, module_id):
     session = Session.query.get_or_404(session_id)
     module = Module.query.get_or_404(module_id)
-    # module_session = ModuleSession.query.filter_by(
-    #     promo_id=session.promo.id, module_id=module_id).first()
     module_session = create_module_session(session, module)
 
     form = ModuleSessionForm(module_session.id)
-
     form.teacher_id.choices = get_teacher_choices()
-    # (-1, '')]+[
-    #         (t.id, 
-    #          str(t.title).replace("None", "")\
-    #          +' - '+t.last_name+' '+str(t.first_name)
-    #         ) for t in Teacher.query.order_by('last_name', 'last_name')
-    
 
     if form.validate_on_submit():
         remember_savable = module_session.saving_enabled
@@ -477,11 +470,13 @@ def collect_data_for_module(grades, cols, empty=''):
             saving_grade = None
             if grade.saving_grade != None:
                 module_session = ModuleSession.query.filter_by(
-                    session_id=grade.student_session.session_id,
-                    module_id=grade.module_id).first()
+                    promo_id=grade.student_session.session.promo_id,
+                    module_code=grade.module.module_code,
+                    module_name=grade.module.module_name,
+                    is_rattrapage=grade.student_session.session.is_rattrapage
+                ).first()
                 if module_session.saving_enabled == True:
                     saving_grade = grade.saving_grade
-
 
             #cour
             record.append( saving_grade if saving_grade != None else grade.cour )
@@ -503,6 +498,15 @@ def collect_data_for_module(grades, cols, empty=''):
 
         data.append(record)
     return data
+
+
+
+
+
+
+
+
+
 
 # print empty
 # with grades
@@ -560,10 +564,6 @@ def get_module_print_header(session, module):
     time = '#é$/&?|[+{#%*#$='
     if module.time != None: time = module.time
 
-    # module_session = ModuleSession.query\
-    #     .filter_by(module_id=module.id)\
-    #     .join(Session).filter_by(id=session.id)\
-    #     .first()
     module_session = ModuleSession.query.join(Module).filter_by(id=module.id)\
         .join(Unit).join(Semester).join(Session).filter_by(id=session.id).first()
 

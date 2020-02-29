@@ -42,20 +42,19 @@
 			- when deleting module_session
 				delete module_calendar and attendance
 
-- add 'is_rattrapage' to ModuleSession 
+			- add 'is_rattrapage' to ModuleSession 
 	
-
-- BUG:
-	module_session is double because 
-		normal + rattrapage
+			- session config is not saving
+			- BUG:
+				module_session is double because 
+					normal + rattrapage
 - permission:
 	https://pypi.org/project/permission/
-	add group notion -- NO NEED - ROLES ARE SUFFICIENT
 	http://localhost:5001/permission/
-- Calendar
-	add button to session that opens calendar
+			- Calendar
+				add button to session that opens calendar
 - create Form for the admin to create New users and asign them Permissions
-- add is_active to user to create them in "not active" mode
+			- add is_active to user to create them in "not active" mode
 - Don't allow deleting Events
 	when you saved Attendance
 	unless you uncheck all attendances

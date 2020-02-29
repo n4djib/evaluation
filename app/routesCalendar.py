@@ -9,9 +9,10 @@ from datetime import datetime, timedelta
 
 
 
-@app.route('/select-list/api/event/<event_id>')
+# @app.route('/select-list/api/event/<event_id>')
 @app.route('/select-list/api/event/<event_id>/session/<session_id>')
-def select_list_calendar_api(event_id=0, session_id=0):
+# def select_list_calendar_api(event_id=0, session_id=0):
+def select_list_calendar_api(event_id, session_id):
     module_calendar = ModuleCalendar.query.get(event_id)
 
     if module_calendar == None:
@@ -20,30 +21,30 @@ def select_list_calendar_api(event_id=0, session_id=0):
     module_id = 0
     module_session = module_calendar.module_session
 
-    if module_session != None:
-        module_id = module_session.module.id
-
-    if session_id != 0:
-        return select_list_calendar(session_id=session_id, module_id=module_id, event_id=event_id)
-
-    if module_session == None:
-        # return 'No module_session is related (event: '+str(event_id)+')'
-        return select_list_calendar(0, 0, 0, 0, 0, 0)
-
-    sessions = Session.query.filter_by(
-        promo_id=module_session.promo_id, 
-        semester_id=module_session.module.unit.semester_id
-    ).all()
-
-    if len(sessions) != 1:
-        raise Exception('it should return only one session')
-
-    session_id = sessions[0].id
+    # if module_session != None:
     module_id = module_session.module.id
 
-    # html = select_list_calendar(0, 0, 0, session_id, module_id)
-    html = select_list_calendar(0, 0, 0, session_id, module_id, event_id)
-    return html
+    # if session_id != 0:
+    return select_list_calendar(session_id=session_id, module_id=module_id, event_id=event_id)
+
+    # if module_session == None:
+    #     # return 'No module_session is related (event: '+str(event_id)+')'
+    #     return select_list_calendar(0, 0, 0, 0, 0, 0)
+
+    # sessions = Session.query.filter_by(
+    #     promo_id=module_session.promo_id, 
+    #     semester_id=module_session.module.unit.semester_id
+    # ).all()
+
+    # if len(sessions) != 1:
+    #     raise Exception('it should return only one session')
+
+    # session_id = sessions[0].id
+    # module_id = module_session.module.id
+
+    # # html = select_list_calendar(0, 0, 0, session_id, module_id)
+    # html = select_list_calendar(0, 0, 0, session_id, module_id, event_id)
+    # return html
 
 
 
@@ -89,7 +90,14 @@ def save_select_list_calendar():
         return 'ERROR: module or promo not found'
 
     if module_session == None and promo_id != 0 and module_id != 0:
-        module_session = ModuleSession(promo_id=promo_id, module_id=module_id)
+        session = Session.query.get_or_404(session_id)
+        module_session = ModuleSession(
+            promo_id=promo_id, 
+            module_id=module.id, 
+            module_code=module.code, 
+            module_name=module.name, 
+            is_rattrapage=session.is_rattrapage
+        )
         db.session.add(module_session)
         db.session.commit()
 

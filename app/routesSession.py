@@ -2,7 +2,7 @@ from app import app, db
 from flask import render_template, request, redirect, url_for, flash
 from app.models import Promo, Session, StudentSession, Grade, GradeUnit, Unit, Semester,\
      School, Module, Student, Type, AnnualSession, AnnualGrade, Grade, Annual,\
-     Classement, ClassementYear, ModuleSession, ClassementSemester, AttendanceSupervisor
+     Classement, ClassementYear, ModuleSession, ClassementSemester, AttendanceSupervisor, User
 from app.forms import SessionConfigForm
 from flask_breadcrumbs import register_breadcrumb
 from decimal import *
@@ -112,6 +112,8 @@ def session_dlc(*args, **kwargs):
     return [{'text': text+' ('+str(nbr)+')', 
         'url': url_for('session', session_id=session_id)}]
 
+
+
 @app.route('/session/<session_id>/', methods=['GET', 'POST'])
 @register_breadcrumb(app, '.tree_session.session', '***', dynamic_list_constructor=session_dlc)
 def session(session_id=0):
@@ -129,9 +131,6 @@ def session(session_id=0):
     if session.is_historic:
         # test session-historic progress
         data_arr = create_data_session_historic(session)
-        # title = 'Session Historique ('
-        # title += str(session.promo.branch.name)+' - '
-        # title += session.semester+')'
         title = session.get_title()
         return render_template('session/session-historic.html', title=title, 
             session=session, data_arr=data_arr)
@@ -142,14 +141,10 @@ def session(session_id=0):
             for module in unit.modules:
                 # 
                 # 
-                # 
-                # 
                 module.is_savable = False
                 module_session = ModuleSession.query.filter_by(module_id=module.id).first()
                 if module_session != None:
                     module.is_savable = module_session.saving_enabled
-                # 
-                # 
                 # 
                 # 
                 # 
@@ -413,8 +408,7 @@ def session_config(session_id=0):
         session.name = form.name.data
         session.start_date = form.start_date.data
         session.finish_date = form.finish_date.data
-        # session.semester_id = form.semester_id.data
-        session.type = form.type.data
+        session.is_historic = form.is_historic.data
         db.session.commit()
         # if session.is_historic:
         #     init_all(session)
@@ -424,14 +418,12 @@ def session_config(session_id=0):
         form.name.data = session.name
         form.start_date.data = session.start_date
         form.finish_date.data = session.finish_date
-        # form.semester_id.data = session.semester_id
-        # form.type.data = session.type
         form.is_historic.data = session.is_historic
 
     supervisors = AttendanceSupervisor.query.filter_by(session_id=session_id).all()
 
     return render_template('session/session-config.html', 
-        title='Session Config', form=form, supervisors=supervisors)
+        title='Session Config', form=form, session=session, supervisors=supervisors)
 
 def create_data_session_historic(session):
     data_arr = ''
@@ -473,9 +465,73 @@ def session_historic_save():
 #######################################
 #######################################
 
-@app.route('///', methods = ['GET', 'POST'])
-def aaaaaaaaaaaaaaaaaa():
-    pass 
+@app.route('/user-attendance-supervisor/<session_id>', methods = ['GET'])
+def user_attendance_supervisor_get(session_id):
+    supervisors = AttendanceSupervisor.query.filter_by(session_id=session_id).all()
+    users = User.query.all()
+
+    html = '<div id="">'
+    user_supervisor_ids = []
+    for supervisor in supervisors:
+        if supervisor.user != None:
+            user_supervisor_ids.append(supervisor.user.id)
+            li = '<li id="'+str(supervisor.id)+'" class="list-group-item">'
+            li += str(supervisor.user.username)+'<span class="glyphicon glyphicon-remove icon-delete"'
+            li += ' onclick="_user_delete('+str(supervisor.id)+');"></span></li>'
+            html = html + li
+
+    html += '</div>'
+    html += '</br></br>'
+
+    html += '<div class="form-group">'
+    html += '<select class="form-control" id="user_list"'
+    html += '''style='width: 50%;' onchange="_user_select_add($(this).val())">'''
+    html += '<option value=""></option>'
+    for user in users:
+        if user.is_active and user.id not in user_supervisor_ids:
+            option = '<option value="'+str(user.id)+'">'+str(user.username)+'</option>'
+            html += option
+
+    html += '</select>'
+    html += '</div>'
+    html += '</div>'
+    return html
+
+@app.route('/user-attendance-supervisor/delete', methods = ['POST'])
+def user_attendance_supervisor_delete():
+    data = request.get_json(force=True) 
+    id = data['id']
+    print('')
+    print('')
+    print(str(id))
+    print('')
+    print('')
+    supervisor = AttendanceSupervisor.query.get_or_404(id)
+    db.session.delete(supervisor)
+    db.session.commit()
+
+    return 'delete_user_attendance_supervisor'
+
+@app.route('/user-attendance-supervisor/add', methods = ['POST'])
+def user_attendance_supervisor_add():
+    data = request.get_json(force=True) 
+    user_id = data['user_id']
+    session_id = data['session_id']
+
+    print('')
+    print(str(user_id))
+    print(str(session_id))
+    print('')
+    print('')
+
+    supervisor = AttendanceSupervisor(
+        session_id=session_id,
+        user_id=user_id
+    )
+    db.session.add(supervisor)
+    db.session.commit()
+
+    return 'user_attendance_supervisor_add'
 
 
 #####################################################################################
@@ -1017,18 +1073,12 @@ def transfer_grades(session_id, ratt_id, student_session_ratt_id, student_id):
         #
         #
         #
-        #
-        #
-        #
         new_grade = make_ratt_grade(
             grade, 
             session_id, 
             student_id, 
             student_session_ratt_id
         )
-        #
-        #
-        #
         #
         #
         #
@@ -1068,31 +1118,35 @@ def create_rattrapage_sem(session_id, students):
 
     # # 
     # # 
-    # # 
     # # transfer module_session_s
     # module_session_s_sem = session.module_sessions
 
-    
     module_session_s_sem = ModuleSession.query.join(Module).join(Unit)\
         .join(Semester).join(Session).filter_by(id=session.id).all()
-
 
     for module_session_sem in module_session_s_sem:
         # if it exists transfer it
         if module_session_sem != None:
             # find if already exist
+            is_rattrapage = True
             module_session_ratt = ModuleSession.query.filter_by(
-                session_id=session_rattrapage.id,
-                module_id=module_session_sem.module_id).first()
+                promo_id=session_rattrapage.promo_id,
+                module_code=module_session_sem.module_code,
+                module_name=module_session_sem.module_name,
+                is_rattrapage=is_rattrapage
+            ).first()
             if module_session_ratt == None: # create it
-                module_session_ratt = ModuleSession(session_id=session_rattrapage.id)
+                module_session_ratt = ModuleSession(
+                    promo_id=session_rattrapage.promo_id
+                )
                 db.session.add(module_session_ratt)
             module_session_ratt.module_id = module_session_sem.module_id
+            module_session_ratt.module_code = module_session_sem.module_code
+            module_session_ratt.module_name = module_session_sem.module_name
             module_session_ratt.teacher_id = module_session_sem.teacher_id
-            #
+            module_session_ratt.is_rattrapage = True
             #
             # module_session_ratt.saving_enabled = module_session_sem.saving_enabled
-            #
             #
     db.session.commit()
 
@@ -1104,12 +1158,9 @@ def create_rattrapage_sem(session_id, students):
             # if not historic
             if not session.is_historic:
                 #
-                #
-                #
                 transfer_grades(session_id, ratt_id, student_session_ratt.id, student_id)
                 # student = Student.query.get(student_id)
                 # transfer_grades(session, student_session_ratt, student)
-                #
                 #
                 #
     db.session.commit()
@@ -1124,11 +1175,9 @@ def create_rattrapage_sem(session_id, students):
 
     #
     #
-    #
     # don't forget to transfer the grades (cout=saving, tp=saving, td=saving)
     #       if the module is saving_enabled
     #       and i have to do it be 
-    #
     #
     #
     return session_rattrapage
@@ -1145,6 +1194,7 @@ def create_rattrapage_semester(session_id=0):
     session_rattrapage = create_rattrapage_sem(session_id, students)
     flash("Rattrapage was created", 'alert-success')
     return redirect(url_for('session', session_id=session_rattrapage.id))
+
 
 
 ######################
@@ -1166,9 +1216,6 @@ def students_rattrapage_semester_print(session_id=0):
     title = make_title_semester_print(session, label="Rattrapage Semestre")
     return render_template('session/students-rattrapage-semester-print.html', 
         title=title, students=students, header=header)
-
-
-
 
 
 #########################################################################
