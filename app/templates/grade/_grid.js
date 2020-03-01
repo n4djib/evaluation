@@ -370,7 +370,7 @@ var hot = new Handsontable(hotElement, {
   ],
 });
 
-document.getElementById('hot-display-license-info').remove();
+// document.getElementById('hot-display-license-info').remove();
 
 
 

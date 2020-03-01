@@ -41,38 +41,50 @@
 			- teacher and student CCP
 			- when deleting module_session
 				delete module_calendar and attendance
-
 			- add 'is_rattrapage' to ModuleSession 
-	
 			- session config is not saving
 			- BUG:
 				module_session is double because 
 					normal + rattrapage
+			- Calendar
+				add button to session that opens calendar
+			- add is_active to user to create them in "not active" mode
+			-- permissions: finish it to allow multi-user-entering of Historic
+			- open attendance in a sweet alert
+			- init_attendance
+				removed students from attendance
+
+
+
+
+
+== Progrission et Classement ==
+	- Average and credit in Classement is shown in Bultin and Annual like Decision
+	- in Promo decide wich Classement and Progression formula
+	- in classement-laurieate
+		give the option to consider saved students as rattrapage
+	- when you transfer students to the next year
+		they have to qualify
+		transfaire from annual, not from semester
+		Only Admit & Admit avec dette
+
+- NOTE: i disabled in base.html - grab_and_display_notifications();
 - permission:
 	https://pypi.org/project/permission/
 	http://localhost:5001/permission/
-			- Calendar
-				add button to session that opens calendar
 - create Form for the admin to create New users and asign them Permissions
-			- add is_active to user to create them in "not active" mode
+- find a way to close Events
 - Don't allow deleting Events
 	when you saved Attendance
 	unless you uncheck all attendances
 	maybe delete button in attendance
-- find a way to close Events
 - change delete Event confirmation to a bootstrap style
-- open attendance in a sweet alert
-- NOTE: disabled in base.html - grab_and_display_notifications();
-- init_attendance
-	removed students from attendance
 - show previous entry versions of the grid 
 	like firebase access rules style
 		https://codepen.io/pen/?&editable=true&editors=001
 - it's time to fix student list search by branch and Promo
-- make a Phone app to organize and plan Courses
-	after creating the Calendar
-	teachers can access and check and annul the programing of the cours
-		and request to teach at that Hour
+
+
 - in Student Profile
 	add annual & printabales
 - WARNING: in grade_grid_save
@@ -102,15 +114,6 @@
 	it happens when you move with the Arrows
 - 
 - 
-- 
-- 
-
--- permissions: finish it to allow multi-user-entering of Historic
--- Security
-	Authentication
-		https://flask-authorize.readthedocs.io/en/latest/
-		https://www.google.com/search?q=flask+authorization&ie=utf-8&oe=utf-8&client=firefox-b-ab
-		http://flask-user.readthedocs.io/en/latest/authorization.html
 -- Celery
 	to calculate
 	to save database
@@ -120,11 +123,10 @@
 -- Blueprint
 -- Mail
 -- Waitress
--- use SocketIO 
+-- SocketIO 
 	to notify other users that this grid is being modified by another user
 -- port it to MySql
 -- make the app installable
-
 
 - disable Authentication When in debug Mode
 	by checking the Decorator    @app.before_request
@@ -189,20 +191,6 @@
 
 
 
-
-== Progrission et Classement ==
-	- Average and credit in Classement is shown in Bultin and Annual like Decision
-	- in Promo decide wich Classement and Progression formula
-	- in classement-laurieate
-		give the option to consider saved students as rattrapage
-	- when you transfer students to the next year
-		they have to qualify
-		transfaire from annual, not from semester
-		Only Admit & Admit avec dette
-
-
-
-
 == Potential Bugs ==
 	- WARNING: if SF average is under 10 in a semester 
 		that does not mean necisseraly it will enter RATT.
@@ -217,13 +205,11 @@
 
 
 
-
 == Result ==
 	- Note: i am grabing Semester Result Informations from the Config String
 	- Semester Result add the option to close module width
 		??????????
 	- in Result Be carful of long Module Names
-
 
 
 
@@ -233,7 +219,6 @@
 	- in Tree check annual session need to caclulate
 	- add create annual link to tree
 	- use tabs to organize tree each school
-
 
 
 
@@ -247,7 +232,6 @@
 	- in ratt annual indicate students who entered the rattrapage
 		at least one module
 		who is already generated and who is not
-
 
 
 
@@ -281,13 +265,11 @@
 
 
 
-
 == make the navigation easier ==
 	- navigate between semesters
 	- add a button to navigate between a session(semester) and its ratt
 	and the notion of URL_RETURN
 		you can add a flash of url_return
-
 
 
 
@@ -311,8 +293,6 @@
 
 
 
-
-
 == Refactoring ==
 	- move annual functions from Semester to Annual
 		like get_annual_chain
@@ -326,7 +306,6 @@
 		pass grades and check them
 	- change table names
 		student_session --> grade_semester
-
 
 
 
@@ -359,8 +338,6 @@
 		like in Promo
 	- in Basic Table Promos group by School/Branch
 	- enforce Promo naming
-
-
 
 
 
@@ -506,6 +483,10 @@
 	check ZURMO
 		https://www.youtube.com/watch?v=_ItTT2d7Ww4
 - Give Students the ability to report mistakes
+- make a Phone app to organize and plan Courses
+	after creating the Calendar
+	teachers can access and check and annul the programing of the cours
+		and request to teach at that Hour
 - 
 - 
  

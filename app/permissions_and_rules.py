@@ -10,7 +10,7 @@ from permission import Rule, Permission
 # grader		enters grades
 # supervisor	enters absences and manage stage
 # inspector		for director and D.E.S
-# student	
+# student
 # teacher
 
 
