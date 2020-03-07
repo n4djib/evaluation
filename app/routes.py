@@ -55,7 +55,6 @@ def index():
 @app.route('/permission/')
 @login_required
 # @RolePermission('manager')
-# @RolePermission('admin')
 # @RolesAcceptedPermission(['admin', 'manager', 'grader'])
 # @RolesRequiredPermission(['admin', 'manager', 'grader'])
 def permission():
@@ -71,11 +70,6 @@ def permission():
 
 
 
-
-
-
-
-
 # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # #
 
@@ -87,14 +81,21 @@ def before_request():
     if not current_user.is_authenticated:
         if request.endpoint not in _insecure_views:
             return redirect(url_for('login'))
-    # else:
-    #     check_request_permission()
+    else:
+        check_request_permission()
 
 
-# def check_request_permission():
-#     with admin_permission.require(http_exception=403):
-#         pass
-    
+_admin_only_views = ['']
+
+def check_request_permission():
+    if request.endpoint in _admin_only_views:
+        # with RolesRequiredPermission:
+        permission = RolePermission("admin")
+        if not permission.check()
+            return permission.deny()
+
+
+
 
 def login_not_required(fn):
     '''decorator to disable user authentication'''
