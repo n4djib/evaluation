@@ -395,7 +395,9 @@ def module_session_config(session_id, module_id):
         # module_session.session.set_dirty()
         if remember_savable != form.saving_enabled.data:
             # we recalculate to incorporate Saving
-            module_session.session.calculate()
+            # module_session.session.calculate()
+            # module_session.get_session().calculate()
+            session.calculate()
         db.session.commit()
         flash('Your changes have been saved.', 'alert-success')
         return redirect(url_for('grade', session_id=session_id, module_id=module_id))

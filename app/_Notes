@@ -19,43 +19,9 @@
 
 == PRIORITY 1 ==
 ----------------
-			- init ModuleSession when creating the Session
-				don't create it for historic
-				DEF get_module_session(session, module) in routesGrade.py
-					from app.routesGrade import get_module_session
-			- Historic ratt
-				http://localhost:5001/annual-session/20/create-rattrapage/
-				remove module_session from session
-				generate ratt from sessoion for ISP
-			- make printables Auto Landscape & Portrait
-				@media print{ @page {size: landscape} }
-			- add checkbox to force lansscape in Resulta
-			- Attendance
-				- functions
-					init Module_Session					done
-					create event for calendar			done
-					fill attendance table				done
-			- Calendar
-				SweetAlert
-				select-list-module-calendar.html
-			- teacher and student CCP
-			- when deleting module_session
-				delete module_calendar and attendance
-			- add 'is_rattrapage' to ModuleSession 
-			- session config is not saving
-			- BUG:
-				module_session is double because 
-					normal + rattrapage
-			- Calendar
-				add button to session that opens calendar
-			- add is_active to user to create them in "not active" mode
-			-- permissions: finish it to allow multi-user-entering of Historic
-			- open attendance in a sweet alert
-			- init_attendance
-				removed students from attendance
 
 
-
+- Show (slow_redirect) when changing "Saving Enabled"
 
 
 == Progrission et Classement ==
@@ -986,6 +952,40 @@
 					def transfer_grades(session_id, ratt_id, student_session_ratt.id, student_id) ======
 			- you can add/remove students from a closed session
 				no you can't
+			- init ModuleSession when creating the Session
+				don't create it for historic
+				DEF get_module_session(session, module) in routesGrade.py
+					from app.routesGrade import get_module_session
+			- Historic ratt
+				http://localhost:5001/annual-session/20/create-rattrapage/
+				remove module_session from session
+				generate ratt from sessoion for ISP
+			- make printables Auto Landscape & Portrait
+				@media print{ @page {size: landscape} }
+			- add checkbox to force lansscape in Resulta
+			- Attendance
+				- functions
+					init Module_Session					done
+					create event for calendar			done
+					fill attendance table				done
+			- Calendar
+				SweetAlert
+				select-list-module-calendar.html
+			- teacher and student CCP
+			- when deleting module_session
+				delete module_calendar and attendance
+			- add 'is_rattrapage' to ModuleSession 
+			- session config is not saving
+			- BUG:
+				module_session is double because 
+					normal + rattrapage
+			- Calendar
+				add button to session that opens calendar
+			- add is_active to user to create them in "not active" mode
+			-- permissions: finish it to allow multi-user-entering of Historic
+			- open attendance in a sweet alert
+			- init_attendance
+				removed students from attendance
 
 
 

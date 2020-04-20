@@ -91,9 +91,9 @@ def check_request_permission():
     if request.endpoint in _admin_only_views:
         # with RolesRequiredPermission:
         permission = RolePermission("admin")
-        if not permission.check()
+        if not permission.check():
             return permission.deny()
-
+    
 
 
 
