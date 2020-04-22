@@ -83,6 +83,7 @@
 -- Celery
 	to calculate
 	to save database
+	run python cmd and celery in one Terminal
 -- SweetAlerts
 	for calendar
 	for forms of basic tables
