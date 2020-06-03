@@ -22,6 +22,24 @@
 
 
 - Show (slow_redirect) when changing "Saving Enabled"
+			- add drop down Menu in NavBar
+				to show basic tables
+- when saving the grid return new DATA_ARRAY
+	and compaire is to current and show diffs
+	this is for multi entering
+	but you have to save only changed records !!!!!
+- in Semester Tree
+	add link to each semester that open a list of Promos using this semester
+- allow grades entering and session closing after
+	entering module dates
+- add indication of absence in exam
+
+- if celery is down, run the BJ in a thread
+
+###  ownaginatious / flask-basic-roles 
+# https://github.com/ownaginatious/flask-basic-roles
+## How to protect Flask-RESTful with Flask-USER management?
+# https://stackoverflow.com/questions/45419802/how-to-protect-flask-restful-with-flask-user-management
 
 
 == Progrission et Classement ==
@@ -81,6 +99,7 @@
 - 
 - 
 -- Celery
+	make celery run checkups and add to Toastr
 	to calculate
 	to save database
 	run python cmd and celery in one Terminal
