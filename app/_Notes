@@ -20,6 +20,7 @@
 == PRIORITY 1 ==
 ----------------
 
+- PRINT: state of saiser
 
 - Show (slow_redirect) when changing "Saving Enabled"
 			- add drop down Menu in NavBar
