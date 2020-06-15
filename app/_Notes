@@ -20,8 +20,11 @@
 == PRIORITY 1 ==
 ----------------
 
-- PRINT: state of saiser
-
+- PRINTABLE: the state of entries
+	each semester with percentage
+	and show modules with percentage
+- 
+- 
 - Show (slow_redirect) when changing "Saving Enabled"
 			- add drop down Menu in NavBar
 				to show basic tables
