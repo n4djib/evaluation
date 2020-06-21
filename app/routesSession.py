@@ -1,7 +1,7 @@
 from app import app, db
 from flask import render_template, request, redirect, url_for, flash
 from app.models import Promo, Session, StudentSession, Grade, GradeUnit, Unit, Semester,\
-     School, Module, Student, Type, AnnualSession, AnnualGrade, Grade, Annual,\
+     School, Branch, Module, Student, Type, AnnualSession, AnnualGrade, Grade, Annual,\
      Classement, ClassementYear, ModuleSession, ClassementSemester, AttendanceSupervisor, User
 from app.forms import SessionConfigForm
 from flask_breadcrumbs import register_breadcrumb
@@ -13,6 +13,39 @@ from app.routesCalculation import init_all, reinitialize_session, update_session
 from app._shared_functions import extract_fields, check_session_status
 from app.permissions_and_rules import AttendancePermission
 from flask_login import current_user
+
+
+
+
+
+
+
+
+
+
+@app.route('/progress-status/', methods=['GET'])
+def progress_status():
+    sessions = Session.query\
+        .filter(Session.is_closed != True)\
+        .filter( (Session.is_historic == False) | (Session.is_historic == None) )\
+        .join(Promo).join(Branch).join(School).join(Semester).join(Annual)\
+        .order_by(School.name, Branch.name, Annual.annual, Semester.semester)\
+        .all()
+    # don't forget about rattrapage
+
+    data_arr = []
+    # get status of modules
+    for session in sessions:
+        semester = session.semester
+
+    return str(len(sessions))
+
+    title = 'progress-status'
+    return render_template('session/progress-status.html', 
+        title=title, data_arr=data_arr)
+
+
+
 
 
 
