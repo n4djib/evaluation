@@ -15,7 +15,6 @@
 
 
 
-
 {% block app_content %}
 
   <div class="container">
@@ -23,8 +22,6 @@
   </div>
 
 {% endblock %}
-
-
 
 
 
@@ -39,180 +36,179 @@
 
 
   <script>
+    var calendar = null;
+    var session_id = {{ session_id }};
 
-  var calendar = null;
-  var session_id = {{ session_id }};
-
-  $(document).ready(function() {
-   calendar = $('#calendar').fullCalendar({
-    editable: true,
-    defaultView: 'agendaWeek',
-    // defaultView: 'basicWeek',
-
-    allDaySlot: false,
-    locale: 'fr',
-    firstDay: 0,
-
-    minTime: "07:00:00",
-    maxTime: "19:00:00",
-
-    header: {
-     left: 'prev,next today',
-     center: 'title',
-     // right:'month,agendaWeek,agendaDay'
-     right: ''
-    },
-    events: "{{ url_for('load_event') }}",
-    selectable: true,
-    selectHelper: true,
-
-    select: function(start, end, allDay)
-    {
-     var title = ' '; // prompt("Enter Event Title");
-     console.log('select '+title);
-
-     if(title)
-     {
-      var start = $.fullCalendar.formatDate(start, "Y-MM-DD HH:mm:ss");
-      var end = $.fullCalendar.formatDate(end, "Y-MM-DD HH:mm:ss");
-      $.ajax({
-       url:"{{ url_for('insert_event') }}",
-       type:"POST",
-       data: JSON.stringify({title:title, start:start, end:end}),
-       dataType: 'text',
-       success:function()
-       {
-         calendar.fullCalendar('refetchEvents');
-         console.log("saved");
-       }
-      })
-     }
-    },
-
-    eventResize:function(event)
-    {
-     var start = $.fullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
-     var end = $.fullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
-     var title = event.title;
-     var id = event.id;
-
-     console.log('eventResize '+start);
-
-     $.ajax({
-      url:"{{ url_for('update_event') }}",
-      type:"POST",
-      // data:{title:title, start:start, end:end, id:id},
-       data: JSON.stringify({title:title, start:start, end:end, id:id}),
-       dataType: 'text',
-      success:function(){
-       calendar.fullCalendar('refetchEvents');
-       // alert('Event Update');
-      }
-     })
-    },
-
-    eventDrop:function(event)
-    {
-     var start = $.fullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
-     var end = $.fullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
-     var title = event.title;
-     var id = event.id;
-     
-     console.log('eventDrop '+start);
-
-     $.ajax({
-      url:"{{ url_for('update_event') }}",
-      type:"POST",
-      // data:{title:title, start:start, end:end, id:id},
-      data: JSON.stringify({title:title, start:start, end:end, id:id}),
-      dataType: 'text',
-      success:function()
-      {
-       calendar.fullCalendar('refetchEvents');
-       // alert("Event Updated");
-      }
-     });
-    },
-
-    eventClick:function(event)
-    {
-      console.log('eventClick ');
-      sweet_alert_fire(event, calendar);
-    },
-
-    eventRender: function(event, element) {
-      // element.find('.fc-content').css("background-color", "red");
-      // element.find('.fc-resizable').css("border-color", "#030f03");
-      // element.find('.fc-resizable').css("border-top-color", "#030f03");
-    },
-
-   });
-  }); // end $(document).ready(function() {
-
-
-  function save_swal(event_id) {
-    module_id  = $('#module').val();
-    console.log('session_id: '+session_id+' - module_id: '+module_id);
-
-    // send saved data
-    $.ajax({
-      url:"{{ url_for('save_select_list_calendar') }}",
-      type:"POST",
-      data: JSON.stringify({ 
-        id: event_id, 
-        school_id: $('#school').val(),
-        branch_id: $('#branch').val(),
-        promo_id: $('#promo').val(),
-        session_id: $('#session').val(),
-        module_id: module_id,
-        start_date: $('#start_date').val(),
-        end_date: $('#end_date').val(),
-        start_time: $('#start_time').val(),
-        end_time: $('#end_time').val()
-      }),
-      dataType: 'text',
-      success:function()
-      {
-       calendar.fullCalendar('refetchEvents');
-       console.log("Event Updated and saved");
-       
-      }
-    });
-  }
-
-  function sweet_alert_fire(event, calendar) {
-    Swal.fire({
-      // title: '<strong>HTML <u>example</u></strong>',
-      // icon: 'info',
-      html: get_select_list_html(event),
-      showCloseButton: true,
-      showConfirmButton: false,
-      width: 600,
-    })
-  }
-
-
-  function calendar_refetchEvents () {
-    console.log('refetchEvents--------calendar_refetchEvents');
-  }
- 
-  function get_select_list_html(event) {
-    var html = `<div id='sweet_alert' >Calling "select-list/api" with Ajax ...<div>`;
-    var url = '/select-list/api/event/'+event.id+'/session/'+session_id;
-
-    $.ajax({
-      url: url,
-      type: "GET",
-      success:function(return_select_list)
-      {
-        // console.log(return_select_list)
-        $('#sweet_alert').html(return_select_list);
+    $(document).ready(function() {
+     calendar = $('#calendar').fullCalendar({
+      editable: true,
+      defaultView: 'agendaWeek',
+      // defaultView: 'basicWeek',
+      allDaySlot: false,
+      locale: 'fr',
+      firstDay: 0,
+      minTime: "07:00:00",
+      maxTime: "19:00:00",
+      header: {
+       left: 'prev,next today',
+       center: 'title',
+       // right:'month,agendaWeek,agendaDay'
+       right: ''
       },
-      // failure: 
-    });
+      events: "{{ url_for('load_event') }}",
+      selectable: true,
+      selectHelper: true,
 
-    return html;
-  }/**/
+      select: function(start, end, allDay)
+      {
+       var title = ' '; // prompt("Enter Event Title");
+       console.log('select '+title);
+
+       if(title)
+       {
+        var start = $.fullCalendar.formatDate(start, "Y-MM-DD HH:mm:ss");
+        var end = $.fullCalendar.formatDate(end, "Y-MM-DD HH:mm:ss");
+        $.ajax({
+         url:"{{ url_for('insert_event') }}",
+         type:"POST",
+         data: JSON.stringify({title:title, start:start, end:end}),
+         dataType: 'text',
+         success:function()
+         {
+           calendar.fullCalendar('refetchEvents');
+           console.log("saved");
+         }
+        })
+       }
+      },
+
+      eventResize:function(event)
+      {
+       var start = $.fullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
+       var end = $.fullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
+       var title = event.title;
+       var id = event.id;
+
+       console.log('eventResize '+start);
+
+       $.ajax({
+        url:"{{ url_for('update_event') }}",
+        type:"POST",
+        // data:{title:title, start:start, end:end, id:id},
+         data: JSON.stringify({title:title, start:start, end:end, id:id}),
+         dataType: 'text',
+        success:function(){
+         calendar.fullCalendar('refetchEvents');
+         // alert('Event Update');
+        }
+       })
+      },
+
+      eventDrop:function(event)
+      {
+       var start = $.fullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
+       var end = $.fullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
+       var title = event.title;
+       var id = event.id;
+       
+       console.log('eventDrop '+start);
+
+       $.ajax({
+        url:"{{ url_for('update_event') }}",
+        type:"POST",
+        // data:{title:title, start:start, end:end, id:id},
+        data: JSON.stringify({title:title, start:start, end:end, id:id}),
+        dataType: 'text',
+        success:function()
+        {
+         calendar.fullCalendar('refetchEvents');
+         // alert("Event Updated");
+        }
+       });
+      },
+
+      eventClick:function(event)
+      {
+        console.log('eventClick ');
+        // sweet_alert_fire(event, calendar);
+        sweet_alert_fire(event, null);
+      },
+
+      eventRender: function(event, element) {
+        // element.find('.fc-content').css("background-color", "red");
+        // element.find('.fc-resizable').css("border-color", "#030f03");
+        // element.find('.fc-resizable').css("border-top-color", "#030f03");
+      },
+
+     });
+    }); // end $(document).ready(function() {
+
+
+    function save_swal(event_id) {
+      // module_id  = $('#module').val();
+      // console.log('session_id: '+session_id+' - module_id: '+module_id);
+
+      // // send saved data
+      // $.ajax({
+      //   url:"{{ url_for('save_select_list_calendar') }}",
+      //   type:"POST",
+      //   data: JSON.stringify({ 
+      //     id: event_id, 
+      //     school_id: $('#school').val(),
+      //     branch_id: $('#branch').val(),
+      //     promo_id: $('#promo').val(),
+      //     session_id: $('#session').val(),
+      //     module_id: module_id,
+      //     start_date: $('#start_date').val(),
+      //     end_date: $('#end_date').val(),
+      //     start_time: $('#start_time').val(),
+      //     end_time: $('#end_time').val()
+      //   }),
+      //   dataType: 'text',
+      //   success:function()
+      //   {
+      //    calendar.fullCalendar('refetchEvents');
+      //    console.log("Event Updated and saved");
+         
+      //   }
+      // });
+    }
+
+    function sweet_alert_fire(event, calendar) {
+      // Swal.fire({
+      //   // title: '<strong>HTML <u>example</u></strong>',
+      //   // icon: 'info',
+      //   html: get_select_list_html(event),
+      //   showCloseButton: true,
+      //   showConfirmButton: false,
+      //   width: 600,
+      // })
+    }
+
+
+    function calendar_refetchEvents () {
+      console.log('refetchEvents--------calendar_refetchEvents');
+    }
+   
+    function get_select_list_html(event) {
+      var html = `<div id='sweet_alert' >Calling "select-list/api" with Ajax ...<div>`;
+      var url = '/select-list/api/event/'+event.id+'/session/'+session_id;
+
+      $.ajax({
+        url: url,
+        type: "GET",
+        success:function(return_select_list)
+        {
+          // console.log(return_select_list)
+          $('#sweet_alert').html(return_select_list);
+        },
+        failure: function(err) {
+          alert('error: '+err)
+        }
+      });
+
+      return html;
+    }/**/
 
   </script>
 

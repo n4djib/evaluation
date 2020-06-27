@@ -108,8 +108,8 @@
               <td>
                 <a href="{{url_for('grade', session_id=session.id, module_id=module.id)}}">{{ module.code | replace('None', '#é$/&?|[+{#%*#$=') }} - {{ module.display_name | replace('None', '#é$/&?|[+{#%*#$=') }}
                 </a></td>
-              <td>{{ 'f' if module.unit.is_fondamental == True }} 
-              {{ ' s' if module.is_savable == True }}
+              <td>{{ ('<span class="label label-success">F</span>' | safe) if module.unit.is_fondamental == True }} 
+              {{ ('<span class="label label-warning">S</span>' | safe) if module.is_savable == True }}
               </td>
               <td>{{ module.coefficient }}</td>
               <td>{{ module.credit }}</td>
@@ -246,8 +246,9 @@
             </td>
             <td style="padding-bottom:0px; padding-top:3px;" class="no-wrap">{{ student.last_name }}</td>
             <td style="padding-bottom:0px; padding-top:3px;" class="no-wrap">{{ student.first_name }}</td>
-            <td style="padding-bottom:0px; padding-top:0px;" > <img src="{{ url_for('static', filename='img/' + icons_student[loop.index-1] ) }}"
-               alt="{{ icons_student[loop.index-1] }}" height="25" width="25">
+            {% set src = url_for('static', filename='img/' + icons_student[loop.index-1] ) %}
+            <td style="padding-bottom:0px; padding-top:0px;" > <img src="{{ src }}"
+               alt="{{ icons_student[loop.index-1] }}" height="18" width="18">
             </td>
           </tr>
         {% endfor %}

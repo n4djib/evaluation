@@ -166,22 +166,15 @@ def grade(session_id=0, module_id=0, student_id=0, _all=''):
     SHOW_SAVING_GRADE = False
 
     if module_id != 0:
-        # print(' ')
-        # print('111')
-        # print('session_id: '+str(session_id))
-        # print('module_id: '+str(module_id))
-        # print('student_id: '+str(student_id))
-        # print('module.code: '+str(module.code))
-        # print('module: '+str(module))
         module_session = create_module_session(session, module)
-        # print('222')
-        # print(' ')
 
         SHOW_SAVING_GRADE = module_session.saving_enabled
         type = 'module'
         grid_title = F'Module: {module.code} - {module.display_name}'
         grades = Grade.query.filter_by(module_id=module_id)\
-            .join(StudentSession).filter_by(session_id=session_id).all()
+            .join(StudentSession).filter_by(session_id=session_id)\
+            .join(Student).order_by(Student.last_name, Student.first_name)\
+            .all()
         #
         data = collect_module_data_grid(grades, session, SHOW_SAVING_GRADE)
 
@@ -393,13 +386,21 @@ def module_session_config(session_id, module_id):
         module_session.saving_enabled = form.saving_enabled.data
         # calculate session
         # module_session.session.set_dirty()
+
+        flash('Your changes have been saved.', 'alert-success')
+
         if remember_savable != form.saving_enabled.data:
             # we recalculate to incorporate Saving
-            # module_session.session.calculate()
-            # module_session.get_session().calculate()
             session.calculate()
+            # flash('Session Recalculated.', 'alert-success')
+            # url_grade = url_for('grade', session_id=session_id, module_id=module_id)
+
+            # calc_url = url_for('calculate_session', session_id=session.id)
+            # url_for('slow_redirect', url=calc_url, message='Calculating')
+
+            # return redirect( ****************** )
+
         db.session.commit()
-        flash('Your changes have been saved.', 'alert-success')
         return redirect(url_for('grade', session_id=session_id, module_id=module_id))
     elif request.method == 'GET':
         form.teacher_id.data = module_session.teacher_id

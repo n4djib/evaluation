@@ -19,15 +19,20 @@
 
 == PRIORITY 1 ==
 ----------------
-
+			- sort grid by name
+			- add drop down Menu in NavBar
+				to show basic tables
+			- in Session modules table
+				use badges for s & f
+- ERROR:
+	in calendar if i open an event then close it
+		and try to create a new one
+		you loose the $calendarRef
+			- in  Tree  check errors and config by Ajax
 - PRINTABLE: the state of entries
 	each semester with percentage
 	and show modules with percentage
-- 
-- 
 - Show (slow_redirect) when changing "Saving Enabled"
-			- add drop down Menu in NavBar
-				to show basic tables
 - when saving the grid return new DATA_ARRAY
 	and compaire is to current and show diffs
 	this is for multi entering
@@ -38,7 +43,7 @@
 	entering module dates
 - add indication of absence in exam
 
-- if celery is down, run the BJ in a thread
+- if celery is down, run the "Background Job" in a thread
 
 ###  ownaginatious / flask-basic-roles 
 # https://github.com/ownaginatious/flask-basic-roles
@@ -96,10 +101,6 @@
 	this or that created
 	grid of session of module modified at ...
 
--- BUG --
-	in grid when you enter a shrinked cell
-	you shoold escape it programaticaly
-	it happens when you move with the Arrows
 - 
 - 
 -- Celery
@@ -300,6 +301,10 @@
 
 
 == GRID ==
+	-- BUG --
+		in grid when you enter a shrinked cell
+		you shoold escape it programaticaly
+		it happens when you move with the Arrows
 	- warning of leaving the grid without save
 	- use letters to navigate the grid rather than arrows
 	- IDEA: in grade grid

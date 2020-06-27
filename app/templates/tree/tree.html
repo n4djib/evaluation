@@ -9,7 +9,6 @@
 
 
   <style type="text/css">
-
     {% include "tree/ztree.css" %}
 
     .ld{
@@ -53,7 +52,6 @@
       bottom: -3.5px;
       left: 38%;       
     }
-
   </style>
 
 {% endblock %}
@@ -62,7 +60,10 @@
 
 
 {% block app_content %}
-   
+
+  <div id="checks">
+    <!-- the checks are inserted here -->
+  </div>
 
   <div class="input-group">
     <label for="key">Filter：</label>
@@ -99,6 +100,29 @@
   <script type="text/javascript">
 
     {% include "tree/_tree.js" %}
+
+
+    function _get_checks() {
+      $.ajax({
+        url: '/tree/running-checks', 
+        type: 'GET',
+        dataType: 'text',
+        success: function(html) {
+          // console.log(html);
+          $('#checks').html(html);
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+          console.log('some error');
+        }
+      });
+    }
+
+    //on load
+    // $( document ).ready(function() {
+    //   _get_checks();
+    // });
+    _get_checks();
+
 
   </script>
 {% endblock %}

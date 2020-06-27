@@ -352,31 +352,6 @@ def tree_annual(annual_session_id=0):
 @register_breadcrumb(app, '.tree', 'Tree')
 # def tree(school_id=0, branch_id=0, promo_id=-1):
 def tree(school_id=0, branch_id=-1, promo_id=-1):
-
-    # sessions_to_check = Session.query.filter_by(is_closed=False).all()
-    # nbr_reinit_needed = check_reinit_needed(sessions_to_check)
-    # nbr_recalculate_needed = check_recalculate_needed(sessions_to_check)
-    # # nbr_sessions_errors = check_errors_exists(sessions_to_check)
-
-    # if nbr_reinit_needed > 0:
-    #     reinit_url = url_for('tree_reinit_all')
-    #     slow_redirect_url = url_for('slow_redirect', url=reinit_url, message='(Re)initializing ' + str(nbr_reinit_needed) + ' sessions')
-    #     btn = '<a id="re-init-all" class="btn btn-warning" href="'+slow_redirect_url+'" >(Re)initialize All</a>'
-    #     msg = str(nbr_reinit_needed) + ' Sessions needs to be (Re)initialized    ' + btn
-    #     flash(msg, 'alert-warning')
-
-    # # if nbr_sessions_errors == 0:
-    # if nbr_recalculate_needed > 0:
-    #     recalculate_url = url_for('tree_recalc_all')
-    #     slow_redirect_url = url_for('slow_redirect', url=recalculate_url, message='(Re)calculating' + str(nbr_recalculate_needed) + ' sessions')
-    #     btn = '<a id="re-calc-all" class="btn btn-warning" href="'+slow_redirect_url+'" >(Re)Calculate All</a>'
-    #     msg = str(nbr_recalculate_needed) + ' Sessions needs to be (Re)calculate    ' + btn
-    #     flash(msg, 'alert-warning')
-    # # else:
-    # #     msg = str(nbr_sessions_errors) + ' Sessions Containes ERRORS'
-    # #     flash(msg, 'alert-danger')
-
-
     options_arr = get_options()
 
     _tree_ = get_schools_tree(int(school_id), int(branch_id), int(promo_id))
@@ -386,6 +361,55 @@ def tree(school_id=0, branch_id=-1, promo_id=-1):
     return render_template('tree/tree.html', title='Tree', 
         zNodes=zNodes, options_arr=options_arr)
 
+
+# Ckeck Need Calculation
+@app.route('/tree/running-checks', methods=['GET'])
+def running_checks():
+    msg_check = ''
+    sessions_to_check = Session.query.filter_by(is_closed=False).all()
+
+    nbr_reinit_needed = check_reinit_needed(sessions_to_check)
+    if nbr_reinit_needed > 0:
+        reinit_url = url_for('tree_reinit_all')
+        slow_redirect_url = url_for('slow_redirect', url=reinit_url, message='(Re)initializing ' + str(nbr_reinit_needed) + ' sessions')
+        btn = '<a id="re-init-all" class="btn btn-warning" href="'+slow_redirect_url+'" >(Re)initialize All</a>'
+        msg = str(nbr_reinit_needed) + ' Sessions needs to be (Re)initialized    ' + btn
+        msg_check += '''
+            <div class="alert alert-warning alert-dismissible" role="alert">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                '''+msg+'''
+            </div>
+        '''
+
+    # Danger
+    nbr_sessions_errors = check_errors_exists(sessions_to_check)
+    if nbr_sessions_errors == 0:
+        # Calculation
+        nbr_recalculate_needed = check_recalculate_needed(sessions_to_check)
+        if nbr_recalculate_needed > 0:
+            recalculate_url = url_for('tree_recalc_all')
+            slow_redirect_url = url_for('slow_redirect', url=recalculate_url, message='(Re)calculating' + str(nbr_recalculate_needed) + ' sessions')
+            btn = '<a id="re-calc-all" class="btn btn-warning" href="'+slow_redirect_url+'" >(Re)Calculate All</a>'
+            msg = str(nbr_recalculate_needed) + ' Sessions needs to be (Re)calculate    ' + btn
+            msg_check += '''
+                <div class="alert alert-warning alert-dismissible" role="alert">
+                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                    '''+msg+'''
+                </div>
+            '''
+    else:
+        msg = str(nbr_sessions_errors) + ' Sessions Contains ERRORS'
+        if nbr_sessions_errors == 1:
+            msg = ' a Session Contains ERRORS'
+
+        msg_check += '''
+            <div class="alert alert-danger alert-dismissible" role="alert">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                '''+msg+'''
+            </div>
+        '''
+
+    return msg_check
 
 
 # def get_semesters_id_in_promo(promo):
