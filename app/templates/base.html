@@ -13,6 +13,7 @@
 
 
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+
     <!-- bootstrap 3.3.7 -->
     <link rel="stylesheet" type="text/css" 
         href="{{ url_for('static', filename='bootstrap3/css/bootstrap.min.css') }}">
@@ -54,9 +55,10 @@
                 <li><a href="{{ url_for('tree_semesters') }}">Semesters Tree</a></li>
                 <li><a href="{{ url_for('student_index') }}">Students</a></li>
                 <!-- <li><a href="/admin">Admin</a></li> -->
-                <li class="dropdown">
-                  <!-- <a href="{{ url_for('basic_index') }}">Basic Tables</a> -->
-                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">Basic Tables<span class="caret"></a>
+                <li><a href="{{ url_for('basic_index') }}">Basic Tables</a></li>
+                  
+                <!-- <li class="dropdown">
+                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">Basic Tables 2<span class="caret"></a>
                   <ul class="dropdown-menu">
                     <li><a href="{{ url_for('student_index') }}"
                         ><b>Students</b></a></li>
@@ -70,7 +72,7 @@
                     <li><a href="{{ url_for('semester_index') }}">Semesters</a></li>
                     <li><a href="{{ url_for('module_index') }}">Modules</a></li>
                   </ul>
-                </li>
+                </li> -->
             </ul>
             {% endif %}
             <ul class="nav navbar-nav navbar-right">
@@ -232,7 +234,7 @@
         //     }, 3000);
         // });
 
-        $( document ).ready(function() {
+        $(document).ready(function() {
             grab_and_display_notifications();
             
             setInterval(function() {

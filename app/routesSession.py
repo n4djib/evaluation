@@ -15,7 +15,7 @@ from app.permissions_and_rules import AttendancePermission
 from flask_login import current_user
 
 
-
+from app.models import Aaaaaa
 
 
 
@@ -641,6 +641,7 @@ def init_classement_laureats(promo_id):
     #
     return 'init_classement_laureats'
 
+
 def fill_classement_laureats_data(promo_id):
     promo = Promo.query.get_or_404(promo_id)
     classement_years = ClassementYear.query.join(Classement)\
@@ -665,10 +666,13 @@ def fill_classement_laureats_data(promo_id):
             for classement_semester in classement_year.classement_semesters:
                 cs = classement_semester
                 ag = annual_grade
+                cs.s_app = 0
                 # fill semester 1
                 if cs.semester == 1:
                     cs.average_app = ag.avr_r_1 if ag.avr_r_1 != None else ag.avr_1
                     cs.credit_app = ag.cr_r_1 if ag.cr_r_1 != None else ag.cr_1
+                    # if :
+                    #     cs.s_app = 1
                 # fill semester 2
                 if cs.semester == 2:
                     cs.average_app = ag.avr_r_2 if ag.avr_r_2 != None else ag.avr_2
@@ -680,6 +684,7 @@ def fill_classement_laureats_data(promo_id):
     calculate_cumul_field(classement_years)
 
     return 'fill_classement_laureats_data'
+
 
 # def calculate_cumul_field(promo_id):
 def calculate_cumul_field(classement_years):
@@ -701,6 +706,7 @@ def calculate_cumul_field(classement_years):
 
     db.session.commit()
     return 'calculate_cumul_field'
+
 
 def calculate_avr_classement(promo_id):
     promo = Promo.query.get_or_404(promo_id)
@@ -759,18 +765,18 @@ def decision_to_html(decision):
         return DESICIONS[decision]['obs_html']
     return ''
 
+
 def decision_to_observation(decision):
     if decision in DESICIONS:
         return DESICIONS[decision]['observation']
     return ''
+
 
 def observation_to_decision(observation):
     for key in DESICIONS:
         if DESICIONS[key]['observation'] == observation:
             return key
     return ''
-
-
 
 
 def create_classement_merge_arr(classements, years, semesters):
@@ -806,6 +812,7 @@ def create_classement_merge_arr(classements, years, semesters):
             last_i = i
 
     return '[ ' + mergeCells + ' ]'
+
 
 def create_classement_data_grid(classements, years, semesters):
     data_arr = ''
@@ -873,15 +880,12 @@ def init_and_fill_classement_laureats_(promo_id):
     msg2 = fill_classement_laureats_data(promo_id)
     return redirect(url_for('classement_laureats', promo_id=promo_id))
 
-# @app.route('/fill_classement_laureats_data/promo/<promo_id>')
-# def fill_classement_laureats_data_(promo_id):
-#     msg = fill_classement_laureats_data(promo_id)
-#     return redirect(url_for('classement_laureats', promo_id=promo_id))
 
 @app.route('/calculate_avr_classement/promo/<promo_id>')
 def calculate_avr_classement_(promo_id):
     msg = calculate_avr_classement(promo_id)
     return redirect(url_for('classement_laureats', promo_id=promo_id))
+
 
 @app.route('/classement-laureats/promo/<promo_id>/mode/<mode>', methods=['GET'])
 @app.route('/classement-laureats/promo/<promo_id>', methods=['GET'])
@@ -922,6 +926,7 @@ def classement_laureats(promo_id=0, type_id=0, mode=''):
         data_arr=data_arr, mergeCells=mergeCells, 
         years=years, decisions_list=decisions_list, mode=mode, promo_id=promo_id)
 
+
 @app.route('/classement-laureats/save/', methods = ['POST'])
 def classement_laureats_save():
     data_arr = request.json
@@ -961,6 +966,114 @@ def classement_laureats_save():
 
     # return str(data_arr)
     return 'data saved'
+
+
+# fetch students in promo (only in the latest year)
+def clean_table():
+    aaaaaa_s = Aaaaaa.query.all()
+    for a in aaaaaa_s:
+        db.session.delete(a)
+        db.session.commit()
+    return 'clean_table'
+
+
+@app.route('/fetch_students_by_promo/<promo_id>', methods=['GET'])
+def fetch_students_by_promo(promo_id):
+    clean_table()
+
+    # get users from annual_grade
+    annual_grades = AnnualGrade.query\
+        .join(AnnualSession).filter_by(promo_id=promo_id).all()
+
+    for ag in annual_grades:
+        student_id = ag.student_id
+        
+        ## if the student is in -> skip
+        student_in_Aaaaaa = Aaaaaa.query.filter_by(student_id=student_id).first()
+        if student_in_Aaaaaa != None:
+            continue
+
+        student = Student.query.filter_by(id=student_id).first()
+        new_entry = Aaaaaa(
+            student_id=student_id, 
+            username=student.username,
+            last_name=student.last_name,
+            first_name=student.first_name,
+        )
+
+        db.session.add(new_entry)
+        db.session.commit()
+
+    return 'fetch_students_by_promo'
+
+
+# collect data from annuals (formated)
+#  one for 3 column
+#  one for 5 column 
+
+
+@app.route('/collect_students_averages_by_promo/<promo_id>', methods=['GET'])
+def collect_students_averages_by_promo(promo_id):
+    students = Aaaaaa.query.all()
+
+    for student in students:
+        # fetch annual_grades in promo
+        annual_grades = AnnualGrade.query.filter_by(student_id=student.student_id)\
+            .join(AnnualSession).filter_by(promo_id=promo_id).all()
+
+        # enter annual_average according to annul
+        for ag in annual_grades:
+            annual = ag.annual_session.annual.annual
+            if annual == 1:
+                student.a1 = ag.average_final
+                student.c1 = ag.credit_final
+                student.s1 = 1
+                if ag.enter_ratt == True:
+                    student.s1 = 2
+            if annual == 2:
+                student.a2 = ag.average_final
+                student.c2 = ag.credit_final
+                student.s2 = 1
+                if ag.enter_ratt == True:
+                    student.s2 = 2
+            if annual == 3:
+                student.a3 = ag.average_final
+                student.c3 = ag.credit_final
+                student.s3 = 1
+                if ag.enter_ratt == True:
+                    student.s3 = 2
+            if annual == 4:
+                student.a4 = ag.average_final
+                student.c4 = ag.credit_final
+                student.s4 = 1
+                if ag.enter_ratt == True:
+                    student.s4 = 2
+            if annual == 5:
+                student.a5 = ag.average_final
+                student.c5 = ag.credit_final
+                student.s5 = 1
+                if ag.enter_ratt == True:
+                    student.s5 = 2
+
+        # calculate Ratt & session
+        # student.average = 
+
+        db.session.commit()
+    # 
+    # 
+    # fetch annual_grades  Not in promo
+    # 
+    # 
+
+    return 'collect_students_averages_by_promo'
+
+
+
+
+
+
+# calculate final from annual
+
 
 
 

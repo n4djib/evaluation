@@ -24,6 +24,24 @@
 				to show basic tables
 			- in Session modules table
 				use badges for s & f
+			- when Session contains an error
+				don't show progress percentage
+			- in student details hide grades for historic session
+= ERROR: Dropdown in navBar is not working
+- notify the need to calculate Annual
+	in annual
+	in progression
+- save enabled is not Calculating
+	maybe only from Calculate_by_Student 
+== Progrission et Classement ==
+	- Average and credit in Classement is shown in Bultin and Annual like Decision
+	- in Promo decide wich Classement and Progression formula
+	- in classement-laurieate
+		give the option to consider saved students as rattrapage
+	- when you transfer students to the next year
+		they have to qualify
+		transfaire from annual, not from semester
+		Only Admit & Admit avec dette
 - ERROR:
 	in calendar if i open an event then close it
 		and try to create a new one
@@ -43,7 +61,6 @@
 	entering module dates
 - add indication of absence in exam
 
-- if celery is down, run the "Background Job" in a thread
 
 ###  ownaginatious / flask-basic-roles 
 # https://github.com/ownaginatious/flask-basic-roles
@@ -51,15 +68,6 @@
 # https://stackoverflow.com/questions/45419802/how-to-protect-flask-restful-with-flask-user-management
 
 
-== Progrission et Classement ==
-	- Average and credit in Classement is shown in Bultin and Annual like Decision
-	- in Promo decide wich Classement and Progression formula
-	- in classement-laurieate
-		give the option to consider saved students as rattrapage
-	- when you transfer students to the next year
-		they have to qualify
-		transfaire from annual, not from semester
-		Only Admit & Admit avec dette
 
 - NOTE: i disabled in base.html - grab_and_display_notifications();
 - permission:
@@ -104,6 +112,7 @@
 - 
 - 
 -- Celery
+	if celery is down, run the "Background Job" in a thread
 	make celery run checkups and add to Toastr
 	to calculate
 	to save database

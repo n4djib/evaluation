@@ -17,6 +17,43 @@ from flask import flash
 # 
 #
 
+
+
+
+
+
+# aaaaaa
+class Aaaaaa(db.Model):
+    __tablename__ = 'aaaaaa'
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+    username = db.Column(db.String(20), index=True, unique=True) # matricule
+    last_name = db.Column(db.String(45), index=True)
+    first_name = db.Column(db.String(45), index=True)
+    # student = db.relationship("Student", back_populates="aaaaaa")
+    a1 = db.Column(db.Numeric(10,2))
+    c1 = db.Column(db.Integer)
+    s1 = db.Column(db.Integer)
+    a2 = db.Column(db.Numeric(10,2))
+    c2 = db.Column(db.Integer)
+    s2 = db.Column(db.Integer)
+    a3 = db.Column(db.Numeric(10,2))
+    c3 = db.Column(db.Integer)
+    s3 = db.Column(db.Integer)
+    a4 = db.Column(db.Numeric(10,2))
+    c4 = db.Column(db.Integer)
+    s4 = db.Column(db.Integer)
+    a5 = db.Column(db.Numeric(10,2))
+    c5 = db.Column(db.Integer)
+    s5 = db.Column(db.Integer)
+    #
+    average = db.Column(db.Numeric(10,2))
+    credit = db.Column(db.Integer)
+    session = db.Column(db.Integer)
+
+
+
+
 class Promo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), index=True, unique=True)
@@ -946,8 +983,11 @@ class Grade(db.Model):
         is_savable = False
         module_saving_enabled = False
         if self.saving_grade != None:
+            # module_session = ModuleSession.query.filter_by(
+            #     session_id=self.student_session.session_id, 
+            #     module_id=self.module_id).first()
             module_session = ModuleSession.query.filter_by(
-                session_id=self.student_session.session_id, 
+                promo_id=self.student_session.session.promo_id, 
                 module_id=self.module_id).first()
             if module_session != None:
                 module_saving_enabled = module_session.saving_enabled
@@ -956,8 +996,13 @@ class Grade(db.Model):
                 if module_saving_enabled == True:
                     # check saving_grade in range
                     is_in_range = self.saving_grade <= 20 and self.saving_grade >= 0
+
+
+
                     if is_in_range == True:
-                        if module_session.session.is_rattrapage == True:
+                        # is_rattrapage = module_session.session.is_rattrapage
+                        session = module_session.get_session()
+                        if session.is_rattrapage == True:
                             if self.is_rattrapage == True:
                                 average = self.saving_grade
                                 is_savable = True
@@ -969,6 +1014,9 @@ class Grade(db.Model):
                     else: 
                         calculation += '(there is an ERROR in the grades)'
                         # calculation = '(there is an ERROR in the grades)'
+
+
+
 
         if is_savable == False:
             is_in_range = True
@@ -1483,14 +1531,15 @@ class ModuleSession(db.Model):
             return True
         return False
     def get_session(self):
-        module = self.module
+        # module = self.module
         semester = self.module.unit.semester
         
-        session = Session.query.filter(
+        session = Session.query.filter_by(
             is_rattrapage=self.is_rattrapage,
-            promo_id=self.promo.id,
+            promo_id=self.promo_id,
             semester_id=semester.id
-        ).all()
+        ).first()
+        return session
 
 class Attendance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -1629,3 +1678,9 @@ class AttendanceSupervisor(db.Model):
 def load_user(id):
     return User.query.get_or_404(int(id))
     
+
+
+
+
+
+

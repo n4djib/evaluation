@@ -157,11 +157,15 @@ def get_sessions_tree(promo):
         else:
             name += "       "
 
+        # has errors
+        has_errors = session.check_errors_exist()
+
         # progress
-        if not session.is_closed:
-            name += get_percentage_progress( session.check_progress() )
-        else:
-            name += "                                "
+        if not has_errors:
+            if not session.is_closed:
+                name += get_percentage_progress( session.check_progress() )
+            else:
+                name += "                                "
 
         name += " <span style='font-size: 0.1px;'>" + session.promo.get_label() + "</span>"
 
@@ -169,7 +173,7 @@ def get_sessions_tree(promo):
         # if session.is_config_changed() and session.is_closed==False:
         #     name += "<span style='color: orange;''>        Configuration has changed, you need to Re(initialized)</span>"
 
-        if session.check_errors_exist():
+        if has_errors:
             name += "<span style='color: red;''>        <<<  Contains ERRORS  >>> </span>"
 
 
@@ -421,6 +425,7 @@ def running_checks():
 #             semesters_id_list.append(semester_id)
 #     return semesters_id_list
 
+
 def get_semesters_nbr_in_promo(promo):
     semesters_nbr_list = []
     sessions = promo.sessions
@@ -429,6 +434,7 @@ def get_semesters_nbr_in_promo(promo):
         if semester_nbr not in semesters_nbr_list:
             semesters_nbr_list.append(semester_nbr)
     return semesters_nbr_list
+
 
 def get_semesters_not_in_promo(promo):
     semesters = promo.branch.get_semesters_ordered()
@@ -440,6 +446,7 @@ def get_semesters_not_in_promo(promo):
         if semester.get_nbr() not in semesters_nbr_in_promo:
             semesters_remaining_promo.append(semester)
     return semesters_remaining_promo
+
 
 def get_options_by_promo(promo):
     options = ''
@@ -457,6 +464,7 @@ def get_options_by_promo(promo):
             opt += ' (Historic)'
         options += '<option value='+val+' '+selected+'>'+opt+'</option>'
     return options
+
 
 def get_options():
     array = []
@@ -495,7 +503,6 @@ def check_errors_exists(sessions):
     return count
 
 
-
 @app.route('/tree/re-init/school/<school_id>', methods=['GET'])
 @app.route('/tree/re-init/', methods=['GET'])
 def tree_reinit_all(school_id=0):
@@ -531,8 +538,6 @@ def tree_recalc_all(school_id=0):
 #
 
 
-
-
 ############## RE-Render Promo Tree ################
 
 @app.route('/tree/prerender/', methods=['GET'])
@@ -545,5 +550,4 @@ def pre_render_tree():
 
     flash('pre-rendered the tree')
     return redirect(url_for('tree'))
-
 

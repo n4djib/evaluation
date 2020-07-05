@@ -6,6 +6,42 @@
     to 241 - Microbiologie parasitologie 
 = 
 
+CREATE TABLE aaaaaa (
+    id         INTEGER         NOT NULL,
+    student_id INTEGER,
+    username   VARCHAR (20)    UNIQUE,
+    last_name  VARCHAR (45),
+    first_name VARCHAR (45),
+    a1         NUMERIC (10, 2),
+    c1         INTEGER,
+    s1         INTEGER,
+    a2         NUMERIC (10, 2),
+    c2         INTEGER,
+    s2         INTEGER,
+    a3         NUMERIC (10, 2),
+    c3         INTEGER,
+    s3         INTEGER,
+    a4         NUMERIC (10, 2),
+    c4         INTEGER,
+    s4         INTEGER,
+    a5         NUMERIC (10, 2),
+    c5         INTEGER,
+    s5         INTEGER,
+    average    NUMERIC (10, 2),
+    credit     INTEGER,
+    session    INTEGER,
+    PRIMARY KEY (
+        id
+    ),
+    FOREIGN KEY (
+        student_id
+    )
+    REFERENCES student (id) ON DELETE CASCADE
+                            ON UPDATE CASCADE
+);
+
+
+
 = 
 
 = 

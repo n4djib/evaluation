@@ -58,7 +58,12 @@
                 <tr>
                   <td> {{ session.promo.name }} {{ session.promo.display_name }}    </td>
                   <td>    <a href="{{ url_for('session', session_id=session.id) }}">{{ session.get_name() }}</a>    </td>
-                  <td>    <a href="{{ url_for('grade', session_id=session.id, student_id=student.id) }}">grades</a> </td>
+                  <td>    
+                    {% if not session.is_historic %}
+                    <a href="{{ url_for('grade', session_id=session.id, student_id=student.id) }}">grades</a> 
+                    {% endif %}
+
+                  </td>
                 </tr>
               {% endfor %}
               </table>

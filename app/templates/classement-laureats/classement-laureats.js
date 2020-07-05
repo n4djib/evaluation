@@ -13,6 +13,14 @@ var hot;
 var mode = '{{ mode | safe }}';
 var hiddenColumns = null;
 
+
+
+hiddenColumns = [0, 5, 7, 10, 12, 14, 18, 20, 22, 24, 26];
+
+
+
+
+
 if(mode == 'classement') {
   hiddenColumns = [0, 6, 8, 11, 13, 15, 16, 19, 21, 23, 25, 27, 28];
 }
@@ -20,6 +28,11 @@ if(mode == 'classement') {
 if(mode == 'progression') {
   hiddenColumns = [0, 3, 6, 8, 11, 12, 13, 14, 15, 16, 19, 21,22,23,24,25,26,27,28];
 }
+
+if(mode == 'fetched') {
+  hiddenColumns = [0, 5, 7, 10, 12, 14, 18, 20, 22, 24, 26];
+}
+
 
 
 
@@ -96,8 +109,8 @@ hot = new Handsontable(container, {
   manualColumnResize: true,
   //saisir
   colHeaders: ['--ID--', '#', 'Name', '[[Moy Clas.]]', '(Annee)', 
-    'Moy a', '(Moy a)', 'Cr a', '(Cr a)', '((Cr Cumul))', 'dec', '(dec 11)', 
-    'R', '(R)', 'S', '(S)',  '[[Moy Clas. a]16]',
+    'Moy a', '(Moy a)', 'Cr a', '(Cr a)', '((Cr Cumul))', 'dec', '(dec)', 
+    'R', '(R)', 'S', '(S)',  '[[Moy Clas. a]]',
     '(Semester)', 'Moy s', '(Moy s)', 'Cr s', '(Cr s)', 
     'b', '(b)', 'd', '(d)', 's', '(s)', '[[Moy Clas. s]]'
   ],
