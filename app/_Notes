@@ -27,12 +27,19 @@
 			- when Session contains an error
 				don't show progress percentage
 			- in student details hide grades for historic session
+= ERROR: save enabled is not Calculating
+	maybe only from Calculate_by_Student 
 = ERROR: Dropdown in navBar is not working
+- in grid by student show saving enabeled cell
+- in grid add filters by grade and average and .... 
+- add the possibility of making a backup
+	like a snapshot
+- change print datetime from 
+	Javascript time (browser) to server time
+	or better time of calculation
 - notify the need to calculate Annual
 	in annual
 	in progression
-- save enabled is not Calculating
-	maybe only from Calculate_by_Student 
 == Progrission et Classement ==
 	- Average and credit in Classement is shown in Bultin and Annual like Decision
 	- in Promo decide wich Classement and Progression formula
