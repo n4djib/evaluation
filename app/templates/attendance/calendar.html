@@ -145,44 +145,44 @@
 
 
     function save_swal(event_id) {
-      // module_id  = $('#module').val();
-      // console.log('session_id: '+session_id+' - module_id: '+module_id);
+      module_id  = $('#module').val();
+      console.log('session_id: '+session_id+' - module_id: '+module_id);
 
-      // // send saved data
-      // $.ajax({
-      //   url:"{{ url_for('save_select_list_calendar') }}",
-      //   type:"POST",
-      //   data: JSON.stringify({ 
-      //     id: event_id, 
-      //     school_id: $('#school').val(),
-      //     branch_id: $('#branch').val(),
-      //     promo_id: $('#promo').val(),
-      //     session_id: $('#session').val(),
-      //     module_id: module_id,
-      //     start_date: $('#start_date').val(),
-      //     end_date: $('#end_date').val(),
-      //     start_time: $('#start_time').val(),
-      //     end_time: $('#end_time').val()
-      //   }),
-      //   dataType: 'text',
-      //   success:function()
-      //   {
-      //    calendar.fullCalendar('refetchEvents');
-      //    console.log("Event Updated and saved");
+      // send saved data
+      $.ajax({
+        url:"{{ url_for('save_select_list_calendar') }}",
+        type:"POST",
+        data: JSON.stringify({ 
+          id: event_id, 
+          school_id: $('#school').val(),
+          branch_id: $('#branch').val(),
+          promo_id: $('#promo').val(),
+          session_id: $('#session').val(),
+          module_id: module_id,
+          start_date: $('#start_date').val(),
+          end_date: $('#end_date').val(),
+          start_time: $('#start_time').val(),
+          end_time: $('#end_time').val()
+        }),
+        dataType: 'text',
+        success:function()
+        {
+         calendar.fullCalendar('refetchEvents');
+         console.log("Event Updated and saved");
          
-      //   }
-      // });
+        }
+      });
     }
 
     function sweet_alert_fire(event, calendar) {
-      // Swal.fire({
-      //   // title: '<strong>HTML <u>example</u></strong>',
-      //   // icon: 'info',
-      //   html: get_select_list_html(event),
-      //   showCloseButton: true,
-      //   showConfirmButton: false,
-      //   width: 600,
-      // })
+      Swal.fire({
+        // title: '<strong>HTML <u>example</u></strong>',
+        // icon: 'info',
+        html: get_select_list_html(event),
+        showCloseButton: true,
+        showConfirmButton: false,
+        width: 600,
+      })
     }
 
 

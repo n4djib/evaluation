@@ -19,27 +19,7 @@
 
 == PRIORITY 1 ==
 ----------------
-			- sort grid by name
-			- add drop down Menu in NavBar
-				to show basic tables
-			- in Session modules table
-				use badges for s & f
-			- when Session contains an error
-				don't show progress percentage
-			- in student details hide grades for historic session
-= ERROR: save enabled is not Calculating
-	maybe only from Calculate_by_Student 
-= ERROR: Dropdown in navBar is not working
-- in grid by student show saving enabeled cell
-- in grid add filters by grade and average and .... 
-- add the possibility of making a backup
-	like a snapshot
-- change print datetime from 
-	Javascript time (browser) to server time
-	or better time of calculation
-- notify the need to calculate Annual
-	in annual
-	in progression
+			- in  Tree  check errors and config by Ajax
 == Progrission et Classement ==
 	- Average and credit in Classement is shown in Bultin and Annual like Decision
 	- in Promo decide wich Classement and Progression formula
@@ -49,14 +29,29 @@
 		they have to qualify
 		transfaire from annual, not from semester
 		Only Admit & Admit avec dette
+- PRINTABLE: the state of entries
+	each semester with percentage
+	and show modules with percentage
+- permission:
+	https://pypi.org/project/permission/
+	http://localhost:5001/permission/
+	###  ownaginatious / flask-basic-roles 
+	# https://github.com/ownaginatious/flask-basic-roles
+	## How to protect Flask-RESTful with Flask-USER management?
+	# https://stackoverflow.com/questions/45419802/how-to-protect-flask-restful-with-flask-user-management
+
+- in grid add filters by grade and average and ...
+	??????????
+- add the possibility of making a backup like a snapshot
+- change print datetime from 
+	Javascript time (browser) to server time
+	or better time of calculation
+- notify the need to calculate Annual
+	in annual  &  in progression
 - ERROR:
 	in calendar if i open an event then close it
 		and try to create a new one
 		you loose the $calendarRef
-			- in  Tree  check errors and config by Ajax
-- PRINTABLE: the state of entries
-	each semester with percentage
-	and show modules with percentage
 - Show (slow_redirect) when changing "Saving Enabled"
 - when saving the grid return new DATA_ARRAY
 	and compaire is to current and show diffs
@@ -69,17 +64,10 @@
 - add indication of absence in exam
 
 
-###  ownaginatious / flask-basic-roles 
-# https://github.com/ownaginatious/flask-basic-roles
-## How to protect Flask-RESTful with Flask-USER management?
-# https://stackoverflow.com/questions/45419802/how-to-protect-flask-restful-with-flask-user-management
 
 
 
 - NOTE: i disabled in base.html - grab_and_display_notifications();
-- permission:
-	https://pypi.org/project/permission/
-	http://localhost:5001/permission/
 - create Form for the admin to create New users and asign them Permissions
 - find a way to close Events
 - Don't allow deleting Events
@@ -1031,6 +1019,18 @@
 			- open attendance in a sweet alert
 			- init_attendance
 				removed students from attendance
+			- sort grid by name
+			- add drop down Menu in NavBar
+				to show basic tables
+			- in Session modules table
+				use badges for s & f
+			- when Session contains an error
+				don't show progress percentage
+			- in student details hide grades for historic session
+			= ERROR: save enabled is not Calculating
+				maybe only from Calculate_by_Student 
+			= ERROR: Dropdown in navBar is not working
+			- in grid by student show saving enabeled cell
 
 
 

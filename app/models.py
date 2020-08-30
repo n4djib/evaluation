@@ -221,6 +221,8 @@ class AnnualGrade(db.Model):
     annual_session_id = db.Column(db.Integer, db.ForeignKey('annual_session.id'))
     annual_session = db.relationship("AnnualSession", back_populates="annual_grades")
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+    
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def get_ratt_modules_list_annual_html(self):
         annual_dict = self.annual_session.get_annual_dict()
@@ -979,25 +981,33 @@ class Grade(db.Model):
         calculation = ''
         dictionary = eval(self.formula)
 
-        # find out if is savable
+        # find out if it is savable
         is_savable = False
         module_saving_enabled = False
+
         if self.saving_grade != None:
-            # module_session = ModuleSession.query.filter_by(
-            #     session_id=self.student_session.session_id, 
-            #     module_id=self.module_id).first()
+            promo_id = self.student_session.session.promo_id
+            module_id = self.module_id
+            is_rattrapage = self.student_session.session.is_rattrapage
+
             module_session = ModuleSession.query.filter_by(
-                promo_id=self.student_session.session.promo_id, 
-                module_id=self.module_id).first()
+                promo_id=promo_id, 
+                module_id=module_id,
+                is_rattrapage=is_rattrapage).first()
+
             if module_session != None:
                 module_saving_enabled = module_session.saving_enabled
+
+                # print('--------+++--------')
+                # print(''+str(module_session.id))
+                # print(''+str(module_saving_enabled))
+                # print(' '+str(promo_id)+' '+str(module_id)+' '+str(is_rattrapage))
+                # print('')
 
                 # is_savable = True
                 if module_saving_enabled == True:
                     # check saving_grade in range
                     is_in_range = self.saving_grade <= 20 and self.saving_grade >= 0
-
-
 
                     if is_in_range == True:
                         # is_rattrapage = module_session.session.is_rattrapage
@@ -1013,10 +1023,6 @@ class Grade(db.Model):
                             calculation += '(saving_grade: '+str(average)+')'
                     else: 
                         calculation += '(there is an ERROR in the grades)'
-                        # calculation = '(there is an ERROR in the grades)'
-
-
-
 
         if is_savable == False:
             is_in_range = True
@@ -1028,8 +1034,12 @@ class Grade(db.Model):
                     if val != None:
                         is_in_range = val >= 0 and val <= 20
                     getcontext().prec = 4
+                    # print('')
+                    # print(field + ' ' +str(val))
+                    # print('')
                     if val != None and is_in_range:
                         average += round( val * Decimal(percentage) , 2)
+                        # average += round( val , 2)
                     if val == None:
                         val = '#é$/&?|[+{#%*#$='
                     calculation += '('+str(field)+': '+str(val)+' * '+str(percentage)+')' + ' + '

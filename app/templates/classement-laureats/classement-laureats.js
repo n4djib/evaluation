@@ -15,22 +15,26 @@ var hiddenColumns = null;
 
 
 
-hiddenColumns = [0, 5, 7, 10, 12, 14, 18, 20, 22, 24, 26];
+hiddenColumns = [0, 5, 7,     9,    10, 12, 14, 18, 20, 22, 24, 26];
 
 
 
 
+
+if(mode == 'all') {
+  hiddenColumns = [];
+}
 
 if(mode == 'classement') {
-  hiddenColumns = [0, 6, 8, 11, 13, 15, 16, 19, 21, 23, 25, 27, 28];
+  hiddenColumns = [0, 6, 8,     9,     11, 13, 15, 16, 19, 21, 23, 25, 27, 28];
 }
 
 if(mode == 'progression') {
-  hiddenColumns = [0, 3, 6, 8, 11, 12, 13, 14, 15, 16, 19, 21,22,23,24,25,26,27,28];
+  hiddenColumns = [0, 3, 6, 8,     9,     11, 12, 13, 14, 15, 16, 19, 21,22,23,24,25,26,27,28];
 }
 
 if(mode == 'fetched') {
-  hiddenColumns = [0, 5, 7, 10, 12, 14, 18, 20, 22, 24, 26];
+  hiddenColumns = [0, 5, 7,     9,     10, 12, 14, 18, 20, 22, 24, 26];
 }
 
 
@@ -40,7 +44,7 @@ if(mode == 'fetched') {
 var columns = [
   { data: 'id', type: 'text', width: 1, readOnly: true },
   { data: 'index', type: 'text', width: 20/*shrink rather than width*/, readOnly: true },
-  { data: 'name', type: 'text', readOnly: true },
+  { data: 'name', type: 'text',    width: 100,           readOnly: true },
   { data: 'average', type: 'numeric', readOnly: true },
 
   { data: 'year', type: 'text', width: 55, readOnly: true },

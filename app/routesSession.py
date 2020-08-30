@@ -642,6 +642,82 @@ def init_classement_laureats(promo_id):
     return 'init_classement_laureats'
 
 
+# def annee_sans_redoublemant(year, student_id):
+def annee_obtenu_sans_redoublemant(classement_year):
+    annual_grade_count = AnnualGrade.query.filter_by(
+            student_id=classement_year.classement.student_id
+        ).join(AnnualSession).join(Annual).filter_by(
+            annual=classement_year.year
+        ).count()
+
+    if annual_grade_count == 1:
+        return 0
+    if annual_grade_count == 2:
+        return 1
+    if annual_grade_count == 3:
+        return 2
+    return None
+
+def annee_obtenu_sans_rattrapage(classement_year):
+    #
+    #
+    #
+    #
+    #
+    #
+    # be carful of timestamp changing after update
+    # also it can be created as historic after the current year
+    #
+    annual_grade = AnnualGrade.query.filter_by(
+            student_id=classement_year.classement.student_id
+        ).join(AnnualSession).join(Annual).filter_by(
+            annual=classement_year.year
+        ).order_by(AnnualGrade.timestamp.desc()).first()
+
+    if annual_grade != None and annual_grade.enter_ratt == True:
+        return 0.5
+    return 0
+
+def annee_obtenu_sans_dettes(classement_year):
+    annual_grade = AnnualGrade.query.filter_by(
+            student_id=classement_year.classement.student_id
+        ).join(AnnualSession).join(Annual).filter_by(
+            annual=classement_year.year
+        ).order_by(AnnualGrade.timestamp.desc()).first()
+
+    # decision = admis_avec_dettes
+    if annual_grade != None and annual_grade.decision == 'admis_avec_dettes':
+        return 1
+    return 0
+
+def semester_obtenu_sans_rattrapage(student_session):
+    # student_session.units_fond_aquired()
+    if student_session.credit < 30:
+        return 1
+    return 0
+
+def student_session_of_classement_semester(classement_semester):
+    cy = classement_semester.classement_year
+    c = cy.classement
+    semester = classement_semester.semester
+    annual = cy.year
+    promo_id = c.promo_id
+    student_id = c.student_id
+    is_rattrapage = False
+    student_session = StudentSession.query.filter_by(
+            student_id=student_id
+        ).join(Session).filter_by(
+            is_rattrapage=is_rattrapage
+        ).join(Promo).filter_by(
+            id=promo_id
+        ).join(Semester).filter_by(
+            semester=semester
+        ).join(Annual).filter_by(
+            annual=annual
+        ).first()
+
+    return student_session
+
 def fill_classement_laureats_data(promo_id):
     promo = Promo.query.get_or_404(promo_id)
     classement_years = ClassementYear.query.join(Classement)\
@@ -657,22 +733,37 @@ def fill_classement_laureats_data(promo_id):
             # from annual_grade fill the fields
             classement_year.average_app = annual_grade.average_final
             classement_year.credit_app = annual_grade.credit_final
-            # classement_year.decision_app = annual_grade.obs
-            # classement_year.decision_app = annual_grade.observation
             classement_year.decision_app = annual_grade.decision
 
-            # 
-            # fill classement_semester
+            sans_redoublemant = annee_obtenu_sans_redoublemant(classement_year)
+            sans_rattrapage = annee_obtenu_sans_rattrapage(classement_year)
+            sans_dettes = annee_obtenu_sans_dettes(classement_year)
+
+            classement_year.R_app = sans_redoublemant
+            classement_year.S_app = sans_rattrapage
+
+            # fill classement_semester (just in case of SF)
             for classement_semester in classement_year.classement_semesters:
                 cs = classement_semester
                 ag = annual_grade
-                cs.s_app = 0
+
+                cs.b_app = sans_redoublemant
+                cs.d_app = sans_dettes
+
+                # annee sans rattrapage + has no fondamental
+                cs.s_app = sans_rattrapage * 2   # 0 or 1
+
+                # in case of has_fondamental
+                student_session = student_session_of_classement_semester(cs)
+                has_fondamental = student_session.session.semester.has_fondamental()
+                # if has_fondamental and sans_rattrapage == 1:
+                if has_fondamental:
+                    cs.s_app = semester_obtenu_sans_rattrapage(student_session)
+
                 # fill semester 1
                 if cs.semester == 1:
                     cs.average_app = ag.avr_r_1 if ag.avr_r_1 != None else ag.avr_1
                     cs.credit_app = ag.cr_r_1 if ag.cr_r_1 != None else ag.cr_1
-                    # if :
-                    #     cs.s_app = 1
                 # fill semester 2
                 if cs.semester == 2:
                     cs.average_app = ag.avr_r_2 if ag.avr_r_2 != None else ag.avr_2

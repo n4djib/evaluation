@@ -48,7 +48,6 @@ def create_module_session(session, module):
             is_rattrapage=session.is_rattrapage
         ).first()
 
-
     if module_session == None:
         # create a new one
         module_session = ModuleSession(
@@ -309,11 +308,13 @@ def grade_save(type=''):
         if is_dirty == True:
             grade.is_dirty = True
 
-        # print(' ')
-        # print('44444444')
         # commented this to not save Null Averages
         # grade.average = data['average']
         # grade.credit = data['credit']
+
+        # Calculate the Average
+        # when activated the grid becomes too slow
+        # grade.calculate()
 
         db.session.commit()
 

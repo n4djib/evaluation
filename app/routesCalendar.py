@@ -5,6 +5,7 @@ from app.models import School, Branch, Annual, Semester, Module, Promo,\
 from flask_breadcrumbs import register_breadcrumb
 from app.permissions_and_rules import AttendancePermission
 
+
 from datetime import datetime, timedelta
 
 
@@ -78,15 +79,19 @@ def save_select_list_calendar():
 
     if module_session == None and promo_id != 0 and module_id != 0:
         session = Session.query.get_or_404(session_id)
-        module_session = ModuleSession(
-            promo_id=promo_id, 
-            module_id=module.id, 
-            module_code=module.code, 
-            module_name=module.name, 
-            is_rattrapage=session.is_rattrapage
-        )
-        db.session.add(module_session)
-        db.session.commit()
+        # module_session = ModuleSession(
+        #     promo_id=promo_id, 
+        #     module_id=module.id, 
+        #     module_code=module.code, 
+        #     module_name=module.name, 
+        #     is_rattrapage=session.is_rattrapage
+        # )
+        # db.session.add(module_session)
+        # db.session.commit()
+        from app.routesGrade import create_module_session
+        module_session = create_module_session(session, module)
+        module_session.module_code = module.code
+        module_session.module_name = module.name
 
     if module_session == None:
         return 'ERROR: module_session not found'
