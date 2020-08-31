@@ -22,34 +22,34 @@ from flask import flash
 
 
 
-# aaaaaa
-class Aaaaaa(db.Model):
-    __tablename__ = 'aaaaaa'
-    id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
-    username = db.Column(db.String(20), index=True, unique=True) # matricule
-    last_name = db.Column(db.String(45), index=True)
-    first_name = db.Column(db.String(45), index=True)
-    # student = db.relationship("Student", back_populates="aaaaaa")
-    a1 = db.Column(db.Numeric(10,2))
-    c1 = db.Column(db.Integer)
-    s1 = db.Column(db.Integer)
-    a2 = db.Column(db.Numeric(10,2))
-    c2 = db.Column(db.Integer)
-    s2 = db.Column(db.Integer)
-    a3 = db.Column(db.Numeric(10,2))
-    c3 = db.Column(db.Integer)
-    s3 = db.Column(db.Integer)
-    a4 = db.Column(db.Numeric(10,2))
-    c4 = db.Column(db.Integer)
-    s4 = db.Column(db.Integer)
-    a5 = db.Column(db.Numeric(10,2))
-    c5 = db.Column(db.Integer)
-    s5 = db.Column(db.Integer)
-    #
-    average = db.Column(db.Numeric(10,2))
-    credit = db.Column(db.Integer)
-    session = db.Column(db.Integer)
+# # aaaaaa
+# class Aaaaaa(db.Model):
+#     __tablename__ = 'aaaaaa'
+#     id = db.Column(db.Integer, primary_key=True)
+#     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+#     username = db.Column(db.String(20), index=True, unique=True) # matricule
+#     last_name = db.Column(db.String(45), index=True)
+#     first_name = db.Column(db.String(45), index=True)
+#     # student = db.relationship("Student", back_populates="aaaaaa")
+#     a1 = db.Column(db.Numeric(10,2))
+#     c1 = db.Column(db.Integer)
+#     s1 = db.Column(db.Integer)
+#     a2 = db.Column(db.Numeric(10,2))
+#     c2 = db.Column(db.Integer)
+#     s2 = db.Column(db.Integer)
+#     a3 = db.Column(db.Numeric(10,2))
+#     c3 = db.Column(db.Integer)
+#     s3 = db.Column(db.Integer)
+#     a4 = db.Column(db.Numeric(10,2))
+#     c4 = db.Column(db.Integer)
+#     s4 = db.Column(db.Integer)
+#     a5 = db.Column(db.Numeric(10,2))
+#     c5 = db.Column(db.Integer)
+#     s5 = db.Column(db.Integer)
+#     #
+#     average = db.Column(db.Numeric(10,2))
+#     credit = db.Column(db.Integer)
+#     session = db.Column(db.Integer)
 
 
 

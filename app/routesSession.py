@@ -15,7 +15,7 @@ from app.permissions_and_rules import AttendancePermission
 from flask_login import current_user
 
 
-from app.models import Aaaaaa
+# from app.models import Aaaaaa
 
 
 
@@ -663,8 +663,6 @@ def annee_obtenu_sans_rattrapage(classement_year):
     #
     #
     #
-    #
-    #
     # be carful of timestamp changing after update
     # also it can be created as historic after the current year
     #
@@ -676,7 +674,9 @@ def annee_obtenu_sans_rattrapage(classement_year):
 
     if annual_grade != None and annual_grade.enter_ratt == True:
         return 0.5
-    return 0
+    if annual_grade != None:
+        return 0
+    return None
 
 def annee_obtenu_sans_dettes(classement_year):
     annual_grade = AnnualGrade.query.filter_by(
@@ -756,7 +756,6 @@ def fill_classement_laureats_data(promo_id):
                 # in case of has_fondamental
                 student_session = student_session_of_classement_semester(cs)
                 has_fondamental = student_session.session.semester.has_fondamental()
-                # if has_fondamental and sans_rattrapage == 1:
                 if has_fondamental:
                     cs.s_app = semester_obtenu_sans_rattrapage(student_session)
 
@@ -807,20 +806,35 @@ def calculate_avr_classement(promo_id):
     getcontext().prec = 4
     for cy in classement_years:
         average_app = cy.average_app if cy.average_app != None else 0
-        average =   cy.average if cy.average != None else average_app
+        average = cy.average if cy.average != None else average_app
         R_app = cy.R_app if cy.R_app != None else 0
-        R =   cy.R if cy.R != None else R_app
+        R = cy.R if cy.R != None else R_app
         S_app = cy.S_app if cy.S_app != None else 0
-        S =   cy.S if cy.S != None else S_app
+        S = cy.S if cy.S != None else S_app
         
         cy.avr_classement = average * (1 - Decimal((R+S)/20) )
+        # add the decimal point
+
+        for cs in cy.classement_semesters:
+            a = 0.04
+            avr_app = cs.average_app if cs.average_app != None else 0
+            avr = cs.average if cs.average != None else avr_app
+            b_app = cs.b_app if cs.b_app != None else 0
+            b = cs.b if cs.b != None else b_app
+            d_app = cs.d_app if cs.d_app != None else 0
+            d = cs.d if cs.d != None else d_app
+            s_app = cs.s_app if cs.s_app != None else 0
+            s = cs.s if cs.s != None else s_app
+
+            cs.avr_classement = avr * (1- Decimal(a) * (  Decimal((b+s)/2 + s/4)  )  )
+
 
     db.session.commit()
 
     return 'calulate_avr_classement'
 
 
-DESICIONS = {
+DECISIONS = {
     'rattrapage': {
         'observation': 'Rattrapage',
         'obs_html': '<span class="label label-warning">Rattrapage</span>'
@@ -843,29 +857,29 @@ DESICIONS = {
     }
 }
 
-def get_desions_list():
-    desions_list = ['']
-    for key in DESICIONS:
-        desions_list.append( DESICIONS[key]['observation'] )
+def get_decisions_list():
+    decisions_list = ['']
+    for key in DECISIONS:
+        decisions_list.append( DECISIONS[key]['observation'] )
 
-    return desions_list
+    return decisions_list
 
 
 def decision_to_html(decision):
-    if decision in DESICIONS:
-        return DESICIONS[decision]['obs_html']
+    if decision in DECISIONS:
+        return DECISIONS[decision]['obs_html']
     return ''
 
 
 def decision_to_observation(decision):
-    if decision in DESICIONS:
-        return DESICIONS[decision]['observation']
+    if decision in DECISIONS:
+        return DECISIONS[decision]['observation']
     return ''
 
 
 def observation_to_decision(observation):
-    for key in DESICIONS:
-        if DESICIONS[key]['observation'] == observation:
+    for key in DECISIONS:
+        if DECISIONS[key]['observation'] == observation:
             return key
     return ''
 
@@ -897,8 +911,9 @@ def create_classement_merge_arr(classements, years, semesters):
                 col13 = ' {row: '+row+', col:13, rowspan: 2, colspan:1}, '
                 col14 = ' {row: '+row+', col:14, rowspan: 2, colspan:1}, '
                 col15 = ' {row: '+row+', col:15, rowspan: 2, colspan:1}, '
+                col16 = ' {row: '+row+', col:16, rowspan: 2, colspan:1}, '
                 mergeCells += col4 + col5 + col6 + col7 + col8 + col9 \
-                    + col10 + col11 + col12 + col13 + col14 + col15
+                    + col10 + col11 + col12 + col13 + col14 + col15 + col16
             
             last_i = i
 
@@ -906,6 +921,8 @@ def create_classement_merge_arr(classements, years, semesters):
 
 
 def create_classement_data_grid(classements, years, semesters):
+    # i = 0
+
     data_arr = ''
     for index, cs in enumerate(classements):
         s = cs.classement_year.classement.student
@@ -937,7 +954,6 @@ def create_classement_data_grid(classements, years, semesters):
         S_app = 'S_app: ' + str(cy.S_app) + ', '
         avr_classement_a = 'avr_classement_a: ' + str(cy.avr_classement) + ', '
 
-
         # Semester
         semester_nbr = (cy.year * 2) - 2 + cs.semester
         semester = 'semester: ' + str(semester_nbr) + ', '
@@ -960,7 +976,12 @@ def create_classement_data_grid(classements, years, semesters):
              + decision + decision_app + avr_classement_a  \
              + R + R_app + S + S_app \
              + semester + average_s + average_app_s + credit_s + credit_app_s \
-             + b + b_app + d + d_app + s + s_app + '}, '
+             + b + b_app + d + d_app + s + s_app + avr_classement_s + '}, '
+
+        #####
+        # i = i + 1
+        # if i == 20:
+        #     break
 
     return '[' + data_arr + ']'
 
@@ -976,7 +997,6 @@ def init_and_fill_classement_laureats_(promo_id):
 def calculate_avr_classement_(promo_id):
     msg = calculate_avr_classement(promo_id)
     return redirect(url_for('classement_laureats', promo_id=promo_id))
-
 
 @app.route('/classement-laureats/promo/<promo_id>/mode/<mode>', methods=['GET'])
 @app.route('/classement-laureats/promo/<promo_id>', methods=['GET'])
@@ -1011,7 +1031,7 @@ def classement_laureats(promo_id=0, type_id=0, mode=''):
     # if len(data_arr) > 2:
     #     return redirect(url_for('init_classement_laureats_', promo_id=promo_id))
     
-    decisions_list = get_desions_list()
+    decisions_list = get_decisions_list()
 
     return render_template('classement-laureats/classement-laureats.html', 
         data_arr=data_arr, mergeCells=mergeCells, 
@@ -1059,104 +1079,104 @@ def classement_laureats_save():
     return 'data saved'
 
 
-# fetch students in promo (only in the latest year)
-def clean_table():
-    aaaaaa_s = Aaaaaa.query.all()
-    for a in aaaaaa_s:
-        db.session.delete(a)
-        db.session.commit()
-    return 'clean_table'
+# # fetch students in promo (only in the latest year)
+# def clean_table():
+#     aaaaaa_s = Aaaaaa.query.all()
+#     for a in aaaaaa_s:
+#         db.session.delete(a)
+#         db.session.commit()
+#     return 'clean_table'
 
 
-@app.route('/fetch_students_by_promo/<promo_id>', methods=['GET'])
-def fetch_students_by_promo(promo_id):
-    clean_table()
+# @app.route('/fetch_students_by_promo/<promo_id>', methods=['GET'])
+# def fetch_students_by_promo(promo_id):
+#     clean_table()
 
-    # get users from annual_grade
-    annual_grades = AnnualGrade.query\
-        .join(AnnualSession).filter_by(promo_id=promo_id).all()
+#     # get users from annual_grade
+#     annual_grades = AnnualGrade.query\
+#         .join(AnnualSession).filter_by(promo_id=promo_id).all()
 
-    for ag in annual_grades:
-        student_id = ag.student_id
+#     for ag in annual_grades:
+#         student_id = ag.student_id
         
-        ## if the student is in -> skip
-        student_in_Aaaaaa = Aaaaaa.query.filter_by(student_id=student_id).first()
-        if student_in_Aaaaaa != None:
-            continue
+#         ## if the student is in -> skip
+#         student_in_Aaaaaa = Aaaaaa.query.filter_by(student_id=student_id).first()
+#         if student_in_Aaaaaa != None:
+#             continue
 
-        student = Student.query.filter_by(id=student_id).first()
-        new_entry = Aaaaaa(
-            student_id=student_id, 
-            username=student.username,
-            last_name=student.last_name,
-            first_name=student.first_name,
-        )
+#         student = Student.query.filter_by(id=student_id).first()
+#         new_entry = Aaaaaa(
+#             student_id=student_id, 
+#             username=student.username,
+#             last_name=student.last_name,
+#             first_name=student.first_name,
+#         )
 
-        db.session.add(new_entry)
-        db.session.commit()
+#         db.session.add(new_entry)
+#         db.session.commit()
 
-    return 'fetch_students_by_promo'
-
-
-# collect data from annuals (formated)
-#  one for 3 column
-#  one for 5 column 
+#     return 'fetch_students_by_promo'
 
 
-@app.route('/collect_students_averages_by_promo/<promo_id>', methods=['GET'])
-def collect_students_averages_by_promo(promo_id):
-    students = Aaaaaa.query.all()
+# # collect data from annuals (formated)
+# #  one for 3 column
+# #  one for 5 column 
 
-    for student in students:
-        # fetch annual_grades in promo
-        annual_grades = AnnualGrade.query.filter_by(student_id=student.student_id)\
-            .join(AnnualSession).filter_by(promo_id=promo_id).all()
 
-        # enter annual_average according to annul
-        for ag in annual_grades:
-            annual = ag.annual_session.annual.annual
-            if annual == 1:
-                student.a1 = ag.average_final
-                student.c1 = ag.credit_final
-                student.s1 = 1
-                if ag.enter_ratt == True:
-                    student.s1 = 2
-            if annual == 2:
-                student.a2 = ag.average_final
-                student.c2 = ag.credit_final
-                student.s2 = 1
-                if ag.enter_ratt == True:
-                    student.s2 = 2
-            if annual == 3:
-                student.a3 = ag.average_final
-                student.c3 = ag.credit_final
-                student.s3 = 1
-                if ag.enter_ratt == True:
-                    student.s3 = 2
-            if annual == 4:
-                student.a4 = ag.average_final
-                student.c4 = ag.credit_final
-                student.s4 = 1
-                if ag.enter_ratt == True:
-                    student.s4 = 2
-            if annual == 5:
-                student.a5 = ag.average_final
-                student.c5 = ag.credit_final
-                student.s5 = 1
-                if ag.enter_ratt == True:
-                    student.s5 = 2
+# @app.route('/collect_students_averages_by_promo/<promo_id>', methods=['GET'])
+# def collect_students_averages_by_promo(promo_id):
+#     students = Aaaaaa.query.all()
 
-        # calculate Ratt & session
-        # student.average = 
+#     for student in students:
+#         # fetch annual_grades in promo
+#         annual_grades = AnnualGrade.query.filter_by(student_id=student.student_id)\
+#             .join(AnnualSession).filter_by(promo_id=promo_id).all()
 
-        db.session.commit()
-    # 
-    # 
-    # fetch annual_grades  Not in promo
-    # 
-    # 
+#         # enter annual_average according to annul
+#         for ag in annual_grades:
+#             annual = ag.annual_session.annual.annual
+#             if annual == 1:
+#                 student.a1 = ag.average_final
+#                 student.c1 = ag.credit_final
+#                 student.s1 = 1
+#                 if ag.enter_ratt == True:
+#                     student.s1 = 2
+#             if annual == 2:
+#                 student.a2 = ag.average_final
+#                 student.c2 = ag.credit_final
+#                 student.s2 = 1
+#                 if ag.enter_ratt == True:
+#                     student.s2 = 2
+#             if annual == 3:
+#                 student.a3 = ag.average_final
+#                 student.c3 = ag.credit_final
+#                 student.s3 = 1
+#                 if ag.enter_ratt == True:
+#                     student.s3 = 2
+#             if annual == 4:
+#                 student.a4 = ag.average_final
+#                 student.c4 = ag.credit_final
+#                 student.s4 = 1
+#                 if ag.enter_ratt == True:
+#                     student.s4 = 2
+#             if annual == 5:
+#                 student.a5 = ag.average_final
+#                 student.c5 = ag.credit_final
+#                 student.s5 = 1
+#                 if ag.enter_ratt == True:
+#                     student.s5 = 2
 
-    return 'collect_students_averages_by_promo'
+#         # calculate Ratt & session
+#         # student.average = 
+
+#         db.session.commit()
+#     # 
+#     # 
+#     # fetch annual_grades  Not in promo
+#     # 
+#     # 
+
+#     return 'collect_students_averages_by_promo'
 
 
 

@@ -15,27 +15,39 @@ var hiddenColumns = null;
 
 
 
-hiddenColumns = [0, 5, 7,     9,    10, 12, 14, 18, 20, 22, 24, 26];
+// hiddenColumns = [0, 5, 7,     9,    10, 12, 14, 18, 20, 22, 24, 26];
 
-
+// hide app fetched
+// if(mode == 'unfetched') {
+  hiddenColumns = [0, 6, 8,   9/*cumul*/,    11, 13, 15, /*16*/, 19, 21, 23, 25, 27, /*28*/];
+// }
 
 
 
 if(mode == 'all') {
+  // hiddenColumns = [3, 9,    16, 28];
   hiddenColumns = [];
 }
 
-if(mode == 'classement') {
-  hiddenColumns = [0, 6, 8,     9,     11, 13, 15, 16, 19, 21, 23, 25, 27, 28];
+// if(mode == 'classement') {
+//   hiddenColumns = [0, 6, 8,     9,     11, 13, 15, 16, 19, 21, 23, 25, 27, 28];
+// }
+
+// if(mode == 'progression') {
+//   hiddenColumns = [0, 3, 6, 8,     9,     11, 12, 13, 14, 15, 16, 19, 21,22,23,24,25,26,27,28];
+// }
+
+// if(mode == 'fetched') {
+//   hiddenColumns = [0, 5, 7,     9,     10, 12, 14, 18, 20, 22, 24, 26];
+// }
+
+// hide app fetched
+if(mode == 'unfetched') {
+  hiddenColumns = [0, 6, 8, 9,    11, 13, 15, /*16*/16, 19, 21, 23, 25, 27, /*28*/28];
 }
 
-if(mode == 'progression') {
-  hiddenColumns = [0, 3, 6, 8,     9,     11, 12, 13, 14, 15, 16, 19, 21,22,23,24,25,26,27,28];
-}
 
-if(mode == 'fetched') {
-  hiddenColumns = [0, 5, 7,     9,     10, 12, 14, 18, 20, 22, 24, 26];
-}
+
 
 
 
@@ -48,9 +60,9 @@ var columns = [
   { data: 'average', type: 'numeric', readOnly: true },
 
   { data: 'year', type: 'text', width: 55, readOnly: true },
-  { data: 'average_a', type: 'numeric' },
+  { data: 'average_a', type: 'numeric', renderer: fillEmptyDecimalRenderer },
   { data: 'average_app_a', type: 'numeric', readOnly: true },
-  { data: 'credit_a', type: 'numeric' },
+  { data: 'credit_a', type: 'numeric', renderer: fillEmptyTextRenderer },
   { data: 'credit_app_a', type: 'numeric', readOnly: true },
   { data: 'credit_cumul', type: 'numeric', readOnly: true },
   {
@@ -58,26 +70,27 @@ var columns = [
     type: 'dropdown',
     source: decisions_list,
     width: 120
+    , renderer: fillEmptyTextRenderer
   },
   { data: 'decision_app', type: 'text', readOnly: true },
 
-  { data: 'R', type: 'numeric' },
+  { data: 'R', type: 'numeric', renderer: fillEmptyTextRenderer },
   { data: 'R_app', type: 'numeric', readOnly: true },
-  { data: 'S', type: 'numeric' },
+  { data: 'S', type: 'numeric', renderer: fillEmptyTextRenderer },
   { data: 'S_app', type: 'numeric', readOnly: true },
   { data: 'avr_classement_a', type: 'numeric', /*width: 12,*/ readOnly: true },
 
   { data: 'semester', type: 'text', width: 80, readOnly: true },
-  { data: 'average_s', type: 'numeric' },
+  { data: 'average_s', type: 'numeric', renderer: fillEmptyTextRenderer },
   { data: 'average_app_s', type: 'numeric', readOnly: true },
-  { data: 'credit_s', type: 'numeric' },
+  { data: 'credit_s', type: 'numeric', renderer: fillEmptyTextRenderer },
   { data: 'credit_app_s', type: 'numeric', readOnly: true },
 
-  { data: 'b', type: 'numeric' },
+  { data: 'b', type: 'numeric', renderer: fillEmptyTextRenderer },
   { data: 'b_app', type: 'numeric', readOnly: true },
-  { data: 'd', type: 'numeric' },
+  { data: 'd', type: 'numeric', renderer: fillEmptyTextRenderer },
   { data: 'd_app', type: 'numeric', readOnly: true },
-  { data: 's', type: 'numeric' },
+  { data: 's', type: 'numeric', renderer: fillEmptyTextRenderer },
   { data: 's_app', type: 'numeric', readOnly: true },
   { data: 'avr_classement_s', type: 'numeric', /*width: 3,*/ readOnly: true },
 ];
@@ -143,7 +156,7 @@ $("#save").click(function(){
 });
 
 
-function Save(){
+function Save() {
   $.ajax({
     url: '{{ url_for("classement_laureats_save") }}', 
     type: 'POST',
@@ -163,5 +176,44 @@ function Save(){
 
 }
 
+
+
+function fillEmptyDecimalRenderer(instance, td, row, col, prop, value, cellProperties) {
+  Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+  if(td.innerHTML === '') {
+    var data = instance.getDataAtCell(row, col+1);
+    if (data !== null) {
+      td.innerHTML = Number(data).toFixed(2);
+    }
+  }
+  else {
+    td.style.backgroundColor = 'yellow';
+    td.innerHTML = '<b>' + Number(td.innerHTML).toFixed(2) + '</b>';
+  }
+
+  td.style.textAlign = 'right';
+  
+  return td;
+}
+
+function fillEmptyTextRenderer(instance, td, row, col, prop, value, cellProperties) {
+  Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+  if(td.innerHTML === '') {
+    var data = instance.getDataAtCell(row, col+1);
+    if (data !== null) {
+      td.innerHTML = data;
+    }
+  }
+  else {
+    td.style.backgroundColor = 'yellow';
+    td.innerHTML = '<b>' + td.innerHTML + '</b>';
+  }
+
+  td.style.textAlign = 'center';
+  
+  return td;
+}
 
 

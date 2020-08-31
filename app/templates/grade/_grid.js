@@ -729,7 +729,6 @@ function autoSave(change, source) {
   autosaveNotification = setTimeout(function() {
     shake_message(msg_autosaved);
   }, 2000);
-
 }
 
 function calculateAverage(record, formula) {
