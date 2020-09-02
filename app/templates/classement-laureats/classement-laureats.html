@@ -21,6 +21,21 @@
       width:100%;
     }
 
+/*    input[type=text] {
+      width: 300px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 2px;
+      background-color: white;
+      background-image: url('{{ url_for('static', filename='img/searchicon.png') }}');
+      background-position: 5px 5px;
+      background-repeat: no-repeat;
+      -webkit-transition: width 0.4s ease-in-out;
+      transition: width 0.4s ease-in-out;
+      padding: 7px 10px 7px 40px;
+      margin-bottom: 2px;
+    }
+*/
 
   </style>
 {% endblock %}
@@ -44,6 +59,9 @@
     <!-- <a href="{ { url_for('fill_classement_laureats_data_', promo_id=promo_id) }}" class="btn btn-primary btn-lg" role="button" >Re(fill)</a> -->
     <a href="{{ url_for('calculate_avr_classement_', promo_id=promo_id) }}" class="btn btn-primary" role="button" >Re(calculate)</a>
   </br> 
+  <!--</br> 
+   <input id="search" name="search" 
+        placeholder="Filter ..." type="text" autocomplete="off" /> -->
   
   <div class="container" style="margin: 3px; margin-left: 0px; padding-left: 0px; ">
     <!-- <a href="" class="btn btn-primary" role="button" >*************</a>

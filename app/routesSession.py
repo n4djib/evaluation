@@ -921,7 +921,7 @@ def create_classement_merge_arr(classements, years, semesters):
 
 
 def create_classement_data_grid(classements, years, semesters):
-    # i = 0
+    i = 0
 
     data_arr = ''
     for index, cs in enumerate(classements):
@@ -979,9 +979,9 @@ def create_classement_data_grid(classements, years, semesters):
              + b + b_app + d + d_app + s + s_app + avr_classement_s + '}, '
 
         #####
-        # i = i + 1
-        # if i == 20:
-        #     break
+        i = i + 1
+        if i == 40:
+            break
 
     return '[' + data_arr + ']'
 

@@ -70,7 +70,7 @@ var columns = [
     type: 'dropdown',
     source: decisions_list,
     width: 120
-    , renderer: fillEmptyTextRenderer
+    , renderer: fillEmptyDecisionRenderer
   },
   { data: 'decision_app', type: 'text', readOnly: true },
 
@@ -81,7 +81,7 @@ var columns = [
   { data: 'avr_classement_a', type: 'numeric', /*width: 12,*/ readOnly: true },
 
   { data: 'semester', type: 'text', width: 80, readOnly: true },
-  { data: 'average_s', type: 'numeric', renderer: fillEmptyTextRenderer },
+  { data: 'average_s', type: 'numeric', renderer: fillEmptyDecimalRenderer },
   { data: 'average_app_s', type: 'numeric', readOnly: true },
   { data: 'credit_s', type: 'numeric', renderer: fillEmptyTextRenderer },
   { data: 'credit_app_s', type: 'numeric', readOnly: true },
@@ -178,42 +178,74 @@ function Save() {
 
 
 
-function fillEmptyDecimalRenderer(instance, td, row, col, prop, value, cellProperties) {
-  Handsontable.renderers.TextRenderer.apply(this, arguments);
 
-  if(td.innerHTML === '') {
-    var data = instance.getDataAtCell(row, col+1);
-    if (data !== null) {
-      td.innerHTML = Number(data).toFixed(2);
-    }
-  }
-  else {
-    td.style.backgroundColor = 'yellow';
-    td.innerHTML = '<b>' + Number(td.innerHTML).toFixed(2) + '</b>';
-  }
 
-  td.style.textAlign = 'right';
-  
-  return td;
-}
-
-function fillEmptyTextRenderer(instance, td, row, col, prop, value, cellProperties) {
-  Handsontable.renderers.TextRenderer.apply(this, arguments);
-
+function getDataCell(instance, td, row, col,  format='', align='right') {
+  // if Empty -> grab the adjacent cell data
   if(td.innerHTML === '') {
     var data = instance.getDataAtCell(row, col+1);
     if (data !== null) {
       td.innerHTML = data;
+      if (format === 'Number')
+        td.innerHTML = Number(data).toFixed(2);
     }
   }
   else {
     td.style.backgroundColor = 'yellow';
+    if (format === 'Number')
+      td.innerHTML = Number(parseFloat(td.innerHTML)).toFixed(2);
     td.innerHTML = '<b>' + td.innerHTML + '</b>';
-  }
 
-  td.style.textAlign = 'center';
-  
-  return td;
+  }
+  td.style.textAlign = align;
+  return td
 }
+
+
+function fillEmptyDecimalRenderer(instance, td, row, col, prop, value, cellProperties) {
+  Handsontable.renderers.TextRenderer.apply(this, arguments);
+  return getDataCell(instance, td, row, col,   'Number', 'right');
+}
+
+function fillEmptyTextRenderer(instance, td, row, col, prop, value, cellProperties) {
+  Handsontable.renderers.TextRenderer.apply(this, arguments);
+  return getDataCell(instance, td, row, col,   '', 'center');
+}
+
+function fillEmptyDecisionRenderer(instance, td, row, col, prop, value, cellProperties) {
+  Handsontable.renderers.TextRenderer.apply(this, arguments);
+  return getDataCell(instance, td, row, col,   '', 'left');
+}
+
+
+
+
+
+// $("#search").keyup(function(){
+//   filter(('' + this.value).toLowerCase());
+// });
+
+// function filter(search) {
+//   var row, r_len;
+//   var data = data_arr;
+//   var array = [];
+//   for (row = 0, r_len = data.length; row < r_len; row++) {
+//     // d = data[row];
+//     // for(var key in d) {
+//     //   var value = d[key];
+//     //   if( ('' + value).toLowerCase().indexOf(search) > -1) {
+//     //     array.push(d);
+//     //     break;
+//     //   }
+//     // }
+//     var value = data[row][name];
+//     if( ('' + value).toLowerCase().indexOf(search) > -1) {
+//       array.push(data[row]);
+//       break;
+//     }
+//   }
+//   hot.loadData(array);
+//   hot.validateCells(function() { hot.render(); });
+// }
 
 
