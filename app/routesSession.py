@@ -980,7 +980,7 @@ def create_classement_data_grid(classements, years, semesters):
 
         #####
         i = i + 1
-        if i == 40:
+        if i == 60:
             break
 
     return '[' + data_arr + ']'

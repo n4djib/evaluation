@@ -59,7 +59,7 @@ var columns = [
   { data: 'name', type: 'text',    width: 100,           readOnly: true },
   { data: 'average', type: 'numeric', readOnly: true },
 
-  { data: 'year', type: 'text', width: 55, readOnly: true },
+  { data: 'year', type: 'text', width: 55, readOnly: true, renderer: centerRenderer },
   { data: 'average_a', type: 'numeric', renderer: fillEmptyDecimalRenderer },
   { data: 'average_app_a', type: 'numeric', readOnly: true },
   { data: 'credit_a', type: 'numeric', renderer: fillEmptyTextRenderer },
@@ -80,7 +80,7 @@ var columns = [
   { data: 'S_app', type: 'numeric', readOnly: true },
   { data: 'avr_classement_a', type: 'numeric', /*width: 12,*/ readOnly: true },
 
-  { data: 'semester', type: 'text', width: 80, readOnly: true },
+  { data: 'semester', type: 'text', width: 80, readOnly: true, renderer: centerRenderer },
   { data: 'average_s', type: 'numeric', renderer: fillEmptyDecimalRenderer },
   { data: 'average_app_s', type: 'numeric', readOnly: true },
   { data: 'credit_s', type: 'numeric', renderer: fillEmptyTextRenderer },
@@ -194,9 +194,9 @@ function getDataCell(instance, td, row, col,  format='', align='right') {
     td.style.backgroundColor = 'yellow';
     if (format === 'Number')
       td.innerHTML = Number(parseFloat(td.innerHTML)).toFixed(2);
-    td.innerHTML = '<b>' + td.innerHTML + '</b>';
 
   }
+  td.innerHTML = '<b>' + td.innerHTML + '</b>';
   td.style.textAlign = align;
   return td
 }
@@ -218,7 +218,12 @@ function fillEmptyDecisionRenderer(instance, td, row, col, prop, value, cellProp
 }
 
 
-
+function centerRenderer(instance, td, row, col, prop, value, cellProperties) {
+  Handsontable.renderers.TextRenderer.apply(this, arguments);
+  td.style.textAlign = 'center';
+  td.innerHTML = '<b><i>' + td.innerHTML + '</i></b>';
+  return td;
+}
 
 
 // $("#search").keyup(function(){
