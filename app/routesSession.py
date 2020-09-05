@@ -2,7 +2,7 @@ from app import app, db
 from flask import render_template, request, redirect, url_for, flash
 from app.models import Promo, Session, StudentSession, Grade, GradeUnit, Unit, Semester,\
      School, Branch, Module, Student, Type, AnnualSession, AnnualGrade, Grade, Annual,\
-     Classement, ClassementYear, ModuleSession, ClassementSemester, AttendanceSupervisor, User
+     Classement, ClassementCursus, ClassementYear, ModuleSession, ClassementSemester, AttendanceSupervisor, User
 from app.forms import SessionConfigForm
 from flask_breadcrumbs import register_breadcrumb
 from decimal import *
@@ -578,60 +578,96 @@ def user_attendance_supervisor_add():
 #####    ######  ######## ##     ##  ######   ######  ######## ##     ## ###    #####
 #####                                                                           #####
 #####################################################################################
-                                                                      
-def init_classement_laureats(promo_id):
-    students = Student.query.join(StudentSession).join(Session).filter_by(promo_id=promo_id).all()
-    student_in_classements = Student.query.join(Classement).filter_by(promo_id=promo_id).all()
+
+
+# insert missing classement_cursus
+def insert_cursus(classement, annual):
+    classement_cursus = None
+
+    if annual == 1 or annual == 2 or annual == 3:
+        cursus = 'Licence'
+        classement_cursus = ClassementCursus.query.filter_by(
+            classement_id=classement.id, cursus=cursus).first()
+        if classement_cursus == None:
+            classement_cursus = ClassementCursus(
+                classement_id=classement.id, cursus=cursus)
+            db.session.add(classement_cursus)
+            db.session.commit()
+
+    if annual == 4 or annual == 5:
+        cursus = 'Master'
+        classement_cursus = ClassementCursus.query.filter_by(
+            classement_id=classement.id, cursus=cursus).first()
+        if classement_cursus == None:
+            classement_cursus = ClassementCursus(
+                classement_id=classement.id, cursus=cursus)
+            db.session.add(classement_cursus)
+            db.session.commit()
+    
+    return classement_cursus
+
+def init_classement_laureats(promo):
+    students = Student.query.join(StudentSession).join(Session).filter_by(promo_id=promo.id).all()
+    student_in_classements = Student.query.join(Classement).filter_by(promo_id=promo.id).all()
 
     # insert missing students in classement
     for student in students:
         if student not in student_in_classements:
-            classement = Classement(promo_id=promo_id, student_id=student.id)
+            classement = Classement(promo_id=promo.id, student_id=student.id)
             db.session.add(classement)
             student_in_classements.append(student)
     db.session.commit()
 
-    promo = Promo.query.get_or_404(promo_id)
+    # promo = Promo.query.get_or_404(promo_id)
     annuals = promo.branch.annuals
     # semesters = annuals[0].semesters
 
-    classements = Classement.query.filter_by(promo_id=promo_id).all()
+    classements = Classement.query.filter_by(promo_id=promo.id).all()
+
 
     # insert missing students in classement_years
     for classement in classements:
         # fill classement_year
         for annual in annuals:
+            classement_cursus = insert_cursus(classement, annual.annual)
+
             classement_year = ClassementYear.query\
-                .filter_by(classement_id=classement.id, year=annual.annual).first()
+                .filter_by(classement_cursus_id=classement_cursus.id, year=annual.annual).first()
             if classement_year == None:
                 classement_year = ClassementYear(
-                    classement_id=classement.id, 
-                    year=annual.annual
-                )
-                # 
-                # 
-                ##### disabled it to avoid creating classement_year
+                    classement_cursus_id=classement_cursus.id, 
+                    year=annual.annual)
                 # 
                 db.session.add(classement_year)
                 # 
-                # 
 
-    for classement in classements:
-        # fill classement_year
-        for annual in annuals:
-            # fill classement_semester
-            for cy in classement.classement_years:
+            for cy in classement_cursus.classement_years:
                 for semester in annual.semesters:
                     classement_semester = ClassementSemester.query.filter_by(
-                            classement_year_id = cy.id,
-                            semester = semester.semester
-                        ).first()
+                        classement_year_id=cy.id,
+                        semester=semester.semester).first()
                     if classement_semester == None:
                         classement_semester = ClassementSemester(
                             classement_year_id=cy.id,
-                            semester = semester.semester
-                        )
+                            semester=semester.semester)
                         db.session.add(classement_semester)
+
+    # for classement in classements:
+    #     # fill classement_year
+    #     for annual in annuals:
+    #         # fill classement_semester
+    #         for cy in classement.classement_years:
+    #             for semester in annual.semesters:
+    #                 classement_semester = ClassementSemester.query.filter_by(
+    #                         classement_year_id = cy.id,
+    #                         semester = semester.semester
+    #                     ).first()
+    #                 if classement_semester == None:
+    #                     classement_semester = ClassementSemester(
+    #                         classement_year_id=cy.id,
+    #                         semester = semester.semester
+    #                     )
+    #                     db.session.add(classement_semester)
             
     db.session.commit()
 
@@ -645,7 +681,7 @@ def init_classement_laureats(promo_id):
 # def annee_sans_redoublemant(year, student_id):
 def annee_obtenu_sans_redoublemant(classement_year):
     annual_grade_count = AnnualGrade.query.filter_by(
-            student_id=classement_year.classement.student_id
+            student_id=classement_year.classement_cursus.classement.student_id
         ).join(AnnualSession).join(Annual).filter_by(
             annual=classement_year.year
         ).count()
@@ -667,7 +703,7 @@ def annee_obtenu_sans_rattrapage(classement_year):
     # also it can be created as historic after the current year
     #
     annual_grade = AnnualGrade.query.filter_by(
-            student_id=classement_year.classement.student_id
+            student_id=classement_year.classement_cursus.classement.student_id
         ).join(AnnualSession).join(Annual).filter_by(
             annual=classement_year.year
         ).order_by(AnnualGrade.timestamp.desc()).first()
@@ -680,7 +716,7 @@ def annee_obtenu_sans_rattrapage(classement_year):
 
 def annee_obtenu_sans_dettes(classement_year):
     annual_grade = AnnualGrade.query.filter_by(
-            student_id=classement_year.classement.student_id
+            student_id=classement_year.classement_cursus.classement.student_id
         ).join(AnnualSession).join(Annual).filter_by(
             annual=classement_year.year
         ).order_by(AnnualGrade.timestamp.desc()).first()
@@ -698,7 +734,7 @@ def semester_obtenu_sans_rattrapage(student_session):
 
 def student_session_of_classement_semester(classement_semester):
     cy = classement_semester.classement_year
-    c = cy.classement
+    c = cy.classement_cursus.classement
     semester = classement_semester.semester
     annual = cy.year
     promo_id = c.promo_id
@@ -720,11 +756,11 @@ def student_session_of_classement_semester(classement_semester):
 
 def fill_classement_laureats_data(promo_id):
     promo = Promo.query.get_or_404(promo_id)
-    classement_years = ClassementYear.query.join(Classement)\
+    classement_years = ClassementYear.query.join(ClassementCursus).join(Classement)\
         .filter_by(promo_id=promo_id).join(Student)\
         .order_by(Student.username, ClassementYear.year).all()
     for classement_year in classement_years:
-        student_id = classement_year.classement.student_id
+        student_id = classement_year.classement_cursus.classement.student_id
         annual = classement_year.year
         annual_grade = AnnualGrade.query.filter_by(student_id=student_id)\
             .join(AnnualSession).filter_by(promo_id=promo_id)\
@@ -771,7 +807,7 @@ def fill_classement_laureats_data(promo_id):
     db.session.commit()
 
     # calculate_cumul field
-    calculate_cumul_field(classement_years)
+    # calculate_cumul_field(classement_years)
 
     return 'fill_classement_laureats_data'
 
@@ -800,7 +836,7 @@ def calculate_cumul_field(classement_years):
 
 def calculate_avr_classement(promo_id):
     promo = Promo.query.get_or_404(promo_id)
-    classement_years = ClassementYear.query.join(Classement).filter_by(promo_id=promo_id)\
+    classement_years = ClassementYear.query.join(ClassementCursus).join(Classement).filter_by(promo_id=promo_id)\
         .join(Student).order_by(Student.username, ClassementYear.year).all()
 
     getcontext().prec = 4
@@ -894,26 +930,41 @@ def create_classement_merge_arr(classements, years, semesters):
             col1 = ' {row:'+str(index)+', col:1, rowspan:'+str(semesters)+', colspan:1}, '
             col2 = ' {row:'+str(index)+', col:2, rowspan:'+str(semesters)+', colspan:1}, '
             col3 = ' {row:'+str(index)+', col:3, rowspan:'+str(semesters)+', colspan:1}, '
-            mergeCells += col1 + col2  + col3
+            col4 = ' {row:'+str(index)+', col:4, rowspan:'+str(semesters)+', colspan:1}, '
+            col5 = ' {row:'+str(index)+', col:5, rowspan:'+str(semesters)+', colspan:1}, '
+            mergeCells += col1 + col2 + col3 + col4 + col5
+
+            col6 = ' {row:'+str(index)+', col:6, rowspan:6, colspan:1}, '
+            col7 = ' {row:'+str(index)+', col:7, rowspan:6, colspan:1}, '
+            col8 = ' {row:'+str(index)+', col:8, rowspan:6, colspan:1}, '
+            col9 = ' {row:'+str(index)+', col:9, rowspan:6, colspan:1}, '
+            mergeCells += col6 + col7 + col8 + col9
+
+            if semesters > 6:
+                col6_2 = ' {row:'+str(index+6)+', col:6, rowspan:4, colspan:1}, '
+                col7_2 = ' {row:'+str(index+6)+', col:7, rowspan:4, colspan:1}, '
+                col8_2 = ' {row:'+str(index+6)+', col:8, rowspan:4, colspan:1}, '
+                col9_2 = ' {row:'+str(index+6)+', col:9, rowspan:4, colspan:1}, '
+                mergeCells += col6_2 + col7_2 + col8_2 + col9_2
 
             for year in range(years):
                 row = str(index + (year * 2) )
-                col4 = ' {row: '+row+', col:4, rowspan: 2, colspan:1}, '
-                col5 = ' {row: '+row+', col:5, rowspan: 2, colspan:1}, '
-                col6 = ' {row: '+row+', col:6, rowspan: 2, colspan:1}, '
-                col7 = ' {row: '+row+', col:7, rowspan: 2, colspan:1}, '
-                col8 = ' {row: '+row+', col:8, rowspan: 2, colspan:1}, '
-                col9 = ' {row: '+row+', col:9, rowspan: 2, colspan:1}, '
                 col10 = ' {row: '+row+', col:10, rowspan: 2, colspan:1}, '
-
                 col11 = ' {row: '+row+', col:11, rowspan: 2, colspan:1}, '
                 col12 = ' {row: '+row+', col:12, rowspan: 2, colspan:1}, '
                 col13 = ' {row: '+row+', col:13, rowspan: 2, colspan:1}, '
                 col14 = ' {row: '+row+', col:14, rowspan: 2, colspan:1}, '
                 col15 = ' {row: '+row+', col:15, rowspan: 2, colspan:1}, '
                 col16 = ' {row: '+row+', col:16, rowspan: 2, colspan:1}, '
-                mergeCells += col4 + col5 + col6 + col7 + col8 + col9 \
-                    + col10 + col11 + col12 + col13 + col14 + col15 + col16
+
+                col17 = ' {row: '+row+', col:17, rowspan: 2, colspan:1}, '
+                col18 = ' {row: '+row+', col:18, rowspan: 2, colspan:1}, '
+                col19 = ' {row: '+row+', col:19, rowspan: 2, colspan:1}, '
+                col20 = ' {row: '+row+', col:20, rowspan: 2, colspan:1}, '
+                col21 = ' {row: '+row+', col:21, rowspan: 2, colspan:1}, '
+                col22 = ' {row: '+row+', col:22, rowspan: 2, colspan:1}, '
+                mergeCells += col10 + col11 + col12 + col13 + col14 + col15 \
+                     + col16 + col17 + col18 + col19 + col20 + col21 + col22
             
             last_i = i
 
@@ -925,14 +976,25 @@ def create_classement_data_grid(classements, years, semesters):
 
     data_arr = ''
     for index, cs in enumerate(classements):
-        s = cs.classement_year.classement.student
         cy = cs.classement_year
+        cc = cy.classement_cursus
+        c = cc.classement
+        s = c.student
 
         id = 'id: ' + str(cs.id) + ', '
         index = 'index: "' + str( int( (index-(index%semesters))/semesters ) + 1 ) + '", '
         name = 'name: "' + s.username+' - '+ s.last_name +' '+ s.first_name + '", '
-        average = 'average: ' + str(cs.classement_year.classement.avr_classement) + ', '
+
+        avr_classement = 'avr_classement: ' + str(c.avr_classement) + ', '
+        cr_classement = 'cr_classement: ' + str(c.cr_classement) + ', '
+        dec_classement = 'dec_classement: ' + str(c.dec_classement) + ', '
         
+        cursus = 'cursus: "' + str(cc.cursus) + '", ' 
+        avr_cursus = 'avr_cursus: ' + str(cc.avr_cursus) + ', ' 
+        cr_cursus = 'cr_cursus: ' + str(cc.cr_cursus) + ', ' 
+        dec_cursus = 'dec_cursus: ' + str(cc.cr_cursus) + ', ' 
+
+
         # Annual
         year = 'year: ' + str(cy.year) + ', '
         average_a = 'average_a: ' + str(cy.average) + ', '
@@ -971,9 +1033,11 @@ def create_classement_data_grid(classements, years, semesters):
         avr_classement_s = 'avr_classement_s: ' + str(cs.avr_classement) + ', '
 
 
-        data_arr += '{'+ id + index + name + average + year \
-             + average_a + average_app_a + credit_a + credit_app_a + credit_cumul \
-             + decision + decision_app + avr_classement_a  \
+        data_arr += '{'+ id + index + name \
+             + avr_classement + cr_classement + dec_classement \
+             + cursus + avr_cursus + cr_cursus + dec_cursus \
+             + year + average_a + average_app_a + credit_a + credit_app_a \
+             + credit_cumul + decision + decision_app + avr_classement_a \
              + R + R_app + S + S_app \
              + semester + average_s + average_app_s + credit_s + credit_app_s \
              + b + b_app + d + d_app + s + s_app + avr_classement_s + '}, '
@@ -988,7 +1052,8 @@ def create_classement_data_grid(classements, years, semesters):
 
 @app.route('/init_and_fill_classement_laureats/promo/<promo_id>')
 def init_and_fill_classement_laureats_(promo_id):
-    msg1 = init_classement_laureats(promo_id)
+    promo = Promo.query.get_or_404(promo_id)
+    msg1 = init_classement_laureats(promo)
     msg2 = fill_classement_laureats_data(promo_id)
     return redirect(url_for('classement_laureats', promo_id=promo_id))
 
@@ -1002,40 +1067,32 @@ def calculate_avr_classement_(promo_id):
 @app.route('/classement-laureats/promo/<promo_id>', methods=['GET'])
 @register_breadcrumb(app, '.tree_promo.classement_laureats', 'Classement Laureats')
 def classement_laureats(promo_id=0, type_id=0, mode=''):
-    # now it init if it doesn't exist
-    # add later the option to delete and init
-    # msg1 = init_classement_laureats(promo_id)
-    # 
-    # 
-    # 
-    # msg2 = fill_classement_laureats_data(promo_id)
-    # msg3 = calculate_avr_classement(promo_id)
-
     promo = Promo.query.get_or_404(promo_id)
     years = promo.branch.years_from_config()
     # semesters = promo.branch.semesters_from_config()
     semesters = years * 2
 
     classements = ClassementSemester.query\
-        .join(ClassementYear)\
+        .join(ClassementYear).join(ClassementCursus)\
         .join(Classement).filter_by(promo_id=promo_id)\
         .join(Student)\
-        .order_by(Student.username, ClassementYear.year, ClassementSemester.semester)\
-        .all()
+        .order_by(
+            Student.username, 
+            ClassementCursus.cursus, 
+            ClassementYear.year, 
+            ClassementSemester.semester
+        ).all()
 
+    # mergeCells = []
     mergeCells = create_classement_merge_arr(classements, years, semesters)
     data_arr = create_classement_data_grid(classements, years, semesters)
-
-    # return str(data_arr)
-    # return str(len(data_arr))
-    # if len(data_arr) > 2:
-    #     return redirect(url_for('init_classement_laureats_', promo_id=promo_id))
     
     decisions_list = get_decisions_list()
 
     return render_template('classement-laureats/classement-laureats.html', 
         data_arr=data_arr, mergeCells=mergeCells, 
         years=years, decisions_list=decisions_list, mode=mode, promo_id=promo_id)
+    # return 'qqqqqqqqqqqq'
 
 
 @app.route('/classement-laureats/save/', methods = ['POST'])
@@ -1078,112 +1135,6 @@ def classement_laureats_save():
     # return str(data_arr)
     return 'data saved'
 
-
-# # fetch students in promo (only in the latest year)
-# def clean_table():
-#     aaaaaa_s = Aaaaaa.query.all()
-#     for a in aaaaaa_s:
-#         db.session.delete(a)
-#         db.session.commit()
-#     return 'clean_table'
-
-
-# @app.route('/fetch_students_by_promo/<promo_id>', methods=['GET'])
-# def fetch_students_by_promo(promo_id):
-#     clean_table()
-
-#     # get users from annual_grade
-#     annual_grades = AnnualGrade.query\
-#         .join(AnnualSession).filter_by(promo_id=promo_id).all()
-
-#     for ag in annual_grades:
-#         student_id = ag.student_id
-        
-#         ## if the student is in -> skip
-#         student_in_Aaaaaa = Aaaaaa.query.filter_by(student_id=student_id).first()
-#         if student_in_Aaaaaa != None:
-#             continue
-
-#         student = Student.query.filter_by(id=student_id).first()
-#         new_entry = Aaaaaa(
-#             student_id=student_id, 
-#             username=student.username,
-#             last_name=student.last_name,
-#             first_name=student.first_name,
-#         )
-
-#         db.session.add(new_entry)
-#         db.session.commit()
-
-#     return 'fetch_students_by_promo'
-
-
-# # collect data from annuals (formated)
-# #  one for 3 column
-# #  one for 5 column 
-
-
-# @app.route('/collect_students_averages_by_promo/<promo_id>', methods=['GET'])
-# def collect_students_averages_by_promo(promo_id):
-#     students = Aaaaaa.query.all()
-
-#     for student in students:
-#         # fetch annual_grades in promo
-#         annual_grades = AnnualGrade.query.filter_by(student_id=student.student_id)\
-#             .join(AnnualSession).filter_by(promo_id=promo_id).all()
-
-#         # enter annual_average according to annul
-#         for ag in annual_grades:
-#             annual = ag.annual_session.annual.annual
-#             if annual == 1:
-#                 student.a1 = ag.average_final
-#                 student.c1 = ag.credit_final
-#                 student.s1 = 1
-#                 if ag.enter_ratt == True:
-#                     student.s1 = 2
-#             if annual == 2:
-#                 student.a2 = ag.average_final
-#                 student.c2 = ag.credit_final
-#                 student.s2 = 1
-#                 if ag.enter_ratt == True:
-#                     student.s2 = 2
-#             if annual == 3:
-#                 student.a3 = ag.average_final
-#                 student.c3 = ag.credit_final
-#                 student.s3 = 1
-#                 if ag.enter_ratt == True:
-#                     student.s3 = 2
-#             if annual == 4:
-#                 student.a4 = ag.average_final
-#                 student.c4 = ag.credit_final
-#                 student.s4 = 1
-#                 if ag.enter_ratt == True:
-#                     student.s4 = 2
-#             if annual == 5:
-#                 student.a5 = ag.average_final
-#                 student.c5 = ag.credit_final
-#                 student.s5 = 1
-#                 if ag.enter_ratt == True:
-#                     student.s5 = 2
-
-#         # calculate Ratt & session
-#         # student.average = 
-
-#         db.session.commit()
-#     # 
-#     # 
-#     # fetch annual_grades  Not in promo
-#     # 
-#     # 
-
-#     return 'collect_students_averages_by_promo'
-
-
-
-
-
-
-# calculate final from annual
 
 
 
@@ -1779,7 +1730,7 @@ def collect_data_annual_session(annual_session, sort='', historic_exist=False):
         annual = ag.annual_session.annual.annual
         promo = ag.annual_session.promo
         cy = ClassementYear.query.filter_by(year = annual)\
-            .join(Classement).filter_by(student_id=ag.student_id,
+            .join(ClassementCursus).join(Classement).filter_by(student_id=ag.student_id,
                 promo_id=promo.id).first()
         if cy != None:
             if cy.decision != None and cy.decision != '':

@@ -1587,14 +1587,26 @@ class Classement(db.Model):
     promo_id = db.Column(db.Integer, db.ForeignKey('promo.id'))
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
     avr_classement = db.Column(db.Numeric(10,2))
-    classement_years = db.relationship('ClassementYear', backref='classement')
+    cr_classement = db.Column(db.Integer)
+    dec_classement = db.Column(db.String(150))
+    classement_cursus = db.relationship('ClassementCursus', backref='classement')
     student = db.relationship("Student", back_populates="classement")
     promo = db.relationship("Promo", back_populates="classement")
+
+class ClassementCursus(db.Model):
+    __tablename__ = 'classement_cursus'
+    id = db.Column(db.Integer, primary_key=True)
+    classement_id = db.Column(db.Integer, db.ForeignKey('classement.id'))
+    cursus = db.Column(db.String(50))
+    avr_cursus = db.Column(db.Numeric(10,2))
+    cr_cursus = db.Column(db.Integer)
+    dec_cursus = db.Column(db.String(150))
+    classement_years = db.relationship('ClassementYear', backref='classement_cursus')
 
 class ClassementYear(db.Model):
     __tablename__ = 'classement_year'
     id = db.Column(db.Integer, primary_key=True)
-    classement_id = db.Column(db.Integer, db.ForeignKey('classement.id'))
+    classement_cursus_id = db.Column(db.Integer, db.ForeignKey('classement_cursus.id'))
     year = db.Column(db.Integer)
     average = db.Column(db.Numeric(10,2))
     average_app = db.Column(db.Numeric(10,2))

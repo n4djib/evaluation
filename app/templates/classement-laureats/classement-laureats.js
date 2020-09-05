@@ -15,11 +15,10 @@ var hiddenColumns = null;
 
 
 
-// hiddenColumns = [0, 5, 7,     9,    10, 12, 14, 18, 20, 22, 24, 26];
 
 // hide app fetched
 // if(mode == 'unfetched') {
-  hiddenColumns = [0, 6, 8,   9/*cumul*/,    11, 13, 15, /*16*/, 19, 21, 23, 25, 27, /*28*/];
+  hiddenColumns = [0, 3, 4, 5,  12, 14,  15/*cumul*/, 17, 19, 21, /*22*/, 25, 27, 29, 31, 33, /*34*/];
 // }
 
 
@@ -42,9 +41,9 @@ if(mode == 'all') {
 // }
 
 // hide app fetched
-if(mode == 'unfetched') {
-  hiddenColumns = [0, 6, 8, 9,    11, 13, 15, /*16*/16, 19, 21, 23, 25, 27, /*28*/28];
-}
+// if(mode == 'unfetched') {
+//   hiddenColumns = [0, 6, 8, 9,    11, 13, 15, 16/*16*/, 19, 21, 23, 25, 27, /*28*/28];
+// }
 
 
 
@@ -56,8 +55,16 @@ if(mode == 'unfetched') {
 var columns = [
   { data: 'id', type: 'text', width: 1, readOnly: true },
   { data: 'index', type: 'text', width: 20/*shrink rather than width*/, readOnly: true },
-  { data: 'name', type: 'text',    width: 100,           readOnly: true },
-  { data: 'average', type: 'numeric', readOnly: true },
+  { data: 'name', type: 'text',    width: 90,           readOnly: true },
+
+  { data: 'avr_classement', type: 'numeric', readOnly: true },
+  { data: 'cr_classement', type: 'numeric', readOnly: true },
+  { data: 'dec_classement', type: 'numeric', readOnly: true },
+
+  { data: 'cursus', type: 'text', readOnly: true, renderer: centerRenderer },
+  { data: 'avr_cursus', type: 'numeric', readOnly: true },
+  { data: 'cr_cursus', type: 'numeric', readOnly: true },
+  { data: 'dec_cursus', type: 'numeric', readOnly: true },
 
   { data: 'year', type: 'text', width: 55, readOnly: true, renderer: centerRenderer },
   { data: 'average_a', type: 'numeric', renderer: fillEmptyDecimalRenderer },
@@ -69,8 +76,8 @@ var columns = [
     data: 'decision', 
     type: 'dropdown',
     source: decisions_list,
-    width: 120
-    , renderer: fillEmptyDecisionRenderer
+    width: 120,
+    renderer: fillEmptyDecisionRenderer
   },
   { data: 'decision_app', type: 'text', readOnly: true },
 
@@ -96,23 +103,23 @@ var columns = [
 ];
 
 
-customBorders = [
-  {
-    range: {
-      from: { row: 0, col: 1 },
-      to: { row: 5, col: 28 }
-    },
-    top: { width: 2, color: '#5292F7' },
-    left: { width: 2, color: 'orange' },
-    bottom: { width: 2, color: 'red' },
-    right: { width: 2, color: 'magenta' }
-  },
-  {
-    row: 2, col: 2,
-    left: { width: 2, color: 'red' },
-    right: { width: 1, color: 'green' }
-  }
-];
+// customBorders = [
+//   {
+//     range: {
+//       from: { row: 0, col: 1 },
+//       to: { row: 5, col: 28 }
+//     },
+//     top: { width: 2, color: '#5292F7' },
+//     left: { width: 2, color: 'orange' },
+//     bottom: { width: 2, color: 'red' },
+//     right: { width: 2, color: 'magenta' }
+//   },
+//   {
+//     row: 2, col: 2,
+//     left: { width: 2, color: 'red' },
+//     right: { width: 1, color: 'green' }
+//   }
+// ];
 
 
 
@@ -125,9 +132,13 @@ hot = new Handsontable(container, {
   sortIndicator: true,
   manualColumnResize: true,
   //saisir
-  colHeaders: ['--ID--', '#', 'Name', '[[Moy Clas.]]', '(Annee)', 
-    'Moy a', '(Moy a)', 'Cr a', '(Cr a)', '((Cr Cumul))', 'dec', '(dec)', 
-    'R', '(R)', 'S', '(S)',  '[[Moy Clas. a]]',
+  colHeaders: ['--ID--', '#', 'Name', 
+    'avr_c', 'cr_c', 'dec_c', 
+    '(Cursus)', 'avr_cursus', 'cr_cursus', 'dec_cursus', 
+
+    '(Annee)', 'Moy a', '(Moy a)', 'Cr a', '(Cr a)', 
+    '((Cr Cumul))', 'dec', '(dec)', 'R', '(R)', 'S', '(S)',  '[[Moy Clas. a]]',
+
     '(Semester)', 'Moy s', '(Moy s)', 'Cr s', '(Cr s)', 
     'b', '(b)', 'd', '(d)', 's', '(s)', '[[Moy Clas. s]]'
   ],
@@ -138,16 +149,10 @@ hot = new Handsontable(container, {
   columns: columns,
   hiddenColumns: {
     columns: hiddenColumns,
-    /* hide app fields */
-    // columns: [0, 6, 8, 11, 13, 15, 16, 19, 21, 23, 25, 27, /*28*/],
-    /* show progression */
-    // columns: [0, 3, 6, 8, 11, 12, 13, 14, 15, 16, 19, 21,22,23,24,25,26,27,28],
     indicators: false
   },
 
   // customBorders: customBorders,
-
-
 });
 
 
@@ -173,7 +178,6 @@ function Save() {
       alert("some error");
     }
   });
-
 }
 
 
@@ -191,7 +195,10 @@ function getDataCell(instance, td, row, col,  format='', align='right') {
     }
   }
   else {
-    td.style.backgroundColor = 'yellow';
+    // td.style.backgroundColor = 'yellow';
+    // td.style.backgroundColor = '#add8e6';
+    // td.style.backgroundColor = '#e8f4f8';
+    td.style.backgroundColor = '#d4ebf2';
     if (format === 'Number')
       td.innerHTML = Number(parseFloat(td.innerHTML)).toFixed(2);
 
@@ -200,7 +207,6 @@ function getDataCell(instance, td, row, col,  format='', align='right') {
   td.style.textAlign = align;
   return td
 }
-
 
 function fillEmptyDecimalRenderer(instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);
