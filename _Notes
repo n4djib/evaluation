@@ -31,6 +31,13 @@
 		Only Admit & Admit avec dette
 	- add check box to classment to choose whos to print
 		or a list to choose
+
+- how to flag dirty
+    dirty after entering a new grade
+    and and flag above after calculating (to the session + annual + ...)
+        calculation should be by student
+    add force calculation
+
 - PRINTABLE: the state of entries
 	each semester with percentage
 	and show modules with percentage
