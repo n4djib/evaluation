@@ -125,9 +125,9 @@ def save_attendance():
 #######################
 #######################
 
-@app.route('/select-list/session/<session_id>')
-@app.route('/select-list/session/<session_id>/module/<module_id>')
-@app.route('/select-list/session/<session_id>/module/<module_id>/event/<event_id>')
+# @app.route('/select-list/session/<session_id>')
+# @app.route('/select-list/session/<session_id>/module/<module_id>')
+# @app.route('/select-list/session/<session_id>/module/<module_id>/event/<event_id>')
 def select_list_calendar(school_id=0, branch_id=0, promo_id=0, session_id=0, module_id=0, event_id=0):
     school = branch = promo = session = module = None
     event = None
@@ -153,7 +153,8 @@ def select_list_calendar(school_id=0, branch_id=0, promo_id=0, session_id=0, mod
         module = Module.query.get_or_404(module_id)
 
     return render_template('attendance/select-list-module-calendar.html',
-        school=school, branch=branch, promo=promo, session=session, module=module, event=event)
+        school=school, branch=branch, promo=promo, session=session, 
+        module=module, event=event)
 
 
 

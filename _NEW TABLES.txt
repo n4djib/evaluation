@@ -15,38 +15,72 @@
 
 = added a new table classment_cursus
 
-            CREATE TABLE classement (
-                id INTEGER PRIMARY KEY NOT NULL,
-                promo_id INTEGER,
-                student_id INTEGER,
-                avr_classement NUMERIC (10, 2), 
-                cr_classement INTEGER,
-                dec_classement VARCHAR (150),
-                FOREIGN KEY (student_id)
-                REFERENCES student (id) ON DELETE CASCADE ON UPDATE CASCADE,
-                FOREIGN KEY (promo_id)
-                REFERENCES promo (id) ON DELETE CASCADE ON UPDATE CASCADE
-            );
+    CREATE TABLE classement (
+        id INTEGER PRIMARY KEY NOT NULL,
+        promo_id INTEGER,
+        student_id INTEGER,
+        avr_classement NUMERIC (10, 2), 
+        cr_classement INTEGER,
+        dec_classement VARCHAR (150),
+        FOREIGN KEY (student_id)
+        REFERENCES student (id) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY (promo_id)
+        REFERENCES promo (id) ON DELETE CASCADE ON UPDATE CASCADE
+    );
 
-            CREATE TABLE classement_cursus (
-                id INTEGER PRIMARY KEY NOT NULL,
-                classement_id   INTEGER, 
-                cursus VARCHAR (50),
-                avr_cursus NUMERIC (10, 2), 
-                cr_cursus INTEGER,
-                dec_cursus VARCHAR (150),
-                FOREIGN KEY (classement_id)
-                REFERENCES classement (id) ON DELETE CASCADE ON UPDATE CASCADE
-            );
+    CREATE TABLE classement_cursus (
+        id INTEGER PRIMARY KEY NOT NULL,
+        classement_id INTEGER, 
+        cursus VARCHAR (50),
+        avr_cursus NUMERIC (10, 2), 
+        cr_cursus INTEGER,
+        dec_cursus VARCHAR (150),
+        FOREIGN KEY (classement_id)
+        REFERENCES classement (id) ON DELETE CASCADE ON UPDATE CASCADE
+    );
+
+    CREATE TABLE classement_year (
+        id INTEGER PRIMARY KEY NOT NULL,
+        classement_cursus_id INTEGER,
+        year INTEGER,
+        average NUMERIC (10, 2), average_app NUMERIC (10, 2),
+        credit INTEGER, credit_app INTEGER,
+        credit_cumul INTEGER,
+        decision VARCHAR (150), decision_app VARCHAR (150),
+        R NUMERIC (10, 2), R_app NUMERIC (10, 2),
+        S NUMERIC (10, 2), S_app NUMERIC (10, 2),
+        avr_classement NUMERIC (10, 2),
+        FOREIGN KEY (classement_cursus_id)
+        REFERENCES classement_cursus (id) ON DELETE CASCADE ON UPDATE CASCADE
+    );
+
+    CREATE TABLE classement_semester (
+        id INTEGER PRIMARY KEY NOT NULL,
+        classement_year_id INTEGER,
+        semester INTEGER,
+        average NUMERIC (10, 2), average_app NUMERIC (10, 2),
+        credit INTEGER, credit_app INTEGER,
+        b NUMERIC (10, 2), b_app NUMERIC (10, 2),
+        d NUMERIC (10, 2), d_app NUMERIC (10, 2),
+        s NUMERIC (10, 2), s_app NUMERIC (10, 2),
+        avr_classement NUMERIC (10, 2),
+        FOREIGN KEY (classement_year_id)
+        REFERENCES classement_year (id) ON DELETE CASCADE ON UPDATE CASCADE
+    );
 
 
-= and modified the forign keys of "classement_year" to "cursus"
+
+= change "attendance" frign key to "module_calendar" 
+    On delete On update  cascade
+= same for "teacher_attendance" 
 
 = 
 
 = 
 
-= 
+
+
+
 
 
 

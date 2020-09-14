@@ -20,6 +20,13 @@
 == PRIORITY 1 ==
 ----------------
 			- in  Tree  check errors and config by Ajax
+            - make names into CamelCase
+            - ERROR:
+                in calendar if i open an event then close it
+                    and try to create a new one
+                    i loose the $calendarRef
+                        get_select_list_html(event)
+                        $('#sweet_alert').html(return_select_list);
 == Progrission et Classement ==
 	- Average and credit in Classement is shown in Bultin and Annual like Decision
 	- in Promo decide wich Classement and Progression formula
@@ -32,10 +39,11 @@
 	- add check box to classment to choose whos to print
 		or a list to choose
 
-- how to flag dirty
+- how to flag dirty for recalculating
     dirty after entering a new grade
     and and flag above after calculating (to the session + annual + ...)
         calculation should be by student
+        at all levels
     add force calculation
 
 - PRINTABLE: the state of entries
@@ -49,7 +57,7 @@
 	## How to protect Flask-RESTful with Flask-USER management?
 	# https://stackoverflow.com/questions/45419802/how-to-protect-flask-restful-with-flask-user-management
 
-- Annual of historic is not calculating correct
+-ERROR: Annual of historic is not calculating correct
 	ex: SF class 2016/2021 - Annual 1 
 	maybe enter the result by hand (credit)
 		maybe do not fetch historic to progression
@@ -65,10 +73,6 @@
 	or better time of calculation
 - notify the need to calculate Annual
 	in annual  &  in progression
-- ERROR:
-	in calendar if i open an event then close it
-		and try to create a new one
-		you loose the $calendarRef
 - Show (slow_redirect) when changing "Saving Enabled"
 - when saving the grid return new DATA_ARRAY
 	and compaire is to current and show diffs
@@ -268,6 +272,7 @@
 	- make Choice(Select) Empty in insert many Students
 		and don't allow submition
 	- add group to student session
+        and teacher by group
 	order by group
 	teacher by group
 	- use tabs to organize students
@@ -490,8 +495,8 @@
 - Calendar
 	https://fullcalendar.io/docs#toc
 	https://www.webslesson.info/2017/12/jquery-fullcalandar-integration-with-php-and-mysql.html
+- open calendar from inside the module grid
 	
-			- make names into CamelCase
 - table (grid) group by
 - maybe remove table Type
 	???????????????

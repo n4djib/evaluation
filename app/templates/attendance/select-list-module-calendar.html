@@ -1,19 +1,7 @@
-{% extends "base.html" %}
-{% import 'bootstrap/wtf.html' as wtf %}
-
-
-
-{% block navbar %}
-{% endblock %}
-
-
-{% block styles %}
-  {{super()}}
 
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/lib/bootstrap-datepicker.css') }}" />
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/jquery.timepicker.css') }}" />
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='timepicker/lib/site.css') }}" />
-
 
 	<script type="text/javascript" src="{{ url_for('static', filename='timepicker/jquery.timepicker.js') }}"></script>
 	<script type="text/javascript" src="{{ url_for('static', filename='timepicker/lib/bootstrap-datepicker.js') }}"></script>
@@ -24,12 +12,6 @@
 		}
 	</style>
 
-{% endblock %}
-
-
-
-{% block content %}
-  {% block app_content %}
 
 
 	<select name="school" id="school" disabled>
@@ -56,7 +38,7 @@
 		{% endif %}
     </select>
 
-	<select name="module" id="module" disabled>
+	<select name="module" id="module" class="form-control" disabled>
     </select>
 
 
@@ -79,36 +61,12 @@
     	><img width="21" height="21" src="/static/img/calendar2.png"> Attendace</a>
 
     <button id="delete" class="btn btn-danger btn-xs">Delete</button>
-<!--     <button    class="btn btn-danger" data-toggle="modal" 
-        data-href=""  data-target="#confirm-delete">Delete 2
-    </button>
-    <div class="modal fade" id="confirm-delete" tabindex="-1"
-        role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-body">do you really want to delete this Event?</div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-            <a class="btn btn-danger btn-ok">Delete</a>
-          </div>
-        </div>
-      </div>
-    </div> -->
-
     <button id="cancel" class="btn btn-default"> Cancel </button>
 
 
-  {% endblock %}
-{% endblock %}
 
 
 
-
-
-
-
-{% block scripts %}
-  {{ super() }}
 
   <script type="text/javascript" 
   	src="{{ url_for('static', filename='timepicker/datepair.js') }}"></script>
@@ -116,12 +74,6 @@
 
 
   <script type="text/javascript">
-
-    /*$('#confirm-delete').on('show.bs.modal', function(e) {
-      $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
-      // console.log('zzzzzzzzzzzzz')
-    });/**/
-
 
     // module
     $('#module').on('change', function(){
@@ -281,17 +233,6 @@
 		  {% endif %}
 		call_ajax(url, ['module'])
 
-		//set module choice
-		  // { % if module != None %}
-		  // console.log('aaaaaaaa module != None aaaaaaaaa');
-		  // // option = $('#module option[value={ { module.id }}]');
-		  // // option.attr('selected', "true");
-		  // $('#module option')
-		  //   .removeAttr('selected')
-		  // 	.filter('[value={ { module.id }}]')
-		  // 	.attr('selected', true)
-		  // console.log('bbbbbbbbbb ');
-		  // { % endif %}
 		{% endif %}
 
 		{% if session == None and promo != None %}
@@ -328,5 +269,3 @@
 	});
 
   </script>
-
-{% endblock %}
