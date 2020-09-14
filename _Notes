@@ -38,6 +38,12 @@
 		Only Admit & Admit avec dette
 	- add check box to classment to choose whos to print
 		or a list to choose
+- in progression 
+    add some input error detection in RED
+-ERROR: Annual of historic is not calculating correct
+    ex: SF class 2016/2021 - Annual 1 
+    maybe enter the result by hand (credit)
+        maybe do not fetch historic to progression
 
 - how to flag dirty for recalculating
     dirty after entering a new grade
@@ -57,12 +63,6 @@
 	## How to protect Flask-RESTful with Flask-USER management?
 	# https://stackoverflow.com/questions/45419802/how-to-protect-flask-restful-with-flask-user-management
 
--ERROR: Annual of historic is not calculating correct
-	ex: SF class 2016/2021 - Annual 1 
-	maybe enter the result by hand (credit)
-		maybe do not fetch historic to progression
-- in progression 
-	add some input error detection in RED
 - make annual button in session shake wen we have two sessions
 	maybe when we finish the entries we create it
 - in grid add filters by grade and average and ...
